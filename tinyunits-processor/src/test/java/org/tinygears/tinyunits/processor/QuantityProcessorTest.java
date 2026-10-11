@@ -1,6 +1,7 @@
 package org.tinygears.tinyunits.processor;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -9,20 +10,23 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class QuantityProcessorTest {
 
-    private static List<Diagnostic<? extends JavaFileObject>> run(String name, String source) {
+    @TempDir Path out;
+
+    private List<Diagnostic<? extends JavaFileObject>> run(String name, String source) {
         JavaFileObject file = new SimpleJavaFileObject(URI.create("string:///" + name + ".java"), JavaFileObject.Kind.SOURCE) {
             @Override public CharSequence getCharContent(boolean ignore) { return source; }
         };
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         JavaCompiler.CompilationTask task = compiler.getTask(null, null, diagnostics,
-                List.of("-proc:only", "-classpath", System.getProperty("java.class.path")), null, List.of(file));
+                List.of("-proc:only", "-s", out.toString(), "-classpath", System.getProperty("java.class.path")), null, List.of(file));
         task.setProcessors(List.of(new QuantityProcessor()));
         task.call();
         return diagnostics.getDiagnostics().stream().filter(d -> d.getKind() == Diagnostic.Kind.ERROR).toList();
