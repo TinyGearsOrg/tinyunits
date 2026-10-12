@@ -240,7 +240,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    to end.
 3. SI catalog: generator for `si.units`, prefixes, the service provider, basic unit and quantity
    formats (symbols, prefixes, formulas); the TCK runs for real. Done: 33 types, 128 SI catalog
-   entries, TCK 113 of 113 tests, 551 tests in `mvn -q -B clean verify`. Follow-ups:
+   entries, TCK 113 of 113 tests, 554 tests in `mvn -q -B clean verify`. Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m3-follow-ups.md`.
 4. `BigDecimal`: decimal base class and the precision rule.
 5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`.

@@ -1,7 +1,7 @@
 # Milestone 3 follow-ups
 
 Findings from the per-task reviews of milestone 3 that were triaged as follow-up work, not merge blockers. Milestone 3
-state: 33 quantity types, 111 SI catalog entries, TCK 113 of 113 tests passing, 551 tests in `mvn -q -B clean verify`
+state: 33 quantity types, 128 SI catalog entries, TCK 113 of 113 tests passing, 554 tests in `mvn -q -B clean verify`
 (core 242, codegen 95, quantities 15, systems 86, tck 113). "M4" and later refer to the milestones in `docs/DESIGN.md`
 section 7.
 
