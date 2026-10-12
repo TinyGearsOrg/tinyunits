@@ -62,6 +62,14 @@ class GeneratedSourcesUpToDateTest {
     }
 
     @Test
+    void repositoryPinsLineEndings() throws IOException {
+        Path attributes = Path.of("../.gitattributes");
+        assertTrue(Files.isRegularFile(attributes), "missing " + attributes);
+        assertTrue(Files.readAllLines(attributes).stream().anyMatch(l -> l.contains("eol=lf")),
+                ".gitattributes must pin eol=lf");
+    }
+
+    @Test
     void generatorIsDeterministic() {
         assertEquals(Generate.generate(DATA), Generate.generate(DATA));
     }
