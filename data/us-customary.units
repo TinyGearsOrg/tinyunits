@@ -1,0 +1,66 @@
+# US customary units, from NIST SP 811 (2008), appendix B, and NIST Handbook 44 (2024), appendix C.
+# International inch, foot and pound per the 1959 agreement; US survey foot 1200/3937 m (NIST HB 44);
+# nautical mile and knot per ISO 80000-3; BTU (IT) and BTU (th) per NIST SP 811 B.8; Fahrenheit and
+# Rankine per ISO 80000-5 and NIST SP 811 B.9. All definitions are exact.
+# Format: symbol:name formula [Type]; '#' starts a comment.
+
+@system USCustomary
+@include si.units
+
+# Length
+in:inch 0.0254 m
+ft:foot 12 in
+yd:yard 3 ft
+mi:mile 5280 ft
+nmi:nautical_mile 1852 m
+fathom:fathom 6 ft
+ft_US:foot_US 1200|3937 m
+mi_US:mile_US 5280 ft_US
+
+# Area
+in²:square_inch in^2
+ft²:square_foot ft^2
+ac:acre 43560 ft^2
+ac_US:acre_US 43560 ft_US^2
+
+# Volume
+in³:cubic_inch in^3
+ft³:cubic_foot ft^3
+gal_US:gallon_US 231 in^3
+qt_US:quart_US 1|4 gal_US
+pt_US:pint_US 1|8 gal_US
+cup_US:cup_US 1|16 gal_US
+floz_US:fluid_ounce_US 1|128 gal_US
+tbsp_US:tablespoon_US 1|2 floz_US
+tsp_US:teaspoon_US 1|3 tbsp_US
+
+# Mass (avoirdupois)
+lb:pound 0.45359237 kg
+oz:ounce 1|16 lb
+gr:grain 1|7000 lb
+ton_US:ton_US 2000 lb
+
+# Mechanics; lbf uses standard gravity 9.80665 m/s^2
+lbf:pound_force lb 9.80665 m / s^2 [Force]
+psi:pound_force_per_square_inch lbf / in^2 [Pressure]
+BTU_IT:British_thermal_unit_IT 1055.05585262 J [Energy]
+BTU_th:British_thermal_unit_th 453.59237 5|9 4.184 J [Energy]
+hp:horsepower 550 ft lbf / s [Power]
+hp_M:metric_horsepower 735.49875 W [Power]
+mph:mile_per_hour mi / h [Speed]
+kn:knot nmi / h [Speed]
+
+# Temperature
+°F:degree_Fahrenheit K = (x + 459.67) * 5|9 [Temperature]
+°R:degree_Rankine 5|9 K [Temperature]
+
+@preferred Length ft
+@preferred Area ft²
+@preferred Volume gal_US
+@preferred Mass lb
+@preferred Force lbf
+@preferred Pressure psi
+@preferred Energy BTU_IT
+@preferred Power hp
+@preferred Speed mph
+@preferred Temperature °F

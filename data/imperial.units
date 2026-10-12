@@ -1,0 +1,17 @@
+# Imperial units, from the UK Weights and Measures Act 1985, schedule 1, and NIST SP 811 (2008), appendix B.
+# Gallon 4.54609 L; stone and long ton in avoirdupois pounds. All other units come from us-customary.units.
+# Format: symbol:name formula [Type]; '#' starts a comment.
+
+@system Imperial
+@extends us-customary.units
+@include si.units
+
+st:stone 14 lb
+ton_UK:ton_UK 2240 lb
+gal_UK:gallon_UK 4.54609 L
+qt_UK:quart_UK 1|4 gal_UK
+pt_UK:pint_UK 1|8 gal_UK
+gi_UK:gill_UK 1|32 gal_UK
+floz_UK:fluid_ounce_UK 1|160 gal_UK
+
+@preferred Volume gal_UK
