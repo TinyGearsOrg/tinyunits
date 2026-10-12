@@ -16,6 +16,7 @@
     <module>uom-quantities</module>
     <module>uom-systems</module>
     <module>uom-tck</module>
+    <module>uom-examples</module>
   </modules>
 
   <properties>

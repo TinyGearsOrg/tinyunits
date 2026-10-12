@@ -11,10 +11,20 @@ Status: milestone 3 done (units core, typed `double` quantities for all 33 quant
 - `uom-systems`: the generated SI catalog, `UomSystemOfUnits`, unit and quantity formats, the `ServiceProvider`.
 - `uom-codegen`: the generator (internal, not published).
 - `uom-tck`: runs the JSR-385 TCK against `uom-systems` (test only, not published).
+- `uom-examples`: runnable usage examples (not published); see below.
 
 Build and test everything: `mvn -q -B clean verify`.
 
 See [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) and [docs/DESIGN.md](docs/DESIGN.md).
+
+## Examples
+
+[`Examples.java`](uom-examples/src/main/java/org/tinygears/uom/examples/Examples.java) shows typed quantities and conversion, dividing quantities and `asType`, offset units, `equals` versus `isEquivalentTo`, unit and quantity parsing and formatting, and use through the JSR-385 `ServiceProvider`. `ExamplesTest` checks the printed output. Run it after a build with:
+
+```
+mvn -q -B -pl uom-examples -am install -DskipTests
+mvn -q -B -pl uom-examples exec:java -Dexec.mainClass=org.tinygears.uom.examples.Examples
+```
 
 ## Generated sources
 
