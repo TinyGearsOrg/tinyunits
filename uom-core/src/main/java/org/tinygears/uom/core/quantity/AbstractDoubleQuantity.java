@@ -7,6 +7,7 @@ import java.util.function.DoubleBinaryOperator;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
+import javax.measure.spi.ServiceProvider;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 
@@ -120,6 +121,51 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     @Override
     public R divide(Number divisor) {
         return scalar(divisor.doubleValue(), (a, n) -> a / n);
+    }
+
+    /**
+     * Multiplies the system-unit values; the result is an {@link Untyped} quantity in the product of the system
+     * units, scale {@code ABSOLUTE}. Throws {@link UnconvertibleException} for a foreign unit.
+     */
+    @Override
+    public Quantity<?> multiply(Quantity<?> multiplicand) {
+        UomUnit<?> u = uomUnit(multiplicand.getUnit());
+        return untyped(toSystem(value, unit) * toSystem(multiplicand, u),
+                unit.getSystemUnit().multiply(u.getSystemUnit()));
+    }
+
+    /** Divides by the same rule as {@link #multiply(Quantity)}; division by zero follows IEEE 754. */
+    @Override
+    public Quantity<?> divide(Quantity<?> divisor) {
+        UomUnit<?> u = uomUnit(divisor.getUnit());
+        return untyped(toSystem(value, unit) / toSystem(divisor, u), unit.getSystemUnit().divide(u.getSystemUnit()));
+    }
+
+    /** Returns {@code 1 / systemValue} in the inverse system unit, as an {@link Untyped} quantity. */
+    @Override
+    public Quantity<?> inverse() {
+        return untyped(1 / toSystem(value, unit), unit.getSystemUnit().inverse());
+    }
+
+    /**
+     * Returns this quantity if it already is a {@code type}, otherwise one created by the provider's factory; a
+     * unit that does not measure {@code type} gives {@link ClassCastException}.
+     */
+    @Override
+    public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
+        if (type.isInstance(this)) {
+            return type.cast(this);
+        }
+        Unit<T> typed = unit.asType(type);
+        return ServiceProvider.current().getQuantityFactory(type).create(value, typed, scale);
+    }
+
+    private static Quantity<?> untyped(double value, UomUnit<?> unit) {
+        return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit), Quantity.Scale.ABSOLUTE);
+    }
+
+    private static double toSystem(Quantity<?> quantity, UomUnit<?> unit) {
+        return unit.toSystemConverter().convert(quantity.getValue().doubleValue());
     }
 
     private R scalar(double n, DoubleBinaryOperator op) {

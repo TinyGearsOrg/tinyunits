@@ -6,7 +6,7 @@ import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import org.tinygears.uom.core.UomUnit;
 
-/** Stand-in for a generated double implementation; quantity products and asType are stubbed for now. */
+/** Stand-in for a generated double implementation. */
 class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implements TestLength {
 
     TestLengthImpl(double value, UomUnit<Length> unit, Quantity.Scale scale) {
@@ -20,25 +20,5 @@ class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implemen
     @Override
     protected TestLength create(double value, UomUnit<Length> unit, Quantity.Scale scale) {
         return new TestLengthImpl(value, unit, scale);
-    }
-
-    @Override
-    public Quantity<?> divide(Quantity<?> divisor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Quantity<?> multiply(Quantity<?> multiplier) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Quantity<?> inverse() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
-        throw new UnsupportedOperationException();
     }
 }

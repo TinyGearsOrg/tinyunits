@@ -11,10 +11,14 @@ import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
 import javax.measure.spi.SystemOfUnitsService;
 
-/** Test-only provider whose quantity factories report the system units tests put in {@link #SYSTEM_UNITS}. */
+/**
+ * Test-only provider: returns the factory a test put in {@link #FACTORIES}, otherwise one that only reports the
+ * system unit put in {@link #SYSTEM_UNITS}.
+ */
 public class TestServiceProvider extends ServiceProvider {
 
-    static final Map<Class<?>, Unit<?>> SYSTEM_UNITS = new ConcurrentHashMap<>();
+    public static final Map<Class<?>, Unit<?>> SYSTEM_UNITS = new ConcurrentHashMap<>();
+    public static final Map<Class<?>, QuantityFactory<?>> FACTORIES = new ConcurrentHashMap<>();
 
     @Override
     public SystemOfUnitsService getSystemOfUnitsService() {
@@ -27,7 +31,12 @@ public class TestServiceProvider extends ServiceProvider {
     }
 
     @Override
+    @SuppressWarnings("unchecked") // tests register each factory under its quantity class
     public <Q extends Quantity<Q>> QuantityFactory<Q> getQuantityFactory(Class<Q> type) {
+        QuantityFactory<?> factory = FACTORIES.get(type);
+        if (factory != null) {
+            return (QuantityFactory<Q>) factory;
+        }
         Unit<?> unit = SYSTEM_UNITS.get(type);
         if (unit == null) {
             throw new IllegalArgumentException("no system unit for " + type.getName());
@@ -44,7 +53,6 @@ public class TestServiceProvider extends ServiceProvider {
             }
 
             @Override
-            @SuppressWarnings("unchecked") // the test registers the unit under its quantity class
             public Unit<Q> getSystemUnit() {
                 return (Unit<Q>) unit;
             }
