@@ -19,7 +19,7 @@ public final class LengthFactory
         implements QuantityFactory<javax.measure.quantity.Length> {
 
     public static final UomUnit<javax.measure.quantity.Length> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.METRE.named("m", "metre"));
+            UomUnit.unchecked(BaseUnits.METRE);
 
     public static final LengthFactory INSTANCE = new LengthFactory();
 

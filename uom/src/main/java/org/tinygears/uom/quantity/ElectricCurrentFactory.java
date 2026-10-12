@@ -19,7 +19,7 @@ public final class ElectricCurrentFactory
         implements QuantityFactory<javax.measure.quantity.ElectricCurrent> {
 
     public static final UomUnit<javax.measure.quantity.ElectricCurrent> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.AMPERE.named("A", "ampere"));
+            UomUnit.unchecked(BaseUnits.AMPERE);
 
     public static final ElectricCurrentFactory INSTANCE = new ElectricCurrentFactory();
 

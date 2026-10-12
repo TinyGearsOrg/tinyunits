@@ -22,16 +22,13 @@ public final class SI {
     }
 
     public static final UomUnit<Length> METRE =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .named("m", "metre"));
+            UomUnit.unchecked(LengthFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Time> SECOND =
-            UomUnit.unchecked(BaseUnits.SECOND
-                    .named("s", "second"));
+            UomUnit.unchecked(TimeFactory.SYSTEM_UNIT);
 
     public static final UomUnit<?> KELVIN =
-            UomUnit.unchecked(BaseUnits.KELVIN
-                    .named("K", "kelvin"));
+            UomUnit.unchecked(BaseUnits.KELVIN);
 
     public static final UomUnit<?> HERTZ =
             UomUnit.unchecked(BaseUnits.ONE

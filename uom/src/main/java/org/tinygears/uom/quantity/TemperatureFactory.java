@@ -19,7 +19,7 @@ public final class TemperatureFactory
         implements QuantityFactory<javax.measure.quantity.Temperature> {
 
     public static final UomUnit<javax.measure.quantity.Temperature> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.KELVIN.named("K", "kelvin"));
+            UomUnit.unchecked(BaseUnits.KELVIN);
 
     public static final TemperatureFactory INSTANCE = new TemperatureFactory();
 

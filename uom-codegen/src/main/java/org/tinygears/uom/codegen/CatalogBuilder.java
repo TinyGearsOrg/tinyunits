@@ -5,6 +5,7 @@ package org.tinygears.uom.codegen;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -27,10 +28,12 @@ public final class CatalogBuilder {
 
     /** One entry per definition, in file order. */
     public static List<CatalogEntry> build(Definitions definitions, List<QuantityTypeSpec> types) {
-        return build(definitions.definitions(), types);
+        return build(definitions.definitions(), types, new HashSet<>());
     }
 
-    private static List<CatalogEntry> build(List<Definition> definitions, List<QuantityTypeSpec> types) {
+    /** {@code claimed} holds the types whose system unit an earlier entry already matched. */
+    private static List<CatalogEntry> build(List<Definition> definitions, List<QuantityTypeSpec> types,
+            Set<String> claimed) {
         Map<String, QuantityTypeSpec> byName = byName(types);
         Map<String, Definition> byConstant = new HashMap<>();
         List<CatalogEntry> result = new ArrayList<>();
@@ -44,7 +47,8 @@ public final class CatalogBuilder {
                 throw error(d, "duplicate constant name '" + constant + "' ('" + previous.symbol() + "' and '"
                         + d.symbol() + "')");
             }
-            result.add(new CatalogEntry(d, constant, type(d, types, byName)));
+            String type = type(d, types, byName);
+            result.add(new CatalogEntry(d, constant, type, shared(d, type, byName, claimed)));
         }
         return List.copyOf(result);
     }
@@ -71,6 +75,26 @@ public final class CatalogBuilder {
     }
 
     /**
+     * The factory system unit a definition reuses: one equal to its type's system unit, with the same symbol and name.
+     * The first such definition of a type must agree; a later one that differs (an alias) keeps its own unit.
+     */
+    private static String shared(Definition d, String type, Map<String, QuantityTypeSpec> byName,
+            Set<String> claimed) {
+        QuantityTypeSpec spec = type == null ? null : byName.get(type);
+        if (spec == null || !d.unit().equals(spec.systemUnit())) {
+            return null;
+        }
+        boolean agrees = d.symbol().equals(spec.systemSymbol()) && d.name().equals(spec.systemName());
+        if (claimed.add(type) && !agrees) {
+            String expected = spec.systemSymbol() == null ? "an unnamed unit"
+                    : "'" + spec.systemSymbol() + "' (" + spec.systemName() + ")";
+            throw error(d, "unit '" + d.symbol() + "' (" + d.name() + ") is the system unit of " + type + ", which "
+                    + spec.source() + ":" + spec.line() + " defines as " + expected);
+        }
+        return agrees ? "org.tinygears.uom.quantity." + type + "Factory.SYSTEM_UNIT" : null;
+    }
+
+    /**
      * A catalog class: unit references are qualified by their class ({@code SI.CENTIMETRE}) or are factory system
      * units; {@code units} maps symbols to references in list order, {@code preferred} maps every type name to one.
      */
@@ -85,6 +109,7 @@ public final class CatalogBuilder {
     public static Map<String, Catalog> catalogs(Map<String, Definitions> parsed, List<QuantityTypeSpec> types) {
         Map<String, Catalog> done = new LinkedHashMap<>();
         Map<String, String> fileByClass = new HashMap<>();
+        Set<String> claimed = new HashSet<>();
         parsed.forEach((file, d) -> {
             if (d.system() == null) {
                 throw new GenerationException(file, 0, "no @system directive");
@@ -94,16 +119,16 @@ public final class CatalogBuilder {
                 throw new GenerationException(file, 0, "duplicate system '" + d.system() + "' (also in " + previous
                         + ")");
             }
-            done.put(file, catalog(file, d, types, done));
+            done.put(file, catalog(file, d, types, done, claimed));
         });
         return Collections.unmodifiableMap(done);
     }
 
     private static Catalog catalog(String file, Definitions d, List<QuantityTypeSpec> types,
-            Map<String, Catalog> done) {
+            Map<String, Catalog> done, Set<String> claimed) {
         String cls = d.system();
         List<CatalogEntry> entries = build(d.definitions().stream().filter(x -> x.source().equals(file)).toList(),
-                types);
+                types, claimed);
         Map<String, Definition> bySymbol = new HashMap<>();
         d.definitions().forEach(x -> bySymbol.putIfAbsent(x.symbol(), x));
         Map<String, String> units = new LinkedHashMap<>();

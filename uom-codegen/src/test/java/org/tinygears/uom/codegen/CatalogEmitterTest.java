@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.DefinitionParser;
@@ -121,7 +122,7 @@ class CatalogEmitterTest {
     @Test
     void clashingNamesKeepTheImportedClassQualified() throws Exception {
         List<CatalogEntry> entries = ENTRIES.stream().map(e -> e.constantName().equals("METRE")
-                ? new CatalogEntry(e.definition(), "Map", e.quantityType()) : e).toList();
+                ? new CatalogEntry(e.definition(), "Map", e.quantityType(), e.shared()) : e).toList();
         Map<String, String> units = new LinkedHashMap<>();
         entries.forEach(e -> units.put(e.definition().symbol(), "Set." + e.constantName()));
         CatalogBuilder.Catalog c = new CatalogBuilder.Catalog("si.units", "Set", entries, units, Set.of("m"),
@@ -155,6 +156,24 @@ class CatalogEmitterTest {
             sources.put(q + "Factory", SourceEmitter.factory(s, DEFS));
         }
         return sources;
+    }
+
+    @Test
+    void coherentUnitReferencesTheFactory() {
+        Definitions d = DefinitionParser.parse("si.units", new StringReader("""
+                m:metre !L
+                kg:kilogram !M
+                s:second !T
+                N:newton kg m / s^2
+                kN:kilonewton 1000 N
+                @system SI
+                """), null);
+        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt", new StringReader("Force N\n"), d);
+        String text = CatalogEmitter.catalog(CatalogBuilder.catalogs(Map.of("si.units", d), types).get("si.units"), d);
+        assertTrue(text.contains("NEWTON =\n            UomUnit.unchecked(ForceFactory.SYSTEM_UNIT);\n"), text);
+        assertTrue(text.contains("import org.tinygears.uom.quantity.ForceFactory;\n"), text);
+        assertFalse(text.contains(".named(\"N\""), text);
+        assertTrue(text.contains(".named(\"kN\", \"kilonewton\")"), text);
     }
 
     @Test
@@ -202,8 +221,12 @@ class CatalogEmitterTest {
             Map<?, ?> preferred = (Map<?, ?>) si.getField("PREFERRED").get(null);
             assertEquals(Set.of(javax.measure.quantity.Length.class, javax.measure.quantity.Time.class),
                     preferred.keySet());
-            assertSame(loader.loadClass("org.tinygears.uom.quantity.LengthFactory").getField("SYSTEM_UNIT")
-                    .get(null), preferred.get(javax.measure.quantity.Length.class));
+            Object metre = loader.loadClass("org.tinygears.uom.quantity.LengthFactory").getField("SYSTEM_UNIT")
+                    .get(null);
+            assertSame(metre, preferred.get(javax.measure.quantity.Length.class));
+            assertSame(metre, si.getField("METRE").get(null));
+            assertSame(BaseUnits.METRE, metre);
+            assertSame(BaseUnits.KELVIN, si.getField("KELVIN").get(null));
             assertEquals(Set.of("m"), si.getField("PREFIXABLE").get(null));
             Object system = si.getField("SYSTEM").get(null);
             assertEquals("SI", system.getClass().getField("name").get(system));

@@ -264,8 +264,7 @@ public final class SourceEmitter {
             throw new GenerationException(spec.source(), spec.line(), e.getMessage(), e);
         }
         if (spec.systemSymbol() != null) {
-            unit += ".named(" + UnitExpressionEmitter.literal(spec.systemSymbol()) + ", "
-                    + UnitExpressionEmitter.literal(spec.systemName()) + ")";
+            unit = UnitExpressionEmitter.named(unit, spec.systemSymbol(), spec.systemName(), imports);
         }
         return HEADER + imports.block() + body.replace("$U", unit);
     }

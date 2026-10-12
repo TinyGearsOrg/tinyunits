@@ -85,163 +85,88 @@ public final class SI {
     }
 
     public static final UomUnit<Length> METRE =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .named("m", "metre"));
+            UomUnit.unchecked(LengthFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Mass> KILOGRAM =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .named("kg", "kilogram"));
+            UomUnit.unchecked(MassFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Time> SECOND =
-            UomUnit.unchecked(BaseUnits.SECOND
-                    .named("s", "second"));
+            UomUnit.unchecked(TimeFactory.SYSTEM_UNIT);
 
     public static final UomUnit<ElectricCurrent> AMPERE =
-            UomUnit.unchecked(BaseUnits.AMPERE
-                    .named("A", "ampere"));
+            UomUnit.unchecked(ElectricCurrentFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Temperature> KELVIN =
-            UomUnit.unchecked(BaseUnits.KELVIN
-                    .named("K", "kelvin"));
+            UomUnit.unchecked(TemperatureFactory.SYSTEM_UNIT);
 
     public static final UomUnit<AmountOfSubstance> MOLE =
-            UomUnit.unchecked(BaseUnits.MOLE
-                    .named("mol", "mole"));
+            UomUnit.unchecked(AmountOfSubstanceFactory.SYSTEM_UNIT);
 
     public static final UomUnit<LuminousIntensity> CANDELA =
-            UomUnit.unchecked(BaseUnits.CANDELA
-                    .named("cd", "candela"));
+            UomUnit.unchecked(LuminousIntensityFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Angle> RADIAN =
-            UomUnit.unchecked(BaseUnits.ONE
-                    .alternate("rad")
-                    .named("rad", "radian"));
+            UomUnit.unchecked(AngleFactory.SYSTEM_UNIT);
 
     public static final UomUnit<SolidAngle> STERADIAN =
-            UomUnit.unchecked(BaseUnits.ONE
-                    .alternate("sr")
-                    .named("sr", "steradian"));
+            UomUnit.unchecked(SolidAngleFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Frequency> HERTZ =
-            UomUnit.unchecked(BaseUnits.ONE
-                    .divide(BaseUnits.SECOND)
-                    .alternate("Hz")
-                    .named("Hz", "hertz"));
+            UomUnit.unchecked(FrequencyFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Radioactivity> BECQUEREL =
-            UomUnit.unchecked(BaseUnits.ONE
-                    .divide(BaseUnits.SECOND)
-                    .alternate("Bq")
-                    .named("Bq", "becquerel"));
+            UomUnit.unchecked(RadioactivityFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Force> NEWTON =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .named("N", "newton"));
+            UomUnit.unchecked(ForceFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Pressure> PASCAL =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .divide(BaseUnits.METRE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .named("Pa", "pascal"));
+            UomUnit.unchecked(PressureFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Energy> JOULE =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .named("J", "joule"));
+            UomUnit.unchecked(EnergyFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Power> WATT =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.SECOND.pow(3))
-                    .named("W", "watt"));
+            UomUnit.unchecked(PowerFactory.SYSTEM_UNIT);
 
     public static final UomUnit<ElectricCharge> COULOMB =
-            UomUnit.unchecked(BaseUnits.AMPERE
-                    .multiply(BaseUnits.SECOND)
-                    .named("C", "coulomb"));
+            UomUnit.unchecked(ElectricChargeFactory.SYSTEM_UNIT);
 
     public static final UomUnit<ElectricPotential> VOLT =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(3))
-                    .named("V", "volt"));
+            UomUnit.unchecked(ElectricPotentialFactory.SYSTEM_UNIT);
 
     public static final UomUnit<ElectricCapacitance> FARAD =
-            UomUnit.unchecked(BaseUnits.AMPERE
-                    .pow(2)
-                    .multiply(BaseUnits.SECOND.pow(4))
-                    .divide(BaseUnits.KILOGRAM)
-                    .divide(BaseUnits.METRE.pow(2))
-                    .named("F", "farad"));
+            UomUnit.unchecked(ElectricCapacitanceFactory.SYSTEM_UNIT);
 
     public static final UomUnit<ElectricResistance> OHM =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE.pow(2))
-                    .divide(BaseUnits.SECOND.pow(3))
-                    .named("Ω", "ohm"));
+            UomUnit.unchecked(ElectricResistanceFactory.SYSTEM_UNIT);
 
     public static final UomUnit<ElectricConductance> SIEMENS =
-            UomUnit.unchecked(BaseUnits.AMPERE
-                    .pow(2)
-                    .multiply(BaseUnits.SECOND.pow(3))
-                    .divide(BaseUnits.KILOGRAM)
-                    .divide(BaseUnits.METRE.pow(2))
-                    .named("S", "siemens"));
+            UomUnit.unchecked(ElectricConductanceFactory.SYSTEM_UNIT);
 
     public static final UomUnit<MagneticFlux> WEBER =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .named("Wb", "weber"));
+            UomUnit.unchecked(MagneticFluxFactory.SYSTEM_UNIT);
 
     public static final UomUnit<MagneticFluxDensity> TESLA =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .named("T", "tesla"));
+            UomUnit.unchecked(MagneticFluxDensityFactory.SYSTEM_UNIT);
 
     public static final UomUnit<ElectricInductance> HENRY =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE.pow(2))
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .named("H", "henry"));
+            UomUnit.unchecked(ElectricInductanceFactory.SYSTEM_UNIT);
 
     public static final UomUnit<LuminousFlux> LUMEN =
-            UomUnit.unchecked(BaseUnits.CANDELA
-                    .multiply(BaseUnits.ONE.alternate("sr"))
-                    .named("lm", "lumen"));
+            UomUnit.unchecked(LuminousFluxFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Illuminance> LUX =
-            UomUnit.unchecked(BaseUnits.CANDELA
-                    .multiply(BaseUnits.ONE.alternate("sr"))
-                    .divide(BaseUnits.METRE.pow(2))
-                    .named("lx", "lux"));
+            UomUnit.unchecked(IlluminanceFactory.SYSTEM_UNIT);
 
     public static final UomUnit<CatalyticActivity> KATAL =
-            UomUnit.unchecked(BaseUnits.MOLE
-                    .divide(BaseUnits.SECOND)
-                    .named("kat", "katal"));
+            UomUnit.unchecked(CatalyticActivityFactory.SYSTEM_UNIT);
 
     public static final UomUnit<RadiationDoseAbsorbed> GRAY =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .pow(2)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .alternate("Gy")
-                    .named("Gy", "gray"));
+            UomUnit.unchecked(RadiationDoseAbsorbedFactory.SYSTEM_UNIT);
 
     public static final UomUnit<RadiationDoseEffective> SIEVERT =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .pow(2)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .alternate("Sv")
-                    .named("Sv", "sievert"));
+            UomUnit.unchecked(RadiationDoseEffectiveFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Temperature> DEGREE_CELSIUS =
             UomUnit.unchecked(BaseUnits.KELVIN
@@ -249,14 +174,10 @@ public final class SI {
                     .named("°C", "degree Celsius"));
 
     public static final UomUnit<Area> SQUARE_METRE =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .pow(2)
-                    .named("m²", "square metre"));
+            UomUnit.unchecked(AreaFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Volume> CUBIC_METRE =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .pow(3)
-                    .named("m³", "cubic metre"));
+            UomUnit.unchecked(VolumeFactory.SYSTEM_UNIT);
 
     public static final UomUnit<Mass> GRAM =
             UomUnit.unchecked(BaseUnits.KILOGRAM

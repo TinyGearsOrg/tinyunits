@@ -5,6 +5,7 @@ package org.tinygears.uom.codegen;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UnitAtom;
 import org.tinygears.uom.core.UomConverter;
@@ -17,6 +18,9 @@ public final class UnitExpressionEmitter {
     private static final String BASE_UNITS = "org.tinygears.uom.core.BaseUnits";
     private static final Map<String, String> BASE_ATOMS = Map.of("m", "METRE", "kg", "KILOGRAM", "s", "SECOND",
             "A", "AMPERE", "K", "KELVIN", "mol", "MOLE", "cd", "CANDELA");
+    private static final Map<String, UomUnit<?>> BASE_CONSTANTS = Map.of("METRE", BaseUnits.METRE,
+            "KILOGRAM", BaseUnits.KILOGRAM, "SECOND", BaseUnits.SECOND, "AMPERE", BaseUnits.AMPERE,
+            "KELVIN", BaseUnits.KELVIN, "MOLE", BaseUnits.MOLE, "CANDELA", BaseUnits.CANDELA, "ONE", BaseUnits.ONE);
     private static final int MAX_DEPTH = 32;
 
     private UnitExpressionEmitter() {
@@ -34,6 +38,17 @@ public final class UnitExpressionEmitter {
         return c.equals(Converters.IDENTITY) ? system : system + ".transform("
                 + imports.name("org.tinygears.uom.core.Converters") + ".affine("
                 + FactorEmitter.emit(c.factor(), imports) + ", " + FactorEmitter.emit(c.offset(), imports) + "))";
+    }
+
+    /** {@code expression} renamed, unless it is a {@code BaseUnits} constant that already has this symbol and name. */
+    static String named(String expression, String symbol, String name, Imports imports) {
+        String prefix = imports.name(BASE_UNITS) + ".";
+        UomUnit<?> base = expression.startsWith(prefix) ? BASE_CONSTANTS.get(expression.substring(prefix.length()))
+                : null;
+        if (base != null && symbol.equals(base.getSymbol()) && name.equals(base.getName())) {
+            return expression;
+        }
+        return expression + ".named(" + literal(symbol) + ", " + literal(name) + ")";
     }
 
     private static String emit(UomUnit<?> unit, Definitions definitions, Imports imports, int depth) {

@@ -19,7 +19,7 @@ public final class MassFactory
         implements QuantityFactory<javax.measure.quantity.Mass> {
 
     public static final UomUnit<javax.measure.quantity.Mass> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.KILOGRAM.named("kg", "kilogram"));
+            UomUnit.unchecked(BaseUnits.KILOGRAM);
 
     public static final MassFactory INSTANCE = new MassFactory();
 

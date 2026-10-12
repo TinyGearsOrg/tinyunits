@@ -36,13 +36,16 @@ public final class CatalogEmitter {
             Definition d = e.definition();
             String type = e.quantityType() == null ? "?" : imports.name("javax.measure.quantity." + e.quantityType());
             String unit;
-            try {
-                unit = UnitExpressionEmitter.emitUnit(d.unit(), definitions, imports);
-            } catch (GenerationException x) {
-                throw new GenerationException(d.source(), d.line(), x.getMessage(), x);
+            if (e.shared() != null) {
+                unit = local(e.shared(), className, imports);
+            } else {
+                try {
+                    unit = UnitExpressionEmitter.emitUnit(d.unit(), definitions, imports);
+                } catch (GenerationException x) {
+                    throw new GenerationException(d.source(), d.line(), x.getMessage(), x);
+                }
+                unit = UnitExpressionEmitter.named(unit, d.symbol(), d.name(), imports);
             }
-            unit += ".named(" + UnitExpressionEmitter.literal(d.symbol()) + ", "
-                    + UnitExpressionEmitter.literal(d.name()) + ")";
             out.append("\n    public static final ").append(unitClass).append('<').append(type).append("> ")
                     .append(e.constantName()).append(" =\n            ").append(unitClass).append(".unchecked(")
                     .append(wrap(unit)).append(");\n");

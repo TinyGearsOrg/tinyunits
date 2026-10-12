@@ -268,6 +268,12 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   `SI.CENTIMETRE`, `SI.GRAM`, `SI.SECOND`; `Gaussian.UNITS` holds `EMU.GAUSS`); equal units collapse to the first listed.
   `PREFIXABLE` is the own and inherited `@prefixed` symbols restricted to members, and a member keeps the prefixable status
   of its owner, so `G` is prefixable in `Gaussian` and `g` and `s` in `CGS`.
+- **Shared instances.** A unit is built once. A factory's `SYSTEM_UNIT` is the `BaseUnits` constant itself when the
+  symbol and name agree (`LengthFactory.SYSTEM_UNIT == BaseUnits.METRE`), and a catalog constant equal to a type's system
+  unit with the same symbol and name is that factory's unit (`SI.NEWTON == ForceFactory.SYSTEM_UNIT`), so `PREFERRED` and
+  the fallback of the other catalogs hold the same objects. The first such definition of a type must agree in symbol and
+  name (else a generation error with file and line); a later alias with another symbol keeps its own unit. Factories never
+  reference catalogs, so class initialisation runs from a catalog to the factories only.
 - **Preferred layering (D4).** `PREFERRED` has all 33 types: the file's own `@preferred` lines, else those of the first
   extended system (in `@extends` order), else `SI`'s (the fallback relies on `si.units` being first in `Generate.CATALOGS`).
   Layering is by source file; files that are only `@include`d contribute no lines. `SI` itself keeps the factory system unit

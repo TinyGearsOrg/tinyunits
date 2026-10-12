@@ -19,7 +19,7 @@ public final class AmountOfSubstanceFactory
         implements QuantityFactory<javax.measure.quantity.AmountOfSubstance> {
 
     public static final UomUnit<javax.measure.quantity.AmountOfSubstance> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.MOLE.named("mol", "mole"));
+            UomUnit.unchecked(BaseUnits.MOLE);
 
     public static final AmountOfSubstanceFactory INSTANCE = new AmountOfSubstanceFactory();
 

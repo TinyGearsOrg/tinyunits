@@ -131,6 +131,30 @@ class CatalogBuilderTest {
     }
 
     @Test
+    void systemUnitsAreSharedWithTheFactories() {
+        Map<String, CatalogEntry> e = bySymbol(build(BASE + "y:metre_alias m\n"));
+        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT", e.get("m").shared());
+        assertEquals("org.tinygears.uom.quantity.ForceFactory.SYSTEM_UNIT", e.get("N").shared());
+        assertEquals("org.tinygears.uom.quantity.RadioactivityFactory.SYSTEM_UNIT", e.get("Bq").shared());
+        for (String symbol : List.of("km", "min", "°C", "x", "A", "y")) {
+            assertNull(e.get(symbol).shared(), symbol);
+        }
+    }
+
+    @Test
+    void systemUnitWithAnotherSymbolOrNameFails() {
+        Definitions d = defs(BASE + "v:metre_per_second m / s\n");
+        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt", new StringReader(TYPES + "Speed m / s\n"), d);
+        fails(() -> CatalogBuilder.build(d, types), 19,
+                "unit 'v' (metre per second) is the system unit of Speed, which types.txt:10 defines as an unnamed unit");
+        List<QuantityTypeSpec> renamed = new ArrayList<>(types(defs(BASE)));
+        QuantityTypeSpec length = renamed.get(0);
+        renamed.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "m", "meter", "types.txt", 1));
+        fails(() -> CatalogBuilder.build(defs(BASE), renamed), 1,
+                "unit 'm' (metre) is the system unit of Length, which types.txt:1 defines as 'm' (meter)");
+    }
+
+    @Test
     void ambiguousType() {
         Definitions d = defs(BASE);
         List<QuantityTypeSpec> types = new ArrayList<>(types(d));

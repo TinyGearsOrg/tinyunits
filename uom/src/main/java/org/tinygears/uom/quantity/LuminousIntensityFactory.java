@@ -19,7 +19,7 @@ public final class LuminousIntensityFactory
         implements QuantityFactory<javax.measure.quantity.LuminousIntensity> {
 
     public static final UomUnit<javax.measure.quantity.LuminousIntensity> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.CANDELA.named("cd", "candela"));
+            UomUnit.unchecked(BaseUnits.CANDELA);
 
     public static final LuminousIntensityFactory INSTANCE = new LuminousIntensityFactory();
 

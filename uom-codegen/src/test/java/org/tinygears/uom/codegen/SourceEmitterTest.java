@@ -5,6 +5,7 @@ package org.tinygears.uom.codegen;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,6 +36,8 @@ import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UnitAtom;
 import org.tinygears.uom.core.UomDimension;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.parse.DefinitionParser;
+import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 class SourceEmitterTest {
@@ -88,6 +91,17 @@ class SourceEmitterTest {
                     package org.tinygears.uom.quantity;
                     """), name);
         });
+    }
+
+    @Test
+    void baseUnitFactoryReusesTheConstant() {
+        String factory = SourceEmitter.factory(LENGTH, UnitExpressionEmitterTest.DEFS);
+        assertTrue(factory.contains("UomUnit.unchecked(BaseUnits.METRE);\n"), factory);
+        assertFalse(factory.contains(".named("), factory);
+        Definitions meter = DefinitionParser.parse("test.units", new StringReader("m:meter !L\n"), null);
+        QuantityTypeSpec spec = QuantityTypesParser.parse("types.txt", new StringReader("Length m\n"), meter).get(0);
+        assertTrue(SourceEmitter.factory(spec, meter)
+                .contains("UomUnit.unchecked(BaseUnits.METRE.named(\"m\", \"meter\"));\n"));
     }
 
     @Test
@@ -183,7 +197,7 @@ class SourceEmitterTest {
             Class<?> types = loader.loadClass(PACKAGE + "QuantityTypes");
             assertEquals(Set.of(javax.measure.quantity.Length.class, javax.measure.quantity.Speed.class),
                     types.getMethod("types").invoke(null));
-            assertEquals(BaseUnits.METRE, loader.loadClass(PACKAGE + "LengthFactory").getField("SYSTEM_UNIT").get(null));
+            assertSame(BaseUnits.METRE, loader.loadClass(PACKAGE + "LengthFactory").getField("SYSTEM_UNIT").get(null));
             assertEquals(BaseUnits.METRE.divide(BaseUnits.SECOND),
                     loader.loadClass(PACKAGE + "SpeedFactory").getField("SYSTEM_UNIT").get(null));
             Object length = loader.loadClass(PACKAGE + "Length").getMethod("of", double.class, Unit.class)

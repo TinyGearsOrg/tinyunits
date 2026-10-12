@@ -19,7 +19,7 @@ public final class TimeFactory
         implements QuantityFactory<javax.measure.quantity.Time> {
 
     public static final UomUnit<javax.measure.quantity.Time> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.SECOND.named("s", "second"));
+            UomUnit.unchecked(BaseUnits.SECOND);
 
     public static final TimeFactory INSTANCE = new TimeFactory();
 
