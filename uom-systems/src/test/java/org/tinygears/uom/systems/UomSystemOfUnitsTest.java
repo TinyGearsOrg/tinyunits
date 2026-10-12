@@ -1,0 +1,165 @@
+// SPDX-License-Identifier: Apache-2.0
+
+package org.tinygears.uom.systems;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Time;
+import org.junit.jupiter.api.Test;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.UomDimension;
+import javax.measure.MetricPrefix;
+
+class UomSystemOfUnitsTest {
+
+    static final UomUnit<?> M = BaseUnits.METRE.named("m", "metre");
+    static final UomUnit<?> KM = BaseUnits.METRE.prefix(MetricPrefix.KILO).named("km", "kilometre");
+    static final UomUnit<?> S = BaseUnits.SECOND.named("s", "second");
+    static final UomUnit<?> HZ = BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz").named("Hz", "hertz");
+
+    static UomSystemOfUnits system() {
+        return new UomSystemOfUnits("Test", List.of(M, KM, S, HZ), Map.of(Length.class, M), Set.of("m", "s"));
+    }
+
+    @Test
+    void name() {
+        assertEquals("Test", system().getName());
+    }
+
+    @Test
+    void preferredUnitByType() {
+        assertSame(M, system().getUnit(Length.class));
+    }
+
+    @Test
+    void typeWithoutPreferredUnitIsNull() {
+        assertNull(system().getUnit(Time.class));
+    }
+
+    @Test
+    void unitBySymbol() {
+        assertSame(KM, system().getUnit("km"));
+        assertNull(system().getUnit("nope"));
+        assertNull(system().getUnit("KM"));
+    }
+
+    @Test
+    void unitsKeepListOrderAndAreUnmodifiable() {
+        var units = system().getUnits();
+        assertEquals(List.of(M, KM, S, HZ), new ArrayList<>(units));
+        assertThrows(UnsupportedOperationException.class, () -> ((Set<UomUnit<?>>) units).add(M));
+        assertThrows(UnsupportedOperationException.class, () -> units.remove(M));
+    }
+
+    @Test
+    void unitsByDimension() {
+        var sys = system();
+        var length = sys.getUnits(UomDimension.LENGTH);
+        assertEquals(List.of(M, KM), new ArrayList<>(length));
+        assertThrows(UnsupportedOperationException.class, () -> length.remove(M));
+        assertEquals(List.of(HZ), new ArrayList<>(sys.getUnits(HZ.getDimension())));
+    }
+
+    @Test
+    void aliasesEqualUnitsCollapseInTheSet() {
+        var alias = BaseUnits.METRE.named("meter", "meter");
+        var sys = new UomSystemOfUnits("A", List.of(M, alias), Map.of(), Set.of());
+        assertEquals(1, sys.getUnits().size());
+        assertSame(alias, sys.getUnit("meter"));
+    }
+
+    @Test
+    void inputCollectionsAreCopied() {
+        var units = new ArrayList<UomUnit<?>>(List.of(M, S));
+        var preferred = new HashMap<Class<?>, UomUnit<?>>(Map.of(Length.class, M));
+        var prefixable = new HashSet<>(Set.of("m"));
+        var sys = new UomSystemOfUnits("C", units, preferred, prefixable);
+        units.add(KM);
+        preferred.clear();
+        prefixable.add("s");
+        assertEquals(2, sys.getUnits().size());
+        assertNull(sys.getUnit("km"));
+        assertSame(M, sys.getUnit(Length.class));
+        assertFalse(sys.isPrefixable("s"));
+    }
+
+    @Test
+    void duplicateSymbolIsRejected() {
+        var e = assertThrows(IllegalArgumentException.class,
+                () -> new UomSystemOfUnits("D", List.of(M, BaseUnits.SECOND.named("m", "other")), Map.of(), Set.of()));
+        assertTrue(e.getMessage().contains("m"));
+    }
+
+    @Test
+    void unitWithoutSymbolIsRejected() {
+        var e = assertThrows(IllegalArgumentException.class,
+                () -> new UomSystemOfUnits("D", List.of(BaseUnits.METRE.multiply(3)), Map.of(), Set.of()));
+        assertTrue(e.getMessage().contains("symbol"));
+    }
+
+    @Test
+    void unknownPrefixableSymbolIsRejected() {
+        var e = assertThrows(IllegalArgumentException.class,
+                () -> new UomSystemOfUnits("D", List.of(M), Map.of(), Set.of("zz")));
+        assertTrue(e.getMessage().contains("zz"));
+    }
+
+    @Test
+    void nullsAreRejected() {
+        assertThrows(NullPointerException.class, () -> new UomSystemOfUnits(null, List.of(), Map.of(), Set.of()));
+        assertThrows(NullPointerException.class, () -> new UomSystemOfUnits("n", null, Map.of(), Set.of()));
+        assertThrows(NullPointerException.class, () -> new UomSystemOfUnits("n", List.of(), null, Set.of()));
+        assertThrows(NullPointerException.class, () -> new UomSystemOfUnits("n", List.of(), Map.of(), null));
+    }
+
+    @Test
+    void lookupAndPrefixable() {
+        var sys = system();
+        assertSame(KM, sys.lookup("km").orElseThrow());
+        assertTrue(sys.lookup("x").isEmpty());
+        assertTrue(sys.isPrefixable("m"));
+        assertFalse(sys.isPrefixable("km"));
+        assertFalse(sys.isPrefixable("x"));
+    }
+
+    @Test
+    void readsAreThreadSafe() throws Exception {
+        var sys = system();
+        ExecutorService pool = Executors.newFixedThreadPool(8);
+        try {
+            CountDownLatch go = new CountDownLatch(1);
+            List<Future<Boolean>> results = new ArrayList<>();
+            for (int i = 0; i < 8; i++) {
+                results.add(pool.submit(() -> {
+                    go.await();
+                    for (int n = 0; n < 1000; n++) {
+                        if (sys.getUnit("km") != KM || sys.getUnits().size() != 4
+                                || sys.getUnit(Length.class) != M || !sys.isPrefixable("m")) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }));
+            }
+            go.countDown();
+            for (var f : results) {
+                assertTrue(f.get(30, TimeUnit.SECONDS));
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+}
