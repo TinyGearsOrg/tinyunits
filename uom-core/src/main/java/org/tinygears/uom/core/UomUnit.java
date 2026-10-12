@@ -337,6 +337,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
         if (!Double.isFinite(d)) {
             throw new IllegalArgumentException("not a finite number: " + n);
         }
-        return Factor.decimal(BigDecimal.valueOf(d).toPlainString());
+        String text = n instanceof Float f ? new BigDecimal(Float.toString(f)).toPlainString()
+                : BigDecimal.valueOf(d).toPlainString();
+        return Factor.decimal(text);
     }
 }

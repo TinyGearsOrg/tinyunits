@@ -97,6 +97,8 @@ class UomUnitAlgebraTest {
         assertEquals(km, METRE.multiply(1000.0f));
         assertEquals(km, METRE.divide(0.001));
         assertEquals(Factor.decimal("0.1"), METRE.multiply(0.1).toSystemConverter().factor());
+        assertEquals(Factor.decimal("0.1"), METRE.multiply(Float.valueOf(0.1f)).toSystemConverter().factor());
+        assertThrows(IllegalArgumentException.class, () -> METRE.multiply(Float.valueOf(Float.NaN)));
     }
 
     @Test
