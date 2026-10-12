@@ -50,17 +50,20 @@ Dependencies: `uom-systems` -> `uom-quantities` -> `uom-core` -> `unit-api`. `uo
   identity converter.
   - `equals` compares decomposition and converter, ignoring symbol and name (F21), so
     `RADIAN != ONE` and `METRE.divide(SECOND)` equals the `m/s` constant. `isEquivalentTo`
-    means the converter between the two units is the identity.
+    means same dimension and an identity converter between the two units; alternate atoms may
+    differ, so `RADIAN` is equivalent to `ONE` and hertz to becquerel.
   - `alternate(String)` creates an atom. The standard requires an exception when the symbol
     is already bound to a different unit, so alternate symbols use one small static registry.
     This is the only global state in the units core.
 - **Converters.** Identity, affine (`factor * x + offset`) and concatenation. Factors are exact
   rationals, optionally times a power of pi, so degrees and gradians are exact (N2). Each
-  factor also caches a rounded `double` and a `BigDecimal`, computed once. Additions to the
-  standard interface: `convert(BigDecimal, MathContext)` (F23). Units with an offset can not be
-  multiplied or divided and throw.
-- **Powers and roots.** `pow(n)` raises factor and exponents. `root(n)` is exact when the
-  factor is a perfect nth power, otherwise it uses a numeric converter.
+  converter also caches the rounded `double` of its factor and offset, computed once.
+  Additions to the standard interface: `convert(BigDecimal, MathContext)` (F23). Units with an
+  offset can not be multiplied or divided and throw.
+- **Powers and roots.** `pow(n)` raises factor and exponents; `root(n)` divides the exponents
+  and roots the factor exactly. A factor is `(n/d * pi^k)^(1/r)` with the sign of `n` outside
+  the root, so every converter stays affine and equality is structural. Ceiling: radicals are
+  only normalized to a canonical form, and `n` and `d` are capped at 65_536 bits.
 - **Typing.** `asType(Class<T>)` compares the unit's system unit with
   `ServiceProvider.current().getQuantityFactory(type).getSystemUnit()`. This distinguishes
   hertz from becquerel. `uom-core` holds no table of quantity types.
@@ -125,7 +128,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 @preferred Length cm                          # the system's default unit for a type
 ```
 
-- **Syntax.** `symbol:name formula [Type] # comment`. Space or `*` multiplies, `/` divides,
+- **Syntax.** `symbol:name formula [Type] # comment`. Space or `*` multiplies, `/` divides;
+  juxtaposition binds tighter than `*` and `/`, so `J / kg K` is `J / (kg K)`;
   `^n` is an integer power, `a|b` an exact fraction, decimals are exact, parentheses group,
   `!` marks a base unit, `~` an alternate unit, `=` an affine function, `@include` includes a
   file, `@preferred` sets the preferred unit of a type. Underscores in names stand for spaces.
