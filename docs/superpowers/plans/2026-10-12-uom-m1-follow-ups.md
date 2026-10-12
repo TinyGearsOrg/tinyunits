@@ -11,9 +11,9 @@ Milestone 2 planning should pick up the items marked "M2" or "M4".
   `precision + digits + 2`; validate or bound the value scale at BigDecimal quantity construction. Add timeout tests for
   `1e+-20000000` on a pure scale and on F-to-C.
 
-## For milestone 2 (generator)
+## For milestone 3 or later
 
-- **M2** `Factor.make` checks the size cap before root normalization, so some products whose normal form fits are rejected
+- **M3+** `Factor.make` checks the size cap before root normalization, so some products whose normal form fits are rejected
   (documented ceiling); move the check after the normalization loop.
 
 ## Tests and warnings
@@ -31,7 +31,6 @@ Milestone 2 planning should pick up the items marked "M2" or "M4".
 
 ## Behavior and messages
 
-- The `FormulaEvaluator` guard message can read "null" for message-less exceptions.
 - `rad.alternate("rad")` throws while `METRE.alternate("m")` returns an equal unit (alternate atoms store the decomposition
   they were built from); accept `{existingAtom:1}` as the same definition or document it. `asType` NPEs when a provider
   returns a null factory.
