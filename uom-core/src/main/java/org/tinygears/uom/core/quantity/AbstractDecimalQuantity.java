@@ -284,8 +284,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     /**
      * Writes the type, unit, scale, the value's unscaled bytes and scale, and the context; reading creates the
      * quantity through {@code ServiceProvider.current().getQuantityFactory(type)} and keeps value and context
-     * unrounded. A type outside the 33 standard quantity interfaces and {@link Untyped}, or an unscaled value
-     * over 65536 bytes, throws {@link java.io.NotSerializableException}.
+     * unrounded. A type outside the 33 standard quantity interfaces and {@link Untyped}, an unscaled value over
+     * 65536 bytes or a context precision over 100000 throws {@link java.io.NotSerializableException}.
      */
     @Serial
     protected final Object writeReplace() throws ObjectStreamException {

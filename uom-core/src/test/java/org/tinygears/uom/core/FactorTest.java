@@ -18,6 +18,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class FactorTest {
@@ -85,12 +88,52 @@ class FactorTest {
         assertThrows(ArithmeticException.class, () -> ofLong(2).root(100_000));
     }
 
-    @Test
-    void piCacheIsBounded() {
-        for (int p = 1; p <= 300; p++) {
-            PI.decimalValue(new MathContext(p));
+    /** Reference values of pi, pi^2 and 250/pi, computed from Machin's pi with ample guard digits. */
+    private static List<BigDecimal> references(int digits) {
+        MathContext mc = new MathContext(digits + 20);
+        BigDecimal pi = machin(digits + 20);
+        return List.of(pi, pi.multiply(pi, mc), BigDecimal.valueOf(250).divide(pi, mc));
+    }
+
+    private static void assertPiValues(List<BigDecimal> reference, int p) {
+        MathContext mc = new MathContext(p);
+        Factor[] factors = {PI, PI.pow(2), ofLong(250).divide(PI)};
+        for (int i = 0; i < factors.length; i++) {
+            assertEquals(reference.get(i).round(mc), factors[i].decimalValue(mc), factors[i] + " at " + p);
         }
-        assertTrue(Factor.piCacheSize() <= 16);
+    }
+
+    @Test
+    void piCacheBucketsGiveCorrectDigitsInAnyOrder() {
+        List<BigDecimal> reference = references(320);
+        List<Integer> ascending = List.of(1, 54, 63, 64, 65, 100, 127, 128, 129, 191, 192, 193, 250, 255, 256, 257, 300);
+        List<Integer> descending = new ArrayList<>(ascending);
+        Collections.reverse(descending);
+        for (List<Integer> order : List.of(ascending, descending)) {
+            Factor.clearPiCache();
+            for (int p : order) {
+                assertPiValues(reference, p);
+            }
+        }
+        // Within one bucket: the larger request first, then the smaller, and the reverse.
+        for (int[] pair : new int[][] {{54, 1}, {1, 54}, {64, 54}, {54, 64}, {65, 128}, {128, 65}}) {
+            Factor.clearPiCache();
+            assertPiValues(reference, pair[0]);
+            assertPiValues(reference, pair[1]);
+        }
+    }
+
+    @Test
+    void piCacheIsBoundedAndCorrectAfterEviction() {
+        List<BigDecimal> reference = references(1120);
+        Factor.clearPiCache();
+        // Twice over 18 buckets: the cache is cleared on the way and refilled.
+        for (int round = 0; round < 2; round++) {
+            for (int p = 1; p <= 1100; p += 64) {
+                assertPiValues(reference, p);
+                assertTrue(Factor.piCacheSize() <= 16, "cache size " + Factor.piCacheSize());
+            }
+        }
     }
 
     /** Reference pi by Machin's formula, 16 atan(1/5) - 4 atan(1/239). */

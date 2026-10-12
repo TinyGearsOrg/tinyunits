@@ -15,7 +15,7 @@ final class Precision {
     /** Largest absolute scale accepted for a {@link BigDecimal} quantity value. */
     static final int MAX_SCALE = 100_000;
 
-    /** Largest context precision; a result needing more digits would fail the scale bound anyway. */
+    /** Largest context precision: it caps the digits, so the work, of every rounded result. */
     static final int MAX_PRECISION = 100_000;
 
     enum Kind { EXACT, DOUBLE, DECIMAL }

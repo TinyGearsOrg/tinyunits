@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -311,17 +312,14 @@ final class QuantityProxy implements Serializable {
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // typeClass is one of the quantity interfaces
     private QuantityFactory<?> factory() throws InvalidObjectException {
-        ServiceProvider provider;
-        try {
-            provider = ServiceProvider.current();
-        } catch (RuntimeException e) {
-            throw invalid(e);
-        }
         QuantityFactory<?> f;
         try {
-            f = provider.getQuantityFactory((Class) typeClass);
+            f = ServiceProvider.current().getQuantityFactory((Class) typeClass);
         } catch (IllegalArgumentException | UnsupportedOperationException e) {
             throw invalid("no quantity factory for " + type, e);
+        } catch (RuntimeException | ServiceConfigurationError e) {
+            // No provider at all, a broken service file, or a provider that fails otherwise.
+            throw invalid(e.getMessage() != null ? e.getMessage() : e.getClass().getName(), e);
         }
         if (f == null) {
             throw invalid("no quantity factory for " + type);
@@ -338,7 +336,7 @@ final class QuantityProxy implements Serializable {
         return new InvalidObjectException("invalid quantity: " + message);
     }
 
-    private static InvalidObjectException invalid(String message, Exception cause) {
+    private static InvalidObjectException invalid(String message, Throwable cause) {
         return new InvalidObjectException("invalid quantity: " + message, cause);
     }
 

@@ -406,6 +406,38 @@ class QuantitySerializationTest {
         });
     }
 
+    /** A provider whose factory lookup throws {@code failure}, as a broken or uninitialisable provider does. */
+    static final class ThrowingProvider extends FixedProvider {
+        private final Throwable failure;
+
+        ThrowingProvider(Throwable failure) {
+            super(null);
+            this.failure = failure;
+        }
+
+        @Override
+        public <Q extends Quantity<Q>> QuantityFactory<Q> getQuantityFactory(Class<Q> type) {
+            if (failure instanceof Error e) {
+                throw e;
+            }
+            throw (RuntimeException) failure;
+        }
+    }
+
+    @Test
+    void providerFailuresBecomeInvalidObjectException() throws Exception {
+        byte[] length = serialize(new TestLengthImpl(1.0, METRE));
+        for (Throwable failure : List.of(new IllegalStateException("No measurement ServiceProvider found"),
+                new java.util.ServiceConfigurationError("broken provider"), new IllegalStateException())) {
+            withProvider(new ThrowingProvider(failure), () -> {
+                InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> deserialize(length));
+                String message = failure.getMessage() != null ? failure.getMessage() : failure.getClass().getName();
+                assertEquals("invalid quantity: " + message, e.getMessage());
+                assertSame(failure, e.getCause());
+            });
+        }
+    }
+
     @Test
     void factoryOfTheWrongKindOrFailingIsRejected() throws Exception {
         TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedImpl.FACTORY);

@@ -326,6 +326,10 @@ public final class Factor implements Serializable {
         return PI_CACHE.size();
     }
 
+    static void clearPiCache() {
+        PI_CACHE.clear();
+    }
+
     private static final BigInteger CHUDNOVSKY_C3_24 = BigInteger.valueOf(640_320).pow(3).divide(BigInteger.valueOf(24));
 
     /** P, Q and T of the Chudnovsky series over terms {@code [a, b)}. */
