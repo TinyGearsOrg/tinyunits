@@ -52,9 +52,9 @@ dynamic proxies in the picture.
 ## 3. Constraints
 
 - Build with Maven. Multi-module.
-- Java baseline 17 (assumed; confirm against the downstream audience).
+- Java baseline 21 (the unit-api 2.2 dependency itself targets Java 8, which is compatible).
 - License Apache-2.0 (already in the repository).
-- No dynamic proxies. Annotation processing must work on JDK 17 through the current JDK,
+- No dynamic proxies. Annotation processing must work on JDK 21 through the current JDK,
   including JDK 23+ where classpath processors are not run unless enabled; the documentation
   and build setup must cover this.
 - The generator emits plain Java source via the standard `Filer`; a code-generation library
@@ -99,7 +99,7 @@ dynamic proxies in the picture.
 5. **Catalog authoring.** Hand-written Java constants, or a data file (in the style of GNU
    units) from which the catalogs are generated at build time? Hundreds of units favour a data
    file.
-6. **Java baseline.** Is 17 right, or should a lower baseline be supported for the API artifact?
+6. ~~**Java baseline.**~~ Resolved: Java 21.
 7. **Group id and naming.** Final Maven group id, package prefix and artifact names for the
    Central release.
 
@@ -128,5 +128,5 @@ dynamic proxies in the picture.
    passing for every unit.
 4. Units can be parsed from and formatted to their symbols, and quantities are formatted.
 5. Quantities and units survive Java serialization round trips.
-6. The library works on the module path and on the class path, on JDK 17 and the current JDK.
+6. The library works on the module path and on the class path, on JDK 21 and the current JDK.
 7. Artifacts are published to Maven Central with the documentation from N7.
