@@ -3,9 +3,11 @@
 package org.tinygears.uom.core.quantity;
 
 import java.util.Objects;
+import java.util.function.DoubleBinaryOperator;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
+import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 
 /**
@@ -85,6 +87,56 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
             throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + thatUnit);
         }
         return Double.compare(toSystem(value, unit), toSystem(that.getValue().doubleValue(), thatUnit));
+    }
+
+    /**
+     * Adds as if both operands were in the system unit, with the result back in this unit; linear units skip the
+     * system round trip. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
+     */
+    @Override
+    public R add(Quantity<Q> addend) {
+        return combine(addend, Double::sum);
+    }
+
+    /** Subtracts by the same rule as {@link #add}. */
+    @Override
+    public R subtract(Quantity<Q> subtrahend) {
+        return combine(subtrahend, (a, b) -> a - b);
+    }
+
+    /** Returns a quantity whose value is {@code -getValue()}, in this unit and scale. */
+    @Override
+    public R negate() {
+        return create(-value, unit, scale);
+    }
+
+    /** Multiplies by {@code multiplicand.doubleValue()}; an offset unit goes through the system unit. */
+    @Override
+    public R multiply(Number multiplicand) {
+        return scalar(multiplicand.doubleValue(), (a, n) -> a * n);
+    }
+
+    /** Divides by {@code divisor.doubleValue()} as {@link #multiply(Number)}; division by zero follows IEEE 754. */
+    @Override
+    public R divide(Number divisor) {
+        return scalar(divisor.doubleValue(), (a, n) -> a / n);
+    }
+
+    private R scalar(double n, DoubleBinaryOperator op) {
+        double r = unit.toSystemConverter().isLinear()
+                ? op.applyAsDouble(value, n)
+                : fromSystem(op.applyAsDouble(toSystem(value, unit), n), unit);
+        return create(r, unit, scale);
+    }
+
+    private R combine(Quantity<Q> that, DoubleBinaryOperator op) {
+        UomUnit<Q> thatUnit = uomUnit(that.getUnit());
+        UomConverter toThisUnit = thatUnit.getConverterTo(unit);
+        double b = that.getValue().doubleValue();
+        double r = unit.toSystemConverter().isLinear() && thatUnit.toSystemConverter().isLinear()
+                ? op.applyAsDouble(value, toThisUnit.convert(b))
+                : fromSystem(op.applyAsDouble(toSystem(value, unit), toSystem(b, thatUnit)), unit);
+        return create(r, unit, scale);
     }
 
     protected double toSystem(double value, UomUnit<Q> unit) {

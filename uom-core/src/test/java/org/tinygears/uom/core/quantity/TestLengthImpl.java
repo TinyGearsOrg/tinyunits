@@ -6,7 +6,7 @@ import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import org.tinygears.uom.core.UomUnit;
 
-/** Stand-in for a generated double implementation; arithmetic is stubbed until the base class has it. */
+/** Stand-in for a generated double implementation; quantity products and asType are stubbed for now. */
 class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implements TestLength {
 
     TestLengthImpl(double value, UomUnit<Length> unit, Quantity.Scale scale) {
@@ -23,22 +23,7 @@ class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implemen
     }
 
     @Override
-    public Quantity<Length> add(Quantity<Length> addend) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Quantity<Length> subtract(Quantity<Length> subtrahend) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Quantity<?> divide(Quantity<?> divisor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Quantity<Length> divide(Number divisor) {
         throw new UnsupportedOperationException();
     }
 
@@ -48,17 +33,7 @@ class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implemen
     }
 
     @Override
-    public Quantity<Length> multiply(Number multiplier) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Quantity<?> inverse() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Quantity<Length> negate() {
         throw new UnsupportedOperationException();
     }
 
