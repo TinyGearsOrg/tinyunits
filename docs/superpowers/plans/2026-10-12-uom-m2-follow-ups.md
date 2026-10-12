@@ -15,6 +15,8 @@ unmarked items are later or opportunistic.
   test Proxy units must otherwise answer `toString`).
 - An unlabelled shifted unit (`KELVIN.shift(273.15)`) has a null symbol but prints with the system label: `100 degC`
   prints "100.0 K". Fix with the M3 SI catalog or a label rule in the milestone 1 unit code.
+  `AbstractDoubleQuantityTest.toStringFormats` only checks `startsWith("1.5 ")`, so it passes with the wrong label; assert
+  the full text once the label is fixed.
 - TCK: the `Quantity` Javadoc example "2 degC + 1 degC = 274.15 degC" contradicts its own rule (276.15 degC); we follow the
   rule (F24). Record it when the TCK runs for real (M3).
 - M3: `-pl uom-codegen` without `-am` fails because `~/.m2` holds a stale `uom-core` snapshot; always build with `-am`.
