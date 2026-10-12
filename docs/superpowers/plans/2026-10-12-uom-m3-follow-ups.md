@@ -18,9 +18,13 @@ section 7.
 - Provider priority: `UomServiceProvider.getPriority()` is 100, so `ServiceProvider.current()` selects it over lower-priority
   providers. Remainder, open (core): `UomUnit.asType` (`UomUnit.java:185`) and `AbstractDoubleQuantity` (line 163) still
   call `ServiceProvider.current()`, so a provider of higher priority breaks `asType`. Resolve our provider explicitly.
-- Typed-quantity coverage gaps listed in the milestone 2 file (`to(foreignUnit)`, `compareTo` across types, `Scale.RELATIVE`
-  through `of`, `create(Number, Unit, Scale)`, `Dimensionless` from `m/m`, `equals` of 1 km and 1000 m): not worked in
-  milestone 3, still open.
+- Typed-quantity coverage gaps of the milestone 2 file. Covered by milestone 3: `Scale.RELATIVE` through `of`
+  (`QuantityContractTest:207`), `compareTo` of 1 km and 1000 m (`QuantityContractTest:218`, `GeneratedQuantitiesTest:125`),
+  `create(Number, Unit)` with a foreign unit (`GeneratedQuantitiesTest:139`), `isEquivalentTo` through the typed interface
+  (`QuantityContractTest:46`, `GeneratedQuantitiesTest:83`), a typed result of quantity times quantity narrowed with
+  `asType` (`GeneratedQuantitiesTest:112`). Still open: `to(foreignUnit)` through the typed interface, `compareTo` across
+  different types, `create(Number, Unit, Scale)` with `BigDecimal` and `Integer`, `Dimensionless` from `m/m`, `equals` of
+  1 km against 1000 m.
 
 ## Open owner decisions
 
@@ -68,6 +72,10 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
   that `lookup` already resolves.
 - `format` does not memoise the verification parse (about 5 µs per call, about 50 µs worst reported); add a per-instance memo
   if it matters.
+- An unlabelled shifted or scaled unit prints with the system label: `2 km` built as `METRE.multiply(1000)` prints `2.0 m`
+  (`AbstractDoubleQuantity.toString` uses `unit.toString()`); `AbstractDoubleQuantityTest:227` asserts only
+  `startsWith("1.5 ")`. Print through `UomUnitFormat` or a label rule, then assert the full text.
+- `FormulaEvaluator.MAX_LENGTH` is not exposed; the verification parse in `format` refuses over-long formulas instead.
 - Offset-unit and root-index-factor units can not be formatted faithfully (`format` throws `IllegalArgumentException`); a
   faithful form for derived offset units is milestone 6 work. The message names `unit.toString()` (the system label), so
   `DEGREE_CELSIUS.multiply(2)` reads "unit can not be formatted: K" plus factor and offset.
@@ -100,6 +108,8 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
 
 - `UnitLabelRoundTripTest` (uom-core): the non-vacuity bound `>= 400` of 500 is loose (all 500 have labels); the generator has no prefix,
   shift, `multiply(Number)` or 5-6 operation chains; `dotIsMultiplication` lacks `2·m`, `1|2·m`, `m·(s)` probes.
+- The milestone 3 ruling to move the derived-unit dimension table and the full expected `@prefixed` symbol set into the Task 5
+  commit was not carried out; both gaps below remain.
 - No test pins the base decomposition of the derived SI units (T as Wb/m, Pa as N/m^3, lx as cd/m^2, kat as mol s would stay
   green because `si.units` and `quantity-types.txt` share symbols); the `@prefixed` list is sampled only (dropping `G` from
   `@prefixed Pa h k M G` passes); `SiDataTest` skips prefixed expansions; Gy/Sv mutations are covered by one of two tables.

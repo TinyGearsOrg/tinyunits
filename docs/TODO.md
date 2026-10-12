@@ -1,6 +1,6 @@
 # TODO
 
-Open items that need a decision from the project owner. Each blocks the work named under "Needed by".
+Open items that need a decision from the project owner. Each says under "Needed by" what, if anything, it blocks; none blocks milestone 3 any more.
 
 ## 1. Offset-unit arithmetic (decision D5)
 
