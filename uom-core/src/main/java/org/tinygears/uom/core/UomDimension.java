@@ -2,13 +2,16 @@
 
 package org.tinygears.uom.core;
 
+import java.io.InvalidObjectException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.measure.Dimension;
 
-/** Product of the seven SI base dimensions with integer exponents. */
+/** Product of the seven SI base dimensions with integer exponents; serializable through a proxy. */
 public record UomDimension(int length, int mass, int time, int current, int temperature, int amount, int luminosity)
-        implements Dimension {
+        implements Dimension, Serializable {
 
     public static final UomDimension NONE = new UomDimension(0, 0, 0, 0, 0, 0, 0);
     public static final UomDimension LENGTH = new UomDimension(1, 0, 0, 0, 0, 0, 0);
@@ -107,6 +110,41 @@ public record UomDimension(int length, int mass, int time, int current, int temp
         }
         // Per the Dimension contract a base dimension reports null.
         return m.size() == 1 && m.containsValue(1) ? null : m;
+    }
+
+    @Serial
+    private Object writeReplace() {
+        return new Proxy(exponents());
+    }
+
+    // A record ignores readObject; a record read without its proxy ends here.
+    @Serial
+    private Object readResolve() throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
+    }
+
+    /** Serialized form of a dimension; package-private so tests can forge streams. */
+    static final class Proxy implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        private final int[] exponents;
+
+        Proxy(int[] exponents) {
+            this.exponents = exponents;
+        }
+
+        @Serial
+        private Object readResolve() throws InvalidObjectException {
+            if (exponents == null) {
+                throw new InvalidObjectException("invalid dimension: null exponents");
+            }
+            if (exponents.length != BASES.length) {
+                throw new InvalidObjectException(
+                        "invalid dimension: expected " + BASES.length + " exponents, got " + exponents.length);
+            }
+            return of(exponents);
+        }
     }
 
     @Override

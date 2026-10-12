@@ -2,6 +2,10 @@
 
 package org.tinygears.uom.core;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -13,10 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Exact number {@code sign(n) * (|n|/d * pi^k)^(1/r)}, kept in a normal form: gcd-reduced, {@code d > 0},
  * and {@code r} as small as possible (no prime p dividing r leaves the radicand a perfect p-th power).
  * Operations whose radicand numerator or denominator would exceed 65_536 bits throw {@link ArithmeticException}.
+ * Serializable through a proxy that rebuilds with {@link #of(BigInteger, BigInteger, int, int)}; the serialized
+ * form may change before 1.0.
  */
 // ponytail: equality is structural on that normal form; coefficients fold into the radicand
 // (2 * 2^(1/2) is stored as 8^(1/2)), so radicands grow. Split out square-free parts if size matters.
-public final class Factor {
+public final class Factor implements Serializable {
 
     private static final int MAX_EXPONENT = 1000;
     private static final int MAX_BITS = 65_536;
@@ -352,6 +358,49 @@ public final class Factor {
             }
         }
         return y;
+    }
+
+    @Serial
+    private Object writeReplace() {
+        return new Proxy(num, den, piExp, index);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
+    }
+
+    /** Serialized form of a factor; package-private so tests can forge streams. */
+    static final class Proxy implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        private final BigInteger numerator;
+        private final BigInteger denominator;
+        private final int piExponent;
+        private final int rootIndex;
+
+        Proxy(BigInteger numerator, BigInteger denominator, int piExponent, int rootIndex) {
+            this.numerator = numerator;
+            this.denominator = denominator;
+            this.piExponent = piExponent;
+            this.rootIndex = rootIndex;
+        }
+
+        @Serial
+        private Object readResolve() throws InvalidObjectException {
+            try {
+                Objects.requireNonNull(numerator, "null numerator");
+                Objects.requireNonNull(denominator, "null denominator");
+                // A normalised factor never exceeds the limit; checking first keeps gcd off forged huge values.
+                if (numerator.bitLength() > MAX_BITS || denominator.bitLength() > MAX_BITS) {
+                    throw new ArithmeticException("factor too large");
+                }
+                return of(numerator, denominator, piExponent, rootIndex);
+            } catch (RuntimeException e) {
+                throw new InvalidObjectException("invalid factor: " + e.getMessage(), e);
+            }
+        }
     }
 
     @Override

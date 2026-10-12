@@ -2,6 +2,10 @@
 
 package org.tinygears.uom.core;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
@@ -9,7 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import javax.measure.UnitConverter;
 
-final class AffineConverter implements UomConverter {
+/** Serializable through a proxy that rebuilds with {@link Converters} and keeps the conversion steps in order. */
+final class AffineConverter implements UomConverter, Serializable {
 
     private final Factor factor;
     private final Factor offset;
@@ -132,6 +137,72 @@ final class AffineConverter implements UomConverter {
             return x.add(y);
         }
         return big.add(BigDecimal.valueOf(small.signum(), Math.toIntExact(-sticky)));
+    }
+
+    @Serial
+    private Object writeReplace() {
+        if (steps.size() == 1 && steps.get(0) == this) {
+            return new Proxy(factor, offset, null, null);
+        }
+        Factor[] f = new Factor[steps.size()];
+        Factor[] o = new Factor[steps.size()];
+        for (int i = 0; i < f.length; i++) {
+            UomConverter step = (UomConverter) steps.get(i);
+            f[i] = step.factor();
+            o[i] = step.offset();
+        }
+        return new Proxy(factor, offset, f, o);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
+    }
+
+    /** Serialized form of a converter, steps as parallel arrays (null for one step); package-private for tests. */
+    static final class Proxy implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        private final Factor factor;
+        private final Factor offset;
+        private final Factor[] stepFactors;
+        private final Factor[] stepOffsets;
+
+        Proxy(Factor factor, Factor offset, Factor[] stepFactors, Factor[] stepOffsets) {
+            this.factor = factor;
+            this.offset = offset;
+            this.stepFactors = stepFactors;
+            this.stepOffsets = stepOffsets;
+        }
+
+        @Serial
+        private Object readResolve() throws InvalidObjectException {
+            try {
+                Objects.requireNonNull(factor, "null factor");
+                Objects.requireNonNull(offset, "null offset");
+                if (stepFactors == null && stepOffsets == null) {
+                    return Converters.affine(factor, offset);
+                }
+                if (stepFactors == null || stepOffsets == null || stepFactors.length != stepOffsets.length
+                        || stepFactors.length == 0) {
+                    throw new IllegalArgumentException("step factors and offsets do not match");
+                }
+                UomConverter c = null;
+                for (int i = 0; i < stepFactors.length; i++) {
+                    UomConverter step = Converters.affine(Objects.requireNonNull(stepFactors[i], "null step"),
+                            Objects.requireNonNull(stepOffsets[i], "null step"));
+                    c = c == null ? step : c.concatenate(step);
+                }
+                if (!c.factor().equals(factor) || !c.offset().equals(offset)) {
+                    throw new IllegalArgumentException(
+                            "steps do not compose to x -> " + factor + " * x + " + offset);
+                }
+                return c;
+            } catch (RuntimeException e) {
+                throw new InvalidObjectException("invalid converter: " + e.getMessage(), e);
+            }
+        }
     }
 
     @Override

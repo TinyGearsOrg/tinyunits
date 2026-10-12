@@ -2,10 +2,15 @@
 
 package org.tinygears.uom.core;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -21,15 +26,18 @@ import javax.measure.UnconvertibleException;
 import javax.measure.UnitConverter;
 import javax.measure.spi.ServiceProvider;
 
-/** A product of atoms with integer exponents, an affine converter to the system unit, and labels. */
-public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
+/**
+ * A product of atoms with integer exponents, an affine converter to the system unit, and labels. Serializable
+ * through a proxy (atoms, converter, symbol and name); the serialized form may change before 1.0.
+ */
+public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializable {
 
     private final Map<UnitAtom, Integer> atoms;
     private final UomConverter toSystem;
     private final String symbol;
     private final String name;
     private final UomDimension dimension;
-    private final Map<UomUnit<?>, UomConverter> converterCache = new ConcurrentHashMap<>();
+    private final transient Map<UomUnit<?>, UomConverter> converterCache = new ConcurrentHashMap<>();
 
     private UomUnit(Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
         this.atoms = atoms;
@@ -318,6 +326,64 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
             m.put(a, Math.divideExact(e, n));
         });
         return of(m, Converters.scale(toSystem.factor().root(n)), null, null);
+    }
+
+    @Serial
+    private Object writeReplace() {
+        return new Proxy(atoms.keySet().toArray(UnitAtom[]::new),
+                atoms.values().stream().mapToInt(Integer::intValue).toArray(), toSystem, symbol, name);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
+    }
+
+    /** Pairs parallel arrays from a stream, rejecting a length mismatch, null and duplicate atoms. */
+    static Map<UnitAtom, Integer> atomMap(UnitAtom[] atoms, int[] exponents) {
+        if (atoms == null || exponents == null || atoms.length != exponents.length) {
+            throw new IllegalArgumentException("atoms and exponents do not match");
+        }
+        Map<UnitAtom, Integer> m = new HashMap<>();
+        for (int i = 0; i < atoms.length; i++) {
+            if (m.put(Objects.requireNonNull(atoms[i], "null atom"), exponents[i]) != null) {
+                throw new IllegalArgumentException("duplicate atom " + atoms[i].symbol());
+            }
+        }
+        return m;
+    }
+
+    /** Serialized form of a unit; package-private so tests can forge streams. */
+    static final class Proxy implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        private final UnitAtom[] atoms;
+        private final int[] exponents;
+        private final UomConverter toSystem;
+        private final String symbol;
+        private final String name;
+
+        Proxy(UnitAtom[] atoms, int[] exponents, UomConverter toSystem, String symbol, String name) {
+            this.atoms = atoms;
+            this.exponents = exponents;
+            this.toSystem = toSystem;
+            this.symbol = symbol;
+            this.name = name;
+        }
+
+        @Serial
+        private Object readResolve() throws InvalidObjectException {
+            try {
+                Objects.requireNonNull(toSystem, "null converter");
+                if (toSystem.factor().isZero()) {
+                    throw new ArithmeticException("zero scale factor");
+                }
+                return of(atomMap(atoms, exponents), toSystem, symbol, name);
+            } catch (RuntimeException e) {
+                throw new InvalidObjectException("invalid unit: " + e.getMessage(), e);
+            }
+        }
     }
 
     /** Parenthesizes {@code s} if it contains any of {@code operators}. */
