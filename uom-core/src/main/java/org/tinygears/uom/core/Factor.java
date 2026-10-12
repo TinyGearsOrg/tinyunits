@@ -243,13 +243,21 @@ public final class Factor {
         return (signum() < 0 ? result.negate() : result).round(mc);
     }
 
+    /** Pi to at least {@code digits} digits; precisions round up to multiples of 64 and the cache holds 16. */
     private static BigDecimal pi(int digits) {
-        return PI_CACHE.computeIfAbsent(digits, p -> {
+        if (PI_CACHE.size() >= 16) {
+            PI_CACHE.clear();
+        }
+        return PI_CACHE.computeIfAbsent((digits + 63) / 64 * 64, p -> {
             MathContext mc = new MathContext(p + 5);
             BigDecimal machin = atanInverse(5, mc).multiply(BigDecimal.valueOf(16))
                     .subtract(atanInverse(239, mc).multiply(BigDecimal.valueOf(4)));
             return machin.round(new MathContext(p));
         });
+    }
+
+    static int piCacheSize() {
+        return PI_CACHE.size();
     }
 
     /** atan(1/x) by its Taylor series. */

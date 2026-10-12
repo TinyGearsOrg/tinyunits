@@ -3,6 +3,7 @@ package org.tinygears.uom.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.Factor.ONE;
 import static org.tinygears.uom.core.Factor.PI;
 import static org.tinygears.uom.core.Factor.ZERO;
@@ -78,5 +79,13 @@ class FactorTest {
         assertEquals(ONE, ofLong(7).pow(0));
         assertThrows(ArithmeticException.class, () -> ofLong(10).pow(100_000));
         assertThrows(ArithmeticException.class, () -> ofLong(2).root(100_000));
+    }
+
+    @Test
+    void piCacheIsBounded() {
+        for (int p = 1; p <= 300; p++) {
+            PI.decimalValue(new MathContext(p));
+        }
+        assertTrue(Factor.piCacheSize() <= 16);
     }
 }

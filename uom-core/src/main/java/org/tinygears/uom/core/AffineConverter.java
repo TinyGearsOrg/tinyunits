@@ -98,8 +98,9 @@ final class AffineConverter implements UomConverter {
                     .add(new BigDecimal(offset.numerator().multiply(factor.denominator())));
             return n.divide(new BigDecimal(factor.denominator().multiply(offset.denominator())), mc);
         }
-        // Best effort for irrational coefficients: guard digits cover the coefficient error.
-        int guard = mc.getPrecision() + 10 + Math.max(0, value.precision() - value.scale());
+        // Best effort for irrational coefficients: the product's relative error is independent of the
+        // value's magnitude, so guard digits only cover cancellation against the offset.
+        int guard = mc.getPrecision() + 10 + Math.max(0, Math.getExponent(offsetD) * 3 / 10 + 1);
         MathContext work = new MathContext(guard);
         return value.multiply(factor.decimalValue(work), work).add(offset.decimalValue(work), work).round(mc);
     }

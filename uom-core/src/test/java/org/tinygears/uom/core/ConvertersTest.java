@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.Converters.IDENTITY;
 import static org.tinygears.uom.core.Converters.affine;
@@ -16,6 +17,7 @@ import static org.tinygears.uom.core.Factor.ofLong;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.time.Duration;
 import javax.measure.UnitConverter;
 import org.junit.jupiter.api.Test;
 
@@ -108,5 +110,19 @@ class ConvertersTest {
     void decimalUnlimitedPrecisionStaysExactForDecimalCoefficients() {
         UomConverter c = affine(Factor.decimal("1.5"), Factor.decimal("0.25"));
         assertEquals(0, c.convert(new BigDecimal("3"), MathContext.UNLIMITED).compareTo(new BigDecimal("4.75")));
+    }
+
+    @Test
+    void irrationalConversionOfHugeValuesIsFast() {
+        UomConverter degree = scale(Factor.PI.divide(ofLong(180)));
+        BigDecimal perUnit = Factor.PI.divide(ofLong(180)).decimalValue(new MathContext(40));
+        for (int e : new int[] {20000, 200000}) {
+            BigDecimal v = BigDecimal.ONE.scaleByPowerOfTen(e);
+            BigDecimal r = assertTimeoutPreemptively(Duration.ofSeconds(5),
+                    () -> degree.convert(v, MathContext.DECIMAL64));
+            BigDecimal expected = perUnit.scaleByPowerOfTen(e);
+            BigDecimal relative = r.subtract(expected).abs().divide(expected, MathContext.DECIMAL64);
+            assertTrue(relative.compareTo(new BigDecimal("1e-15")) < 0, () -> e + ": " + r);
+        }
     }
 }
