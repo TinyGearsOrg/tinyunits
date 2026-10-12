@@ -4,6 +4,8 @@ package org.tinygears.uom.codegen;
 
 /** An error in a generator input; with a file position the message reads {@code source:line: text}. */
 public final class GenerationException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     private final String source;
     private final int line;
 

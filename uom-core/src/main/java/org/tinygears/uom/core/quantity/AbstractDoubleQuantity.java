@@ -161,7 +161,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     private static Quantity<?> untyped(double value, UomUnit<?> unit) {
-        return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit), Quantity.Scale.ABSOLUTE);
+        return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit.getSystemUnit()), Quantity.Scale.ABSOLUTE);
     }
 
     private static double toSystem(Quantity<?> quantity, UomUnit<?> unit) {
@@ -185,11 +185,11 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return create(r, unit, scale);
     }
 
-    protected double toSystem(double value, UomUnit<Q> unit) {
+    private double toSystem(double value, UomUnit<Q> unit) {
         return unit.toSystemConverter().convert(value);
     }
 
-    protected double fromSystem(double systemValue, UomUnit<Q> unit) {
+    private double fromSystem(double systemValue, UomUnit<Q> unit) {
         return unit.toSystemConverter().inverse().convert(systemValue);
     }
 

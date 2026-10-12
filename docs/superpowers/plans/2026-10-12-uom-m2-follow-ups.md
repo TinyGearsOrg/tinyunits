@@ -26,9 +26,6 @@ unmarked items are later or opportunistic.
   `20 degC - 0 degC` = -253.15 degC). The owner should confirm decision D5 before the TCK work.
 - Tolerance of `isEquivalentTo` is relative only: asymmetric near zero for offset units (`0.001 degC` vs `273.151 K`) and
   against infinity (`inf m` vs `1e308 km`); the `isEquivalentTo` Javadoc states the offset case only. Decide in M4 whether an absolute floor is wanted.
-- Untyped result units print unnormalized symbols (`(2 m)/(4 m)` is `0.5 m/m`, `24.0 m^2·m`, `2.5 (m/s)/s`); a trailing
-  `.getSystemUnit()` in `untyped(...)` of `AbstractDoubleQuantity` would print `m^3`, `m/s^2`, `1`.
-- `inverse()` labels the unit `s^-1` where the system label is `1/s`.
 - The generated factory's foreign-unit message uses the unit's `toString`; `uom-core` uses the class name. Align them (the
   test Proxy units must otherwise answer `toString`).
 - An unlabelled shifted or scaled unit (`KELVIN.shift(273.15)`, `METRE.multiply(1000)`) has a null symbol but prints with

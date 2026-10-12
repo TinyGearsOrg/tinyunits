@@ -169,6 +169,7 @@ class FormulaEvaluatorTest {
     @Test
     void messageLessLookupFailureUsesClassName() {
         class Silent extends RuntimeException {
+            private static final long serialVersionUID = 1L;
         }
         FormulaException e = assertThrows(FormulaException.class,
                 () -> FormulaEvaluator.evaluate("m", n -> {
