@@ -156,7 +156,7 @@ class UntypedQuantityTest {
             UntypedDoubleQuantity r = (UntypedDoubleQuantity) ((UntypedDoubleQuantity) a.multiply(b)).divide(b);
             assertEquals(METRE, r.getUnit());
             double expected = a.to(METRE).getValue().doubleValue();
-            assertTrue(Math.abs(r.doubleValue() - expected) <= 1e-9 * expected, () -> a + " vs " + r);
+            assertTrue(Math.abs(r.getValue() - expected) <= 1e-9 * expected, () -> a + " vs " + r);
         }
     }
 

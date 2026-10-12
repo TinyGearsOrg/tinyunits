@@ -2,6 +2,8 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Speed;
@@ -36,5 +38,10 @@ class TestSpeedImpl extends AbstractDoubleQuantity<Speed, TestSpeed> implements 
     @Override
     protected TestSpeed create(double value, UomUnit<Speed> unit, Quantity.Scale scale) {
         return new TestSpeedImpl(value, unit, scale);
+    }
+
+    @Override
+    protected TestSpeed createDecimal(BigDecimal value, UomUnit<Speed> unit, Quantity.Scale scale, MathContext mc) {
+        return new TestSpeedDecimalImpl(value, unit, scale, mc);
     }
 }

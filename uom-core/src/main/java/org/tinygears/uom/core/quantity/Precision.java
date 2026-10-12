@@ -29,11 +29,15 @@ final class Precision {
         return n instanceof BigDecimal ? Kind.DECIMAL : Kind.DOUBLE;
     }
 
+    /** {@code n} as a double; a BigDecimal or BigInteger beyond the double range throws, underflow gives 0. */
     static double toDouble(Number n) {
         double d = n.doubleValue();
         if (n instanceof BigDecimal b && Double.isInfinite(d)) {
             throw new ArithmeticException(
                     "value out of double range: precision " + b.precision() + ", scale " + b.scale());
+        }
+        if (n instanceof BigInteger i && Double.isInfinite(d)) {
+            throw new ArithmeticException("value out of double range: bit length " + i.bitLength());
         }
         return d;
     }

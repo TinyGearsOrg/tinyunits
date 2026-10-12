@@ -245,7 +245,6 @@ class AbstractDoubleQuantityTest {
     void accessors() {
         TestLengthImpl x = q(2.5, METRE);
         assertEquals(Double.valueOf(2.5), x.getValue());
-        assertEquals(2.5, x.doubleValue());
         assertSame(METRE, x.getUnit());
         assertSame(Quantity.Scale.ABSOLUTE, x.getScale());
     }

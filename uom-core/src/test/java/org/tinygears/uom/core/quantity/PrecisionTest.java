@@ -56,6 +56,18 @@ class PrecisionTest {
     }
 
     @Test
+    void toDoubleRejectsOutOfRangeIntegers() {
+        assertEquals("value out of double range: bit length 1329",
+                assertThrows(ArithmeticException.class, () -> Precision.toDouble(BigInteger.TEN.pow(400)))
+                        .getMessage());
+        assertThrows(ArithmeticException.class, () -> Precision.toDouble(BigInteger.TEN.pow(400).negate()));
+        assertEquals(0x1p1023, Precision.toDouble(BigInteger.TWO.pow(1023)));
+        assertThrows(ArithmeticException.class, () -> Precision.toDouble(BigInteger.TWO.pow(1024)));
+        assertEquals(7.0, Precision.toDouble(BigInteger.valueOf(7)));
+        assertEquals(Double.POSITIVE_INFINITY, Precision.toDouble(Double.POSITIVE_INFINITY));
+    }
+
+    @Test
     void toDecimal() {
         assertEquals(new BigDecimal("0.1"), Precision.toDecimal(0.1));
         assertEquals(new BigDecimal("0.1"), Precision.toDecimal(0.1f));

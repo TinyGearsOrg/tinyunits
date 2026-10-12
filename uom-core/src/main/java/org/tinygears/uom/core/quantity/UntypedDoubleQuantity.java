@@ -2,6 +2,8 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 
@@ -19,5 +21,10 @@ public final class UntypedDoubleQuantity extends AbstractDoubleQuantity<Untyped,
     @Override
     protected Untyped create(double value, UomUnit<Untyped> unit, Quantity.Scale scale) {
         return new UntypedDoubleQuantity(value, unit, scale);
+    }
+
+    @Override
+    protected Untyped createDecimal(BigDecimal value, UomUnit<Untyped> unit, Quantity.Scale scale, MathContext mc) {
+        return new UntypedDecimalQuantity(value, unit, scale, mc);
     }
 }

@@ -2,6 +2,8 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Objects;
 import java.util.function.DoubleBinaryOperator;
 import javax.measure.Quantity;
@@ -14,7 +16,9 @@ import org.tinygears.uom.core.UomUnit;
 
 /**
  * Base class of the generated {@code double} quantities; {@code R} is the typed interface returned by
- * conversions. Immutable.
+ * conversions. Operands of any precision are read as {@code double}s, so results stay {@code double}; a
+ * {@link BigDecimal} or {@link java.math.BigInteger} outside the {@code double} range throws
+ * {@link ArithmeticException}. Immutable.
  */
 public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         implements Quantity<Q>, Comparable<Quantity<Q>> {
@@ -34,12 +38,11 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     protected abstract R create(double value, UomUnit<Q> unit, Quantity.Scale scale);
 
+    /** Creates the {@link BigDecimal} quantity of the same typed interface. */
+    protected abstract R createDecimal(BigDecimal value, UomUnit<Q> unit, Quantity.Scale scale, MathContext mc);
+
     @Override
     public final Double getValue() {
-        return value;
-    }
-
-    public final double doubleValue() {
         return value;
     }
 
@@ -59,6 +62,19 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return create(this.unit.getConverterTo(target).convert(value), target, scale);
     }
 
+    /** The same quantity: an equal {@code double} quantity. */
+    public R toDouble() {
+        return create(value, unit, scale);
+    }
+
+    /**
+     * The same quantity as a decimal: the value as written ({@link BigDecimal#valueOf(double)}), rounded to
+     * {@code mc}, which becomes its context. NaN or infinity throws {@link ArithmeticException}.
+     */
+    public R toDecimal(MathContext mc) {
+        return createDecimal(Precision.toDecimal(value).round(mc), unit, scale, mc);
+    }
+
     /**
      * Converts {@code that} into this unit and compares within the relative {@link #EQUIVALENCE_TOLERANCE}, which
      * is asymmetric near zero for offset units. NaN is equivalent to nothing; incompatible dimensions give false
@@ -71,7 +87,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
             return false;
         }
         double a = value;
-        double b = thatUnit.getConverterTo(unit).convert(that.getValue().doubleValue());
+        double b = thatUnit.getConverterTo(unit).convert(Precision.toDouble(that.getValue()));
         if (a == b) {
             return true;
         }
@@ -88,7 +104,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + thatUnit);
         }
-        return Double.compare(toSystem(value, unit), toSystem(that.getValue().doubleValue(), thatUnit));
+        return Double.compare(toSystem(value, unit), toSystem(Precision.toDouble(that.getValue()), thatUnit));
     }
 
     /**
@@ -112,16 +128,20 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return create(-value, unit, scale);
     }
 
-    /** Multiplies by {@code multiplicand.doubleValue()}; an offset unit goes through the system unit. */
+    /**
+     * Multiplies by {@code multiplicand} as a {@code double}; an offset unit goes through the system unit. A
+     * {@link BigDecimal} or {@link java.math.BigInteger} outside the {@code double} range throws
+     * {@link ArithmeticException}.
+     */
     @Override
     public R multiply(Number multiplicand) {
-        return scalar(multiplicand.doubleValue(), (a, n) -> a * n);
+        return scalar(Precision.toDouble(multiplicand), (a, n) -> a * n);
     }
 
-    /** Divides by {@code divisor.doubleValue()} as {@link #multiply(Number)}; division by zero follows IEEE 754. */
+    /** Divides by {@code divisor} as {@link #multiply(Number)}; division by zero follows IEEE 754. */
     @Override
     public R divide(Number divisor) {
-        return scalar(divisor.doubleValue(), (a, n) -> a / n);
+        return scalar(Precision.toDouble(divisor), (a, n) -> a / n);
     }
 
     /**
@@ -173,7 +193,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     private static double toSystem(Quantity<?> quantity, UomUnit<?> unit) {
-        return unit.toSystemConverter().convert(quantity.getValue().doubleValue());
+        return unit.toSystemConverter().convert(Precision.toDouble(quantity.getValue()));
     }
 
     private R scalar(double n, DoubleBinaryOperator op) {
@@ -186,7 +206,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     private R combine(Quantity<Q> that, DoubleBinaryOperator op) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         UomConverter toThisUnit = thatUnit.getConverterTo(unit);
-        double b = that.getValue().doubleValue();
+        double b = Precision.toDouble(that.getValue());
         double r = unit.toSystemConverter().isLinear() && thatUnit.toSystemConverter().isLinear()
                 ? op.applyAsDouble(value, toThisUnit.convert(b))
                 : fromSystem(op.applyAsDouble(toSystem(value, unit), toSystem(b, thatUnit)), unit);

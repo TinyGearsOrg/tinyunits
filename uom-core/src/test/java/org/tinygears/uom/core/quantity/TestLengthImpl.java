@@ -2,6 +2,8 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import org.tinygears.uom.core.UomUnit;
@@ -20,5 +22,10 @@ class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implemen
     @Override
     protected TestLength create(double value, UomUnit<Length> unit, Quantity.Scale scale) {
         return new TestLengthImpl(value, unit, scale);
+    }
+
+    @Override
+    protected TestLength createDecimal(BigDecimal value, UomUnit<Length> unit, Quantity.Scale scale, MathContext mc) {
+        return new TestLengthDecimalImpl(value, unit, scale, mc);
     }
 }
