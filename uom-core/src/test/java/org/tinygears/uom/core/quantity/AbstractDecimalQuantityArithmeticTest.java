@@ -24,6 +24,8 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 
 class AbstractDecimalQuantityArithmeticTest {
@@ -36,6 +38,10 @@ class AbstractDecimalQuantityArithmeticTest {
     private static final UomUnit<Length> INCH = BaseUnits.METRE.multiply(new BigDecimal("0.0254"));
     private static final UomUnit<Length> FAHRENHEIT =
             UomUnit.unchecked(BaseUnits.KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67")));
+    private static final UomUnit<Length> MINUS_2_5_M = BaseUnits.METRE.multiply(new BigDecimal("-2.5"));
+    private static final UomUnit<Length> MINUS_2_K_SHIFTED =
+            UomUnit.unchecked(BaseUnits.KELVIN.multiply(-2).shift(new BigDecimal("7.5")));
+    private static final UomUnit<Length> PI_M = UomUnit.unchecked(METRE.scaledBy(Factor.PI));
     private static final MathContext UNLIMITED = MathContext.UNLIMITED;
 
     private static TestLengthDecimalImpl q(String value, UomUnit<Length> unit) {
@@ -323,7 +329,7 @@ class AbstractDecimalQuantityArithmeticTest {
     @Test
     void irrationalFactorsAreApproximatedBeyondTheContext() {
         UomUnit<Length> piOver180 = UomUnit.unchecked(
-                METRE.scaledBy(org.tinygears.uom.core.Factor.PI.divide(org.tinygears.uom.core.Factor.ofLong(180))));
+                METRE.scaledBy(Factor.PI.divide(Factor.ofLong(180))));
         assertDecimal("4.141592653589793238462643383279503", METRE, q("1", METRE).add(q("180", piOver180)));
         assertDecimal("4.141592653589793238462643383279503", METRE, UNLIMITED,
                 q("1", METRE, UNLIMITED).add(q("180", piOver180, UNLIMITED)));
@@ -333,6 +339,44 @@ class AbstractDecimalQuantityArithmeticTest {
                 .compareTo(q("180", piOver180, UNLIMITED)));
         assertEquals(-1, q("3.1415926535897932384626433832795028841", METRE, UNLIMITED)
                 .compareTo(q("180", piOver180, UNLIMITED)));
+    }
+
+    @Test
+    void irrationalFactorsResolveCancellationAgainstTheOperandDigits() {
+        // pi = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803...
+        String pi34 = "3.141592653589793238462643383279503";
+        String pi70 = "3.141592653589793238462643383279502884197169399375105820974944592307816";
+        assertDecimal("-1.158028306006248941790250554076922E-34", METRE,
+                q("-" + pi34, METRE).add(q("1", PI_M)));
+        assertDecimal("-1.158028306006248941790250554076922E-34", METRE, UNLIMITED,
+                q("-" + pi34, METRE, UNLIMITED).add(q("1", PI_M, UNLIMITED)));
+        assertDecimal("4.062862089986280348253421170679821E-70", METRE, q("-" + pi70, METRE).add(q("1", PI_M)));
+        assertEquals(-1, q(pi70, METRE).compareTo(q("1", PI_M)));
+        assertEquals(1, q("1", PI_M).compareTo(q(pi70, METRE)));
+    }
+
+    @Test
+    void negativeFactorUnits() {
+        // 1 (-2.5 m) is -2.5 m.
+        assertEquals(-1, q("1", MINUS_2_5_M).compareTo(q("0", METRE)));
+        assertEquals(1, q("0", METRE).compareTo(q("1", MINUS_2_5_M)));
+        assertEquals(1, q("-1", MINUS_2_5_M).compareTo(q("2", METRE)));
+        assertDecimal("0", MINUS_2_5_M, q("1", MINUS_2_5_M).add(q("2.5", METRE)));
+        assertDecimal("-2", METRE, q("0.5", METRE).add(q("1", MINUS_2_5_M)));
+        UomConverter toKelvin = MINUS_2_K_SHIFTED.getConverterTo(KELVIN);
+        BigDecimal one = toKelvin.convert(BigDecimal.ONE, MathContext.DECIMAL128);
+        assertEquals(0, q("1", MINUS_2_K_SHIFTED).compareTo(q(one.toPlainString(), KELVIN)));
+        assertEquals(-Integer.signum(one.compareTo(BigDecimal.ZERO)),
+                q("0", KELVIN).compareTo(q("1", MINUS_2_K_SHIFTED)));
+    }
+
+    @Test
+    void offsetScalarRoundsOnce() {
+        MathContext p3 = new MathContext(3);
+        // Exact: (274.38 * 3 - 273.15) = 549.99 -> 550; rounding 274.38 K first would give 549.
+        assertDecimal("550", CELSIUS, p3, q("1.23", CELSIUS, p3).multiply(3));
+        // Exact: (274.38 / 0.5 - 273.15) = 275.61 -> 276; rounding first would give 275.
+        assertDecimal("276", CELSIUS, p3, q("1.23", CELSIUS, p3).divide(new BigDecimal("0.5")));
     }
 
     @Test
@@ -361,15 +405,15 @@ class AbstractDecimalQuantityArithmeticTest {
     /** Add, subtract, compareTo and scalars against an exact rational reference of the literal rule, correctly rounded. */
     @Test
     void correctlyRoundedAgainstExactReference() {
-        List<List<UomUnit<Length>>> groups = List.of(List.of(KILOMETRE, METRE, INCH),
-                List.of(KELVIN, CELSIUS, FAHRENHEIT));
+        List<List<UomUnit<Length>>> groups = List.of(List.of(KILOMETRE, METRE, INCH, MINUS_2_5_M),
+                List.of(KELVIN, CELSIUS, FAHRENHEIT, MINUS_2_K_SHIFTED));
         RoundingMode[] modes = {RoundingMode.HALF_UP, RoundingMode.HALF_EVEN, RoundingMode.HALF_DOWN,
             RoundingMode.UP, RoundingMode.DOWN, RoundingMode.CEILING, RoundingMode.FLOOR};
         Random random = new Random(20261012);
         for (int i = 0; i < 20_000; i++) {
             List<UomUnit<Length>> group = groups.get(random.nextInt(2));
-            UomUnit<Length> ua = group.get(random.nextInt(3));
-            UomUnit<Length> ub = group.get(random.nextInt(3));
+            UomUnit<Length> ua = group.get(random.nextInt(group.size()));
+            UomUnit<Length> ub = group.get(random.nextInt(group.size()));
             TestLengthDecimalImpl a = new TestLengthDecimalImpl(randomDecimal(random), ua, Quantity.Scale.ABSOLUTE,
                     randomContext(random, modes));
             TestLengthDecimalImpl b = new TestLengthDecimalImpl(randomDecimal(random), ub, Quantity.Scale.ABSOLUTE,

@@ -91,9 +91,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Adds as if both operands were in the system unit, with the result back in this unit; linear units skip the
-     * system round trip. Evaluated exactly and rounded once to the lower context of the two; a {@code double}
-     * operand gives a {@code double} result. Throws {@link UnconvertibleException} for a foreign unit or
-     * incompatible dimensions.
+     * system round trip. Evaluated exactly and rounded once to the lower context of the two (irrational unit
+     * factors with guard digits, best effort); a {@code double} operand gives a {@code double} result. Throws
+     * {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
      */
     @Override
     public R add(Quantity<Q> addend) {
@@ -126,7 +126,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Compares the exact system-unit values (a consistent total preorder), or with {@link Double#compare} against a
-     * {@code double} operand; not consistent with equals.
+     * {@code double} operand; not consistent with equals. Exact for units with exact factors; irrational factors
+     * are evaluated with guard digits, best effort.
      */
     @Override
     public int compareTo(Quantity<Q> that) {
@@ -140,10 +141,10 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         // sign(sys(a) - sys(b)) = sign(fa) * sign(a - (fb/fa) b - (ob - oa)/fa)
         UomConverter ta = unit.toSystemConverter();
         UomConverter tb = thatUnit.toSystemConverter();
-        MathContext mc = contextWith(that);
-        Ratio g = Ratio.of(tb.factor().divide(ta.factor()), mc);
-        Ratio h = Ratio.of(tb.offset().add(ta.offset().negate()).divide(ta.factor()), mc);
         BigDecimal b = Precision.toDecimal(n);
+        int digits = guardDigits(contextWith(that), b);
+        Ratio g = Ratio.of(tb.factor().divide(ta.factor()), digits);
+        Ratio h = Ratio.of(tb.offset().add(ta.offset().negate()).divide(ta.factor()), digits);
         BigDecimal d = value.multiply(g.den).multiply(h.den)
                 .subtract(b.multiply(g.num).multiply(h.den)).subtract(h.num.multiply(g.den));
         return ta.factor().signum() * d.signum();
@@ -215,9 +216,10 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         MathContext mc = contextWith(that);
         UomConverter ta = unit.toSystemConverter();
         UomConverter tb = thatUnit.toSystemConverter();
-        Ratio f = Ratio.of(tb.factor().divide(ta.factor()), mc);
-        Ratio o = Ratio.of(tb.offset().divide(ta.factor()), mc);
         BigDecimal b = Precision.toDecimal(n);
+        int digits = guardDigits(mc, b);
+        Ratio f = Ratio.of(tb.factor().divide(ta.factor()), digits);
+        Ratio o = Ratio.of(tb.offset().divide(ta.factor()), digits);
         BigDecimal term = b.multiply(f.num).multiply(o.den).add(o.num.multiply(f.den));
         BigDecimal ad = value.multiply(f.den).multiply(o.den);
         BigDecimal num = subtract ? ad.subtract(term) : ad.add(term);
@@ -227,7 +229,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     /** {@code r = a·s + q·(s - 1)} with {@code q = oa/fa} (or {@code 1/s} to divide), as one exact quotient. */
     private R scalar(BigDecimal s, boolean divide) {
         UomConverter ta = unit.toSystemConverter();
-        Ratio q = Ratio.of(ta.offset().divide(ta.factor()), mathContext);
+        Ratio q = Ratio.of(ta.offset().divide(ta.factor()), guardDigits(mathContext, s));
         BigDecimal aq = value.multiply(q.den).add(q.num);
         BigDecimal num = divide ? aq.subtract(q.num.multiply(s)) : aq.multiply(s).subtract(q.num);
         BigDecimal den = divide ? q.den.multiply(s) : q.den;
@@ -251,16 +253,17 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return num.divide(den, Precision.calculation(mc));
     }
 
-    /**
-     * An exact factor as numerator over a positive denominator; an irrational one (pi, roots) approximated over 1
-     * with 25 guard digits beyond {@code mc}, so its results are best effort.
-     */
+    /** Digits for approximating an irrational factor: the context's plus both operands', so cancellation shows. */
+    private int guardDigits(MathContext mc, BigDecimal other) {
+        return Precision.calculation(mc).getPrecision() + value.precision() + other.precision() + 25;
+    }
+
+    /** An exact factor as numerator over a positive denominator; an irrational one (pi, roots) approximated over 1. */
     private record Ratio(BigDecimal num, BigDecimal den, boolean exact) {
 
-        static Ratio of(Factor f, MathContext mc) {
+        static Ratio of(Factor f, int digits) {
             return f.isExact() ? new Ratio(new BigDecimal(f.numerator()), new BigDecimal(f.denominator()), true)
-                    : new Ratio(f.decimalValue(new MathContext(Precision.calculation(mc).getPrecision() + 25)),
-                            BigDecimal.ONE, false);
+                    : new Ratio(f.decimalValue(new MathContext(digits)), BigDecimal.ONE, false);
         }
     }
 
