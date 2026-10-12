@@ -313,10 +313,12 @@ public final class Factor implements Serializable {
             PI_CACHE.clear();
         }
         return PI_CACHE.computeIfAbsent((digits + 63) / 64 * 64, p -> {
-            MathContext mc = new MathContext(p + 5);
-            BigDecimal machin = atanInverse(5, mc).multiply(BigDecimal.valueOf(16))
-                    .subtract(atanInverse(239, mc).multiply(BigDecimal.valueOf(4)));
-            return machin.round(new MathContext(p));
+            // Chudnovsky: pi = 426880 sqrt(10005) Q / T, about 14.18 digits per term; binary splitting keeps it fast.
+            MathContext mc = new MathContext(p + 10);
+            BigInteger[] pqt = chudnovsky(0, p / 14 + 2);
+            BigDecimal pi = new BigDecimal(pqt[1].multiply(BigInteger.valueOf(426_880)))
+                    .multiply(BigDecimal.valueOf(10_005).sqrt(mc), mc).divide(new BigDecimal(pqt[2]), mc);
+            return pi.round(new MathContext(p));
         });
     }
 
@@ -324,20 +326,25 @@ public final class Factor implements Serializable {
         return PI_CACHE.size();
     }
 
-    /** atan(1/x) by its Taylor series. */
-    private static BigDecimal atanInverse(int x, MathContext mc) {
-        BigDecimal x2 = BigDecimal.valueOf((long) x * x);
-        BigDecimal eps = BigDecimal.ONE.movePointLeft(mc.getPrecision());
-        BigDecimal power = BigDecimal.ONE.divide(BigDecimal.valueOf(x), mc);
-        BigDecimal sum = power;
-        for (int k = 1; ; k++) {
-            power = power.divide(x2, mc);
-            BigDecimal term = power.divide(BigDecimal.valueOf(2L * k + 1), mc);
-            if (term.compareTo(eps) < 0) {
-                return sum;
+    private static final BigInteger CHUDNOVSKY_C3_24 = BigInteger.valueOf(640_320).pow(3).divide(BigInteger.valueOf(24));
+
+    /** P, Q and T of the Chudnovsky series over terms {@code [a, b)}. */
+    private static BigInteger[] chudnovsky(long a, long b) {
+        if (b - a == 1) {
+            if (a == 0) {
+                return new BigInteger[] {BigInteger.ONE, BigInteger.ONE, BigInteger.valueOf(13_591_409)};
             }
-            sum = k % 2 == 0 ? sum.add(term, mc) : sum.subtract(term, mc);
+            BigInteger p = BigInteger.valueOf(6 * a - 5).multiply(BigInteger.valueOf(2 * a - 1))
+                    .multiply(BigInteger.valueOf(6 * a - 1));
+            BigInteger q = BigInteger.valueOf(a).pow(3).multiply(CHUDNOVSKY_C3_24);
+            BigInteger t = p.multiply(BigInteger.valueOf(13_591_409 + 545_140_134 * a));
+            return new BigInteger[] {p, q, a % 2 == 0 ? t : t.negate()};
         }
+        long m = (a + b) / 2;
+        BigInteger[] l = chudnovsky(a, m);
+        BigInteger[] r = chudnovsky(m, b);
+        return new BigInteger[] {l[0].multiply(r[0]), l[1].multiply(r[1]),
+                l[2].multiply(r[1]).add(l[0].multiply(r[2]))};
     }
 
     /** r-th root of a > 0 by Newton iteration from a double-precision guess. */

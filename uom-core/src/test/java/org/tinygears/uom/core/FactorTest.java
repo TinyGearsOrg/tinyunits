@@ -93,6 +93,45 @@ class FactorTest {
         assertTrue(Factor.piCacheSize() <= 16);
     }
 
+    /** Reference pi by Machin's formula, 16 atan(1/5) - 4 atan(1/239). */
+    private static BigDecimal machin(int digits) {
+        MathContext mc = new MathContext(digits + 10);
+        return atanInverse(5, mc).multiply(BigDecimal.valueOf(16)).subtract(atanInverse(239, mc).multiply(
+                BigDecimal.valueOf(4))).round(new MathContext(digits));
+    }
+
+    private static BigDecimal atanInverse(int x, MathContext mc) {
+        BigDecimal x2 = BigDecimal.valueOf((long) x * x);
+        BigDecimal eps = BigDecimal.ONE.movePointLeft(mc.getPrecision());
+        BigDecimal power = BigDecimal.ONE.divide(BigDecimal.valueOf(x), mc);
+        BigDecimal sum = power;
+        for (int k = 1; ; k++) {
+            power = power.divide(x2, mc);
+            BigDecimal term = power.divide(BigDecimal.valueOf(2L * k + 1), mc);
+            if (term.compareTo(eps) < 0) {
+                return sum;
+            }
+            sum = k % 2 == 0 ? sum.add(term, mc) : sum.subtract(term, mc);
+        }
+    }
+
+    @Test
+    void piMatchesMachinsFormula() {
+        BigDecimal reference = machin(3020);
+        for (int p : new int[] {1, 2, 15, 63, 64, 65, 500, 1000, 3000}) {
+            assertEquals(reference.round(new MathContext(p)), PI.decimalValue(new MathContext(p)), "digits " + p);
+        }
+    }
+
+    @Test
+    void piToTheMaximumContextPrecisionIsFast() {
+        // Precision 100000 plus guard digits, as a decimal quantity at the bound of its context needs.
+        BigDecimal pi = assertTimeoutPreemptively(Duration.ofSeconds(20),
+                () -> PI.decimalValue(new MathContext(200_100)));
+        assertEquals(200_100, pi.precision());
+        assertEquals(machin(3000), pi.round(new MathContext(3000)));
+    }
+
     @Test
     void sizeIsCapped() {
         assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
