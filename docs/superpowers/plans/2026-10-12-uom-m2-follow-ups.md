@@ -6,6 +6,9 @@ unmarked items are later or opportunistic.
 
 ## Decisions needed before milestone 3
 
+The two owner decisions below (`asType` and alternate units, offset-unit arithmetic) are tracked with their options in
+`docs/TODO.md`.
+
 - `asType` refuses quantity types whose system unit is an alternate unit: `Time.of(2, s).inverse().asType(Frequency.class)`
   and `Frequency.of(2, Hz).multiply(Time.of(3, s)).asType(Dimensionless.class)` throw `ClassCastException` although the
   dimensions match (milestone 1 compares atom-structured system units so that Frequency and Radioactivity stay distinct,
