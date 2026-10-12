@@ -108,11 +108,9 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
 
 - `UnitLabelRoundTripTest` (uom-core): the non-vacuity bound `>= 400` of 500 is loose (all 500 have labels); the generator has no prefix,
   shift, `multiply(Number)` or 5-6 operation chains; `dotIsMultiplication` lacks `2·m`, `1|2·m`, `m·(s)` probes.
-- The milestone 3 ruling to move the derived-unit dimension table and the full expected `@prefixed` symbol set into the Task 5
-  commit was not carried out; both gaps below remain.
-- No test pins the base decomposition of the derived SI units (T as Wb/m, Pa as N/m^3, lx as cd/m^2, kat as mol s would stay
-  green because `si.units` and `quantity-types.txt` share symbols); the `@prefixed` list is sampled only (dropping `G` from
-  `@prefixed Pa h k M G` passes); `SiDataTest` skips prefixed expansions; Gy/Sv mutations are covered by one of two tables.
+- The Task 4 minors (derived-unit dimension table, full expected `@prefixed` symbol set) were assigned to Task 5 and carried
+  out there: `SiDimensionTest` and `SiDataTest.prefixedSymbolsArePinned`. Remaining: Gy/Sv dimension mutation is covered by
+  one of the two tables.
 - No test names the `p` plus `i` reserved-symbol collision of `@prefixed`.
 - `QuantityTypes` no-init assertion (`findLoadedClass` null after `types()`) has no positive control and checks loading, not
   initialisation; a generated Javadoc line exceeds 100 characters.
