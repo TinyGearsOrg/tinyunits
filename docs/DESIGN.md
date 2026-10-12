@@ -1,6 +1,6 @@
 # uom: Design
 
-Status: draft for owner review; milestones 1 to 4 are implemented (section 7). Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
+Status: draft for owner review; milestones 1 to 5 are implemented (section 7). Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
 N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven, multi-module.
 
 ## 1. Decisions
@@ -20,10 +20,11 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
 ```
  data/quantity-types.txt ─┐
  data/*.units ────────────┼─> uom-codegen (internal tool, not published)
-                          │        │ writes sources, committed to the repo
-                          │        v
-                          │   uom-quantities   typed interfaces, LengthDouble, LengthDecimal, ...
-                          │   uom-systems      generated catalogs: SI, Imperial, CGS, ...
+   si, us-customary,      │        │ writes sources, committed to the repo
+   imperial, cgs,         │        v
+   cgs-esu, cgs-emu,      │   uom-quantities   typed interfaces, LengthDouble, LengthDecimal, ...
+   cgs-gaussian           │   uom-systems      generated catalogs: SI, USCustomary, Imperial, CGS,
+                          │                    ESU, EMU, Gaussian
                           │
  data/*.units ────────────┴─> planned: copied into uom-systems as resources, parsed at run time (not done)
 ```
@@ -32,7 +33,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
 |--------|----------|-----------|
 | `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
 | `uom-quantities` | Generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type | yes |
-| `uom-systems` | Generated catalogs and `SystemOfUnits` objects (`SI`, `UomSystemOfUnits`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
+| `uom-systems` | Generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `UomSystemOfUnits`, `UnitSystems`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom-systems`; test only | no |
 
@@ -93,7 +94,7 @@ Per quantity type the generator writes four files:
    `divide(Number)` (all return `Length`), `toDouble()` and `toDecimal(MathContext)` (F23, D10), and static factories
    `Length.of(double, unit)`, `Length.of(double, unit, Scale)` and, for `BigDecimal`,
    `of(BigDecimal, unit)`, `of(BigDecimal, unit, Scale)`, `of(BigDecimal, unit, Scale, MathContext)`
-   (D11). Planned: `to(SystemOfUnits)` (F8, milestone 5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
+   (D11). `to(SystemOfUnits)` (F8, D5 of milestone 5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
    work with any JSR-385 code (F4). The shared simple name is a deliberate trade-off: everyday
    code never mentions both types, and declaring a unit variable needs `var` or the fully
    qualified standard type.
@@ -110,8 +111,16 @@ Per quantity type the generator writes four files:
    conflicting registration breaks only its own type. `UomServiceProvider` uses it.
 
 The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four per type plus
-`QuantityTypes`; 100 before milestone 4). Extras the catalogs need would add more.
+`QuantityTypes`; 100 before milestone 4). No extra types were added in milestone 5.
 
+- **`to(SystemOfUnits)` (F8, D5 of milestone 5).** The base classes implement `R to(SystemOfUnits)` once, as
+  `to(system.getUnit(quantityType()))`, through the generated hook `protected abstract Class<Q> quantityType()` (the
+  standard interface of the type, `Untyped` for untyped quantities). Scale and `MathContext` are kept. A `null` unit from the
+  system (and any untyped quantity) throws `UnsupportedOperationException("system N has no unit for type T")`; a unit of
+  another dimension gives `UnconvertibleException`; a `null` system gives `NullPointerException`. Every system of this library
+  has a preferred unit for all 33 types (D4 fallback: own `@preferred`, else the first extended system's, else SI's). Offsets
+  apply: `Temperature.of(100, degC).to(USCustomary.SYSTEM)` is `212.0 °F`, exactly `212 °F` for a decimal. Because `to(Unit)`
+  and `to(SystemOfUnits)` overload, `to(null)` with a bare literal is ambiguous (`docs/TODO.md` item 4).
 - **Untyped results.** `multiply(Quantity)`, `divide(Quantity)` and `inverse()` return an
   `UntypedDoubleQuantity` or `UntypedDecimalQuantity` (phantom type `Untyped`) whose unit is built from the system units of
   the operands, scale `ABSOLUTE`. `asType(Class)` returns `this` when the quantity is already
@@ -178,19 +187,27 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
 ## 5. Data files, generator and parser
 
 Files live in `data/`: `quantity-types.txt` (quantity types and their system units, built from
-the standard's 33 types, no extras so far) and one `.units` file per unit system (`si.units`,
-`imperial.units`, `cgs.units`, ... in later milestones). Planned: copy the `.units` files into
+the standard's 33 types, no extras) and one `.units` file per unit system: `si.units`, `us-customary.units`,
+`imperial.units`, `cgs.units`, `cgs-esu.units`, `cgs-emu.units` and `cgs-gaussian.units`. Planned: copy the `.units` files into
 `uom-systems` as resources for run-time loading (not done yet).
 
-**Generator (milestones 2 and 3).** `uom-codegen` (not published) reads `data/quantity-types.txt`
-and `data/si.units` and writes the sources of section 4 into
-`uom-quantities/src/main/java/org/tinygears/uom/quantity` and the catalog class `SI` into
-`uom-systems/src/main/java/org/tinygears/uom/systems/SI.java`; they are committed. `Generate` takes
+**Generator (milestones 2, 3 and 5).** `uom-codegen` (not published) reads `data/quantity-types.txt`
+and the seven `.units` files listed in `Generate.CATALOGS` (`si.units` first) and writes the sources of section 4 into
+`uom-quantities/src/main/java/org/tinygears/uom/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
+`CGS`, `ESU`, `EMU`, `Gaussian`) into `uom-systems/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
+file missing from the list is caught by the data-versus-list test, not by the generator. `Generate` takes
 three arguments: `<dataDir> <quantitiesOut> <systemsOut>`.
 
 - `data/si.units` holds the SI definitions (BIPM SI Brochure, 9th edition) and the curated
   `@prefixed` lines; it replaced the milestone 2 bootstrap set `base.units` and yields 128
   catalog entries, declared in `SI` as typed constants (`SI.METRE`, `SI.KILOMETRE`).
+- The other files (values authored from NIST SP 811, the SI Brochure and Jackson, not copied from other catalogs): `us-customary.units`
+  (`@system USCustomary`; international and survey foot, US gallon, `lb`, `lbf`, `psi`, `BTU_IT`, `hp`, `°F`, `°R`, 35 distinct units),
+  `imperial.units` (`@extends us-customary.units`; imperial gallon and ton, stone; 42), `cgs.units` (`@system CGS`,
+  `@member cm g s`; dyne, erg, barye, galileo, poise, stokes; 16), `cgs-esu.units` (statcoulomb and the other `stat` units; 22),
+  `cgs-emu.units` (the `ab` units, gauss, maxwell, oersted, gilbert; 29) and `cgs-gaussian.units` (`@extends cgs-esu.units`,
+  `@include cgs-emu.units`, `@member G Mx Oe Gb`, franklin; 26). Units that differ between systems have distinct symbols
+  (`gal_US`, `gal_UK`, `ft`, `ft_US`). Poise, stokes and oersted are untyped (D6): no standard quantity type exists.
 - `data/quantity-types.txt` has one `Name formula` per line, e.g. `Speed m / s`. `Name` is a
   `javax.measure.quantity` interface that must exist; the formula is the unscaled, non-offset
   system unit over units of `si.units`. `#` starts a comment. An empty file, a duplicate, an
@@ -223,8 +240,12 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   tighter than them, so `J / kg K` is `J / (kg K)`;
   `^n` is an integer power, `a|b` an exact fraction, decimals are exact, parentheses group,
   `!` marks a base unit, `~` an alternate unit, `=` an affine function, `@include` includes a
-  file, `@preferred` sets the preferred unit of a type, `@prefixed <symbol> <prefix>...` generates
-  prefixed units from metric prefix symbols. Underscores in names stand for spaces.
+  file (definitions only; every file includes `si.units`), `@preferred` sets the preferred unit of a type,
+  `@prefixed <symbol> <prefix>...` generates prefixed units from metric prefix symbols. Underscores in names stand for
+  spaces. Milestone 5 adds `@system Name` (once per catalog file: names the class and the system; a Java identifier),
+  `@extends file` (implies `@include`; the units of that file and, transitively, of the files it extends become members, and
+  its `@preferred` lines are inherited) and `@member symbol...` (units of an included file that become members without a
+  new constant; a unit defined in the root file itself is an error).
 - **Type resolution (F16).** A trailing `[Type]` states the quantity type; it must name a type in
   `quantity-types.txt` whose system unit equals the unit's system unit (`CatalogBuilder`).
   Otherwise the generator looks up the unit's system-unit decomposition in `quantity-types.txt`.
@@ -239,17 +260,32 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   factor and an offset, and emits plain constructor calls. `si.units` becomes the class `SI`
   with typed constants (`UomUnit<javax.measure.quantity.Length> METRE`; names come from the unit
   names, upper case, non-ASCII letters replaced by `_`), the collections `UNITS`, `PREFERRED`
-  and `PREFIXABLE`, and the `SystemOfUnits` object `SI.SYSTEM` (F8, F6). Other systems follow
-  in milestone 5. It also emits the quantity sources of section 4.
-- **Run time (F17, F18).** The parser ships in `uom-core`. Milestone 3 does not load `.units`
+  and `PREFIXABLE`, and the `SystemOfUnits` object `SI.SYSTEM` (F8, F6). Every catalog file gives such a class
+  (`USCustomary.FOOT`, `Imperial.GALLON_UK`, `CGS.DYNE`, `ESU.STATCOULOMB`, `Gaussian.FRANKLIN`, ...). It also emits the
+  quantity sources of section 4.
+- **Catalog classes (D3).** A class has constants for its own definitions only. Its `UNITS` list is its own constants, then the
+  flattened `UNITS` of the systems it extends, then the `@member` units through the owning class (`CGS.UNITS` ends with
+  `SI.CENTIMETRE`, `SI.GRAM`, `SI.SECOND`; `Gaussian.UNITS` holds `EMU.GAUSS`); equal units collapse to the first listed.
+  `PREFIXABLE` is the own and inherited `@prefixed` symbols restricted to members, and a member keeps the prefixable status
+  of its owner, so `G` is prefixable in `Gaussian` and `g` and `s` in `CGS`.
+- **Preferred layering (D4).** `PREFERRED` has all 33 types: the file's own `@preferred` lines, else those of the first
+  extended system (in `@extends` order), else `SI`'s (the fallback relies on `si.units` being first in `Generate.CATALOGS`).
+  Layering is by source file; files that are only `@include`d contribute no lines. `SI` itself keeps the factory system unit
+  for a type without `@preferred`.
+- **Run time (F17, F18).** The parser ships in `uom-core`. Through milestone 5 the library does not load `.units`
   resources at run time: `UomUnitFormat` resolves symbols from the generated catalogs and
   evaluates formulas with `FormulaEvaluator`. Loading user `.units` files (F18) is to do.
 - **Prefixes.** `@prefixed` generates the curated prefixed units (`SI.KILOMETRE`). At run time
   `UomUnitFormat` also resolves a metric prefix on any unit in `SI.PREFIXABLE`, so `Mm` and `dam`
   parse without a constant; binary prefixes (`MiB`) are not resolved yet. Only units named in a
   `@prefixed` line are in `SI.PREFIXABLE`, so only they take prefixes at run time (`Gm`, but not
-  `kmin`). A prefixed power is written with `^`: `km^2` parses as `(km)^2`, while `km²` does not
+  `kmin`). Prefixable symbols of all systems apply (D3). A prefixed power is written with `^`: `km^2` parses as `(km)^2`, while `km²` does not
   parse (`m²` is a symbol of its own, not a prefixable unit).
+- **Symbol resolution across systems (D7).** `UomUnitFormat.create()` resolves labels, then exact symbols across all systems of
+  `UnitSystems.all()` (SI first), then a metric prefix on a prefixable unit. Exact symbols win over prefix readings, so `ft` is the
+  foot, not the femtotonne; this is the only string that parsed in SI-only mode and now reads differently (the shadow set `{ft}`,
+  pinned by a test over all strings of that form). Equal units of different systems format to the first system's symbol
+  (`abH` equals `nH`, `cm³` equals `mL`).
 - **Consistency test.** `SiCatalogTest` checks every definition of `si.units` against the
   catalog; `UnitFormatTest` formats and parses every `SI.UNITS` entry back to an equal unit.
 
@@ -281,7 +317,11 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    classes (133 generated quantity files), 33 types, 128 SI catalog entries, TCK 113 of 113 tests, 708 tests in
    `mvn -q -B clean verify` (core 350, codegen 97, quantities 28, systems 119, tck 113, examples 1). Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
-5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`.
+5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`. Done: `USCustomary`, `Imperial`, `CGS`,
+   `ESU`, `EMU`, `Gaussian` catalogs (35, 42, 16, 22, 29, 26 distinct units, with `SI` 128), the directives `@system`,
+   `@extends`, `@member`, `to(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 869 tests in
+   `mvn -q -B clean verify` (core 430, codegen 138, quantities 29, systems 158, tck 113, examples 1). Follow-ups:
+   `docs/superpowers/plans/2026-10-12-uom-m5-follow-ups.md`.
 6. Locale-aware formatting (and a faithful form for derived offset units), serialization, JPMS
    polish, documentation, Maven Central release.
 
@@ -289,8 +329,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 
 - Resolved in milestone 4: the decimal `equals` scale rule and the decimal `isEquivalentTo` tolerance (section 4). The
   `double` tolerance and the `Scale` rules were resolved earlier.
-- Exact list of extra quantity types the catalogs need (milestone 5).
-- Run-time loading of `.units` resources and user files (F17, F18).
+- Extra quantity types for the untyped poise, stokes and oersted (`DynamicViscosity`, `KinematicViscosity`, `MagneticFieldStrength`, ...): the milestone 5 catalogs leave them untyped (D6).
+- Run-time loading of `.units` resources and user files (F17, F18): still open after milestone 5.
 - The open owner decisions in `docs/TODO.md` (offset-unit arithmetic, `asType` and alternate
   units, offset-unit products).
 - Repository rename: the GitHub repository is `tinyunits`, the project is `uom`.

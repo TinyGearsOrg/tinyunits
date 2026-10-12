@@ -13,12 +13,18 @@ import javax.measure.format.UnitFormat;
 import javax.measure.quantity.Speed;
 import javax.measure.spi.FormatService;
 import javax.measure.spi.ServiceProvider;
+import org.tinygears.uom.quantity.ElectricCharge;
 import org.tinygears.uom.quantity.Energy;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Mass;
 import org.tinygears.uom.quantity.Temperature;
 import org.tinygears.uom.quantity.Time;
+import org.tinygears.uom.quantity.Volume;
+import org.tinygears.uom.systems.CGS;
+import org.tinygears.uom.systems.Gaussian;
+import org.tinygears.uom.systems.Imperial;
 import org.tinygears.uom.systems.SI;
+import org.tinygears.uom.systems.USCustomary;
 
 /** Usage examples; each method returns what it prints so that a test can check it. */
 public final class Examples {
@@ -137,6 +143,18 @@ public final class Examples {
         return printed + " | " + parsed.getValue().getClass().getSimpleName() + " " + parsed.getValue();
     }
 
+    /** quantity.to(system) converts to the system's preferred unit; US and imperial gallons differ. */
+    static String systems() {
+        Length foot = Length.of(1, USCustomary.FOOT);
+        Temperature boiling = Temperature.of(100, SI.DEGREE_CELSIUS);
+        Temperature exact = Temperature.of(new BigDecimal("100"), SI.DEGREE_CELSIUS);
+        return foot + " = " + foot.to(CGS.SYSTEM) + " | " + boiling + " = " + boiling.to(USCustomary.SYSTEM)
+                + " | exact " + exact.to(USCustomary.SYSTEM)
+                + " | " + Volume.of(1, USCustomary.GALLON_US).to(SI.LITRE)
+                + " vs " + Volume.of(1, Imperial.GALLON_UK).to(SI.LITRE)
+                + " | " + ElectricCharge.of(1, SI.COULOMB).to(Gaussian.SYSTEM);
+    }
+
     static Map<String, String> all() {
         Map<String, String> out = new LinkedHashMap<>();
         out.put("basics", basics());
@@ -151,6 +169,7 @@ public final class Examples {
         out.put("contexts", contexts());
         out.put("decimalEquality", decimalEquality());
         out.put("decimalFormat", decimalFormat());
+        out.put("systems", systems());
         return out;
     }
 

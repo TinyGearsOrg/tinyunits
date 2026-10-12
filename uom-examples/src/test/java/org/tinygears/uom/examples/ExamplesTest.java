@@ -25,6 +25,8 @@ class ExamplesTest {
                 Map.entry("contexts", "1.235 m | 0.4115226 m | Double"),
                 Map.entry("decimalEquality",
                         "decimal equals double: false | equivalent: true | 2 equals 2.00: true"),
-                Map.entry("decimalFormat", "1.50 km | Double 1.5")), Examples.all());
+                Map.entry("decimalFormat", "1.50 km | Double 1.5"),
+                Map.entry("systems", "1.0 ft = 30.48 cm | 100.0 °C = 212.0 °F | exact 212 °F"
+                        + " | 3.785411784 L vs 4.54609 L | 2.99792458E9 Fr")), Examples.all());
     }
 }

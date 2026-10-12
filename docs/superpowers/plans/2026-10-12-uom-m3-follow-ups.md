@@ -94,7 +94,8 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
 - Whitespace-shaped symbols are emitted verbatim (cosmetic); the evaluator guard wraps all `RuntimeException`s.
 - Any metric prefix applies at run time to a prefixable unit, so in an SI-only format `ft`, `at`,
   `ct` and `dt` parse as femto-, atto-, centi- and decitonne. Exact symbols win in a multi-system
-  format, but consider restricting `t` to the prefixes listed in its `@prefixed` line.
+  format, but consider restricting `t` to the prefixes listed in its `@prefixed` line. Done for the default format by milestone 5
+  (`UomUnitFormat.create()` covers all seven systems; `ft` is the foot); an SI-only format still reads `ft` as femtotonne.
 - `UomServiceProvider.toString()` could return the provider name so that `ServiceProvider.of(name)`
   finds it (unit-api 2.2 falls back to `toString()` without `@Named`).
 
@@ -112,7 +113,8 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
 - Initialising `SI` loads all 33 factories through `PREFERRED`, so a conflicting alternate registration breaks `SI`.
 - `SI.PREFERRED` entries are `XFactory.SYSTEM_UNIT` (equal to, not the same object as, the catalog constants) because no
   `@preferred` line exists yet; `@preferred` has no real-data coverage until milestone 5 and an `@include` override of the SI
-  file would need the duplicate-preferred rule revisited.
+  file would need the duplicate-preferred rule revisited. Partly done by milestone 5: the six new files carry `@preferred`
+  lines, layered by source file; `SI` still has none.
 - The codegen pom's `--add-modules`/`--add-reads java.compiler` test-compile arguments are redundant now that main code
   `requires java.compiler`.
 - Open items carried over from milestone 2 that still apply: see `2026-10-12-uom-m2-follow-ups.md`, "Generator".

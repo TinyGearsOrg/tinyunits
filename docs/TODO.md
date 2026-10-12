@@ -67,3 +67,13 @@ higher priority on the class path still breaks it. Other items: `docs/superpower
 `uom-core`. Options: keep and document, or apply the offset to the system unit first.
 
 **Needed by:** nothing in milestone 3; decide before 1.0.
+
+## 4. `to(null)` and the name of the system overload
+
+**Status:** the typed interfaces have `to(Unit)` and `to(SystemOfUnits)` (D5 of milestone 5, F8), so a bare `null` literal in
+`quantity.to(null)` is ambiguous and does not compile; a typed `null` variable is fine. Accepted in milestone 5 because the
+requirement names the method `to(system)`. Options: keep, or rename the system overload (for example `toSystem`).
+
+**Related, follows decision 1:** `to(system)` of a `Scale.RELATIVE` temperature applies the offset like any other conversion.
+
+**Needed by:** nothing; decide before 1.0.
