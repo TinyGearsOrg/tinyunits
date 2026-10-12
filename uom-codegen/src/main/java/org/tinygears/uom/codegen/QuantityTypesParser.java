@@ -75,10 +75,7 @@ public final class QuantityTypesParser {
                 }
                 UomUnit<?> unit;
                 try {
-                    unit = FormulaEvaluator.evaluate(formula, s -> {
-                        Definition d = bySymbol.get(s);
-                        return d == null ? null : d.unit();
-                    });
+                    unit = evaluate(formula, bySymbol);
                 } catch (FormulaException e) {
                     throw new GenerationException(source, ln, e.getMessage(), e);
                 } catch (RuntimeException e) {
@@ -96,13 +93,18 @@ public final class QuantityTypesParser {
                         throw new GenerationException(source, ln, "explicit name for an already named unit '"
                                 + symbol + "'");
                     }
+                    if (def == null && !evaluatesTo(parts[0], unit, bySymbol)) {
+                        throw new GenerationException(source, ln, "explicit symbol '" + parts[0]
+                                + "' does not evaluate to the unit");
+                    }
                     if (def == null && (bySymbol.containsKey(parts[0]) || !explicitSymbols.add(parts[0]))) {
                         throw new GenerationException(source, ln, "duplicate symbol '" + parts[0] + "'");
                     }
                     symbol = parts[0];
                     unitName = parts[1];
                 }
-                result.add(new QuantityTypeSpec(name, formula, unit, symbol, unitName, source, ln));
+                result.add(new QuantityTypeSpec(name, formula, unit, symbol, unitName, source, ln,
+                        explicit != null && def == null));
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -110,9 +112,26 @@ public final class QuantityTypesParser {
         return List.copyOf(result);
     }
 
+    private static UomUnit<?> evaluate(String formula, Map<String, Definition> bySymbol)
+            throws FormulaException {
+        return FormulaEvaluator.evaluate(formula, s -> {
+            Definition d = bySymbol.get(s);
+            return d == null ? null : d.unit();
+        });
+    }
+
+    // The symbol must parse back to the unit: formats print it whenever it does.
+    private static boolean evaluatesTo(String symbol, UomUnit<?> unit, Map<String, Definition> bySymbol) {
+        try {
+            return unit.equals(evaluate(symbol, bySymbol));
+        } catch (FormulaException | RuntimeException e) {
+            return false;
+        }
+    }
+
     /** Symbol and name of {@code symbol:name}; an underscore in the name stands for a space. */
     private static String[] explicit(String text, String source, int ln) {
-        if (text.chars().anyMatch(Character::isWhitespace)) {
+        if (text.chars().anyMatch(c -> Character.isWhitespace(c) || Character.isSpaceChar(c))) {
             throw new GenerationException(source, ln, "whitespace in '" + text + "' after '=>'");
         }
         String[] parts = text.split(":", -1);
@@ -122,7 +141,11 @@ public final class QuantityTypesParser {
         if (parts.length < 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
             throw new GenerationException(source, ln, "expected 'symbol:name' after '=>', got '" + text + "'");
         }
-        return new String[] {parts[0], parts[1].replace('_', ' ')};
+        String name = parts[1].replace('_', ' ');
+        if (name.isBlank()) {
+            throw new GenerationException(source, ln, "blank name in '" + text + "' after '=>'");
+        }
+        return new String[] {parts[0], name};
     }
 
     private static boolean isQuantity(String name) {

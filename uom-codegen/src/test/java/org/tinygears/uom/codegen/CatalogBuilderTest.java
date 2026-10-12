@@ -149,25 +149,30 @@ class CatalogBuilderTest {
                 "unit 'v' (metre per second) is the system unit of Speed, which types.txt:10 defines as an unnamed unit");
         List<QuantityTypeSpec> renamed = new ArrayList<>(types(defs(BASE)));
         QuantityTypeSpec length = renamed.get(0);
-        renamed.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "m", "meter", "types.txt", 1));
+        renamed.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "m", "meter", "types.txt", 1, false));
         fails(() -> CatalogBuilder.build(defs(BASE), renamed), 1,
                 "unit 'm' (metre) is the system unit of Length, which types.txt:1 defines as 'm' (meter)");
     }
 
+    // No definition can carry a => symbol such as m/s, so units equal to such a system unit are aliases.
     @Test
-    void namedSpeedSystemUnitNeedsItsSymbolAndName() {
-        Definitions d = defs(BASE + "v:metre_per_second m / s\n");
-        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt",
-                new StringReader(TYPES + "Speed m / s => m/s:metre_per_second\n"), d);
-        fails(() -> CatalogBuilder.build(d, types), 19, "unit 'v' (metre per second) is the system unit of Speed,"
-                + " which types.txt:10 defines as 'm/s' (metre per second)");
+    void unitsEqualToAnExplicitlyNamedSystemUnitKeepTheirOwnUnit() {
+        Definitions d = defs(BASE + "mps:metre_per_second m / s\ngee:gee m / s^2\n");
+        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt", new StringReader(TYPES
+                + "Speed m / s => m/s:metre_per_second\nAcceleration m / s^2 => m/s^2:metre_per_second_squared\n"), d);
+        Map<String, CatalogEntry> e = bySymbol(CatalogBuilder.build(d, types));
+        assertEquals("Speed", e.get("mps").quantityType());
+        assertNull(e.get("mps").shared());
+        assertEquals("Acceleration", e.get("gee").quantityType());
+        assertNull(e.get("gee").shared());
+        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT", e.get("m").shared());
     }
 
     @Test
     void systemUnitWithTheSameNameButAnotherSymbolFails() {
         List<QuantityTypeSpec> types = new ArrayList<>(types(defs(BASE)));
         QuantityTypeSpec length = types.get(0);
-        types.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "M", "metre", "types.txt", 1));
+        types.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "M", "metre", "types.txt", 1, false));
         fails(() -> CatalogBuilder.build(defs(BASE), types), 1,
                 "unit 'm' (metre) is the system unit of Length, which types.txt:1 defines as 'M' (metre)");
     }
@@ -183,7 +188,8 @@ class CatalogBuilderTest {
                     name -> new StringReader(files.get(name))));
         }
         Map<String, CatalogBuilder.Catalog> c = CatalogBuilder.catalogs(parsed, types(parsed.get("a.units")));
-        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT", c.get("a.units").entries().get(0).shared());
+        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT",
+                c.get("a.units").entries().get(0).shared());
         CatalogEntry alias = c.get("b.units").entries().get(0);
         assertEquals("mtr", alias.definition().symbol());
         assertEquals("Length", alias.quantityType());
@@ -199,7 +205,7 @@ class CatalogBuilderTest {
         Definitions d = defs(BASE);
         List<QuantityTypeSpec> types = new ArrayList<>(types(d));
         QuantityTypeSpec time = types.get(2);
-        types.add(new QuantityTypeSpec("Duration", "s", time.systemUnit(), "s", "second", "types.txt", 10));
+        types.add(new QuantityTypeSpec("Duration", "s", time.systemUnit(), "s", "second", "types.txt", 10, false));
         fails(() -> CatalogBuilder.build(d, types), 3, "ambiguous quantity type for 's': Time, Duration (add a [Type])");
     }
 

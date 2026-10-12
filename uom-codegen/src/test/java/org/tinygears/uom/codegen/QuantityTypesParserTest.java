@@ -3,8 +3,10 @@
 package org.tinygears.uom.codegen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
 import java.util.List;
@@ -72,6 +74,9 @@ class QuantityTypesParserTest {
         assertEquals("metre", l.get(2).systemName());
         assertEquals("m/s^2", l.get(3).systemSymbol());
         assertEquals("metre per second squared", l.get(3).systemName());
+        assertTrue(l.get(0).explicit());
+        assertTrue(l.get(1).explicit());
+        assertFalse(l.get(2).explicit());
     }
 
     @Test
@@ -86,10 +91,32 @@ class QuantityTypesParserTest {
                 "types.txt:1: whitespace in 'm /s:metre_per_second' after '=>'");
         fails("Length m => m:meter", "types.txt:1: explicit name for an already named unit 'm'");
         fails("Length m => metre:metre", "types.txt:1: explicit name for an already named unit 'm'");
-        fails("Speed m / s => m:metre_per_second", "types.txt:1: duplicate symbol 'm'");
-        fails("Speed m / s => v:velocity\nAcceleration m / s^2 => v:acceleration",
-                "types.txt:2: duplicate symbol 'v'");
+        fails("Energy kg m^2 / s^2 => J:joule", "types.txt:1: duplicate symbol 'J'");
+        fails("Speed m / s => m/s:velocity\nAcceleration m / s => m/s:other", "types.txt:2: duplicate symbol 'm/s'");
+        fails("Speed m / s => m/s:___", "types.txt:1: blank name in 'm/s:___' after '=>'");
+        fails("Speed m / s => m/s:metre\u00A0per_second",
+                "types.txt:1: whitespace in 'm/s:metre\u00A0per_second' after '=>'");
         fails("Speed => m/s:metre_per_second", "types.txt:1: missing system unit");
+    }
+
+    @Test
+    void explicitSymbolMustEvaluateToTheUnit() {
+        for (String symbol : List.of("m/s²", "v", "2v", "pi", "m", "m/s^2")) {
+            fails("Speed m / s => " + symbol + ":metre_per_second",
+                    "types.txt:1: explicit symbol '" + symbol + "' does not evaluate to the unit");
+        }
+        fails("Dimensionless 1 => one:one", "types.txt:1: explicit symbol 'one' does not evaluate to the unit");
+        fails("Acceleration m / s^2 => m/s²:metre_per_second_squared",
+                "types.txt:1: explicit symbol 'm/s²' does not evaluate to the unit");
+    }
+
+    @Test
+    void arrowInACommentIsNoExplicitName() {
+        QuantityTypeSpec speed = parse("Speed m / s # => x:y\n").get(0);
+        assertEquals("m / s", speed.formula());
+        assertNull(speed.systemSymbol());
+        assertNull(speed.systemName());
+        assertFalse(speed.explicit());
     }
 
     @Test

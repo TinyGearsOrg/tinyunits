@@ -77,12 +77,13 @@ public final class CatalogBuilder {
     /**
      * The factory system unit a definition reuses: one equal to its type's system unit, with the same symbol and name.
      * The first such definition of a type, in file order across all catalogs ({@code claimed} spans them), must agree;
-     * a later one with another symbol or name (an alias) keeps its own unit.
+     * a later one with another symbol or name (an alias) keeps its own unit. A type named by {@code =>} has a symbol no
+     * definition can carry ({@code m/s}), so every definition equal to its system unit is an alias.
      */
     private static String shared(Definition d, String type, Map<String, QuantityTypeSpec> byName,
             Set<String> claimed) {
         QuantityTypeSpec spec = type == null ? null : byName.get(type);
-        if (spec == null || !d.unit().equals(spec.systemUnit())) {
+        if (spec == null || spec.explicit() || !d.unit().equals(spec.systemUnit())) {
             return null;
         }
         boolean agrees = d.symbol().equals(spec.systemSymbol()) && d.name().equals(spec.systemName());

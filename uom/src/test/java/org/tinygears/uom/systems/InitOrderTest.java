@@ -46,12 +46,13 @@ class InitOrderTest {
         }
     }
 
-    // Output goes to a file so waitFor can time out before anything blocks on the pipe. No perf data: concurrent JVMs
-    // can collide on the hsperfdata file and print a warning into the output.
+    // Output goes to a file so waitFor can time out before anything blocks on the pipe. No perf data: JVMs in PID
+    // namespaces that share /tmp can get the same PID, collide on its hsperfdata file and print a warning.
     private static String run(String name) throws Exception {
         Path log = Files.createTempFile("initorder", ".log");
         Process p = new ProcessBuilder(JAVA, "-XX:TieredStopAtLevel=1", "-XX:-UsePerfData", "-cp",
-                System.getProperty("java.class.path"), FirstTouch.class.getName(), name).redirectErrorStream(true).redirectOutput(log.toFile()).start();
+                System.getProperty("java.class.path"), FirstTouch.class.getName(), name)
+                .redirectErrorStream(true).redirectOutput(log.toFile()).start();
         try {
             assertTrue(p.waitFor(60, TimeUnit.SECONDS), name + " did not finish");
             String out = Files.readString(log);

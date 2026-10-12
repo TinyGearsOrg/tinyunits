@@ -153,7 +153,7 @@ class SourceEmitterTest {
     @ParameterizedTest
     @ValueSource(strings = {"Unit", "Objects", "BigDecimal", "UomUnit"})
     void clashingTypeNameKeepsTheImportedClassQualified(String name) throws Exception {
-        QuantityTypeSpec spec = new QuantityTypeSpec(name, "m", BaseUnits.METRE, null, null, "types.txt", 1);
+        QuantityTypeSpec spec = new QuantityTypeSpec(name, "m", BaseUnits.METRE, null, null, "types.txt", 1, false);
         Map<String, String> byClass = new LinkedHashMap<>();
         byClass.put(PACKAGE + name, SourceEmitter.typedInterface(spec));
         byClass.put(PACKAGE + name + "Double", SourceEmitter.doubleImplementation(spec));
@@ -179,7 +179,7 @@ class SourceEmitterTest {
     @Test
     void factoryReportsSpecPosition() {
         UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
-        QuantityTypeSpec bad = new QuantityTypeSpec("Length", "x", x, null, null, "types.txt", 7);
+        QuantityTypeSpec bad = new QuantityTypeSpec("Length", "x", x, null, null, "types.txt", 7, false);
         GenerationException e = assertThrows(GenerationException.class,
                 () -> SourceEmitter.factory(bad, UnitExpressionEmitterTest.DEFS));
         assertEquals("types.txt:7: no definition for alternate unit 'x'", e.getMessage());
