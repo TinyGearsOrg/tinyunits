@@ -37,6 +37,8 @@ class UomSystemOfUnitsTest {
     @Test
     void name() {
         assertEquals("Test", system().getName());
+        assertEquals("Test", system().toString());
+        assertEquals("SI", SI.SYSTEM.toString());
     }
 
     @Test

@@ -91,4 +91,9 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     public boolean isPrefixable(String unitSymbol) {
         return prefixable.contains(unitSymbol);
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
