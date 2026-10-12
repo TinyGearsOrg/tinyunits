@@ -27,7 +27,7 @@ The two owner decisions below (`asType` and alternate units, offset-unit arithme
 
 ## Design points and notes
 
-- Tolerance of `isEquivalentTo` is relative only: asymmetric near zero for offset units (`0.001 degC` vs `273.151 K`) and
+- Done by milestone 4 (D5: relative only, no floor for `BigDecimal` either). Tolerance of `isEquivalentTo` is relative only: asymmetric near zero for offset units (`0.001 degC` vs `273.151 K`) and
   against infinity (`inf m` vs `1e308 km`); the `isEquivalentTo` Javadoc states the offset case only. Decide in M4 whether an absolute floor is wanted.
 - The generated factory's foreign-unit message uses the unit's `toString`; `uom-core` uses the class name. Align them (the
   test Proxy units must otherwise answer `toString`).
@@ -38,6 +38,7 @@ The two owner decisions below (`asType` and alternate units, offset-unit arithme
 - TCK: the `Quantity` Javadoc example "2 degC + 1 degC = 274.15 degC" contradicts its own rule (276.15 degC); we follow the
   rule (F24). Record it when the TCK runs for real (M3).
 - M3: `-pl uom-codegen` without `-am` fails because `~/.m2` holds a stale `uom-core` snapshot; always build with `-am`.
+- M4 covered `create(Number, Unit, Scale)` with `BigDecimal` and `Integer` (`GeneratedDecimalQuantitiesTest`).
 - M3: the plan's coverage gaps for typed quantities (status in `2026-10-12-uom-m3-follow-ups.md`; `Scale.RELATIVE` through `of`,
   `compareTo` of 1 km and 1000 m and `create` with a foreign unit are now covered): `to(foreignUnit)` through the typed interface, `compareTo` across
   types, `isEquivalentTo` through the typed interface, `Scale.RELATIVE` through `of`, `create(Number, Unit, Scale)` with
@@ -46,7 +47,7 @@ The two owner decisions below (`asType` and alternate units, offset-unit arithme
 
 ## Core (`uom-core`)
 
-- `AbstractDoubleQuantity.doubleValue()` is public but no interface exposes it: drop it or wait for `toDouble()` in
+- Done by milestone 4 (`doubleValue()` removed, `toDouble()` on the typed interface). `AbstractDoubleQuantity.doubleValue()` is public but no interface exposes it: drop it or wait for `toDouble()` in
   milestone 4.
 - `-0.0` ordering differs by unit: `0 m` compareTo `-0 m` is 1, `0 degC` compareTo `-0 degC` is 0 (`isEquivalentTo` is
   true for both). Add a one-line note to the `compareTo` Javadoc.

@@ -2,12 +2,12 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 3 done (units core, typed `double` quantities for all 33 quantity types, the SI catalog `SI` with 128 units and prefixes, basic unit and quantity formats, the JSR-385 service provider). The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests. `BigDecimal` quantities, Imperial and CGS catalogs, `quantity.to(system)` and serialization are not implemented yet. Not released.
+Status: milestone 4 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, the SI catalog `SI` with 128 units and prefixes, basic unit and quantity formats, the JSR-385 service provider). The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 701 tests. Imperial and CGS catalogs, `quantity.to(system)`, a decimal-preserving quantity parse and serialization are not implemented yet. Not released.
 
 ## Modules
 
-- `uom-core`: units, dimensions, converters, the `.units` parser, the shared `double` quantity base class.
-- `uom-quantities`: generated typed quantity interfaces, `double` implementations and factories (33 types).
+- `uom-core`: units, dimensions, converters, the `.units` parser, the shared `double` and `BigDecimal` quantity base classes.
+- `uom-quantities`: generated typed quantity interfaces, `double` and `BigDecimal` implementations and factories (33 types, 133 generated files).
 - `uom-systems`: the generated SI catalog, `UomSystemOfUnits`, unit and quantity formats, the `ServiceProvider`.
 - `uom-codegen`: the generator (internal, not published).
 - `uom-tck`: runs the JSR-385 TCK against `uom-systems` (test only, not published).

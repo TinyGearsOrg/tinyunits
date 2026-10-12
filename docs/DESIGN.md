@@ -1,6 +1,6 @@
 # uom: Design
 
-Status: draft for owner review; milestones 1 to 3 are implemented (section 7). Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
+Status: draft for owner review; milestones 1 to 4 are implemented (section 7). Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
 N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven, multi-module.
 
 ## 1. Decisions
@@ -30,7 +30,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
 
 | Module | Contents | Published |
 |--------|----------|-----------|
-| `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`; `AbstractDecimalQuantity` is planned for milestone 4) | yes |
+| `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
 | `uom-quantities` | Generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type | yes |
 | `uom-systems` | Generated catalogs and `SystemOfUnits` objects (`SI`, `UomSystemOfUnits`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
@@ -75,41 +75,45 @@ Dependencies: `uom-systems` -> `uom-quantities` -> `uom-core` -> `unit-api`. `uo
 
 ## 4. Quantities and generated code
 
-The hand-written base class `AbstractDoubleQuantity<Q, R extends Q>` (package
-`org.tinygears.uom.core.quantity`, `uom-core`) holds all `double` quantity logic: `to`, `add`,
-`subtract`, `negate`, `multiply`, `divide`, `inverse`, `asType`, `equals`, `hashCode`,
-`compareTo`, `isEquivalentTo`. `R` is the typed interface returned by the operations that keep
+The hand-written base classes `AbstractDoubleQuantity<Q, R extends Q>` and
+`AbstractDecimalQuantity<Q, R extends Q>` (package `org.tinygears.uom.core.quantity`, `uom-core`)
+hold all quantity logic for `double` and `BigDecimal` values: `to`, `add`, `subtract`, `negate`,
+`multiply`, `divide`, `inverse`, `asType`, `equals`, `hashCode`, `compareTo`, `isEquivalentTo`,
+`toDouble`, `toDecimal`. A package-private `Precision` helper classifies operand kinds and converts
+between `Number` kinds. `R` is the typed interface returned by the operations that keep
 the quantity type; the typed interfaces only add covariant return types. The design's strict
 overloads such as `Length add(Length)` are not generated: generics already reject quantities of
 other types, so they add no safety.
 
-Per quantity type the generator writes three files:
+Per quantity type the generator writes four files:
 
 1. **A typed interface** in `org.tinygears.uom.quantity`, e.g. `Length extends
    javax.measure.quantity.Length, Comparable<Quantity<Length>>`, with covariant returns for
    `add(Quantity<Length>)`, `subtract`, `to(Unit)`, `negate()`, `multiply(Number)` and
-   `divide(Number)` (all return `Length`) and static factories `Length.of(double, unit)` and
-   `Length.of(double, unit, Scale)`. Planned for later milestones: `toDouble()` and
-   `toDecimal(MathContext)` (F23, milestone 4), `to(SystemOfUnits)` (F8, milestone 5) and
-   `BigDecimal` factories. Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
+   `divide(Number)` (all return `Length`), `toDouble()` and `toDecimal(MathContext)` (F23, D10), and static factories
+   `Length.of(double, unit)`, `Length.of(double, unit, Scale)` and, for `BigDecimal`,
+   `of(BigDecimal, unit)`, `of(BigDecimal, unit, Scale)`, `of(BigDecimal, unit, Scale, MathContext)`
+   (D11). Planned: `to(SystemOfUnits)` (F8, milestone 5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
    work with any JSR-385 code (F4). The shared simple name is a deliberate trade-off: everyday
    code never mentions both types, and declaring a unit variable needs `var` or the fully
    qualified standard type.
 2. **`LengthDouble`**, a tiny package-private final class extending the base class with
-   `R = Length`; it only supplies the typed `create`. (`LengthDecimal` follows in milestone 4.)
-3. **`LengthFactory`**, a final class with a singleton `INSTANCE` that implements
-   `QuantityFactory<javax.measure.quantity.Length>` and holds the type's `SYSTEM_UNIT`. It
-   rejects a unit that is not a `UomUnit` with `UnconvertibleException` ("foreign unit
+   `R = Length`; it only supplies the typed `create` and `createDecimal`.
+3. **`LengthDecimal`**, the same for `AbstractDecimalQuantity`, with `create` and `createDouble`
+   (the hook used when a `double` operand makes the result a `double` quantity).
+4. **`LengthFactory`**, a final class with a singleton `INSTANCE` that implements
+   `QuantityFactory<javax.measure.quantity.Length>` and holds the type's `SYSTEM_UNIT`.
+   `create(Number, ...)` returns a decimal quantity (`DECIMAL128`) for a `BigDecimal` or `BigInteger` value and a `double` quantity for any other `Number`; the factory also has
+   `of(BigDecimal, ...)` for the three typed statics. It rejects a unit that is not a `UomUnit` with `UnconvertibleException` ("foreign unit
    implementation"). One class `QuantityTypes` is also generated: a registry from the standard
    interface class to the factory (`factory(Class)`, `types()`). Factories are built lazily per type, so a
    conflicting registration breaks only its own type. `UomServiceProvider` uses it.
 
-Milestone 3 generates all 33 types of `data/quantity-types.txt` (100 files: three per type plus
-`QuantityTypes`). Volume at the end: about 140 committed files of 30 to 60 lines (the 33 standard
-types plus `BigDecimal` implementations and any extras the catalogs need).
+The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four per type plus
+`QuantityTypes`; 100 before milestone 4). Extras the catalogs need would add more.
 
 - **Untyped results.** `multiply(Quantity)`, `divide(Quantity)` and `inverse()` return an
-  `UntypedDoubleQuantity` (phantom type `Untyped`) whose unit is built from the system units of
+  `UntypedDoubleQuantity` or `UntypedDecimalQuantity` (phantom type `Untyped`) whose unit is built from the system units of
   the operands, scale `ABSOLUTE`. `asType(Class)` returns `this` when the quantity is already
   of that type; otherwise it narrows through
   `ServiceProvider.current().getQuantityFactory(type)` and the unit's `asType`.
@@ -123,22 +127,47 @@ types plus `BigDecimal` implementations and any extras the catalogs need).
   with `UnconvertibleException`; `null` gives `NullPointerException`; an incompatible dimension
   gives `UnconvertibleException` (`compareTo`, `add`, ...) or `false` (`isEquivalentTo`).
 
-- **Precision (F23).** Base classes accept any `Quantity<Q>` whose unit is a `UomUnit` (foreign units are rejected, D8). `Double`
-  and `Float` values count as `double`, `BigDecimal` as decimal, integral types as exact (they
-  do not lower the precision). The result type follows the lower-precision rule; for `add`,
-  `subtract` and the scalar operations the result unit is the left operand's unit (quantity-by-quantity
-  `multiply`/`divide` and `inverse` return untyped results in system units); scalar `Number`
-  arguments adopt the receiver's precision.
-- **Equality (F20).** `equals`: same implementation class, same unit, same scale, same value (`Double.compare`
-  for `double`; for decimal, `compareTo == 0` with a defined scale rule to be fixed in the
-  plan). `isEquivalentTo`: same value after conversion to the same unit within a tolerance
-  (relative epsilon for `double`, the `MathContext` for decimal). For `double` (D4) the values
-  are equivalent when equal or when `|a - b| <= 1e-12 * max(|a|, |b|)` after converting `that`
-  into this unit (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`); NaN is equivalent to nothing.
-  There is no absolute floor, so the test is asymmetric near zero for offset units.
-- **Ordering (D1, F22).** Quantities implement `Comparable<Quantity<Q>>`, as the `Quantity`
-  Javadoc requires; `compareTo` compares system-unit values with `Double.compare` and is not
-  consistent with `equals` (1 km and 1000 m compare equal but are not `equals`).
+- **Precision (F23).** Base classes accept any `Quantity<Q>` whose unit is a `UomUnit` (foreign units are rejected, D8).
+  Decimal quantities carry a `MathContext`, default `DECIMAL128`; `getValue()` is a `BigDecimal` (decimal) or a
+  `Double`. Details (milestone 4, D2 to D11):
+  - **Operand kinds (D2).** `Byte`, `Short`, `Integer`, `Long`, `BigInteger`, `AtomicInteger` and `AtomicLong` are exact
+    and never lower the precision; `BigDecimal` is decimal; `Double`, `Float` and any other `Number` count as `double`.
+    A foreign `BigDecimal` value has no context and counts as unlimited.
+  - **Result type (D3).** If either operand is `double`, the result is a `double` quantity of the same typed interface,
+    built through the receiver's hook (`createDouble` or `createDecimal`), in both argument orders. Two decimals give the
+    lower `MathContext` precision (0, unlimited, is highest; equal precision keeps the receiver's rounding mode). Scalar
+    `Number` arguments adopt the receiver's precision. A `BigDecimal` outside the `double` range gives
+    `ArithmeticException`, never `Infinity`. The result unit is the left operand's unit for `add`, `subtract` and the scalar
+    operations; quantity-by-quantity `multiply`/`divide` and `inverse` return untyped results in system units.
+  - **Single rounding (D6a).** `add`, `subtract` and the scalar operations on offset units are one affine function of the
+    operand, rounded once to the result context, never converting each operand first.
+  - **Division (D7).** Rounds to the receiver's context; an unlimited context uses `DECIMAL128` for the division only, so
+    `1 m / 3` never throws. Division by zero throws `ArithmeticException`.
+  - **Scalar conversion (D8).** A `double` or `Float` scalar becomes the decimal the user wrote
+    (`BigDecimal.valueOf(double)`); `NaN` and infinity throw `ArithmeticException`.
+  - **Bounds (D9).** The scale of a decimal value is limited to `|scale| <= 100_000` at construction
+    (`ArithmeticException`); products and quotients whose scale passes the bound throw, zeros included. Zero offsets are
+    skipped, so a result may have a different scale than before (`toString` and `scale()` only). Exact conversions do not
+    align far-apart scales (`AffineConverter`), so absurd scales stay fast.
+  - **Explicit conversions (D10).** `toDouble()` throws `ArithmeticException` for a value outside the `double` range;
+    `toDecimal(mc)` rounds to `mc`, on both implementations. `asType` keeps the receiver's `MathContext` and never changes
+    the value.
+  - **Factories (D11) and formats (D12).** As in section 4 item 1 and 4; `UomQuantityFormat.format` prints
+    `BigDecimal.toString()`, `parse` still returns `double` quantities (decimal-preserving parse: milestone 6).
+  - Irrational factors (a pi or root in the converter) are best effort for decimal arithmetic; see
+    `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
+- **Equality (F20).** `equals`: same implementation class, same unit, same scale, same value. `double`: `Double.compare`.
+  Decimal (D4): `compareTo == 0`, so `1.0 m` equals `1.00 m`; the `MathContext` is not part of equality; `hashCode` uses
+  `stripTrailingZeros()`. `LengthDouble` never equals `LengthDecimal`. `isEquivalentTo`: same value after conversion to the
+  same unit within a relative tolerance, with no absolute floor (asymmetric near zero for offset units). `double`
+  (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`): equal or `|a - b| <= 1e-12 * max(|a|, |b|)`; NaN is equivalent to nothing.
+  Decimal (D5): after converting `that` into this unit, equal by `compareTo` or `|a - b| <= max(|a|, |b|) * 10^(1 - p)`,
+  where `p` is the lowest non-zero precision of the two contexts (34 when both are unlimited); against a `double` operand
+  the `double` rule applies. At precision 1 the tolerance is 1 (degenerate, parked).
+- **Ordering (D1, D6, F22).** Quantities implement `Comparable<Quantity<Q>>`, as the `Quantity` Javadoc requires. `double`:
+  `Double.compare` of the system-unit values. Decimal: the difference of the system-unit values is evaluated once, with no
+  context rounding, and its sign decides, so the ordering is a consistent total preorder; against a `double` operand it
+  compares as `double`. Not consistent with `equals` (1 km and 1000 m compare equal but are not `equals`).
 
 ## 5. Data files, generator and parser
 
@@ -242,15 +271,18 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    formats (symbols, prefixes, formulas); the TCK runs for real. Done: 33 types, 128 SI catalog
    entries, TCK 113 of 113 tests, 554 tests in `mvn -q -B clean verify`. Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m3-follow-ups.md`.
-4. `BigDecimal`: decimal base class and the precision rule.
+4. `BigDecimal`: decimal base class and the precision rule. Done: `AbstractDecimalQuantity`, `Precision`, 33 `XDecimal`
+   classes (133 generated quantity files), 33 types, 128 SI catalog entries, TCK 113 of 113 tests, 701 tests in
+   `mvn -q -B clean verify` (core 343, codegen 97, quantities 28, systems 119, tck 113, examples 1). Follow-ups:
+   `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
 5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`.
 6. Locale-aware formatting (and a faithful form for derived offset units), serialization, JPMS
    polish, documentation, Maven Central release.
 
 ## 8. Open items for the implementation plan
 
-- The decimal `equals` scale rule. (The `double` `isEquivalentTo` tolerance is resolved, see
-  section 4. The `Scale` rules are resolved, see section 4.)
+- Resolved in milestone 4: the decimal `equals` scale rule and the decimal `isEquivalentTo` tolerance (section 4). The
+  `double` tolerance and the `Scale` rules were resolved earlier.
 - Exact list of extra quantity types the catalogs need (milestone 5).
 - Run-time loading of `.units` resources and user files (F17, F18).
 - The open owner decisions in `docs/TODO.md` (offset-unit arithmetic, `asType` and alternate

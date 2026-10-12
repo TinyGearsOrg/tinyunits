@@ -22,11 +22,11 @@ the operands were converted to the system unit first and the result converted ba
 **Before choosing:** check what the TCK asserts about offset-unit arithmetic (the milestone 1 spike found it mostly checks
 that methods exist), and whether any reference implementation (for example Indriya) treats `Scale` this way.
 
-**Code and docs touched by a change:** `AbstractDoubleQuantity` (`combine`, `scalar`), its arithmetic tests, requirement F24,
+**Code and docs touched by a change:** `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`combine`, `scalar`), their arithmetic tests, requirement F24,
 DESIGN section 4.
 
-**Where the code keeps today's behaviour:** `AbstractDoubleQuantity.combine` and `scalar`. `QuantityContractTest` asserts
-the Javadoc discrepancy (276.15 degC against the Javadoc's 274.15). The TCK passes (113 of 113) with the current rule, so
+**Where the code keeps today's behaviour:** `AbstractDoubleQuantity.combine` and `scalar`, and the same rule in
+`AbstractDecimalQuantity`. `QuantityContractTest` and `QuantityContractDecimalTest` assert the Javadoc discrepancy (276.15 degC against the Javadoc's 274.15). The TCK passes (113 of 113) with the current rule, so
 the decision no longer blocks milestone 3.
 
 **Needed by:** nothing in milestone 3 any more; decide before 1.0.

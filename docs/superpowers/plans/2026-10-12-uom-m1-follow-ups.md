@@ -6,7 +6,7 @@ pick up the items marked "M3+" or "M4".
 
 ## Parked residual (final review, no second fix wave)
 
-- **M4** `AffineConverter` exact `BigDecimal` path: `BigDecimal.add` aligns scales exactly, so values with absurd scale
+- **M4, done by milestone 4 (Task 1, `ConvertersDecimalTest`; scale bound D9)** `AffineConverter` exact `BigDecimal` path: `BigDecimal.add` aligns scales exactly, so values with absurd scale
   (|scale| around 2e7) take seconds (F-to-C `convert(1e-20000000, DECIMAL64)` 11 s) or overflow. Fix: skip the add when the
   offset is zero; pre-align or reduce the small term to a sticky bit when the exponents differ by more than
   `precision + digits + 2`; validate or bound the value scale at BigDecimal quantity construction. Add timeout tests for

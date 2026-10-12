@@ -17,13 +17,13 @@ section 7.
 
 - Provider priority: `UomServiceProvider.getPriority()` is 100, so `ServiceProvider.current()` selects it over lower-priority
   providers. Remainder, open (core): `UomUnit.asType` (`UomUnit.java:185`) and `AbstractDoubleQuantity` (line 163) still
-  call `ServiceProvider.current()`, so a provider of higher priority breaks `asType`. Resolve our provider explicitly.
+  call `ServiceProvider.current()` (so does `AbstractDecimalQuantity`), so a provider of higher priority breaks `asType`. Resolve our provider explicitly.
 - Typed-quantity coverage gaps of the milestone 2 file. Covered by milestone 3: `Scale.RELATIVE` through `of`
   (`QuantityContractTest:207`), `compareTo` of 1 km and 1000 m (`QuantityContractTest:218`, `GeneratedQuantitiesTest:125`),
   `create(Number, Unit)` with a foreign unit (`GeneratedQuantitiesTest:139`), `isEquivalentTo` through the typed interface
   (`QuantityContractTest:46`, `GeneratedQuantitiesTest:83`), a typed result of quantity times quantity narrowed with
   `asType` (`GeneratedQuantitiesTest:112`). Still open: `to(foreignUnit)` through the typed interface, `compareTo` across
-  different types, `create(Number, Unit, Scale)` with `BigDecimal` and `Integer`, `Dimensionless` from `m/m`, `equals` of
+  different types, `create(Number, Unit, Scale)` with `BigDecimal` and `Integer` (covered by milestone 4, `GeneratedDecimalQuantitiesTest`), `Dimensionless` from `m/m`, `equals` of
   1 km against 1000 m.
 
 ## Open owner decisions
