@@ -149,6 +149,21 @@ class GeneratedDecimalQuantitiesTest {
     }
 
     @Test
+    void doubleToDoubleAndToDecimal() throws Exception {
+        forAllTypes((type, f, u, typed) -> {
+            Quantity<?> dbl = create(f, 1.5, u);
+            Quantity<?> same = (Quantity<?>) typed.getMethod("toDouble").invoke(dbl);
+            assertDouble(same);
+            assertEquals(dbl.getClass(), same.getClass());
+            assertEquals(dbl, same);
+            MathContext mc = MathContext.DECIMAL32;
+            Quantity<?> dec = (Quantity<?>) typed.getMethod("toDecimal", MathContext.class).invoke(dbl, mc);
+            assertDecimal(dec);
+            assertEquals(mc, mc(dec));
+        });
+    }
+
+    @Test
     void foreignUnitAndNullsAreRejected() throws Exception {
         forAllTypes((type, f, u, typed) -> {
             Unit<?> foreign = GeneratedQuantitiesTest.foreignUnit();
