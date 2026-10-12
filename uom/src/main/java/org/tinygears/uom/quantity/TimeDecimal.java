@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 final class TimeDecimal
         extends AbstractDecimalQuantity<javax.measure.quantity.Time, Time>
         implements Time {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     TimeDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Time> unit,
             Quantity.Scale scale, MathContext mc) {

@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 final class AccelerationDecimal
         extends AbstractDecimalQuantity<javax.measure.quantity.Acceleration, Acceleration>
         implements Acceleration {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     AccelerationDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Acceleration> unit,
             Quantity.Scale scale, MathContext mc) {

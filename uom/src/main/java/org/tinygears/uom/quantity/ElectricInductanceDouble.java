@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 final class ElectricInductanceDouble
         extends AbstractDoubleQuantity<javax.measure.quantity.ElectricInductance, ElectricInductance>
         implements ElectricInductance {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     ElectricInductanceDouble(double value, UomUnit<javax.measure.quantity.ElectricInductance> unit,
             Quantity.Scale scale) {

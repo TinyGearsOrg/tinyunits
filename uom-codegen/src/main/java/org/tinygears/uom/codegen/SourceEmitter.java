@@ -90,6 +90,9 @@ public final class SourceEmitter {
                     extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.$T, $T>
                     implements $T {
 
+                @java.io.Serial
+                private static final long serialVersionUID = 1L;
+
                 $TDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     super(value, unit, scale);
@@ -118,6 +121,9 @@ public final class SourceEmitter {
             final class $TDecimal
                     extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.$T, $T>
                     implements $T {
+
+                @java.io.Serial
+                private static final long serialVersionUID = 1L;
 
                 $TDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {

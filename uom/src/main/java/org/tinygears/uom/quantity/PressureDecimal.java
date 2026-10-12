@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 final class PressureDecimal
         extends AbstractDecimalQuantity<javax.measure.quantity.Pressure, Pressure>
         implements Pressure {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     PressureDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Pressure> unit,
             Quantity.Scale scale, MathContext mc) {

@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 final class MagneticFluxDouble
         extends AbstractDoubleQuantity<javax.measure.quantity.MagneticFlux, MagneticFlux>
         implements MagneticFlux {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     MagneticFluxDouble(double value, UomUnit<javax.measure.quantity.MagneticFlux> unit,
             Quantity.Scale scale) {

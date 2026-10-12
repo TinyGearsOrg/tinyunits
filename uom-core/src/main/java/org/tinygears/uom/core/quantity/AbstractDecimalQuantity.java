@@ -2,6 +2,11 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
@@ -21,10 +26,11 @@ import org.tinygears.uom.core.UomUnit;
  * {@link #negate()} keep the value as given. {@link MathContext#UNLIMITED} keeps results exact where they terminate;
  * non-terminating quotients and irrational conversions fall back to {@code DECIMAL128} with {@code HALF_EVEN},
  * whatever the rounding mode. A {@link BigDecimal} operand value or scalar whose scale exceeds ±100000 throws
- * {@link ArithmeticException}. Immutable.
+ * {@link ArithmeticException}. Immutable. Serializable through a proxy that the current provider's factory reads
+ * back with the exact value and context (see {@link #writeReplace()}); the serialized form may change before 1.0.
  */
 public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
-        implements Quantity<Q>, Comparable<Quantity<Q>> {
+        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
 
     private final BigDecimal value;
     private final UomUnit<Q> unit;
@@ -259,8 +265,30 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /** A quantity of this class with the given value, unit, scale and context, unrounded. */
-    private R with(BigDecimal v, UomUnit<?> u, Quantity.Scale s, MathContext mc) {
+    R with(BigDecimal v, UomUnit<?> u, Quantity.Scale s, MathContext mc) {
         return create(v, UomUnit.unchecked(u), s, mc);
+    }
+
+    /**
+     * Writes the type, unit, scale, the value's unscaled bytes and scale, and the context; reading creates the
+     * quantity through {@code ServiceProvider.current().getQuantityFactory(type)} and keeps value and context
+     * unrounded. A type outside the 33 standard quantity interfaces and {@link Untyped}, or an unscaled value
+     * over 65536 bytes, throws {@link java.io.NotSerializableException}.
+     */
+    @Serial
+    protected final Object writeReplace() throws ObjectStreamException {
+        return QuantityProxy.ofDecimal(quantityType(), unit, scale, value, mathContext);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
+    }
+
+    /** Called instead of readObject when a stream names a subclass without this class. */
+    @Serial
+    private void readObjectNoData() throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
     }
 
     /** {@code sys(a)·sys(b)} or {@code sys(a)/sys(b)} as one exact quotient, rounded once. */

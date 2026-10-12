@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 final class AngleDouble
         extends AbstractDoubleQuantity<javax.measure.quantity.Angle, Angle>
         implements Angle {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     AngleDouble(double value, UomUnit<javax.measure.quantity.Angle> unit,
             Quantity.Scale scale) {

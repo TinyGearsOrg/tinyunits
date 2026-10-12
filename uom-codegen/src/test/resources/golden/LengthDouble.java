@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 final class LengthDouble
         extends AbstractDoubleQuantity<javax.measure.quantity.Length, Length>
         implements Length {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     LengthDouble(double value, UomUnit<javax.measure.quantity.Length> unit,
             Quantity.Scale scale) {

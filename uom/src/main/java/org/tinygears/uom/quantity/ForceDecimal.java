@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 final class ForceDecimal
         extends AbstractDecimalQuantity<javax.measure.quantity.Force, Force>
         implements Force {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     ForceDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Force> unit,
             Quantity.Scale scale, MathContext mc) {

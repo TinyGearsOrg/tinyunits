@@ -2,6 +2,11 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
@@ -19,10 +24,11 @@ import org.tinygears.uom.core.UomUnit;
  * Base class of the generated {@code double} quantities; {@code R} is the typed interface returned by
  * conversions. Operands of any precision are read as {@code double}s, so results stay {@code double}; a
  * {@link BigDecimal} or {@link java.math.BigInteger} outside the {@code double} range throws
- * {@link ArithmeticException}. Immutable.
+ * {@link ArithmeticException}. Immutable. Serializable through a proxy that the current provider's factory reads
+ * back (see {@link #writeReplace()}); the serialized form may change before 1.0.
  */
 public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
-        implements Quantity<Q>, Comparable<Quantity<Q>> {
+        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
 
     /** Relative tolerance of {@link #isEquivalentTo}. */
     public static final double EQUIVALENCE_TOLERANCE = 1e-12;
@@ -210,6 +216,32 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         }
         Unit<T> typed = unit.asType(type);
         return factory.create(value, typed, scale);
+    }
+
+    /** A quantity of this class with the given value, unit and scale. */
+    R with(double v, UomUnit<?> u, Quantity.Scale s) {
+        return create(v, UomUnit.unchecked(u), s);
+    }
+
+    /**
+     * Writes the type, unit, scale and raw value bits; reading creates the quantity through
+     * {@code ServiceProvider.current().getQuantityFactory(type)}. A type outside the 33 standard quantity
+     * interfaces and {@link Untyped} throws {@link java.io.NotSerializableException}.
+     */
+    @Serial
+    protected final Object writeReplace() throws ObjectStreamException {
+        return QuantityProxy.ofDouble(quantityType(), unit, scale, value);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
+    }
+
+    /** Called instead of readObject when a stream names a subclass without this class. */
+    @Serial
+    private void readObjectNoData() throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
     }
 
     private static Quantity<?> untyped(double value, UomUnit<?> unit) {

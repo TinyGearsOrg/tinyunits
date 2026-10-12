@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 final class RadioactivityDouble
         extends AbstractDoubleQuantity<javax.measure.quantity.Radioactivity, Radioactivity>
         implements Radioactivity {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     RadioactivityDouble(double value, UomUnit<javax.measure.quantity.Radioactivity> unit,
             Quantity.Scale scale) {

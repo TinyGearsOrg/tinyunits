@@ -3,6 +3,7 @@
 
 package org.tinygears.uom.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -12,6 +13,9 @@ import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 final class SolidAngleDecimal
         extends AbstractDecimalQuantity<javax.measure.quantity.SolidAngle, SolidAngle>
         implements SolidAngle {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     SolidAngleDecimal(BigDecimal value, UomUnit<javax.measure.quantity.SolidAngle> unit,
             Quantity.Scale scale, MathContext mc) {
