@@ -65,3 +65,5 @@ higher priority on the class path still breaks it. Other items: `docs/superpower
 **Status:** undecided. `UomUnit.multiply(Unit)` and `divide(Unit)` throw for a unit with an offset (DESIGN section 3), while the
 `Unit` Javadoc says multiplication of offset units is supported. Kept in `UomUnit` and its tests in
 `uom-core`. Options: keep and document, or apply the offset to the system unit first.
+
+**Needed by:** nothing in milestone 3; decide before 1.0.

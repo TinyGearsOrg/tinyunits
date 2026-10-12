@@ -9,25 +9,38 @@ section 7.
 
 - Registry isolation: `QuantityTypes` builds factories lazily per type, so one conflicting alternate-unit registration
   fails only that type.
-- Provider priority: `UomServiceProvider.getPriority()` is 100, so `ServiceProvider.current()` selects it over lower-priority
-  providers. `UomUnit.asType` still calls `current()`; a provider of higher priority on the class path still breaks it.
 - `·` labels: `·` is a multiplication operator of the formula grammar, so system unit labels such as `kg·m/s^2` parse.
 - The Javadoc discrepancy (274.15 versus 276.15 degC) is asserted in `QuantityContractTest`; the `-am` requirement for
   `-pl uom-codegen` is in the README regeneration command.
 
+## Partly done (from the milestone 2 follow-ups)
+
+- Provider priority: `UomServiceProvider.getPriority()` is 100, so `ServiceProvider.current()` selects it over lower-priority
+  providers. Remainder, open (core): `UomUnit.asType` (`UomUnit.java:185`) and `AbstractDoubleQuantity` (line 163) still
+  call `ServiceProvider.current()`, so a provider of higher priority breaks `asType`. Resolve our provider explicitly.
+- Typed-quantity coverage gaps listed in the milestone 2 file (`to(foreignUnit)`, `compareTo` across types, `Scale.RELATIVE`
+  through `of`, `create(Number, Unit, Scale)`, `Dimensionless` from `m/m`, `equals` of 1 km and 1000 m): not worked in
+  milestone 3, still open.
+
 ## Open owner decisions
 
-The first three are tracked with options in `docs/TODO.md`; the code keeps the current behaviour.
+Tracked with options in `docs/TODO.md` (the first three); the code keeps the current behaviour.
 
 - Offset-unit arithmetic (D5): literal Javadoc rule, `2 degC + 1 degC` is 276.15 degC. Asserted as the known discrepancy
   with the Javadoc example 274.15 in the contract tests.
 - `asType` and alternate units: structural system-unit comparison, so `1/s` does not narrow to `Frequency`.
 - Offset-unit products: `UomUnit.multiply(Unit)`/`divide(Unit)` of an offset unit throw (DESIGN section 3), while the `Unit` Javadoc
   says multiplication of offset units is supported.
+
+## Other open questions
+
 - A unit already prefixed can be prefixed again in the data: `@prefixed km k` gives `kkm`, `@prefixed kg m` gives `mkg`.
   Reject in the parser or document it.
-- `UomUnitFormat.format` refuses units of other JSR-385 implementations (`UomUnit.equals` needs `UomUnit`), so
-  `UomQuantityFormat.format` throws for foreign quantities. Decide whether a best-effort symbol is wanted.
+- `UomUnitFormat.format` refuses units of other JSR-385 implementations (ruled: keep, because `UomUnit.equals` needs
+  `UomUnit`), so `UomQuantityFormat.format` throws for foreign quantities. Decide whether a best-effort symbol is wanted.
+- Ruled, kept: `UomServiceProvider.getQuantityFactory` throws `IllegalArgumentException` for an unsupported quantity type,
+  because unit-api 2.2 specifies no exception. `getUnitFormat(name, variant)` ignores the variant per the `FormatService`
+  Javadoc.
 
 ## Core defects to fix later (`uom-core`)
 
@@ -41,6 +54,8 @@ The first three are tracked with options in `docs/TODO.md`; the code keeps the c
 - `UomUnit.asType` with an alternate unit (see the decision above); its fix in `AbstractDoubleQuantity.asType` depends on the
   provider throwing `IllegalArgumentException` for an unknown type and looks the factory up twice.
 - `UomUnitFormat.label` bookkeeping: the label and alias maps are updated non-atomically.
+- `UomSystemOfUnits.getUnit(Class)`: the `@SuppressWarnings("unchecked")` has no rationale comment (the preferred map is not
+  type-checked).
 
 ## Formatting (`uom-systems`)
 
@@ -49,11 +64,16 @@ The first three are tracked with options in `docs/TODO.md`; the code keeps the c
   pattern, keep `NaN` and `Infinity`.
 - `UomQuantityFormat` swallows a failing factory initialisation silently and parses the quantity as untyped. Log it through
   `System.Logger`.
+- A label can shadow a prefix-resolved symbol: `label(SECOND, "Gm")` is accepted, then "Gm" parses as seconds. Reject labels
+  that `lookup` already resolves.
+- `format` does not memoise the verification parse (about 5 µs per call, about 50 µs worst reported); add a per-instance memo
+  if it matters.
 - Offset-unit and root-index-factor units can not be formatted faithfully (`format` throws `IllegalArgumentException`); a
   faithful form for derived offset units is milestone 6 work. The message names `unit.toString()` (the system label), so
   `DEGREE_CELSIUS.multiply(2)` reads "unit can not be formatted: K" plus factor and offset.
 - The foreign-unit refusal message gives no reason; the `UomQuantityFormat` Javadoc does not mention foreign units; no test
   covers that branch. The factor in the message is unabbreviated for huge factors.
+- The over-long-formula test checks only the message prefix.
 - Whitespace-shaped symbols are emitted verbatim (cosmetic); the evaluator guard wraps all `RuntimeException`s.
 
 ## Generator and data (`uom-codegen`, `data/`)
@@ -64,6 +84,10 @@ The first three are tracked with options in `docs/TODO.md`; the code keeps the c
   header and the Javadoc text "The SI units" instead of using `className`/`systemName`. IO error messages print
   `e.getMessage()` only (use `e.toString()`).
 - Unit name `degree_celsius` should be `degree_Celsius` (SI spelling); the constant name stays.
+- `CatalogEmitterTest` compiles against a stand-in `UomSystemOfUnits` that can drift from the real class; the `uom-systems`
+  compile catches it. `--check` flags extra files only when they carry the generated header (intentional, same as `Generate`).
+- `DefinitionParser.prefixed` finds the base unit by scanning the definitions list although a symbol map exists.
+- `QuantityTypes.factory` is a linear if-chain: fine for 33 types, reconsider at 10 times as many.
 - Initialising `SI` loads all 33 factories through `PREFERRED`, so a conflicting alternate registration breaks `SI`.
 - `SI.PREFERRED` entries are `XFactory.SYSTEM_UNIT` (equal to, not the same object as, the catalog constants) because no
   `@preferred` line exists yet; `@preferred` has no real-data coverage until milestone 5 and an `@include` override of the SI
@@ -88,12 +112,14 @@ The first three are tracked with options in `docs/TODO.md`; the code keeps the c
 - `UomSystemOfUnits`: `isPrefixable(null)` throws `NullPointerException` while `getUnit(null)` and `lookup(null)` are lenient; a
   preferred unit need not be in `units`; a null map value throws in `Map.copyOf` (untested); no test for
   `getUnits(Dimension)` with no match.
+- `UomSystemOfUnitsTest`: import order.
 - Format tests: lookalike symbols (`μm`, `kkg`, `kkm`, `hz`, `KM`) are untested though correct; the concurrency test never
   runs `label` or prefix parses; the brute-force round trip asserts lower bounds only.
 - Provider tests: the service-file test reads `src/main` instead of the class-path resource; nothing asserts that
   `available()` is priority-ordered; `LowPriorityProvider` returns null everywhere.
 - Contract tests: `pow(0) == ONE` is unasserted; the comment at `UnitContractTest` line 331 cites DESIGN section 3 but should
   cite `UomUnitTest.systemUnitSymbols`; a test writes the static `TestServiceProvider.SYSTEM_UNITS`.
+  The `asType` unknown-type fix depends on the provider throwing `IllegalArgumentException` and looks the factory up twice.
 - The provider tests were not seen failing before the implementation (red run skipped).
 - Spike doc wording on `BaseUnits` versus `SI` is loose (`docs/spikes/2026-tck-m1.md`).
 

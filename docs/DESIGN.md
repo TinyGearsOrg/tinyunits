@@ -10,7 +10,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
 | API | Implement JSR-385 (unit-api 2.2) ourselves; no Indriya dependency (F1, F2). |
 | Typed quantities | Own typed interfaces extending the standard ones, plus generated `double` and `BigDecimal` implementations (F3 to F5). |
 | Code generation | An internal generator reads data files and writes plain Java sources, which are committed. CI fails if regenerating produces a diff. No annotation processor, no proxies. |
-| Catalogs | Text data files are the single source of truth (F15). They generate typed catalogs and are also parsed at run time (F17). |
+| Catalogs | Text data files are the single source of truth (F15). They generate typed catalogs; parsing them at run time (F17) is not implemented yet (section 5). |
 | User extension | Users load their own `.units` files at run time and get `Unit<?>` back (F18). User-defined quantity types are out of scope. |
 | Precision | The lower precision wins, symmetric (F23). |
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
@@ -25,12 +25,12 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
                           │   uom-quantities   typed interfaces, LengthDouble, LengthDecimal, ...
                           │   uom-systems      generated catalogs: SI, Imperial, CGS, ...
                           │
- data/*.units ────────────┴─> copied into uom-systems as resources, parsed at run time
+ data/*.units ────────────┴─> planned: copied into uom-systems as resources, parsed at run time (not done)
 ```
 
 | Module | Contents | Published |
 |--------|----------|-----------|
-| `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, unit and quantity formatters, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`) | yes |
+| `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`) | yes |
 | `uom-quantities` | Generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type | yes |
 | `uom-systems` | Generated catalogs and `SystemOfUnits` objects (`SI`, `UomSystemOfUnits`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
