@@ -8,6 +8,7 @@ import java.util.Objects;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
+import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 
@@ -90,61 +91,69 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Adds as if both operands were in the system unit, with the result back in this unit; linear units skip the
-     * system round trip. Rounds to the lower context of the two; a {@code double} operand gives a {@code double}
-     * result. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
+     * system round trip. Evaluated exactly and rounded once to the lower context of the two; a {@code double}
+     * operand gives a {@code double} result. Throws {@link UnconvertibleException} for a foreign unit or
+     * incompatible dimensions.
      */
     @Override
     public R add(Quantity<Q> addend) {
-        return combine(addend, BigDecimal::add, false);
+        return combine(addend, false);
     }
 
     /** Subtracts by the same rule as {@link #add}. */
     @Override
     public R subtract(Quantity<Q> subtrahend) {
-        return combine(subtrahend, BigDecimal::subtract, true);
+        return combine(subtrahend, true);
     }
 
     /**
-     * Multiplies by {@code multiplicand} as a decimal ({@code double} and {@code Float} as written) in this context;
-     * an offset unit goes through the system unit.
+     * Multiplies by {@code multiplicand} as a decimal ({@code double} and {@code Float} as written); an offset unit
+     * goes through the system unit. Evaluated exactly and rounded once to this context.
      */
     @Override
     public R multiply(Number multiplicand) {
-        return scalar(Precision.toDecimal(multiplicand), mathContext, BigDecimal::multiply);
+        return scalar(Precision.toDecimal(multiplicand), false);
     }
 
     /**
-     * Divides as {@link #multiply(Number)}; an unlimited context divides with {@code DECIMAL128}. Division by zero
-     * throws {@link ArithmeticException}.
+     * Divides as {@link #multiply(Number)}, rounded once; an unlimited context rounds a non-terminating quotient
+     * to {@code DECIMAL128}. Division by zero throws {@link ArithmeticException}.
      */
     @Override
     public R divide(Number divisor) {
-        return scalar(Precision.toDecimal(divisor), Precision.calculation(mathContext), BigDecimal::divide);
+        return scalar(Precision.toDecimal(divisor), true);
     }
 
     /**
-     * Compares the system-unit values under the lower context, or with {@link Double#compare} against a
+     * Compares the exact system-unit values (a consistent total preorder), or with {@link Double#compare} against a
      * {@code double} operand; not consistent with equals.
      */
     @Override
     public int compareTo(Quantity<Q> that) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
-        if (!unit.getDimension().equals(thatUnit.getDimension())) {
-            throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + thatUnit);
-        }
+        requireCompatible(thatUnit);
         Number n = that.getValue();
         if (Precision.kind(n) == Precision.Kind.DOUBLE) {
             return Double.compare(unit.toSystemConverter().convert(Precision.toDouble(value)),
                     thatUnit.toSystemConverter().convert(n.doubleValue()));
         }
+        // sign(sys(a) - sys(b)) = sign(fa) * sign(a - (fb/fa) b - (ob - oa)/fa)
+        UomConverter ta = unit.toSystemConverter();
+        UomConverter tb = thatUnit.toSystemConverter();
         MathContext mc = contextWith(that);
-        return toSystem(value, unit, mc).compareTo(toSystem(Precision.toDecimal(n), thatUnit, mc));
+        Ratio g = Ratio.of(tb.factor().divide(ta.factor()), mc);
+        Ratio h = Ratio.of(tb.offset().add(ta.offset().negate()).divide(ta.factor()), mc);
+        BigDecimal b = Precision.toDecimal(n);
+        BigDecimal d = value.multiply(g.den).multiply(h.den)
+                .subtract(b.multiply(g.num).multiply(h.den)).subtract(h.num.multiply(g.den));
+        return ta.factor().signum() * d.signum();
     }
 
     /**
      * Converts {@code that} into this unit and compares within the relative tolerance {@code 10^(1-p)}, {@code p}
      * the lowest non-zero precision of both contexts (34 if unlimited); against a {@code double} operand the
-     * {@code double} rule applies. Incompatible dimensions give false (compareTo throws).
+     * {@code double} rule applies. At precision 1 the tolerance is 10^0 (degenerate by design). Incompatible
+     * dimensions give false (compareTo throws).
      */
     @Override
     public boolean isEquivalentTo(Quantity<Q> that) {
@@ -192,10 +201,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
                 that instanceof AbstractDecimalQuantity<?, ?> d ? d.mathContext : MathContext.UNLIMITED);
     }
 
+    /** The literal rule {@code r = a ± (fb·b + ob)/fa} as one exact quotient, rounded once. */
     @SuppressWarnings("unchecked")
-    private R combine(Quantity<Q> that, DecimalOp op, boolean subtract) {
+    private R combine(Quantity<Q> that, boolean subtract) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
-        UomConverter toThisUnit = thatUnit.getConverterTo(unit);
+        requireCompatible(thatUnit);
         Number n = that.getValue();
         if (Precision.kind(n) == Precision.Kind.DOUBLE) {
             // R is the typed interface, which the double quantity's add and subtract return.
@@ -203,31 +213,61 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
             return (R) (subtract ? d.subtract(that) : d.add(that));
         }
         MathContext mc = contextWith(that);
+        UomConverter ta = unit.toSystemConverter();
+        UomConverter tb = thatUnit.toSystemConverter();
+        Ratio f = Ratio.of(tb.factor().divide(ta.factor()), mc);
+        Ratio o = Ratio.of(tb.offset().divide(ta.factor()), mc);
         BigDecimal b = Precision.toDecimal(n);
-        BigDecimal r = unit.toSystemConverter().isLinear() && thatUnit.toSystemConverter().isLinear()
-                ? op.apply(value, toThisUnit.convert(b, mc), mc)
-                : fromSystem(op.apply(toSystem(value, unit, mc), toSystem(b, thatUnit, mc), mc), mc);
-        return create(r, unit, scale, mc);
+        BigDecimal term = b.multiply(f.num).multiply(o.den).add(o.num.multiply(f.den));
+        BigDecimal ad = value.multiply(f.den).multiply(o.den);
+        BigDecimal num = subtract ? ad.subtract(term) : ad.add(term);
+        return create(roundOnce(num, f.den.multiply(o.den), mc, f.exact && o.exact), unit, scale, mc);
     }
 
-    /** {@code op} computes in {@code opContext}; the result keeps this context. */
-    private R scalar(BigDecimal n, MathContext opContext, DecimalOp op) {
-        BigDecimal r = unit.toSystemConverter().isLinear()
-                ? op.apply(value, n, opContext)
-                : fromSystem(op.apply(toSystem(value, unit, mathContext), n, opContext), mathContext);
-        return create(r, unit, scale, mathContext);
+    /** {@code r = a·s + q·(s - 1)} with {@code q = oa/fa} (or {@code 1/s} to divide), as one exact quotient. */
+    private R scalar(BigDecimal s, boolean divide) {
+        UomConverter ta = unit.toSystemConverter();
+        Ratio q = Ratio.of(ta.offset().divide(ta.factor()), mathContext);
+        BigDecimal aq = value.multiply(q.den).add(q.num);
+        BigDecimal num = divide ? aq.subtract(q.num.multiply(s)) : aq.multiply(s).subtract(q.num);
+        BigDecimal den = divide ? q.den.multiply(s) : q.den;
+        return create(roundOnce(num, den, mathContext, q.exact), unit, scale, mathContext);
     }
 
-    private static BigDecimal toSystem(BigDecimal value, UomUnit<?> unit, MathContext mc) {
-        return unit.toSystemConverter().convert(value, mc);
+    /**
+     * {@code num / den} rounded once to {@code mc}; an unlimited context rounds a non-terminating or approximated
+     * quotient to {@code DECIMAL128}. A zero {@code den} throws {@link ArithmeticException}.
+     */
+    private static BigDecimal roundOnce(BigDecimal num, BigDecimal den, MathContext mc, boolean exact) {
+        if (mc.getPrecision() == 0 && exact) {
+            try {
+                return num.divide(den);
+            } catch (ArithmeticException nonTerminating) {
+                if (den.signum() == 0) {
+                    throw nonTerminating;
+                }
+            }
+        }
+        return num.divide(den, Precision.calculation(mc));
     }
 
-    private BigDecimal fromSystem(BigDecimal systemValue, MathContext mc) {
-        return unit.toSystemConverter().inverse().convert(systemValue, mc);
+    /**
+     * An exact factor as numerator over a positive denominator; an irrational one (pi, roots) approximated over 1
+     * with 25 guard digits beyond {@code mc}, so its results are best effort.
+     */
+    private record Ratio(BigDecimal num, BigDecimal den, boolean exact) {
+
+        static Ratio of(Factor f, MathContext mc) {
+            return f.isExact() ? new Ratio(new BigDecimal(f.numerator()), new BigDecimal(f.denominator()), true)
+                    : new Ratio(f.decimalValue(new MathContext(Precision.calculation(mc).getPrecision() + 25)),
+                            BigDecimal.ONE, false);
+        }
     }
 
-    private interface DecimalOp {
-        BigDecimal apply(BigDecimal a, BigDecimal b, MathContext mc);
+    private void requireCompatible(UomUnit<Q> thatUnit) {
+        if (!unit.getDimension().equals(thatUnit.getDimension())) {
+            throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + thatUnit);
+        }
     }
 
     private static <Q extends Quantity<Q>> UomUnit<Q> uomUnit(Unit<Q> unit) {

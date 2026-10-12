@@ -7,12 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.math.RoundingMode;
+import java.time.Duration;
+import java.util.List;
+import java.util.Random;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
@@ -28,6 +33,9 @@ class AbstractDecimalQuantityArithmeticTest {
     private static final UomUnit<Length> CELSIUS =
             UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
     private static final UomUnit<Length> KELVIN = UomUnit.unchecked(BaseUnits.KELVIN);
+    private static final UomUnit<Length> INCH = BaseUnits.METRE.multiply(new BigDecimal("0.0254"));
+    private static final UomUnit<Length> FAHRENHEIT =
+            UomUnit.unchecked(BaseUnits.KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67")));
     private static final MathContext UNLIMITED = MathContext.UNLIMITED;
 
     private static TestLengthDecimalImpl q(String value, UomUnit<Length> unit) {
@@ -285,6 +293,167 @@ class AbstractDecimalQuantityArithmeticTest {
         assertFalse(q("1", METRE).isEquivalentTo(d(1 + 1e-11, METRE)));
         assertTrue(q("0.1", METRE).isEquivalentTo(d(0.1, METRE)));
         assertTrue(q("2", KILOMETRE).isEquivalentTo(d(2000, METRE)));
+    }
+
+    @Test
+    void addAndSubtractRoundOnce() {
+        // Exact: 1 - 39.37008 * 0.0254 = -3.2E-8.
+        assertDecimal("-3.2E-8", METRE, MathContext.DECIMAL32,
+                q("1", METRE, MathContext.DECIMAL32).subtract(q("39.37008", INCH)));
+        TestLengthDecimalImpl p7 = q("1.2345678", METRE, new MathContext(7));
+        TestLengthDecimalImpl p34 = q("1.2345674", METRE, MathContext.DECIMAL128);
+        assertDecimal("4E-7", METRE, new MathContext(7), p7.subtract(p34));
+        assertDecimal("-4E-7", METRE, new MathContext(7), p34.subtract(p7));
+        assertDecimal("7.2E+14", METRE, new MathContext(7), q("-987666759108827382456942", METRE, new MathContext(7))
+                .subtract(q("-987666759828827382456942", METRE, MathContext.DECIMAL64)));
+    }
+
+    @Test
+    void valuesNearTheScaleBoundStayFast() {
+        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+            assertDecimal("1E+99999", METRE, q("1e99999", METRE).add(q("1", METRE)));
+            assertDecimal("1E+99999", KILOMETRE, q("1e99999", KILOMETRE).add(q("1e-99999", METRE)));
+            assertEquals(100_000, ((BigDecimal) q("1e99999", METRE, UNLIMITED).add(q("1", METRE, UNLIMITED))
+                    .getValue()).precision());
+            assertEquals(1, q("1e99999", CELSIUS).compareTo(q("1e-99999", KELVIN)));
+            assertDecimal("2E+99999", CELSIUS, q("1e99999", CELSIUS).multiply(2));
+        });
+    }
+
+    @Test
+    void irrationalFactorsAreApproximatedBeyondTheContext() {
+        UomUnit<Length> piOver180 = UomUnit.unchecked(
+                METRE.scaledBy(org.tinygears.uom.core.Factor.PI.divide(org.tinygears.uom.core.Factor.ofLong(180))));
+        assertDecimal("4.141592653589793238462643383279503", METRE, q("1", METRE).add(q("180", piOver180)));
+        assertDecimal("4.141592653589793238462643383279503", METRE, UNLIMITED,
+                q("1", METRE, UNLIMITED).add(q("180", piOver180, UNLIMITED)));
+        assertDecimal("360", piOver180, q("180", piOver180).add(q("180", piOver180)));
+        // pi = 3.14159265358979323846264338327950288419716...
+        assertEquals(1, q("3.1415926535897932384626433832795028842", METRE, UNLIMITED)
+                .compareTo(q("180", piOver180, UNLIMITED)));
+        assertEquals(-1, q("3.1415926535897932384626433832795028841", METRE, UNLIMITED)
+                .compareTo(q("180", piOver180, UNLIMITED)));
+    }
+
+    @Test
+    void compareToIsAConsistentPreorder() {
+        TestLengthDecimalImpl p1 = q("1.4", METRE, new MathContext(1));
+        TestLengthDecimalImpl one = q("1.0", METRE);
+        TestLengthDecimalImpl oneTwo = q("1.2", METRE);
+        assertEquals(1, p1.compareTo(one));
+        assertEquals(1, p1.compareTo(oneTwo));
+        assertEquals(-1, oneTwo.compareTo(p1));
+        assertEquals(-1, one.compareTo(oneTwo));
+        assertEquals(1, q("1.4", KILOMETRE, new MathContext(1)).compareTo(q("1000", METRE)));
+        assertEquals(1, q("0.0000001", CELSIUS, MathContext.DECIMAL32).compareTo(q("273.15", KELVIN)));
+        assertEquals(-1, q("-459.67", FAHRENHEIT, new MathContext(1)).compareTo(q("1e-30", KELVIN)));
+        assertEquals(0, q("-459.67", FAHRENHEIT).compareTo(q("0", KELVIN)));
+    }
+
+    @Test
+    void equivalenceBoundIsInclusiveAndUsesTheLargerMagnitude() {
+        // p = 7: tolerance max(|a|, |b|) * 1e-6, exactly 1 here.
+        assertTrue(q("1000000", METRE, MathContext.DECIMAL32).isEquivalentTo(q("999999", METRE)));
+        assertTrue(q("999999", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1000000", METRE)));
+        assertFalse(q("999999", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1000001", METRE)));
+    }
+
+    /** Add, subtract, compareTo and scalars against an exact rational reference of the literal rule, correctly rounded. */
+    @Test
+    void correctlyRoundedAgainstExactReference() {
+        List<List<UomUnit<Length>>> groups = List.of(List.of(KILOMETRE, METRE, INCH),
+                List.of(KELVIN, CELSIUS, FAHRENHEIT));
+        RoundingMode[] modes = {RoundingMode.HALF_UP, RoundingMode.HALF_EVEN, RoundingMode.HALF_DOWN,
+            RoundingMode.UP, RoundingMode.DOWN, RoundingMode.CEILING, RoundingMode.FLOOR};
+        Random random = new Random(20261012);
+        for (int i = 0; i < 20_000; i++) {
+            List<UomUnit<Length>> group = groups.get(random.nextInt(2));
+            UomUnit<Length> ua = group.get(random.nextInt(3));
+            UomUnit<Length> ub = group.get(random.nextInt(3));
+            TestLengthDecimalImpl a = new TestLengthDecimalImpl(randomDecimal(random), ua, Quantity.Scale.ABSOLUTE,
+                    randomContext(random, modes));
+            TestLengthDecimalImpl b = new TestLengthDecimalImpl(randomDecimal(random), ub, Quantity.Scale.ABSOLUTE,
+                    randomContext(random, modes));
+            BigDecimal s = randomDecimal(random);
+            MathContext mc = Precision.lower(a.mathContext(), b.mathContext());
+            Rat sa = Rat.sys(a.getValue(), ua);
+            Rat sb = Rat.sys(b.getValue(), ub);
+            String what = a + " " + a.mathContext() + " / " + b + " " + b.mathContext() + " / " + s;
+            assertRounded(Rat.fromSys(sa.add(sb), ua), mc, a.add(b), what);
+            assertRounded(Rat.fromSys(sa.add(sb.negate()), ua), mc, a.subtract(b), what);
+            assertEquals(sa.add(sb.negate()).n.signum(), a.compareTo(b), what);
+            assertRounded(Rat.fromSys(sa.multiply(Rat.of(s)), ua), a.mathContext(), a.multiply(s), what);
+            if (s.signum() != 0) {
+                assertRounded(Rat.fromSys(sa.divide(Rat.of(s)), ua), a.mathContext(), a.divide(s), what);
+            }
+        }
+    }
+
+    private static BigDecimal randomDecimal(Random random) {
+        BigInteger unscaled = new BigInteger(random.nextInt(1, 90), random);
+        return new BigDecimal(random.nextBoolean() ? unscaled : unscaled.negate(), random.nextInt(-10, 30));
+    }
+
+    private static MathContext randomContext(Random random, RoundingMode[] modes) {
+        int p = random.nextInt(10) == 0 ? 0 : random.nextInt(1, 40);
+        return new MathContext(p, modes[random.nextInt(modes.length)]);
+    }
+
+    /** Exact or correctly rounded to {@code mc}; a non-terminating unlimited result within 1 ulp of DECIMAL128. */
+    private static void assertRounded(Rat exact, MathContext mc, Quantity<Length> actual, String what) {
+        BigDecimal n = new BigDecimal(exact.n);
+        BigDecimal d = new BigDecimal(exact.d);
+        BigDecimal r = (BigDecimal) actual.getValue();
+        if (mc.getPrecision() != 0) {
+            BigDecimal expected = n.divide(d, mc);
+            assertEquals(0, expected.compareTo(r), () -> what + ": expected " + expected + " got " + r);
+            return;
+        }
+        try {
+            BigDecimal expected = n.divide(d);
+            assertEquals(0, expected.compareTo(r), () -> what + ": expected " + expected + " got " + r);
+        } catch (ArithmeticException nonTerminating) {
+            BigDecimal expected = n.divide(d, MathContext.DECIMAL128);
+            assertTrue(expected.subtract(r).abs().compareTo(expected.ulp()) <= 0,
+                    () -> what + ": expected " + expected + " got " + r);
+        }
+    }
+
+    /** An exact rational n/d, d > 0. */
+    private record Rat(BigInteger n, BigInteger d) {
+        static Rat of(BigDecimal x) {
+            return x.scale() >= 0 ? new Rat(x.unscaledValue(), BigInteger.TEN.pow(x.scale()))
+                    : new Rat(x.unscaledValue().multiply(BigInteger.TEN.pow(-x.scale())), BigInteger.ONE);
+        }
+
+        static Rat of(org.tinygears.uom.core.Factor f) {
+            return new Rat(f.numerator(), f.denominator());
+        }
+
+        static Rat sys(BigDecimal x, UomUnit<?> unit) {
+            return of(x).multiply(of(unit.toSystemConverter().factor())).add(of(unit.toSystemConverter().offset()));
+        }
+
+        static Rat fromSys(Rat x, UomUnit<?> unit) {
+            return x.add(of(unit.toSystemConverter().offset()).negate()).divide(of(unit.toSystemConverter().factor()));
+        }
+
+        Rat add(Rat o) {
+            return new Rat(n.multiply(o.d).add(o.n.multiply(d)), d.multiply(o.d));
+        }
+
+        Rat negate() {
+            return new Rat(n.negate(), d);
+        }
+
+        Rat multiply(Rat o) {
+            return new Rat(n.multiply(o.n), d.multiply(o.d));
+        }
+
+        Rat divide(Rat o) {
+            return o.n.signum() < 0 ? new Rat(n.multiply(o.d).negate(), d.multiply(o.n).negate())
+                    : new Rat(n.multiply(o.d), d.multiply(o.n));
+        }
     }
 
     @SuppressWarnings("unchecked")
