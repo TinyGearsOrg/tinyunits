@@ -9,6 +9,7 @@ import javax.measure.Unit;
 import javax.measure.format.QuantityFormat;
 import javax.measure.format.UnitFormat;
 import javax.measure.quantity.Speed;
+import javax.measure.spi.FormatService;
 import javax.measure.spi.ServiceProvider;
 import org.tinygears.uom.quantity.Energy;
 import org.tinygears.uom.quantity.Length;
@@ -54,8 +55,9 @@ public final class Examples {
 
     /** Units and quantities from text, and back to text. */
     static String formats() {
-        UnitFormat unitFormat = ServiceProvider.current().getFormatService().getUnitFormat();
-        QuantityFormat quantityFormat = ServiceProvider.current().getFormatService().getQuantityFormat();
+        FormatService formats = ServiceProvider.current().getFormatService();
+        UnitFormat unitFormat = formats.getUnitFormat();
+        QuantityFormat quantityFormat = formats.getQuantityFormat();
         Unit<?> millikelvin = unitFormat.parse("mK");
         Unit<?> squareKm = unitFormat.parse("km^2");
         Quantity<?> parsed = quantityFormat.parse("20 km");
