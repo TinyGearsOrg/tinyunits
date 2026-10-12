@@ -11,7 +11,7 @@ section 7.
 
 - M3, DESIGN section 8 "exact list of extra quantity types the catalogs need": decided in D6. None are added; poise, stokes
   and oersted are untyped units (see below), the gilbert is typed `ElectricCurrent`.
-- M3, `ft`, `at`, `ct` and `dt` read as prefixed tonnes: `UomUnitFormat.create()` now covers all seven systems and exact
+- M3, `ft`, `at`, `ct` and `dt` read as prefixed tonnes: `UomUnitFormat.standard()` now covers all seven systems and exact
   symbols win over prefix readings, so `ft` is the foot. The only string that changes from the SI-only reading is `ft`
   (the shadow set, pinned in the format tests); a format over `SI` alone still reads `ft` as femtotonne.
 - M3, `@preferred` had no real-data coverage and an `@include` override needed the duplicate-preferred rule: the six new
@@ -40,8 +40,9 @@ Unchanged, tracked with options in `docs/TODO.md`. Two more are visible through 
 - Run-time loading of `.units` resources and user files (F17, F18) is still open; the catalogs are generated only.
 - A label that equals a prefix reading of another unit (`label(SECOND, "Gm")`) is accepted; it predates this milestone but
   is widened by the new prefixable units `G`, `Gal`, `P` and `St`. Reject labels that `lookup` already resolves.
-- Equal units of different systems format to the first system's symbol: `abH` equals SI `nH`, `cm³` equals `mL`
-  (`UnitSystems.all()` order decides; pinned by the equal-unit format order tests).
+- `abH` equals SI `nH` and `cm³` equals `mL`. A unit with its own symbol formats to it (`format(EMU.ABHENRY)` is `abH`,
+  `format(CGS.CUBIC_CENTIMETRE)` is `cm³`); an unnamed equal unit (`SI.HENRY.divide(1e9)`) formats to the first system's symbol
+  in `UnitSystems.all()` order (`nH`), pinned by the equal-unit format order tests.
 - Poise, stokes and oersted are untyped `UomUnit<?>` constants. Extra quantity types (`DynamicViscosity`,
   `KinematicViscosity`, `MagneticFieldStrength`, ...) would type them and extend `quantity-types.txt` (follow-up to D6).
 - Gaussian prefixed gauss: members keep the owning system's prefixable status, so `G` is prefixable in `Gaussian` and
@@ -60,9 +61,15 @@ Unchanged, tracked with options in `docs/TODO.md`. Two more are visible through 
   keeping it was wrong.
 - The Task 2 data test reads US units only through the Imperial parse, and its symbol-uniqueness check cannot fail (the
   parser already rejects duplicates).
-- Data gap: only 25 units are pinned by `SystemConversionTest`; the others (from `INCH` to `OERSTED` in data order) are
-  pinned independently only by the data tests (`UsCustomaryDataTest`, `CgsDataTest`) and the reviewers' re-derivation
-  (68 of 68 data mutations killed repo-wide). No cross-system numeric test covers them.
+- Data gap (Task 7 review): these units are pinned independently only by the data tests (`UsCustomaryDataTest`,
+  `CgsDataTest`), not by `SystemConversionTest`: INCH, YARD, NAUTICAL_MILE, FATHOM, SQUARE_INCH, SQUARE_FOOT, CUBIC_INCH,
+  CUBIC_FOOT, QUART_US, PINT_US, CUP_US, FLUID_OUNCE_US, TABLESPOON_US, TEASPOON_US, OUNCE, GRAIN, TON_US, POUND_FORCE,
+  BRITISH_THERMAL_UNIT_TH, MILE_PER_HOUR, STONE, TON_UK, QUART_UK, PINT_UK, GILL_UK, FLUID_OUNCE_UK, GALILEO, POISE, STOKES,
+  CENTIPOISE, MILLIPOISE, CENTISTOKES, MILLIGALILEO, MICROGALILEO, STATOHM, STATFARAD, STATHENRY, ABOHM, ABFARAD, GILBERT,
+  OERSTED, MILLIGAUSS, MICROGAUSS (ABHENRY and NANOGAUSS also by `UnitFormatSystemsTest`). All data mutations were killed.
+- Fallback preferred units are not members: `USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but `getUnit("s")` is null
+  and `getUnits()` lacks `s` (123 (system, type) pairs fall back to a unit outside the system's `UNITS`; SI itself for
+  `m/s^2`, `1` and `m/s`).
 - The `PREFERRED` swaps of CGS Time and Length, Gaussian Time, Imperial Volume and Length, `USCustomary` Temperature and
   ESU Capacitance escape `SystemConversionTest` (`SystemsCatalogTest` and `ToSystemTest` catch them).
 - The cross-system parity test of double against decimal cannot detect a wrong factor (both share it); the named-value
@@ -72,8 +79,8 @@ Unchanged, tracked with options in `docs/TODO.md`. Two more are visible through 
 
 ## Generator (`uom-codegen`)
 
-- Generated lines exceed 120 columns (long `@prefixed` and `UNITS` lines, as in `SI`); the wrapping rule is
-  unchanged (milestone 3 item).
+- Generated lines exceed 120 columns: the header comment and the class Javadoc (for example `Gaussian.java` lines 2 and
+  6), as in `SI`; the wrapping rule is unchanged (milestone 3 item).
 - `to(system)` interface Javadoc in the 33 generated typed interfaces uses plain text for the exceptions and omits the
   `NullPointerException`; fix in `SourceEmitter` and regenerate.
 - Task 4 fixed an existing emitter bug (empty `PREFIXABLE` emitted `Set.of(())`); the new samples cover SI fallback, the
@@ -95,6 +102,16 @@ Unchanged, tracked with options in `docs/TODO.md`. Two more are visible through 
   text comes from the session attribution reminder, check it before the first commit.
 - Task 6 changes a base-class hook (`quantityType()`) and regenerates 99 files in one commit; the build is green at the end
   of each task (no red window like milestone 4).
+- Task 5 user-visible change: `label(unit, "ft")` (or any exact symbol of the new systems) is now rejected; the SI-only
+  format accepted it.
+- Pre-flight note: constant names in the plan text (for example `Imperial.GALLON_UK`) are examples; the tests derive the
+  expected constants from the data.
+- Final review, open: `UNLIMITED` is not exact for some terminating results where the converter decides by coefficient
+  (`BTU_th`, denominator 9: `-1553526887993091996259.1645232` gives `...093.214515390` instead of `...093.21451539011392`).
+  It predates the milestone; the F23 wording needs to say so or the converter needs fixing.
+- Final review, observations: only U+00B5 and U+03A9 parse as micro and ohm (U+03BC and U+2126 are rejected, as for SI); any
+  metric prefix works on a prefixable unit (`kP`, `aSt`); the symbol choices `Gb`, `BTU_IT` and `fathom` are the data
+  author's.
 
 ## Build
 

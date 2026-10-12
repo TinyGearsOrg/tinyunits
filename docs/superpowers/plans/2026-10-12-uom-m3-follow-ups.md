@@ -95,7 +95,7 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
 - Any metric prefix applies at run time to a prefixable unit, so in an SI-only format `ft`, `at`,
   `ct` and `dt` parse as femto-, atto-, centi- and decitonne. Exact symbols win in a multi-system
   format, but consider restricting `t` to the prefixes listed in its `@prefixed` line. Done for the default format by milestone 5
-  (`UomUnitFormat.create()` covers all seven systems; `ft` is the foot); an SI-only format still reads `ft` as femtotonne.
+  (`UomUnitFormat.standard()` covers all seven systems; `ft` is the foot); an SI-only format still reads `ft` as femtotonne.
 - `UomServiceProvider.toString()` could return the provider name so that `ServiceProvider.of(name)`
   finds it (unit-api 2.2 falls back to `toString()` without `@Named`).
 

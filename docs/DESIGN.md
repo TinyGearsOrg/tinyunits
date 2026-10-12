@@ -94,7 +94,7 @@ Per quantity type the generator writes four files:
    `divide(Number)` (all return `Length`), `toDouble()` and `toDecimal(MathContext)` (F23, D10), and static factories
    `Length.of(double, unit)`, `Length.of(double, unit, Scale)` and, for `BigDecimal`,
    `of(BigDecimal, unit)`, `of(BigDecimal, unit, Scale)`, `of(BigDecimal, unit, Scale, MathContext)`
-   (D11). `to(SystemOfUnits)` (F8, D5 of milestone 5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
+   (D11). Milestone 5 adds `to(SystemOfUnits)` (F8, D5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
    work with any JSR-385 code (F4). The shared simple name is a deliberate trade-off: everyday
    code never mentions both types, and declaring a unit variable needs `var` or the fully
    qualified standard type.
@@ -271,7 +271,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 - **Preferred layering (D4).** `PREFERRED` has all 33 types: the file's own `@preferred` lines, else those of the first
   extended system (in `@extends` order), else `SI`'s (the fallback relies on `si.units` being first in `Generate.CATALOGS`).
   Layering is by source file; files that are only `@include`d contribute no lines. `SI` itself keeps the factory system unit
-  for a type without `@preferred`.
+  for a type without `@preferred`. Fallback units are not members: `USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but
+  `getUnit("s")` is null and `getUnits()` lacks `s` (123 (system, type) pairs; SI itself for `m/s^2`, `1` and `m/s`).
 - **Run time (F17, F18).** The parser ships in `uom-core`. Through milestone 5 the library does not load `.units`
   resources at run time: `UomUnitFormat` resolves symbols from the generated catalogs and
   evaluates formulas with `FormulaEvaluator`. Loading user `.units` files (F18) is to do.
@@ -281,11 +282,11 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   `@prefixed` line are in `SI.PREFIXABLE`, so only they take prefixes at run time (`Gm`, but not
   `kmin`). Prefixable symbols of all systems apply (D3). A prefixed power is written with `^`: `km^2` parses as `(km)^2`, while `km²` does not
   parse (`m²` is a symbol of its own, not a prefixable unit).
-- **Symbol resolution across systems (D7).** `UomUnitFormat.create()` resolves labels, then exact symbols across all systems of
+- **Symbol resolution across systems (D7).** `UomUnitFormat.standard()` resolves labels, then exact symbols across all systems of
   `UnitSystems.all()` (SI first), then a metric prefix on a prefixable unit. Exact symbols win over prefix readings, so `ft` is the
   foot, not the femtotonne; this is the only string that parsed in SI-only mode and now reads differently (the shadow set `{ft}`,
-  pinned by a test over all strings of that form). Equal units of different systems format to the first system's symbol
-  (`abH` equals `nH`, `cm³` equals `mL`).
+  pinned by a test over all strings of that form). `abH` equals `nH` and `cm³` equals `mL`: a unit with its
+  own symbol formats to it (`format(EMU.ABHENRY)` is `abH`), an unnamed equal unit to the first system's symbol (`nH`).
 - **Consistency test.** `SiCatalogTest` checks every definition of `si.units` against the
   catalog; `UnitFormatTest` formats and parses every `SI.UNITS` entry back to an equal unit.
 
