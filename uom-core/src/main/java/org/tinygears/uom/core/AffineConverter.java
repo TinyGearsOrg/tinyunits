@@ -97,15 +97,41 @@ final class AffineConverter implements UomConverter {
         }
         if (factor.isExact() && offset.isExact()) {
             // value * nf/df + no/do as one exact quotient, rounded once.
-            BigDecimal n = value.multiply(new BigDecimal(factor.numerator().multiply(offset.denominator())))
-                    .add(new BigDecimal(offset.numerator().multiply(factor.denominator())));
-            return n.divide(new BigDecimal(factor.denominator().multiply(offset.denominator())), mc);
+            BigDecimal t = value.multiply(new BigDecimal(factor.numerator().multiply(offset.denominator())));
+            BigDecimal b = new BigDecimal(offset.numerator().multiply(factor.denominator()));
+            BigDecimal d = new BigDecimal(factor.denominator().multiply(offset.denominator()));
+            int guard = mc.getPrecision() + d.precision() + 1;
+            // Exact quotients take the scale of the sum aligned to scale max(value scale, 0); the zero-term and
+            // negative-scale adjustments reproduce it without the alignment.
+            BigDecimal n = b.signum() == 0 ? t
+                    : t.signum() == 0 ? b.setScale(Math.max(0, Math.min(t.scale(), guard)))
+                    : addFar(t, b, guard);
+            BigDecimal q = n.divide(d, mc);
+            return q.scale() >= 0 ? q : q.signum() == 0 ? BigDecimal.ZERO
+                    : q.setScale(Math.min(0, q.scale() + mc.getPrecision() - q.precision()));
         }
         // Best effort for irrational coefficients: the product's relative error is independent of the
         // value's magnitude, so guard digits only cover cancellation against the offset.
         int guard = mc.getPrecision() + 10 + Math.max(0, Math.getExponent(offsetD) * 3 / 10 + 1);
         MathContext work = new MathContext(guard);
         return value.multiply(factor.decimalValue(work), work).add(offset.decimalValue(work), work).round(mc);
+    }
+
+    /**
+     * {@code x + y} for the numerator of a quotient rounded to {@code guard - divisorDigits - 1} digits; a term
+     * below 10^k, where k is under both the other term's last digit and the quotient's rounding grid (both
+     * multiples of 10^k), becomes a same-signed 10^(k-1): it rounds identically and skips the scale alignment.
+     */
+    private static BigDecimal addFar(BigDecimal x, BigDecimal y, int guard) {
+        long ex = (long) x.precision() - x.scale() - 1;
+        long ey = (long) y.precision() - y.scale() - 1;
+        BigDecimal big = ex >= ey ? x : y;
+        BigDecimal small = ex >= ey ? y : x;
+        long sticky = Math.min(Math.max(ex, ey) - guard - 1, -(long) big.scale()) - 1;
+        if (Math.min(ex, ey) >= sticky) {
+            return x.add(y);
+        }
+        return big.add(BigDecimal.valueOf(small.signum(), Math.toIntExact(-sticky)));
     }
 
     @Override
