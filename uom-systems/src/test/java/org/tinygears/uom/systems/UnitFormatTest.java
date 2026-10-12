@@ -37,7 +37,7 @@ class UnitFormatTest {
 
     @Test
     void everyCatalogUnitRoundTrips() {
-        assertEquals(111, SI.UNITS.size());
+        assertEquals(128, SI.UNITS.size());
         for (UomUnit<?> unit : SI.UNITS) {
             assertEquals(unit, format.parse(unit.toString()), unit.toString());
             assertEquals(unit, format.parse(format.format(unit)), unit.toString());
@@ -75,6 +75,35 @@ class UnitFormatTest {
         assertEquals(SI.PASCAL.prefix(MetricPrefix.HECTO), parse("hPa"));
         assertEquals(SI.MOLE.prefix(MetricPrefix.MILLI), parse("mmol"));
         assertEquals(SI.OHM.prefix(MetricPrefix.KILO), parse("kΩ"));
+    }
+
+    @Test
+    void prefixedConstantsOfAllSiUnitsParse() {
+        assertSame(SI.MILLIKELVIN, parse("mK"));
+        assertSame(SI.MILLICANDELA, parse("mcd"));
+        assertSame(SI.KILODALTON, parse("kDa"));
+        assertSame(SI.MEGATONNE, parse("Mt"));
+        assertEquals(SI.KELVIN.prefix(MetricPrefix.MILLI), parse("mK"));
+        assertEquals(SI.CANDELA.prefix(MetricPrefix.MILLI), parse("mcd"));
+        assertEquals(SI.DALTON.prefix(MetricPrefix.KILO), parse("kDa"));
+        assertEquals(SI.KILOGRAM.multiply(1_000_000_000), parse("Mt"));
+        for (UomUnit<?> unit : List.of(SI.MILLIKELVIN, SI.MICROKELVIN, SI.NANOKELVIN, SI.MILLICANDELA,
+                SI.KILOCANDELA, SI.MILLIKATAL, SI.MICROKATAL, SI.NANOKATAL, SI.KILOKATAL, SI.MILLILUMEN,
+                SI.KILOLUMEN, SI.MILLISTERADIAN, SI.KILODALTON, SI.MEGADALTON, SI.KILOTONNE, SI.MEGATONNE,
+                SI.GIGATONNE)) {
+            assertEquals(unit.getSymbol(), format.format(unit));
+            assertSame(unit, parse(format.format(unit)));
+        }
+        assertPrefixed("GK", SI.KELVIN, MetricPrefix.GIGA, "1e9", "gigakelvin");
+        assertPrefixed("Tt", SI.TONNE, MetricPrefix.TERA, "1e12", "teratonne");
+    }
+
+    @Test
+    void prefixedPowersUseCaret() {
+        assertEquals(SI.KILOMETRE.pow(2), parse("km^2"));
+        assertEquals(SI.CENTIMETRE.pow(3), parse("cm^3"));
+        assertThrows(MeasurementParseException.class, () -> format.parse("km²"));
+        assertSame(SI.SQUARE_METRE, parse("m²"));
     }
 
     @Test
@@ -364,7 +393,7 @@ class UnitFormatTest {
         }
         assertEquals(List.of(), bad);
         assertTrue(units.size() > 20_000, "units: " + units.size());
-        assertTrue(refused > 100 && roundTrips > 15_000, "refused " + refused + ", round trips " + roundTrips);
+        assertTrue(refused >= prefixes.length && roundTrips > 15_000, "refused " + refused + ", round trips " + roundTrips);
     }
 
     @Test

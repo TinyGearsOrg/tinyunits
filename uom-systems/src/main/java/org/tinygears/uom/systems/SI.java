@@ -325,10 +325,59 @@ public final class SI {
                     .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
                     .named("µA", "microampere"));
 
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> MILLIKELVIN =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("mK", "millikelvin"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> MICROKELVIN =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("µK", "microkelvin"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> NANOKELVIN =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("nK", "nanokelvin"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> MILLICANDELA =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("mcd", "millicandela"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> KILOCANDELA =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("kcd", "kilocandela"));
+
     public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> MILLIMOLE =
             org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
                     .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
                     .named("mmol", "millimole"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> MILLIKATAL =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
+                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("mkat", "millikatal"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> MICROKATAL =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
+                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("µkat", "microkatal"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> NANOKATAL =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
+                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("nkat", "nanokatal"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> KILOKATAL =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
+                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("kkat", "kilokatal"));
 
     public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> KILOHERTZ =
             org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
@@ -710,6 +759,49 @@ public final class SI {
                     .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
                     .named("klx", "kilolux"));
 
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> MILLILUMEN =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
+                    .multiply(org.tinygears.uom.core.BaseUnits.ONE.alternate("sr"))
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("mlm", "millilumen"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> KILOLUMEN =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
+                    .multiply(org.tinygears.uom.core.BaseUnits.ONE.alternate("sr"))
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("klm", "kilolumen"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> MILLISTERADIAN =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+                    .alternate("sr")
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("msr", "millisteradian"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> KILODALTON =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("8302695333"), new java.math.BigInteger("5000000000000000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+                    .named("kDa", "kilodalton"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> MEGADALTON =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("8302695333"), new java.math.BigInteger("5000000000000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+                    .named("MDa", "megadalton"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> KILOTONNE =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("kt", "kilotonne"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> MEGATONNE =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("Mt", "megatonne"));
+
+    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> GIGATONNE =
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
+                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .named("Gt", "gigatonne"));
+
     public static final java.util.List<org.tinygears.uom.core.UomUnit<?>> UNITS =
             java.util.List.<org.tinygears.uom.core.UomUnit<?>>of(
                     METRE,
@@ -770,7 +862,16 @@ public final class SI {
                     PICOSECOND,
                     MILLIAMPERE,
                     MICROAMPERE,
+                    MILLIKELVIN,
+                    MICROKELVIN,
+                    NANOKELVIN,
+                    MILLICANDELA,
+                    KILOCANDELA,
                     MILLIMOLE,
+                    MILLIKATAL,
+                    MICROKATAL,
+                    NANOKATAL,
+                    KILOKATAL,
                     KILOHERTZ,
                     MEGAHERTZ,
                     GIGAHERTZ,
@@ -822,18 +923,28 @@ public final class SI {
                     MILLISIEVERT,
                     MICROSIEVERT,
                     MILLIRADIAN,
-                    KILOLUX);
+                    KILOLUX,
+                    MILLILUMEN,
+                    KILOLUMEN,
+                    MILLISTERADIAN,
+                    KILODALTON,
+                    MEGADALTON,
+                    KILOTONNE,
+                    MEGATONNE,
+                    GIGATONNE);
 
     public static final java.util.Set<String> PREFIXABLE =
             java.util.Set.of(
                     "A",
                     "Bq",
                     "C",
+                    "Da",
                     "F",
                     "Gy",
                     "H",
                     "Hz",
                     "J",
+                    "K",
                     "L",
                     "N",
                     "Pa",
@@ -843,13 +954,18 @@ public final class SI {
                     "V",
                     "W",
                     "Wb",
+                    "cd",
                     "eV",
                     "g",
+                    "kat",
+                    "lm",
                     "lx",
                     "m",
                     "mol",
                     "rad",
                     "s",
+                    "sr",
+                    "t",
                     "Ω");
 
     public static final java.util.Map<Class<?>, org.tinygears.uom.core.UomUnit<?>> PREFERRED =

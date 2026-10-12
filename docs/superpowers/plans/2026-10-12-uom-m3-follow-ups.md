@@ -116,7 +116,7 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
   initialisation; a generated Javadoc line exceeds 100 characters.
 - The no-double-literal regex misses `2e3`, `1e-5`, `.5`, `5.`; `emitsScaledUnits` checks equality, not `hashCode`; no test
   for the `long` boundaries (1/2^63, `Long.MIN_VALUE`).
-- No real-catalog test ties constant names to definitions beyond samples; `assertEquals(111, SI.UNITS.size())` is brittle.
+- No real-catalog test ties constant names to definitions beyond samples; `assertEquals(128, SI.UNITS.size())` is brittle.
 - `UomSystemOfUnits`: `isPrefixable(null)` throws `NullPointerException` while `getUnit(null)` and `lookup(null)` are lenient; a
   preferred unit need not be in `units`; a null map value throws in `Map.copyOf` (untested); no test for
   `getUnits(Dimension)` with no match.

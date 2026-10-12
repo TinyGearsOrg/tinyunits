@@ -154,7 +154,7 @@ and `data/si.units` and writes the sources of section 4 into
 three arguments: `<dataDir> <quantitiesOut> <systemsOut>`.
 
 - `data/si.units` holds the SI definitions (BIPM SI Brochure, 9th edition) and the curated
-  `@prefixed` lines; it replaced the milestone 2 bootstrap set `base.units` and yields 111
+  `@prefixed` lines; it replaced the milestone 2 bootstrap set `base.units` and yields 128
   catalog entries, declared in `SI` as typed constants (`SI.METRE`, `SI.KILOMETRE`).
 - `data/quantity-types.txt` has one `Name formula` per line, e.g. `Speed m / s`. `Name` is a
   `javax.measure.quantity` interface that must exist; the formula is the unscaled, non-offset
@@ -210,7 +210,10 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   evaluates formulas with `FormulaEvaluator`. Loading user `.units` files (F18) is to do.
 - **Prefixes.** `@prefixed` generates the curated prefixed units (`SI.KILOMETRE`). At run time
   `UomUnitFormat` also resolves a metric prefix on any unit in `SI.PREFIXABLE`, so `km` parses
-  even without a constant; binary prefixes (`MiB`) are not resolved yet.
+  even without a constant; binary prefixes (`MiB`) are not resolved yet. Only units named in a
+  `@prefixed` line are in `SI.PREFIXABLE`, so only they take prefixes at run time (`Gm`, but not
+  `kmin`). A prefixed power is written with `^`: `km^2` parses as `(km)^2`, while `km²` does not
+  parse (`m²` is a symbol of its own, not a prefixable unit).
 - **Consistency test.** `SiCatalogTest` checks every definition of `si.units` against the
   catalog; `UnitFormatTest` formats and parses every `SI.UNITS` entry back to an equal unit.
 
@@ -235,7 +238,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 2. Quantities for `double`: base class, generator for quantity types, a handful of types end
    to end.
 3. SI catalog: generator for `si.units`, prefixes, the service provider, basic unit and quantity
-   formats (symbols, prefixes, formulas); the TCK runs for real. Done: 33 types, 111 SI catalog
+   formats (symbols, prefixes, formulas); the TCK runs for real. Done: 33 types, 128 SI catalog
    entries, TCK 113 of 113 tests, 551 tests in `mvn -q -B clean verify`. Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m3-follow-ups.md`.
 4. `BigDecimal`: decimal base class and the precision rule.

@@ -178,19 +178,24 @@ class SiDataTest {
         assertScaled("dL", "L", Factor.of(1, 10));
         assertScaled("keV", "eV", Factor.ofLong(1000));
         assertScaled("mSv", "Sv", Factor.of(1, 1000));
+        assertScaled("mK", "K", Factor.of(1, 1000));
+        assertScaled("mcd", "cd", Factor.of(1, 1000));
+        assertScaled("kDa", "Da", Factor.ofLong(1000));
+        assertScaled("Mt", "t", Factor.ofLong(1_000_000));
     }
 
     @Test
     void prefixedSymbolsArePinned() {
         List<String> expected = List.of(
-                "GBq", "GHz", "GJ", "GPa", "GW", "GeV", "MBq", "MHz", "MJ", "MPa", "MW", "MeV", "MΩ", "THz", "TeV",
-                "cL", "cm", "dL", "hPa", "kBq", "kHz", "kJ", "kN", "kPa", "kV", "kW", "keV", "klx", "km", "kΩ", "mA",
-                "mC", "mF", "mGy", "mH", "mJ", "mL", "mN", "mS", "mSv", "mT", "mV", "mW", "mWb", "mg", "mm", "mmol",
-                "mrad", "ms", "nF", "nH", "nT", "nm", "ns", "pF", "pm", "ps", "µA", "µC", "µF", "µH", "µSv", "µT",
-                "µV", "µg", "µm", "µs");
+                "GBq", "GHz", "GJ", "GPa", "GW", "GeV", "Gt", "MBq", "MDa", "MHz", "MJ", "MPa", "MW", "MeV", "Mt",
+                "MΩ", "THz", "TeV", "cL", "cm", "dL", "hPa", "kBq", "kDa", "kHz", "kJ", "kN", "kPa", "kV", "kW",
+                "kcd", "keV", "kkat", "klm", "klx", "km", "kt", "kΩ", "mA", "mC", "mF", "mGy", "mH", "mJ", "mK",
+                "mL", "mN", "mS", "mSv", "mT", "mV", "mW", "mWb", "mcd", "mg", "mkat", "mlm", "mm", "mmol", "mrad",
+                "ms", "msr", "nF", "nH", "nK", "nT", "nkat", "nm", "ns", "pF", "pm", "ps", "µA", "µC", "µF", "µH",
+                "µK", "µSv", "µT", "µV", "µg", "µkat", "µm", "µs");
         List<String> actual = defs.definitions().stream().filter(SiDataTest::isPrefixed).map(Definition::symbol)
                 .sorted().toList();
-        assertEquals(67, expected.size());
+        assertEquals(84, expected.size());
         assertEquals(expected, actual);
     }
 

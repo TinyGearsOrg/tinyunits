@@ -59,7 +59,10 @@ arcsec:arcsecond pi|648000 rad
 @prefixed g m µ
 @prefixed s m µ n p
 @prefixed A m µ
+@prefixed K m µ n
+@prefixed cd m k
 @prefixed mol m
+@prefixed kat m µ n k
 @prefixed Hz k M G T
 @prefixed N k m
 @prefixed Pa h k M G
@@ -80,3 +83,7 @@ arcsec:arcsecond pi|648000 rad
 @prefixed Sv m µ
 @prefixed rad m
 @prefixed lx k
+@prefixed lm m k
+@prefixed sr m
+@prefixed Da k M
+@prefixed t k M G

@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 3 done (units core, typed `double` quantities for all 33 quantity types, the SI catalog `SI` with 111 units and prefixes, basic unit and quantity formats, the JSR-385 service provider). The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests. `BigDecimal` quantities, Imperial and CGS catalogs, `quantity.to(system)` and serialization are not implemented yet. Not released.
+Status: milestone 3 done (units core, typed `double` quantities for all 33 quantity types, the SI catalog `SI` with 128 units and prefixes, basic unit and quantity formats, the JSR-385 service provider). The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests. `BigDecimal` quantities, Imperial and CGS catalogs, `quantity.to(system)` and serialization are not implemented yet. Not released.
 
 ## Modules
 
