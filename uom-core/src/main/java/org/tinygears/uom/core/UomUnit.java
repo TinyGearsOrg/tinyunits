@@ -5,10 +5,13 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import javax.measure.IncommensurableException;
 import javax.measure.Prefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
+import javax.measure.UnconvertibleException;
 import javax.measure.UnitConverter;
 
 /** A product of atoms with integer exponents, an affine converter to the system unit, and labels. */
@@ -18,6 +21,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
     private final UomConverter toSystem;
     private final String symbol;
     private final String name;
+    private final Map<UomUnit<?>, UomConverter> converterCache = new ConcurrentHashMap<>();
 
     private UomUnit(Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
         this.atoms = atoms;
@@ -123,6 +127,44 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
         return symbol != null ? symbol : systemLabel();
     }
 
+    @Override
+    public boolean isEquivalentTo(Unit<Q> that) {
+        return that instanceof UomUnit<?> u
+                && atoms.equals(u.atoms)
+                && isCompatible(u)
+                && Converters.IDENTITY.equals(converterTo(u));
+    }
+
+    @Override
+    public UomConverter getConverterTo(Unit<Q> that) {
+        UomUnit<?> target = uomUnit(that);
+        if (!isCompatible(target)) {
+            throw new UnconvertibleException("incompatible dimensions: " + this + " and " + target);
+        }
+        return converterTo(target);
+    }
+
+    @Override
+    public UomConverter getConverterToAny(Unit<?> that) throws IncommensurableException {
+        UomUnit<?> target = uomUnit(that);
+        if (!isCompatible(target)) {
+            throw new IncommensurableException(this + " is not compatible with " + target);
+        }
+        return converterTo(target);
+    }
+
+    private static UomUnit<?> uomUnit(Unit<?> that) {
+        if (that instanceof UomUnit<?> u) {
+            return u;
+        }
+        throw new UnconvertibleException("foreign unit implementation: " + that.getClass().getName());
+    }
+
+    /** Caller has checked compatibility, so only valid targets are cached. */
+    private UomConverter converterTo(UomUnit<?> that) {
+        return converterCache.computeIfAbsent(that, t -> t.toSystem.inverse().concatenate(toSystem));
+    }
+
     // Implemented in later tasks.
 
     private static UnsupportedOperationException notYet() {
@@ -130,22 +172,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
     }
 
     @Override
-    public boolean isEquivalentTo(Unit<Q> that) {
-        throw notYet();
-    }
-
-    @Override
     public <T extends Quantity<T>> Unit<T> asType(Class<T> type) {
-        throw notYet();
-    }
-
-    @Override
-    public UnitConverter getConverterTo(Unit<Q> that) {
-        throw notYet();
-    }
-
-    @Override
-    public UnitConverter getConverterToAny(Unit<?> that) {
         throw notYet();
     }
 
