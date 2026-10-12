@@ -61,4 +61,49 @@ class UomDimensionTest {
         };
         assertEquals(LENGTH.multiply(TIME), LENGTH.multiply(foreign));
     }
+
+    private static final UomDimension MAX_L = new UomDimension(Integer.MAX_VALUE, 0, 0, 0, 0, 0, 0);
+    private static final UomDimension MIN_L = new UomDimension(Integer.MIN_VALUE, 0, 0, 0, 0, 0, 0);
+
+    private static javax.measure.Dimension foreign(Map<javax.measure.Dimension, Integer> base) {
+        return new javax.measure.Dimension() {
+            public javax.measure.Dimension multiply(javax.measure.Dimension m) { throw new UnsupportedOperationException(); }
+            public javax.measure.Dimension divide(javax.measure.Dimension d) { throw new UnsupportedOperationException(); }
+            public javax.measure.Dimension pow(int n) { throw new UnsupportedOperationException(); }
+            public javax.measure.Dimension root(int n) { throw new UnsupportedOperationException(); }
+            public Map<? extends javax.measure.Dimension, Integer> getBaseDimensions() { return base; }
+        };
+    }
+
+    @Test
+    void powEdgeCases() {
+        assertEquals(NONE, LENGTH.pow(0));
+        assertEquals(NONE.divide(LENGTH), LENGTH.pow(-1));
+        assertThrows(ArithmeticException.class, () -> LENGTH.pow(Integer.MAX_VALUE).pow(2));
+        assertThrows(ArithmeticException.class, () -> LENGTH.pow(2).pow(Integer.MAX_VALUE));
+        assertThrows(ArithmeticException.class, () -> MIN_L.pow(-1));
+    }
+
+    @Test
+    void multiplyAndDivideOverflowThrow() {
+        assertThrows(ArithmeticException.class, () -> MAX_L.multiply(LENGTH));
+        assertThrows(ArithmeticException.class, () -> LENGTH.divide(MIN_L));
+        assertThrows(ArithmeticException.class, () -> NONE.divide(MIN_L));
+    }
+
+    @Test
+    void rootEdgeCases() {
+        assertThrows(ArithmeticException.class, () -> MIN_L.root(-1));
+        assertEquals(NONE.divide(LENGTH), LENGTH.pow(2).root(-2));
+    }
+
+    @Test
+    void unsupportedForeignDimensionsAreRejected() {
+        var badKey = foreign(Map.of(foreign(Map.of()), 1));
+        assertThrows(IllegalArgumentException.class, () -> LENGTH.multiply(badKey));
+        assertThrows(IllegalArgumentException.class, () -> LENGTH.divide(badKey));
+        var nullExp = new java.util.HashMap<javax.measure.Dimension, Integer>();
+        nullExp.put(TIME, null);
+        assertThrows(IllegalArgumentException.class, () -> LENGTH.multiply(foreign(nullExp)));
+    }
 }

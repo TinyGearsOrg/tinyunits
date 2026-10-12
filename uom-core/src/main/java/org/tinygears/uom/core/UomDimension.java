@@ -42,6 +42,9 @@ public record UomDimension(int length, int mass, int time, int current, int temp
             if (!(en.getKey() instanceof UomDimension k)) {
                 throw new IllegalArgumentException("Unsupported dimension: " + d);
             }
+            if (en.getValue() == null) {
+                throw new IllegalArgumentException("Unsupported dimension: " + d);
+            }
             result = result.multiply(k.pow(en.getValue()));
         }
         return result;
@@ -52,21 +55,26 @@ public record UomDimension(int length, int mass, int time, int current, int temp
         int[] a = exponents();
         int[] b = from(multiplicand).exponents();
         for (int i = 0; i < a.length; i++) {
-            a[i] += b[i];
+            a[i] = Math.addExact(a[i], b[i]);
         }
         return of(a);
     }
 
     @Override
     public UomDimension divide(Dimension divisor) {
-        return multiply(from(divisor).pow(-1));
+        int[] a = exponents();
+        int[] b = from(divisor).exponents();
+        for (int i = 0; i < a.length; i++) {
+            a[i] = Math.subtractExact(a[i], b[i]);
+        }
+        return of(a);
     }
 
     @Override
     public UomDimension pow(int n) {
         int[] a = exponents();
         for (int i = 0; i < a.length; i++) {
-            a[i] *= n;
+            a[i] = Math.multiplyExact(a[i], n);
         }
         return of(a);
     }
@@ -81,7 +89,7 @@ public record UomDimension(int length, int mass, int time, int current, int temp
             if (a[i] % n != 0) {
                 throw new ArithmeticException("Dimension " + this + " has no integer " + n + "-th root");
             }
-            a[i] /= n;
+            a[i] = Math.divideExact(a[i], n);
         }
         return of(a);
     }
