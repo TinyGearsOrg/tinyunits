@@ -13,14 +13,17 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.tinygears.uom.systems.modulepath.PrintCurrentProvider;
 
 class ModulePathTest {
 
-    @Test
-    void describesModuleOnModulePath() throws Exception {
-        Path classes = Path.of("").toAbsolutePath().resolve("target/classes");
-        Path core = Path.of("").toAbsolutePath().resolve("../uom-core/target/classes").normalize();
-        Path quantities = Path.of("").toAbsolutePath().resolve("../uom-quantities/target/classes").normalize();
+    private static final Path HERE = Path.of("").toAbsolutePath();
+    private static final String JAVA = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+
+    private static String modulePath() {
+        Path classes = HERE.resolve("target/classes");
+        Path core = HERE.resolve("../uom-core/target/classes").normalize();
+        Path quantities = HERE.resolve("../uom-quantities/target/classes").normalize();
         Assumptions.assumeTrue(Files.isDirectory(classes) && Files.isDirectory(core)
                 && Files.isDirectory(quantities), "sibling classes not built");
         String jar = null;
@@ -30,12 +33,35 @@ class ModulePathTest {
             }
         }
         Assumptions.assumeTrue(jar != null, "unit-api-2.2.jar not on the class path");
+        return String.join(File.pathSeparator, classes.toString(), jar, core.toString(), quantities.toString());
+    }
 
-        String java = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-        String path = String.join(File.pathSeparator, classes.toString(), jar, core.toString(), quantities.toString());
-        String out = run(List.of(java, "--module-path", path, "--describe-module", "org.tinygears.uom.systems"));
+    @Test
+    void describesModuleOnModulePath() throws Exception {
+        String out = run(List.of(JAVA, "--module-path", modulePath(), "--describe-module", "org.tinygears.uom.systems"));
         assertTrue(out.contains("provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider"), out);
         assertTrue(out.contains("requires org.tinygears.uom.quantities transitive"), out);
+    }
+
+    @Test
+    void serviceLoaderFindsProviderOnModulePath() throws Exception {
+        String modulePath = modulePath();
+        // Only the main class goes on the class path: test-classes would add the test provider's services file.
+        String name = PrintCurrentProvider.class.getName().replace('.', '/') + ".class";
+        Path cp = Files.createTempDirectory("modulepath");
+        try {
+            Path target = cp.resolve(name);
+            Files.createDirectories(target.getParent());
+            Files.copy(HERE.resolve("target/test-classes").resolve(name), target);
+            String out = run(List.of(JAVA, "--module-path", modulePath, "--add-modules", "org.tinygears.uom.systems",
+                    "-cp", cp.toString(), PrintCurrentProvider.class.getName()));
+            assertEquals("org.tinygears.uom.systems.UomServiceProvider in org.tinygears.uom.systems", out.strip());
+        } finally {
+            Files.delete(cp.resolve(name));
+            for (Path dir = cp.resolve(name).getParent(); !dir.equals(cp.getParent()); dir = dir.getParent()) {
+                Files.delete(dir);
+            }
+        }
     }
 
     // Output goes to a file so waitFor can time out before anything blocks on the pipe.
