@@ -1,0 +1,31 @@
+# Mechanical CGS units, from NIST SP 811 (2008), appendix B.8, and J. D. Jackson, Classical Electrodynamics,
+# 3rd ed., appendix on units. All definitions are exact conversion factors to SI units (F7: no new dimensions).
+# Format: symbol:name formula [Type]; '#' starts a comment.
+
+@system CGS
+@include si.units
+@member cm g s
+
+dyn:dyne 1e-5 N [Force]
+erg:erg 1e-7 J [Energy]
+Ba:barye 0.1 Pa [Pressure]
+Gal:galileo 0.01 m / s^2 [Acceleration]
+cm²:square_centimetre cm^2 [Area]
+cm³:cubic_centimetre cm^3 [Volume]
+
+# Dynamic and kinematic viscosity have no standard quantity type
+P:poise 0.1 Pa s
+St:stokes 1e-4 m^2 / s
+
+@prefixed P c m
+@prefixed St c
+@prefixed Gal m µ
+
+@preferred Length cm
+@preferred Mass g
+@preferred Force dyn
+@preferred Energy erg
+@preferred Pressure Ba
+@preferred Acceleration Gal
+@preferred Area cm²
+@preferred Volume cm³

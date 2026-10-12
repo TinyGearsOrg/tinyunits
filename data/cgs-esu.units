@@ -1,0 +1,22 @@
+# Electrostatic CGS units (ESU), from NIST SP 811 (2008), appendix B.8, and J. D. Jackson, Classical
+# Electrodynamics, 3rd ed., appendix on units. Exact conversion factors to the SI units of the standard
+# quantity types (F7: no new dimensions); 2997924580 is 10 c with c = 299792458 m/s.
+# Format: symbol:name formula [Type]; '#' starts a comment.
+
+@system ESU
+@extends cgs.units
+@include si.units
+
+statC:statcoulomb 1|2997924580 C [ElectricCharge]
+statA:statampere 1|2997924580 A [ElectricCurrent]
+statV:statvolt 299.792458 V [ElectricPotential]
+statΩ:statohm statV / statA [ElectricResistance]
+statF:statfarad statC / statV [ElectricCapacitance]
+statH:stathenry statV s / statA [ElectricInductance]
+
+@preferred ElectricCharge statC
+@preferred ElectricCurrent statA
+@preferred ElectricPotential statV
+@preferred ElectricResistance statΩ
+@preferred ElectricCapacitance statF
+@preferred ElectricInductance statH

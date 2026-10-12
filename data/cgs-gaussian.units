@@ -1,0 +1,15 @@
+# Gaussian CGS units: the ESU electrical units with the EMU magnetic units, per J. D. Jackson, Classical
+# Electrodynamics, 3rd ed., appendix on units, and NIST SP 811 (2008), appendix B.8 (F7: no new dimensions).
+# Format: symbol:name formula [Type]; '#' starts a comment.
+
+@system Gaussian
+@extends cgs-esu.units
+@include cgs-emu.units
+@include si.units
+@member G Mx Oe Gb
+
+Fr:franklin statC [ElectricCharge]
+
+@preferred ElectricCharge Fr
+@preferred MagneticFluxDensity G
+@preferred MagneticFlux Mx

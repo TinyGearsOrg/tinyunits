@@ -1,0 +1,32 @@
+# Electromagnetic CGS units (EMU), from NIST SP 811 (2008), appendix B.8, and J. D. Jackson, Classical
+# Electrodynamics, 3rd ed., appendix on units. Exact conversion factors to the SI units of the standard
+# quantity types (F7: no new dimensions); the oersted is 1000/(4 pi) A/m and the gilbert 10/(4 pi) A.
+# Format: symbol:name formula [Type]; '#' starts a comment.
+
+@system EMU
+@extends cgs.units
+@include si.units
+
+abA:abampere 10 A [ElectricCurrent]
+abC:abcoulomb 10 C [ElectricCharge]
+abV:abvolt 1e-8 V [ElectricPotential]
+abΩ:abohm 1e-9 Ω [ElectricResistance]
+abF:abfarad 1e9 F [ElectricCapacitance]
+abH:abhenry 1e-9 H [ElectricInductance]
+G:gauss 1e-4 T [MagneticFluxDensity]
+Mx:maxwell 1e-8 Wb [MagneticFlux]
+Gb:gilbert 2.5 pi^-1 A [ElectricCurrent]
+
+# Magnetic field strength has no standard quantity type
+Oe:oersted 250 pi^-1 A / m
+
+@prefixed G m µ n
+
+@preferred ElectricCharge abC
+@preferred ElectricCurrent abA
+@preferred ElectricPotential abV
+@preferred ElectricResistance abΩ
+@preferred ElectricCapacitance abF
+@preferred ElectricInductance abH
+@preferred MagneticFluxDensity G
+@preferred MagneticFlux Mx
