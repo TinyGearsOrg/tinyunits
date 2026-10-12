@@ -45,6 +45,7 @@ dynamic proxies in the picture.
 | F20 | **Quantity equality.** `isEquivalentTo` follows the standard: same numerical value after conversion to the same unit, ignoring rounding errors (2 km is equivalent to 2000 m; 2 °C is equivalent to 275.15 K, not to 2 K). `equals` and `hashCode` are strict and mutually consistent: same implementation type, same unit and same value (`Double.compare` semantics for double, `compareTo == 0` with equal scale handling to be fixed in the design for BigDecimal). The tolerance used by `isEquivalentTo` is a design decision (open). `equals` is deliberately not `isEquivalentTo`, because a tolerance cannot satisfy the `equals` contract. |
 | F21 | **Unit equality.** `Unit.equals` follows the examples in the standard: `getSystemUnit().equals(...)` must identify a quantity type, and alternate units differ from the unit they are derived from (`RADIAN.equals(ONE)` is false although they are compatible). Equality is structural over the system-unit decomposition and the converter, not over symbol or name. `isEquivalentTo` on units means the converter between them is the identity. |
 | F22 | **No `Comparable`.** `Quantity` in unit-api 2.2 does not extend `Comparable`. Ordering is provided through a separate documented mechanism (design decision), and the implementation must not claim consistency with `equals`. |
+| F23 | **Precision rule: the lower precision wins.** Mixing is allowed. When two quantities of different precision are combined (add, subtract, multiply, divide, `isEquivalentTo`), the result has the lower precision, because a result cannot be more precise than its least precise input. The rule is symmetric, so `a.add(b)` and `b.add(a)` have the same result type. Specifics: (1) `double` ranks below any `BigDecimal`; between two `BigDecimal` quantities the smaller `MathContext` precision wins (0, unlimited, is highest); a coarse `BigDecimal` is not demoted to `double`. (2) Scalar `Number` arguments (`multiply(Number)`, `divide(Number)`) are exact constants and adopt the receiver's precision. (3) Demoting a `BigDecimal` outside the `double` range throws `ArithmeticException`, never `Infinity`. (4) Every `BigDecimal` quantity carries a `MathContext` (default `DECIMAL128`), used for conversions that have no finite decimal expansion. (5) Explicit conversions are always available (`toDouble()`, `toDecimal(MathContext)`). The result unit is the left operand's unit. A strict no-mixing mode is not provided. |
 
 ### Explicitly out of scope for 1.0
 
@@ -100,8 +101,7 @@ dynamic proxies in the picture.
 2. **Custom quantity dimensions.** For a user-defined quantity type, how does the dimension get
    declared and checked (annotation attributes, a registered `Dimension` constant, or derived
    from the system unit)?
-3. **Precision promotion.** When a `double` quantity is combined with a `BigDecimal` one, which
-   precision wins, and is mixing allowed at all?
+3. ~~**Precision promotion.**~~ Resolved, see F23.
 4. ~~**Equality.**~~ Resolved, see F20 to F22. The standard defines `isEquivalentTo` for
    quantities and units but says nothing about `Quantity.equals`.
 5. ~~**Catalog authoring.**~~ Resolved: data files in the original `.units` syntax (F15 to F19).
