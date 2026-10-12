@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
@@ -161,6 +162,14 @@ class AbstractDoubleQuantityMixedTest {
                 .toDecimal(MathContext.DECIMAL64).getScale());
         assertEquals(new BigDecimal("0.3333333"), ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
                 .toDecimal(MathContext.DECIMAL32)).getValue());
+        assertSame(MathContext.DECIMAL32, ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
+                .toDecimal(MathContext.DECIMAL32)).mathContext());
+        assertSame(MathContext.DECIMAL64, ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
+                .toDecimal(MathContext.DECIMAL64)).mathContext());
+        MathContext five = new MathContext(5, RoundingMode.HALF_UP);
+        TestLengthDecimalImpl rounded = (TestLengthDecimalImpl) d(2.000049, METRE).toDecimal(five);
+        assertSame(five, rounded.mathContext());
+        assertEquals(new BigDecimal("2.0000"), rounded.getValue());
     }
 
     @Test
@@ -185,7 +194,12 @@ class AbstractDoubleQuantityMixedTest {
                 Quantity.Scale.ABSOLUTE).toDecimal(MathContext.DECIMAL64);
         assertInstanceOf(TestSpeedDecimalImpl.class, speed);
         Quantity<?> untyped = UntypedDoubleQuantity.of(1.5, METRE).toDecimal(MathContext.DECIMAL32);
-        assertEquals(new BigDecimal("1.5"),
-                assertInstanceOf(UntypedDecimalQuantity.class, untyped).getValue());
+        UntypedDecimalQuantity decimal = assertInstanceOf(UntypedDecimalQuantity.class, untyped);
+        assertEquals(new BigDecimal("1.5"), decimal.getValue());
+        assertSame(MathContext.DECIMAL32, decimal.mathContext());
+        assertSame(MathContext.DECIMAL64, ((TestSpeedDecimalImpl) speed).mathContext());
+        MathContext five = new MathContext(5, RoundingMode.HALF_UP);
+        assertSame(five, ((UntypedDecimalQuantity) UntypedDoubleQuantity.of(1.5, METRE).toDecimal(five))
+                .mathContext());
     }
 }
