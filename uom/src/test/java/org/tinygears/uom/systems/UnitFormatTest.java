@@ -249,9 +249,13 @@ class UnitFormatTest {
     }
 
     @Test
-    void unitsWithoutFaithfulFormAreRefused() {
+    void offsetUnitsFormatAsShiftedFormulas() {
         assertFormats("K + 5", BaseUnits.KELVIN.shift(5));
         assertFormats("2·K + 136.575", SI.DEGREE_CELSIUS.multiply(2));
+    }
+
+    @Test
+    void unitsWithoutFaithfulFormAreRefused() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> format.format(SI.DEGREE_CELSIUS.multiply(-2)));
         assertEquals("unit can not be formatted: K (factor -2, offset 5463/20)", e.getMessage());

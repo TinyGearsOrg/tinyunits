@@ -114,9 +114,10 @@ class ShiftGrammarRegressionTest {
                 for (Function<UomUnit<?>, Unit<?>> op : List.<Function<UomUnit<?>, Unit<?>>>of(x -> x,
                         x -> x.multiply(1000), x -> x.divide(7), x -> x.pow(2), UomUnit::inverse)) {
                     try {
+                        UomUnit<?> unit = (UomUnit<?>) op.apply(u);
                         // The legacy parser has no shift syntax: offset units are covered by OffsetUnitFormatTest.
-                        if (((UomUnit<?>) op.apply(u)).toSystemConverter().offset().isZero()) {
-                            texts.add(FORMAT.format(op.apply(u)));
+                        if (unit.toSystemConverter().offset().isZero()) {
+                            texts.add(FORMAT.format(unit));
                         }
                     } catch (IllegalArgumentException | MeasurementException e) {
                         // no faithful form, or an offset unit raised to a power

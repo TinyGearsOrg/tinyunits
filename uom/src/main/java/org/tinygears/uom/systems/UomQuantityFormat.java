@@ -19,7 +19,8 @@ import org.tinygears.uom.quantity.QuantityTypes;
 /**
  * Formats a quantity as its value ({@code BigDecimal.toString()} for a decimal quantity), a space and its unit,
  * and parses the same form; parsing always gives a {@code double} quantity, so trailing zeros and digits beyond
- * double precision are not preserved. Thread-safe. Offset units format as a shifted formula ({@code 1.0 K + 5}).
+ * double precision are not preserved. Thread-safe. An offset unit without a symbol formats as a shifted formula
+ * ({@code 1.0 K + 5}); catalog offset units print their symbols.
  * Formatting throws {@link IllegalArgumentException} for a unit the unit format refuses: a negative factor, a
  * factor with a root, an irrational shift or a formula too long to parse.
  */

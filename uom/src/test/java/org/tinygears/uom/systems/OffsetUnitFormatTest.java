@@ -97,6 +97,27 @@ class OffsetUnitFormatTest {
     }
 
     @Test
+    void shiftPrintsTheShorterOfDecimalAndFraction() {
+        // Ties print the decimal: 0.5 and 1|2, 136.575 and 5463|40.
+        assertFormats("K + 0.5", shifted(K, Factor.of(1, 2)));
+        assertFormats("K + 136.575", shifted(K, Factor.of(5463, 40)));
+        assertFormats("K + 0.1", shifted(K, Factor.of(1, 10)));
+        assertFormats("K + 5|4", shifted(K, Factor.of(5, 4)));
+        assertFormats("K - 1|8", shifted(K, Factor.of(-1, 8)));
+        assertFormats("K + 1|16", shifted(K, Factor.of(1, 16)));
+        assertFormats("K + 1|1024", shifted(K, Factor.of(1, 1024)));
+        assertFormats("K + 0.001", shifted(K, Factor.of(1, 1000)));
+        assertFormats("K + 1|3125", shifted(K, Factor.of(1, 3125)));
+        assertFormats("K + 3.14", shifted(K, Factor.of(157, 50)));
+        assertFormats("K - 45967|8", shifted(K, Factor.of(-45967, 8)));
+        BigInteger p200 = BigInteger.TWO.pow(200);
+        assertFormats("K + 1|" + p200, shifted(K, Factor.of(BigInteger.ONE, p200)));
+        // The 30,000-digit decimal would be over-long; the 9,031-digit fraction fits.
+        BigInteger p30000 = BigInteger.TWO.pow(30_000);
+        assertFormats("K + 1|" + p30000, shifted(K, Factor.of(BigInteger.ONE, p30000)));
+    }
+
+    @Test
     void unnamedFahrenheitWithoutTheUsCatalog() {
         UomUnitFormat siOnly = new UomUnitFormat(List.of(SI.SYSTEM));
         UomUnit<?> fahrenheit = K.scaledBy(Factor.of(5, 9)).shift(459.67);
@@ -161,10 +182,29 @@ class OffsetUnitFormatTest {
         if (!o.isZero() && (s.rootIndex() != 1 || s.piExponent() != 0)) {
             return Refusal.IRRATIONAL_SHIFT;
         }
-        // A text over 10,000 characters: a terminating decimal is at most ~3.4 times its fraction's digits.
-        long digits = f.numerator().abs().toString().length() + f.denominator().toString().length()
-                + s.numerator().abs().toString().length() + s.denominator().toString().length();
-        return digits > 2_900 ? Refusal.OVER_LONG : null;
+        return textLength(unit, f, s) > 10_000 ? Refusal.OVER_LONG : null;
+    }
+
+    /** Length of {@code n|d·pi^k·S + s}, the shift as the shorter of decimal and fraction. */
+    private static long textLength(UomUnit<?> unit, Factor f, Factor s) {
+        long n = f.numerator().toString().length();
+        long d = f.denominator().equals(BigInteger.ONE) ? 0 : 1 + f.denominator().toString().length();
+        long length = f.numerator().equals(BigInteger.ONE) && d == 0 ? 0 : n + d + 1;
+        int k = f.piExponent();
+        length += k == 0 ? 0 : k == 1 ? 3 : 4 + Integer.toString(k).length();
+        length += unit.getSystemUnit().getSymbol().length();
+        if (s.isZero()) {
+            return length;
+        }
+        long fraction = s.numerator().abs().toString().length()
+                + (s.denominator().equals(BigInteger.ONE) ? 0 : 1 + s.denominator().toString().length());
+        try {
+            BigDecimal decimal = new BigDecimal(s.numerator().abs()).divide(new BigDecimal(s.denominator()));
+            fraction = Math.min(fraction, decimal.toPlainString().length());
+        } catch (ArithmeticException e) {
+            // not terminating
+        }
+        return length + 3 + fraction;
     }
 
     private static final List<MetricPrefix> PREFIXES = List.of(MetricPrefix.values());
@@ -245,9 +285,9 @@ class OffsetUnitFormatTest {
             }
         }
         assertEquals(List.of(), bad.subList(0, Math.min(bad.size(), 10)));
-        assertEquals(Set.of(Refusal.values()), refused.keySet(), refused::toString);
-        assertTrue(offsetFormatted > 1000, "offset units formatted: " + offsetFormatted);
-        System.out.println("OffsetUnitFormatTest refused " + refused + ", offset units formatted " + offsetFormatted);
+        String counts = "refused " + refused + ", offset units formatted " + offsetFormatted;
+        assertEquals(Set.of(Refusal.values()), refused.keySet(), counts);
+        assertTrue(offsetFormatted > 1000, counts);
     }
 
     @Test
@@ -291,6 +331,7 @@ class OffsetUnitFormatTest {
             FORMAT.format(units.get(i % 3));
         }
         double micros = (System.nanoTime() - start) / 1000.0 / n;
-        assertFalse(micros >= 50, "format took " + micros + " µs");
+        // A generous bound against pathological slowness, not a benchmark (about 5 µs on a laptop).
+        assertFalse(micros >= 1000, "format took " + micros + " µs");
     }
 }

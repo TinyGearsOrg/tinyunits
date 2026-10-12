@@ -49,8 +49,9 @@ public final class UomUnitFormat implements UnitFormat {
     /**
      * The first of these texts that parses back to an equal unit: the label, the symbol, the symbol of an equal
      * unit of the systems, an exact formula such as {@code 1|1000·m/s}. An offset unit with factor {@code f} and
-     * offset {@code o} formats as the formula of {@code f} shifted by {@code o/f}, an exact decimal or fraction:
-     * {@code K + 5}, {@code 7|9·K - 1|3}, {@code 3|2·m/s + 0.5}.
+     * offset {@code o} formats as the formula of {@code f} shifted by {@code o/f}: a plain decimal if it terminates
+     * and is not longer than the exact fraction, else the fraction: {@code K + 5}, {@code 5|9·K + 459.67},
+     * {@code 7|9·K - 1|3}, {@code K + 1|1024}.
      *
      * @throws IllegalArgumentException when none does: a unit with a negative factor, a factor with a root, an
      *     irrational shift {@code o/f} (with a power of pi or a root) or a formula too long to parse has no
@@ -123,19 +124,22 @@ public final class UomUnitFormat implements UnitFormat {
         }
     }
 
-    /** {@code " + s"} or {@code " - s"} for a rational shift: a plain decimal if it terminates, else {@code a|b}. */
+    /** {@code " + s"} or {@code " - s"}: a terminating plain decimal unless the exact {@code a|b} is shorter. */
     private static String shift(Factor s) {
         if (s.isZero()) {
             return "";
         }
         BigInteger n = s.numerator().abs();
         BigInteger d = s.denominator();
-        String sign = s.signum() < 0 ? " - " : " + ";
+        String fraction = d.equals(BigInteger.ONE) ? n.toString() : n + "|" + d;
+        String text;
         try {
-            return sign + new BigDecimal(n).divide(new BigDecimal(d)).toPlainString();
+            String decimal = new BigDecimal(n).divide(new BigDecimal(d)).toPlainString();
+            text = decimal.length() <= fraction.length() ? decimal : fraction;
         } catch (ArithmeticException e) {
-            return sign + n + "|" + d;
+            text = fraction;
         }
+        return (s.signum() < 0 ? " - " : " + ") + text;
     }
 
     @Override
