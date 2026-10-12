@@ -207,4 +207,13 @@ class UntypedQuantityTest {
         assertTrue(!z.isEquivalentTo(x) && !z.equals(x));
         assertSame(x, x.asType(Untyped.class));
     }
+
+    @Test
+    void publicFactory() {
+        UntypedDoubleQuantity q = UntypedDoubleQuantity.of(2.5, METRE.divide(SECOND));
+        assertEquals(2.5, q.getValue());
+        assertEquals(METRE.divide(SECOND), q.getUnit());
+        assertSame(Quantity.Scale.ABSOLUTE, q.getScale());
+        assertThrows(NullPointerException.class, () -> UntypedDoubleQuantity.of(1, null));
+    }
 }
