@@ -7,16 +7,24 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.tinygears.uom.core.BaseUnits.KELVIN;
 import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 
@@ -25,7 +33,7 @@ class FormulaEvaluatorTest {
     private static final UomUnit<?> DEG_C = METRE.shift(273.15);
     private static final Map<String, UomUnit<?>> UNITS = Map.of(
             "m", METRE, "kg", KILOGRAM, "s", SECOND, "cm", METRE.multiply(0.01), "N", N,
-            "°C", DEG_C, "Ω", KILOGRAM, "µm", METRE.multiply(0.000001));
+            "°C", DEG_C, "Ω", KILOGRAM, "µm", METRE.multiply(0.000001), "K", KELVIN, "km", METRE.multiply(1000));
 
     private static UomUnit<?> eval(String f) throws FormulaException {
         return FormulaEvaluator.evaluate(f, UNITS::get);
@@ -190,5 +198,133 @@ class FormulaEvaluatorTest {
         });
         fails("m·", "unexpected end of formula", 3);
         fails("·m", "unexpected '·'", 1);
+    }
+
+    private static UomUnit<?> defined(Definitions d, String symbol) {
+        return d.definitions().stream().filter(x -> x.symbol().equals(symbol)).findFirst().orElseThrow().unit();
+    }
+
+    @Test
+    void shiftEqualsTheDataDefinedOffsetUnitsExactly() throws Exception {
+        Definitions d = DefinitionParser.parse("test.units", new StringReader("""
+                K:kelvin !Θ
+                °C:degree_Celsius K = x + 273.15
+                °F:degree_Fahrenheit K = (x + 459.67) * 5|9
+                """), null);
+        UomUnit<?> celsius = eval("K+273.15");
+        assertEquals(KELVIN.shift(273.15), celsius);
+        assertEquals(defined(d, "°C"), celsius);
+        assertEquals(Factor.ONE, celsius.toSystemConverter().factor());
+        assertEquals(Factor.decimal("273.15"), celsius.toSystemConverter().offset());
+        assertEquals(defined(d, "°F"), eval("(5|9 K)+45967|100"));
+        assertEquals(defined(d, "°F"), eval("5|9 K+459.67"));
+    }
+
+    @Test
+    void shiftForms() throws Exception {
+        assertEquals(KELVIN.shift(-273.15), eval("K-273.15"));
+        assertEquals(Factor.decimal("-273.15"), eval("K-273.15").toSystemConverter().offset());
+        assertEquals(METRE.shift(1), eval("m+1"));
+        assertEquals(METRE.multiply(1000).shift(0.5), eval("km+0.5"));
+        assertEquals(Factor.of(1, 3), eval("K+1|3").toSystemConverter().offset());
+        assertEquals(Factor.of(-1, 3), eval("K-1|3").toSystemConverter().offset());
+        assertEquals(Factor.decimal("0.001"), eval("K+1e-3").toSystemConverter().offset());
+        assertEquals(Factor.ofLong(100), eval("K+1E+2").toSystemConverter().offset());
+        assertEquals(Factor.decimal("1000"), eval("km+1e-3").toSystemConverter().factor());
+        assertEquals(Factor.decimal("1"), eval("km+1e-3").toSystemConverter().offset());
+        assertEquals(METRE, eval("m+0"));
+        assertEquals(METRE.shift(274.15), eval("°C+1"));
+    }
+
+    @Test
+    void shiftAppliesToTheWholeExpression() throws Exception {
+        assertEquals(METRE.divide(SECOND).shift(2), eval("m/s+2"));
+        assertEquals(METRE.multiply(KILOGRAM).shift(2), eval("m kg+2"));
+        assertEquals(METRE.pow(2).shift(-1), eval("m^2-1"));
+        assertEquals(METRE.pow(-2).shift(-1), eval("m^-2-1"));
+        assertEquals(METRE.shift(1), eval("(m)+1"));
+        assertEquals(METRE.multiply(2).shift(1), eval("2 m+1"));
+    }
+
+    @Test
+    void spacesAroundTheShiftAreAllowed() throws Exception {
+        for (String f : new String[] {"K + 273.15", "K+ 273.15", "K +273.15", " K\t+\t273.15 "}) {
+            assertEquals(KELVIN.shift(273.15), eval(f), f);
+        }
+    }
+
+    @Test
+    void exponentSignsBelongToTheNumber() throws Exception {
+        assertEquals(METRE.multiply(100000), eval("1e+5 m"));
+        assertEquals(METRE.multiply(100000), eval("m*1e+5"));
+        assertEquals(METRE.multiply(new BigDecimal("0.0015")), eval("1.5E-3 m"));
+        assertEquals(METRE.multiply(new BigDecimal("0.0015")), eval("m 1.5E-3"));
+    }
+
+    @Test
+    void shiftErrors() {
+        fails("m+", "expected a number after '+'", 3);
+        fails("m-", "expected a number after '-'", 3);
+        fails("m+ ", "expected a number after '+'", 4);
+        fails("m+x", "shift must be a number", 3);
+        fails("m + x", "shift must be a number", 5);
+        fails("m++1", "shift must be a number", 3);
+        fails("m+-1", "shift must be a number", 3);
+        fails("m-+1", "shift must be a number", 3);
+        fails("m+pi", "shift must be a number", 3);
+        fails("m+.5", "shift must be a number", 3);
+        fails("m+(1)", "shift must be a number", 3);
+        fails("m+1+2", "shift is only allowed at the end of a formula", 2);
+        fails("m+1 / s", "shift is only allowed at the end of a formula", 2);
+        fails("m+1 s", "shift is only allowed at the end of a formula", 2);
+        fails("m+1)", "shift is only allowed at the end of a formula", 2);
+        fails("(m+1)", "shift is only allowed at the end of a formula", 3);
+        fails("(m+1)/s", "shift is only allowed at the end of a formula", 3);
+        fails("((m) - 1)", "shift is only allowed at the end of a formula", 6);
+        fails("m+1|0", "division by zero", 3);
+        fails("m+1|x", "expected an integer after '|'", 5);
+        fails("m+1e10001", "number out of range", 3);
+        fails("+1", "unexpected '+'", 1);
+        fails("-1 m", "unexpected '-'", 1);
+        fails("m/+1", "unexpected '+'", 3);
+        fails("m^+1", "exponent must be an integer", 3);
+        fails("°C/s", "unit with an offset cannot be combined: " + DEG_C, 3);
+    }
+
+    @Test
+    void lookupNeverSeesSigns() throws FormulaException {
+        for (String f : new String[] {"m+1", "m-1", "m kg-1", "(m / s)^2+1"}) {
+            FormulaEvaluator.evaluate(f, name -> {
+                assertTrue(name.indexOf('+') < 0 && name.indexOf('-') < 0, name);
+                return UNITS.get(name);
+            });
+        }
+        fails("m-s", "shift must be a number", 3);
+        fails("e+5", "unknown unit 'e'", 1);
+    }
+
+    @Test
+    void shiftLimits() throws Exception {
+        assertEquals(METRE.shift(1), eval("(".repeat(100) + "m" + ")".repeat(100) + "+1"));
+        fails("m".repeat(9999) + "+1", "formula too long", 1);
+    }
+
+    @Test
+    void evaluationIsStateless() throws Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(8);
+        try {
+            List<Future<UomUnit<?>>> results = new ArrayList<>();
+            for (int i = 0; i < 2000; i++) {
+                String f = i % 2 == 0 ? "K+" + i + "|3" : "km-" + i;
+                results.add(pool.submit(() -> eval(f)));
+            }
+            for (int i = 0; i < 2000; i++) {
+                UomUnit<?> expected = i % 2 == 0 ? KELVIN.transform(Converters.shift(Factor.of(i, 3)))
+                        : METRE.multiply(1000).shift(-i);
+                assertEquals(expected, results.get(i).get());
+            }
+        } finally {
+            pool.shutdownNow();
+        }
     }
 }

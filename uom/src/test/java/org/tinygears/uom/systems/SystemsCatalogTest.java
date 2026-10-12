@@ -63,7 +63,7 @@ class SystemsCatalogTest {
             new Catalog("cgs-emu.units", "EMU", EMU.SYSTEM, EMU.UNITS, EMU.PREFIXABLE),
             new Catalog("cgs-gaussian.units", "Gaussian", Gaussian.SYSTEM, Gaussian.UNITS, Gaussian.PREFIXABLE));
 
-    private static final Map<String, Definitions> PARSED = load();
+    static final Map<String, Definitions> PARSED = load();
 
     private static Map<String, Definitions> load() {
         Map<String, Definitions> parsed = new HashMap<>();

@@ -196,7 +196,7 @@ class UnitFormatTest {
         assertEquals("klick", f.format(SI.KILOMETRE));
         assertEquals("km", format.format(SI.KILOMETRE));
         for (String bad : List.of("", " ", "a b", "a*b", "a/b", "a(b", "a)", "a^2", "a|b", "a=b", "a#", "[a]", "a!",
-                "a~", "a@", "a,b", "a·b", "\tx", "2x", "pi")) {
+                "a~", "a@", "a,b", "a·b", "\tx", "2x", "pi", "a-b", "a+", "-a")) {
             assertThrows(IllegalArgumentException.class, () -> f.label(furlong, bad), bad);
         }
         assertThrows(IllegalArgumentException.class, () -> f.label(furlong, "s"));

@@ -6,15 +6,22 @@ import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 
-/** Evaluates unit formulas such as {@code kg m / s^2} with a recursive-descent parser. */
+/**
+ * Evaluates unit formulas such as {@code kg m / s^2} with a recursive-descent parser. A formula may end in a shift
+ * {@code +n} or {@code -n} ({@code n} a decimal literal or {@code a|b}, spaces allowed around the sign) that applies
+ * to the whole expression: {@code K+273.15} is {@code K.shift(273.15)}, so a value {@code v} in it is
+ * {@code v + 273.15} K.
+ */
 public final class FormulaEvaluator {
     private static final int MAX_LENGTH = 10_000;
     private static final int MAX_DEPTH = 100;
     private static final int MAX_DECIMAL_EXPONENT = 10_000;
-    private static final String DELIMITERS = "*/·()^|=#[]!~@,";
+    private static final String DELIMITERS = "*/·()^|=#[]!~@,+-";
+    private static final String SHIFT_END = "shift is only allowed at the end of a formula";
 
     private final String s;
     private final Function<String, UomUnit<?>> lookup;
@@ -37,6 +44,9 @@ public final class FormulaEvaluator {
         p.skipSpace();
         UomUnit<?> result = p.expr(0);
         p.skipSpace();
+        if (p.pos < formula.length() && isSign(formula.charAt(p.pos))) {
+            result = p.shift(result);
+        }
         if (p.pos < formula.length()) {
             throw p.error("unexpected '" + formula.charAt(p.pos) + "'");
         }
@@ -48,7 +58,7 @@ public final class FormulaEvaluator {
         UomUnit<?> left = product(depth);
         while (true) {
             skipSpace();
-            if (pos >= s.length() || s.charAt(pos) == ')') {
+            if (pos >= s.length() || s.charAt(pos) == ')' || isSign(s.charAt(pos))) {
                 return left;
             }
             char c = s.charAt(pos);
@@ -66,7 +76,7 @@ public final class FormulaEvaluator {
         UomUnit<?> left = term(depth);
         while (true) {
             skipSpace();
-            if (pos >= s.length() || ")*/·".indexOf(s.charAt(pos)) >= 0) {
+            if (pos >= s.length() || ")*/·+-".indexOf(s.charAt(pos)) >= 0) {
                 return left;
             }
             int col = pos + 1;
@@ -124,6 +134,9 @@ public final class FormulaEvaluator {
             if (pos >= s.length()) {
                 throw error("missing ')'");
             }
+            if (isSign(s.charAt(pos))) {
+                throw error(SHIFT_END);
+            }
             pos++;
             return inner;
         }
@@ -159,14 +172,41 @@ public final class FormulaEvaluator {
         return unit;
     }
 
+    /** The trailing {@code +n} or {@code -n} at {@link #pos}; nothing may follow it. */
+    private UomUnit<?> shift(UomUnit<?> unit) throws FormulaException {
+        char sign = s.charAt(pos);
+        int col = pos + 1;
+        pos++;
+        skipSpace();
+        if (pos >= s.length()) {
+            throw error("expected a number after '" + sign + "'");
+        }
+        if (!isDigit(s.charAt(pos))) {
+            throw error("shift must be a number");
+        }
+        Factor n = literal(pos + 1);
+        Factor offset = sign == '-' ? n.negate() : n;
+        skipSpace();
+        if (pos < s.length()) {
+            throw new FormulaException(SHIFT_END, col);
+        }
+        return guard(col, () -> unit.transform(Converters.shift(offset)));
+    }
+
     private UomUnit<?> number(int col) throws FormulaException {
+        Factor f = literal(col);
+        return guard(col, () -> BaseUnits.ONE.scaledBy(f));
+    }
+
+    /** A decimal literal or an exact fraction {@code a|b}. */
+    private Factor literal(int col) throws FormulaException {
         int start = pos;
         digitRun();
         if (pos < s.length() && s.charAt(pos) == '|') {
             BigInteger n = new BigInteger(s.substring(start, pos));
             pos++;
             BigInteger d = integer("expected an integer after '|'");
-            return guard(col, () -> BaseUnits.ONE.scaledBy(Factor.of(n, d)));
+            return guard(col, () -> Factor.of(n, d));
         }
         if (pos + 1 < s.length() && s.charAt(pos) == '.' && isDigit(s.charAt(pos + 1))) {
             pos++;
@@ -187,7 +227,7 @@ public final class FormulaEvaluator {
             }
         }
         String literal = s.substring(start, pos);
-        return guard(col, () -> BaseUnits.ONE.scaledBy(Factor.decimal(literal)));
+        return guard(col, () -> Factor.decimal(literal));
     }
 
     private BigInteger integer(String message) throws FormulaException {
@@ -203,6 +243,10 @@ public final class FormulaEvaluator {
         while (pos < s.length() && isDigit(s.charAt(pos))) {
             pos++;
         }
+    }
+
+    private static boolean isSign(char c) {
+        return c == '+' || c == '-';
     }
 
     private static boolean isDigit(char c) {

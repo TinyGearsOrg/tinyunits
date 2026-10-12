@@ -27,7 +27,7 @@ import org.tinygears.uom.core.parse.FormulaException;
  * Symbols resolve as labels, then exact symbols, then a metric prefix on a prefixable unit. Thread-safe.
  */
 public final class UomUnitFormat implements UnitFormat {
-    private static final String EXCLUDED = "*/()^|=#[]!~@,·";
+    private static final String EXCLUDED = "*/()^|=#[]!~@,·+-";
     private static final List<MetricPrefix> PREFIXES = Arrays.stream(MetricPrefix.values())
             .sorted(Comparator.comparingInt((MetricPrefix p) -> p.getSymbol().length()).reversed())
             .toList();
@@ -147,7 +147,7 @@ public final class UomUnitFormat implements UnitFormat {
         }
     }
 
-    private UomUnit<?> lookup(String symbol) {
+    UomUnit<?> lookup(String symbol) {
         UomUnit<?> alias = aliases.get(symbol);
         if (alias != null) {
             return alias;
