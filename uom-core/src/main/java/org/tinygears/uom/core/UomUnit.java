@@ -17,6 +17,7 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.UnconvertibleException;
 import javax.measure.UnitConverter;
+import javax.measure.spi.ServiceProvider;
 
 /** A product of atoms with integer exponents, an affine converter to the system unit, and labels. */
 public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
@@ -169,20 +170,29 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
         return converterCache.computeIfAbsent(that, t -> t.toSystem.inverse().concatenate(toSystem));
     }
 
-    // Implemented in later tasks.
-
-    private static UnsupportedOperationException notYet() {
-        return new UnsupportedOperationException("not implemented yet");
-    }
-
     @Override
     public <T extends Quantity<T>> Unit<T> asType(Class<T> type) {
-        throw notYet();
+        ServiceProvider provider;
+        try {
+            provider = ServiceProvider.current();
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("no javax.measure ServiceProvider available", e);
+        }
+        if (!getSystemUnit().equals(provider.getQuantityFactory(type).getSystemUnit())) {
+            throw new ClassCastException(this + " is not a unit of " + type.getName());
+        }
+        @SuppressWarnings("unchecked") // the system units match, so this unit measures T
+        Unit<T> typed = (Unit<T>) this;
+        return typed;
     }
 
     @Override
-    public Unit<Q> alternate(String symbol) {
-        throw notYet();
+    public UomUnit<Q> alternate(String symbol) {
+        Objects.requireNonNull(symbol, "symbol");
+        if (!toSystem.equals(Converters.IDENTITY)) {
+            throw new IllegalArgumentException("not an unscaled standard unit: " + this);
+        }
+        return new UomUnit<>(Map.of(AlternateUnits.register(symbol, this), 1), Converters.IDENTITY, symbol, null);
     }
 
     @Override
