@@ -41,7 +41,11 @@ public final class DefinitionParser {
         this.resolver = resolver;
     }
 
-    /** Parses {@code reader} without closing it; included files are opened and closed here. */
+    /**
+     * Parses {@code reader} without closing it; included files are opened and closed here. Alternate-unit
+     * registrations ({@code ~} lines) are JVM-global and permanent, so a failed or corrected {@code ~}
+     * definition cannot be re-registered differently until the JVM restarts.
+     */
     public static Definitions parse(String source, Reader reader, Resolver resolver) {
         DefinitionParser p = new DefinitionParser(resolver);
         try {

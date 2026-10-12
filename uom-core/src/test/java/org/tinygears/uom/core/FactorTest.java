@@ -134,4 +134,22 @@ class FactorTest {
             assertEquals(f, f.signum() < 0 ? magnitude.negate() : magnitude);
         }
     }
+
+    @Test
+    void canonicalForm() {
+        assertCanonical(ofLong(8).root(2), ofLong(2).multiply(ofLong(2).root(2)));
+        assertCanonical(ofLong(32).root(6), ofLong(2).root(2).multiply(ofLong(2).root(3)));
+        assertCanonical(PI, PI.root(2).multiply(PI.root(2)));
+        assertCanonical(ofLong(2).root(6), ofLong(2).root(2).root(3));
+        assertCanonical(ofLong(-2), ofLong(-8).root(3));
+        assertEquals(6, ofLong(3).root(2).multiply(ofLong(5).root(3)).rootIndex());
+        assertEquals(12, ofLong(3).root(4).multiply(ofLong(5).root(6)).rootIndex());
+        assertThrows(ArithmeticException.class, () -> ofLong(-8).root(2));
+        assertThrows(ArithmeticException.class, () -> ofLong(-2).root(4));
+    }
+
+    private static void assertCanonical(Factor expected, Factor actual) {
+        assertEquals(expected, actual);
+        assertEquals(expected.hashCode(), actual.hashCode());
+    }
 }
