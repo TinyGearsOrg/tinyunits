@@ -24,15 +24,29 @@ class SystemOfUnitsServiceTest {
     @Test
     void byName() {
         assertSame(SI.SYSTEM, service.getSystemOfUnits("SI"));
-        assertNull(service.getSystemOfUnits("Imperial"));
+        assertSame(USCustomary.SYSTEM, service.getSystemOfUnits("USCustomary"));
+        assertSame(Imperial.SYSTEM, service.getSystemOfUnits("Imperial"));
+        assertSame(CGS.SYSTEM, service.getSystemOfUnits("CGS"));
+        assertSame(ESU.SYSTEM, service.getSystemOfUnits("ESU"));
+        assertSame(EMU.SYSTEM, service.getSystemOfUnits("EMU"));
+        assertSame(Gaussian.SYSTEM, service.getSystemOfUnits("Gaussian"));
         assertNull(service.getSystemOfUnits("si"));
+        assertNull(service.getSystemOfUnits("imperial"));
+        assertNull(service.getSystemOfUnits("gaussian"));
+        assertNull(service.getSystemOfUnits("US"));
+        assertNull(service.getSystemOfUnits(" CGS"));
+        assertNull(service.getSystemOfUnits(""));
         assertNull(service.getSystemOfUnits(null));
     }
 
     @Test
     void available() {
-        assertEquals(List.of(SI.SYSTEM), List.copyOf(service.getAvailableSystemsOfUnits()));
-        assertEquals(List.of(SI.SYSTEM), UnitSystems.all());
+        List<UomSystemOfUnits> all = List.of(SI.SYSTEM, USCustomary.SYSTEM, Imperial.SYSTEM, CGS.SYSTEM, ESU.SYSTEM,
+                EMU.SYSTEM, Gaussian.SYSTEM);
+        assertEquals(all, List.copyOf(service.getAvailableSystemsOfUnits()));
+        assertEquals(all, UnitSystems.all());
+        assertEquals(List.of("SI", "USCustomary", "Imperial", "CGS", "ESU", "EMU", "Gaussian"),
+                service.getAvailableSystemsOfUnits().stream().map(s -> s.getName()).toList());
     }
 
     @Test
