@@ -5,4 +5,5 @@ module org.tinygears.uom.core {
 
     exports org.tinygears.uom.core;
     exports org.tinygears.uom.core.parse;
+    exports org.tinygears.uom.core.quantity;
 }

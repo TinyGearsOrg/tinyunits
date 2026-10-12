@@ -73,7 +73,8 @@ final class AffineConverter implements UomConverter {
 
     @Override
     public double convert(double value) {
-        return factorD * value + offsetD;
+        // Adding a zero offset would turn -0.0 into 0.0.
+        return offsetD == 0 ? factorD * value : factorD * value + offsetD;
     }
 
     @Override

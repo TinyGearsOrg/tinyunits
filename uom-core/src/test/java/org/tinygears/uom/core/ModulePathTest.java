@@ -34,6 +34,7 @@ class ModulePathTest {
         String out = runBounded(List.of(java, "--module-path", classes + File.pathSeparator + jar,
                 "--describe-module", "org.tinygears.uom.core"), Duration.ofSeconds(30));
         assertTrue(out.contains("exports org.tinygears.uom.core.parse"), out);
+        assertTrue(out.contains("exports org.tinygears.uom.core.quantity"), out);
         assertTrue(out.contains("exports org.tinygears.uom.core"), out);
         assertTrue(out.contains("requires java.measure transitive"), out);
     }

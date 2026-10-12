@@ -33,6 +33,13 @@ class ConvertersTest {
     }
 
     @Test
+    void linearConversionKeepsTheSignOfZero() {
+        assertEquals(-0.0, IDENTITY.convert(-0.0));
+        assertEquals(-0.0, scale(ofLong(1000)).convert(-0.0));
+        assertEquals(-0.0, scale(ofLong(1000)).inverse().convert(-0.0));
+    }
+
+    @Test
     void affineConvertsDecimalExactly() {
         UomConverter c = affine(of(5, 9), of(-160, 9));
         assertEquals(0, c.convert(new BigDecimal("212"), MathContext.DECIMAL128).compareTo(new BigDecimal("100")));
