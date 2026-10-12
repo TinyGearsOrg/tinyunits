@@ -119,6 +119,16 @@ class QuantityFormatTest {
     }
 
     @Test
+    void scaledUnitRoundTrip() {
+        Quantity<?> q = format.parse("1 2 m");
+        assertEquals(SI.METRE.multiply(2), q.getUnit());
+        assertEquals("1.0 2·m", format.format(q));
+        assertEquals(q, format.parse(format.format(q)));
+        assertThrows(IllegalArgumentException.class,
+                () -> format.format(UntypedDoubleQuantity.of(1, BaseUnits.KELVIN.shift(5))));
+    }
+
+    @Test
     void everySymbolParsesAsOneOfIt() {
         for (UomUnit<?> unit : SI.UNITS) {
             Quantity<?> q = format.parse("1 " + unit);

@@ -36,10 +36,10 @@ public final class UomFormatService implements FormatService {
         return DEFAULT.equals(name) ? UNIT_FORMAT : null;
     }
 
-    /** As {@link #getUnitFormat(String)} for a null or empty variant; null for any other variant. */
+    /** As {@link #getUnitFormat(String)}: no variant is applicable, so the variant is ignored. */
     @Override
     public UnitFormat getUnitFormat(String name, String variant) {
-        return variant == null || variant.isEmpty() ? getUnitFormat(name) : null;
+        return getUnitFormat(name);
     }
 
     @Override

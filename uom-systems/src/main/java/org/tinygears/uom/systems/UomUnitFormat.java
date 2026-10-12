@@ -3,6 +3,7 @@
 package org.tinygears.uom.systems;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.ParsePosition;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -16,6 +17,7 @@ import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.format.UnitFormat;
+import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.FormulaEvaluator;
 import org.tinygears.uom.core.parse.FormulaException;
@@ -43,14 +45,53 @@ public final class UomUnitFormat implements UnitFormat {
         return new UomUnitFormat(UnitSystems.all());
     }
 
-    /** The label, else the symbol, else {@code toString()}, which is lossy for unlabelled scaled units. */
+    /**
+     * The label, else the symbol, else the symbol of an equal unit of the systems, else an exact formula such as
+     * {@code 1|1000·m/s} that parses back to an equal unit.
+     *
+     * @throws IllegalArgumentException for a unit with an offset, a negative factor or a factor with a root:
+     *     the formula grammar has no faithful form for them (offset units get one in milestone 6)
+     */
     @Override
     public String format(Unit<?> unit) {
         String label = labels.get(Objects.requireNonNull(unit, "unit"));
         if (label != null) {
             return label;
         }
-        return unit.getSymbol() != null ? unit.getSymbol() : unit.toString();
+        if (unit.getSymbol() != null) {
+            return unit.getSymbol();
+        }
+        for (UomSystemOfUnits system : systems) {
+            for (Unit<?> known : system.getUnits()) {
+                if (known.equals(unit)) {
+                    return known.getSymbol();
+                }
+            }
+        }
+        if (unit instanceof UomUnit<?> u && u.toSystemConverter().offset().isZero()) {
+            Factor f = u.toSystemConverter().factor();
+            if (f.signum() > 0 && f.rootIndex() == 1) {
+                return formula(f, u.getSystemUnit().getSymbol());
+            }
+        }
+        throw new IllegalArgumentException("unit can not be formatted: " + unit);
+    }
+
+    /** {@code n|d·pi^k·label}; juxtaposition binds tighter than the left-associative {@code ·} and {@code /}. */
+    private static String formula(Factor f, String systemLabel) {
+        StringBuilder sb = new StringBuilder();
+        if (!f.numerator().equals(BigInteger.ONE) || !f.denominator().equals(BigInteger.ONE)) {
+            sb.append(f.numerator());
+            if (!f.denominator().equals(BigInteger.ONE)) {
+                sb.append('|').append(f.denominator());
+            }
+            sb.append('·');
+        }
+        int k = f.piExponent();
+        if (k != 0) {
+            sb.append(k == 1 ? "pi" : "pi^" + k).append('·');
+        }
+        return sb.append(systemLabel).toString();
     }
 
     @Override

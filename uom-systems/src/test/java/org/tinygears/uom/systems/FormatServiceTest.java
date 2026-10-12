@@ -47,6 +47,9 @@ class FormatServiceTest {
     void variants() {
         assertSame(service.getUnitFormat(), service.getUnitFormat("default", null));
         assertSame(service.getUnitFormat(), service.getUnitFormat("default", ""));
-        assertNull(service.getUnitFormat("default", "ASCII"));
+        assertSame(service.getUnitFormat(), service.getUnitFormat("default", "ASCII"));
+        assertNull(service.getUnitFormat("Simple", ""));
+        assertNull(service.getUnitFormat("Simple", null));
+        assertNull(service.getUnitFormat("Simple", "ASCII"));
     }
 }

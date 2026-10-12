@@ -10,9 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -186,14 +189,93 @@ class UnitFormatTest {
     @Test
     void formatting() throws IOException {
         assertEquals("km", format.format(SI.KILOMETRE));
-        UomUnit<?> scaled = SI.METRE.multiply(3);
-        assertNull(scaled.getSymbol());
-        assertEquals(scaled.toString(), format.format(scaled));
         StringBuilder sb = new StringBuilder("x=");
         assertSame(sb, format.format(SI.NEWTON, sb));
         assertEquals("x=N", sb.toString());
         assertThrows(NullPointerException.class, () -> format.format((Unit<?>) null));
         assertFalse(format.isLocaleSensitive());
+    }
+
+    private void assertFormats(String text, UomUnit<?> unit) {
+        assertNull(unit.getSymbol());
+        assertEquals(text, format.format(unit));
+        assertEquals(unit, format.parse(text), text);
+    }
+
+    @Test
+    void unlabelledUnitsFormatFaithfully() {
+        assertFormats("km", SI.METRE.multiply(1000));
+        assertFormats("2·m", SI.METRE.multiply(2));
+        assertFormats("1|1000·m/s", SI.METRE.divide(SI.SECOND).divide(1000));
+        assertFormats("3|2·kg/(m·s)", SI.KILOGRAM.divide(SI.METRE.multiply(SI.SECOND)).multiply(new BigDecimal("1.5")));
+        assertFormats("2·1/s", BaseUnits.ONE.divide(SI.SECOND).multiply(2));
+        assertFormats("3·1", BaseUnits.ONE.multiply(3));
+        assertFormats("deg", SI.RADIAN.scaledBy(Factor.PI.divide(Factor.ofLong(180))));
+        assertEquals(SI.DEGREE, SI.RADIAN.scaledBy(Factor.PI.divide(Factor.ofLong(180))));
+        assertFormats("1|90·pi·rad", SI.RADIAN.scaledBy(Factor.PI.divide(Factor.ofLong(90))));
+        assertFormats("pi^-1·rad", SI.RADIAN.scaledBy(Factor.ONE.divide(Factor.PI)));
+        assertFormats("5·pi^2·m^2", SI.METRE.pow(2).scaledBy(Factor.PI.pow(2).multiply(Factor.ofLong(5))));
+        assertFormats("m", SI.METRE.multiply(2).divide(2));
+    }
+
+    @Test
+    void unitsWithoutFaithfulFormAreRefused() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> format.format(BaseUnits.KELVIN.shift(5)));
+        assertEquals("unit can not be formatted: K", e.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> format.format(SI.METRE.multiply(-2)));
+        assertThrows(IllegalArgumentException.class, () -> format.format(SI.METRE.pow(2).multiply(2).root(2)));
+    }
+
+    @Test
+    void randomUnitsRoundTrip() {
+        Random random = new Random(11);
+        MetricPrefix[] prefixes = MetricPrefix.values();
+        TreeMap<String, Integer> branches = new TreeMap<>();
+        for (int i = 0; i < 300; i++) {
+            UomUnit<?> u = SI.UNITS.get(random.nextInt(SI.UNITS.size()));
+            for (int ops = 1 + random.nextInt(3); ops > 0; ops--) {
+                UomUnit<?> current = u;
+                try {
+                    u = switch (random.nextInt(6)) {
+                        case 0 -> current.multiply(random.nextInt(12) == 0 ? -random.nextInt(1, 50)
+                                : BigDecimal.valueOf(random.nextInt(1, 100_000), random.nextInt(6)));
+                        case 1 -> current.divide(random.nextInt(1, 2000));
+                        case 2 -> current.pow(random.nextInt(-3, 4));
+                        case 3 -> current.multiply(SI.UNITS.get(random.nextInt(SI.UNITS.size())));
+                        // Round factors often land on a catalog unit (km, min, ...).
+                        case 4 -> current.multiply(List.of(10, 100, 1000, 60, 3600).get(random.nextInt(5)));
+                        // A prefix on a non-prefixable symbol gives a label such as kmin, which is not parseable.
+                        default -> current.getSymbol() == null || SI.PREFIXABLE.contains(current.getSymbol())
+                                ? current.prefix(prefixes[random.nextInt(prefixes.length)]) : current;
+                    };
+                } catch (RuntimeException e) {
+                    // offset units can not be combined
+                }
+            }
+            UomUnit<?> unit = u;
+            String branch;
+            if (unit.getSymbol() != null) {
+                branch = "symbol";
+            } else if (SI.UNITS.contains(unit)) {
+                branch = "catalog";
+            } else if (!unit.toSystemConverter().offset().isZero() || unit.toSystemConverter().factor().signum() < 0) {
+                branch = "refused";
+                IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> format.format(unit));
+                assertEquals("unit can not be formatted: " + unit, e.getMessage());
+                branches.merge(branch, 1, Integer::sum);
+                continue;
+            } else {
+                branch = "formula";
+            }
+            branches.merge(branch, 1, Integer::sum);
+            String text = format.format(unit);
+            assertEquals(unit, format.parse(text), branch + ": " + text);
+        }
+        assertTrue(branches.getOrDefault("symbol", 0) >= 60, branches::toString);
+        assertTrue(branches.getOrDefault("catalog", 0) >= 3, branches::toString);
+        assertTrue(branches.getOrDefault("formula", 0) >= 120, branches::toString);
+        assertTrue(branches.getOrDefault("refused", 0) >= 5, branches::toString);
     }
 
     @Test

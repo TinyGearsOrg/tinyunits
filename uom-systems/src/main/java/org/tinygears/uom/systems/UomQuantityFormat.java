@@ -16,7 +16,10 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
 import org.tinygears.uom.quantity.QuantityTypes;
 
-/** Formats a quantity as its value, a space and its unit, and parses that form back. Thread-safe. */
+/**
+ * Formats a quantity as its value, a space and its unit, and parses that form back. Thread-safe. Formatting
+ * throws {@link IllegalArgumentException} for a unit the unit format refuses (offset units until milestone 6).
+ */
 public final class UomQuantityFormat implements QuantityFormat {
     private final UomUnitFormat unitFormat;
 
