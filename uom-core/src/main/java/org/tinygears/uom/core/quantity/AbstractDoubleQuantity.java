@@ -55,7 +55,11 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return create(this.unit.getConverterTo(target).convert(value), target, scale);
     }
 
-    /** Equal values, or values within {@link #EQUIVALENCE_TOLERANCE} relative; NaN is equivalent to nothing. */
+    /**
+     * Converts {@code that} into this unit and compares within the relative {@link #EQUIVALENCE_TOLERANCE}, which
+     * is asymmetric near zero for offset units. NaN is equivalent to nothing; incompatible dimensions give false
+     * (compareTo throws).
+     */
     @Override
     public boolean isEquivalentTo(Quantity<Q> that) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
@@ -63,7 +67,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
             return false;
         }
         double a = value;
-        double b = fromSystem(toSystem(that.getValue().doubleValue(), thatUnit), unit);
+        double b = thatUnit.getConverterTo(unit).convert(that.getValue().doubleValue());
         if (a == b) {
             return true;
         }

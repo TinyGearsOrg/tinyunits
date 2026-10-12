@@ -169,6 +169,57 @@ class AbstractDoubleQuantityTest {
     }
 
     @Test
+    void equivalenceIsReflexiveForOffsetUnitsNearZero() {
+        Random random = new Random(7);
+        for (int i = 0; i < 2000; i++) {
+            double v = Math.pow(10, random.nextDouble(-4, 4)) * (random.nextBoolean() ? 1 : -1);
+            assertTrue(q(v, CELSIUS).isEquivalentTo(q(v, CELSIUS)), () -> "v = " + v);
+        }
+        assertTrue(q(2.18e-4, CELSIUS).isEquivalentTo(q(2.18e-4, CELSIUS)));
+        assertTrue(q(-1.94e-3, CELSIUS).isEquivalentTo(q(-1.94e-3, CELSIUS)));
+    }
+
+    @Test
+    void equivalenceIsReflexiveNearOverflow() {
+        assertTrue(q(1e306, KILOMETRE).isEquivalentTo(q(1e306, KILOMETRE)));
+        assertTrue(q(Double.MAX_VALUE, KILOMETRE).isEquivalentTo(q(Double.MAX_VALUE, KILOMETRE)));
+    }
+
+    @Test
+    void equivalenceOnAnOffsetUnitSample() {
+        UomUnit<Length> fahrenheit = UomUnit.unchecked(BaseUnits.KELVIN.multiply(5.0 / 9).shift(459.67));
+        UomUnit<Length> millikelvin = UomUnit.unchecked(BaseUnits.KELVIN.divide(1000));
+        List<UomUnit<Length>> units = List.of(KELVIN, CELSIUS, fahrenheit, millikelvin);
+        Random random = new Random(11);
+        double[] systemValues = random.doubles(20, 0, 1e4).toArray();
+        List<TestLengthImpl> sample = new ArrayList<>();
+        for (int i = 0; i < 200; i++) {
+            UomUnit<Length> unit = units.get(random.nextInt(units.size()));
+            double system = systemValues[random.nextInt(systemValues.length)];
+            // Every other value lies near zero in its own unit, where a system round trip cancels.
+            double value = i % 2 == 0
+                    ? unit.toSystemConverter().inverse().convert(system)
+                    : random.nextDouble(-1e-2, 1e-2);
+            sample.add(q(value, unit));
+        }
+        for (TestLengthImpl a : sample) {
+            assertTrue(a.isEquivalentTo(a), a::toString);
+            for (TestLengthImpl b : sample) {
+                // A purely relative tolerance is asymmetric near zero for offset units.
+                if (isLinear(a.getUnit()) && isLinear(b.getUnit())) {
+                    assertEquals(a.isEquivalentTo(b), b.isEquivalentTo(a));
+                }
+            }
+        }
+        assertTrue(q(100, CELSIUS).isEquivalentTo(q(373.15, KELVIN)));
+        assertTrue(q(373.15, KELVIN).isEquivalentTo(q(100, CELSIUS)));
+    }
+
+    private static boolean isLinear(UomUnit<Length> unit) {
+        return unit.toSystemConverter().isLinear();
+    }
+
+    @Test
     void toStringFormats() {
         assertEquals("1.5 km", q(1.5, KILOMETRE.named("km", "kilometre")).toString());
         String unlabelled = q(1.5, KILOMETRE.named(null, null)).toString();
