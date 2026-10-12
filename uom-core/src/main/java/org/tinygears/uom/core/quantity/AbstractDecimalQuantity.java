@@ -223,14 +223,16 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         } catch (IllegalArgumentException e) {
             throw new UnsupportedOperationException("no quantity factory for " + type.getName(), e);
         }
-        Quantity<T> q = factory.create(value, unit.asType(type), scale);
+        Unit<T> typed = unit.asType(type);
+        Quantity<T> q = factory.create(value, typed, scale);
         // with returns the factory's typed interface, which is a Quantity<T>.
-        return q instanceof AbstractDecimalQuantity<?, ?> d ? (Quantity<T>) d.with(value, mathContext) : q;
+        return q instanceof AbstractDecimalQuantity<?, ?> d
+                ? (Quantity<T>) d.with(value, uomUnit(typed), scale, mathContext) : q;
     }
 
-    /** This quantity's class, unit and scale with the given value and context, unrounded. */
-    private R with(BigDecimal v, MathContext mc) {
-        return create(v, unit, scale, mc);
+    /** A quantity of this class with the given value, unit, scale and context, unrounded. */
+    private R with(BigDecimal v, UomUnit<?> u, Quantity.Scale s, MathContext mc) {
+        return create(v, UomUnit.unchecked(u), s, mc);
     }
 
     /** {@code sys(a)·sys(b)} or {@code sys(a)/sys(b)} as one exact quotient, rounded once. */

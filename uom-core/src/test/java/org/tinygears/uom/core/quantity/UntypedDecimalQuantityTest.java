@@ -213,6 +213,38 @@ class UntypedDecimalQuantityTest {
         }
     }
 
+    @Test
+    void asTypeUsesTheTypedUnitNotTheFactorys() {
+        TestServiceProvider.FACTORIES.put(Speed.class, new KilometrePerHourFactory());
+        try {
+            Quantity<Speed> speed = q("36", KILOMETRE).divide(q("3600", SECOND)).asType(Speed.class);
+            TestSpeedDecimalImpl typed = assertInstanceOf(TestSpeedDecimalImpl.class, speed);
+            assertEquals(0, BigDecimal.TEN.compareTo(typed.getValue()), () -> typed.toString());
+            assertEquals(METRE.divide(SECOND), typed.getUnit());
+        } finally {
+            TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
+        }
+    }
+
+    /** Normalises every value to km/h. */
+    private static final class KilometrePerHourFactory implements QuantityFactory<Speed> {
+        @Override
+        public Quantity<Speed> create(Number value, Unit<Speed> unit, Quantity.Scale scale) {
+            UomUnit<Speed> kmh = UomUnit.unchecked(KILOMETRE.divide(HOUR));
+            return TestSpeedDecimalImpl.FACTORY.create(value, unit, scale).to(kmh);
+        }
+
+        @Override
+        public Quantity<Speed> create(Number value, Unit<Speed> unit) {
+            return create(value, unit, Quantity.Scale.ABSOLUTE);
+        }
+
+        @Override
+        public Unit<Speed> getSystemUnit() {
+            return TestSpeedDecimalImpl.FACTORY.getSystemUnit();
+        }
+    }
+
     /** Rounds to two digits at creation. */
     private static final class RoundingFactory implements QuantityFactory<Speed> {
         @Override

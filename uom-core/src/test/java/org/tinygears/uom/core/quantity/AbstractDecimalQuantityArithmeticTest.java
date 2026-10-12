@@ -334,6 +334,8 @@ class AbstractDecimalQuantityArithmeticTest {
             assertEquals("1E+99999 m", big.subtract(q("0", METRE, UNLIMITED)).toString());
             assertEquals("2E+99999 m", big.multiply(2).toString());
             assertEquals("5E+99998 m", big.divide(2).toString());
+            assertEquals("2E+99999 m", big.add(big).toString());
+            assertEquals(0, ((BigDecimal) big.subtract(big).getValue()).signum());
         });
     }
 
