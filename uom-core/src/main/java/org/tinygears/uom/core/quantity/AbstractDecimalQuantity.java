@@ -56,7 +56,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return mathContext;
     }
 
-    /** Converts exactly where the conversion is exact, otherwise rounds to {@link #mathContext()}. */
+    /**
+     * Converts exactly where the conversion is exact, otherwise rounds to {@link #mathContext()}. Throws
+     * {@link ArithmeticException} if the result's scale exceeds the bound of ±100000 (conversion or rounding can
+     * push a value past it).
+     */
     @Override
     public R to(Unit<Q> unit) {
         UomUnit<Q> target = uomUnit(unit);
@@ -74,7 +78,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return createDouble(Precision.toDouble(value), unit, scale);
     }
 
-    /** The same quantity with its value rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity with its value rounded to {@code mc}, which becomes its context. Throws
+     * {@link ArithmeticException} if the result's scale exceeds the bound of ±100000 (conversion or rounding can
+     * push a value past it).
+     */
     public R toDecimal(MathContext mc) {
         return create(value.round(mc), unit, scale, mc);
     }

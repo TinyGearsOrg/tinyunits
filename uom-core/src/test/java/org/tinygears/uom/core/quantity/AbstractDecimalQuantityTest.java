@@ -102,6 +102,12 @@ class AbstractDecimalQuantityTest {
     }
 
     @Test
+    void toPastTheScaleBoundFails() {
+        ArithmeticException e = assertThrows(ArithmeticException.class, () -> q("1e-100000", METRE).to(KILOMETRE));
+        assertEquals("scale out of range: 100003", e.getMessage());
+    }
+
+    @Test
     void toForeignOrIncompatibleUnitFails() {
         TestLengthDecimalImpl one = q("1", METRE);
         UnconvertibleException e = assertThrows(UnconvertibleException.class, () -> one.to(foreignUnit()));
@@ -156,6 +162,12 @@ class AbstractDecimalQuantityTest {
         assertSame(Quantity.Scale.RELATIVE, n.getScale());
         assertSame(MathContext.DECIMAL32, n.mathContext());
         assertEquals(q("0", METRE), q("0", METRE).negate());
+    }
+
+    @Test
+    void negateIsExact() {
+        TestLength n = q("1.234567891", METRE, MathContext.DECIMAL32).negate();
+        assertEquals(new BigDecimal("-1.234567891"), n.getValue());
     }
 
     @Test
