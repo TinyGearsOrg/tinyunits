@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.measure.MeasurementException;
-import javax.lang.model.SourceVersion;
 import javax.measure.MetricPrefix;
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
@@ -29,6 +28,13 @@ public final class DefinitionParser {
     private static final Pattern TYPE = Pattern.compile("[A-Z][A-Za-z0-9]*");
     private static final String DELIMITERS = "*/·()^|=#[]!~@,";
     private static final String BASE_LETTERS = "LMTIΘNJK";
+    // JLS 3.9 reserved keywords, '_' and the literals; avoids depending on the java.compiler module.
+    private static final Set<String> RESERVED = Set.of("abstract", "assert", "boolean", "break", "byte", "case",
+            "catch", "char", "class", "const", "continue", "default", "do", "double", "else", "enum", "extends",
+            "final", "finally", "float", "for", "goto", "if", "implements", "import", "instanceof", "int",
+            "interface", "long", "native", "new", "package", "private", "protected", "public", "return", "short",
+            "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try",
+            "void", "volatile", "while", "_", "true", "false", "null");
     private static final Map<String, MetricPrefix> PREFIXES = Arrays.stream(MetricPrefix.values())
             .collect(Collectors.toUnmodifiableMap(MetricPrefix::getSymbol, p -> p));
     private static final UomUnit<?>[] BASES = {BaseUnits.METRE, BaseUnits.KILOGRAM, BaseUnits.SECOND,
@@ -142,7 +148,7 @@ public final class DefinitionParser {
         if (w.length != 2) {
             throw new DefinitionException(src, ln, "expected '@system Name'", null);
         }
-        if (!SourceVersion.isName(w[1])) {
+        if (!isJavaName(w[1])) {
             throw new DefinitionException(src, ln, "invalid system name '" + w[1] + "'", null);
         }
         if (root()) {
@@ -151,6 +157,11 @@ public final class DefinitionParser {
             }
             system = w[1];
         }
+    }
+
+    private static boolean isJavaName(String s) {
+        return !RESERVED.contains(s) && Character.isJavaIdentifierStart(s.codePointAt(0))
+                && s.codePoints().allMatch(Character::isJavaIdentifierPart);
     }
 
     private void member(String src, int ln, String[] w) {

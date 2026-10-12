@@ -384,6 +384,10 @@ class DefinitionParserTest {
         fails("@system Foo\n@system Foo\n", "test.units:2: duplicate '@system'");
         fails("@system 9x\n", "test.units:1: invalid system name '9x'");
         fails("@system class\n", "test.units:1: invalid system name 'class'");
+        fails("@system true\n", "test.units:1: invalid system name 'true'");
+        fails("@system _\n", "test.units:1: invalid system name '_'");
+        fails("@system a-b\n", "test.units:1: invalid system name 'a-b'");
+        assertEquals("_Gauß$2", parse("@system _Gauß$2\n").system());
         fails("@system\n", "test.units:1: expected '@system Name'");
         fails("@system A B\n", "test.units:1: expected '@system Name'");
     }
