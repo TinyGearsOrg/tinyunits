@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParsePosition;
 import java.util.Random;
 import javax.measure.Quantity;
@@ -135,5 +136,15 @@ class QuantityFormatTest {
             assertEquals(unit, q.getUnit(), unit.toString());
             assertEquals(1.0, q.getValue().doubleValue(), unit.toString());
         }
+    }
+
+    @Test
+    void decimalFormatsAsBigDecimalToStringAndParsesAsDouble() {
+        Quantity<?> decimal = org.tinygears.uom.quantity.Length.of(new BigDecimal("1.50"), SI.KILOMETRE);
+        assertEquals("1.50 km", format.format(decimal));
+        // D12: parse gives double quantities; a decimal-preserving parse is a milestone 6 follow-up.
+        Quantity<?> parsed = format.parse("1.50 km");
+        assertEquals(1.5, parsed.getValue());
+        assertEquals(SI.KILOMETRE, parsed.getUnit());
     }
 }

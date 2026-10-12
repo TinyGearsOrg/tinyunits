@@ -17,7 +17,8 @@ import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /**
- * Formats a quantity as its value, a space and its unit, and parses that form back. Thread-safe. Formatting
+ * Formats a quantity as its value ({@code BigDecimal.toString()} for a decimal quantity), a space and its unit,
+ * and parses that form back; parsing always gives a {@code double} quantity. Thread-safe. Formatting
  * throws {@link IllegalArgumentException} for a unit the unit format refuses (offset units until milestone 6).
  */
 public final class UomQuantityFormat implements QuantityFormat {

@@ -1,0 +1,211 @@
+// SPDX-License-Identifier: Apache-2.0
+
+package org.tinygears.uom.systems;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.tinygears.uom.systems.SI.CENTIMETRE;
+import static org.tinygears.uom.systems.SI.DEGREE;
+import static org.tinygears.uom.systems.SI.DEGREE_CELSIUS;
+import static org.tinygears.uom.systems.SI.KELVIN;
+import static org.tinygears.uom.systems.SI.KILOMETRE;
+import static org.tinygears.uom.systems.SI.METRE;
+import static org.tinygears.uom.systems.SI.MILLISECOND;
+import static org.tinygears.uom.systems.SI.RADIAN;
+import static org.tinygears.uom.systems.SI.SECOND;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.quantity.Speed;
+import org.junit.jupiter.api.Test;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+import org.tinygears.uom.quantity.Angle;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.Temperature;
+import org.tinygears.uom.quantity.Time;
+
+/** The unit-api 2.2 {@link Quantity} Javadoc clauses for decimal quantities, plus exact conversions. */
+class QuantityContractDecimalTest {
+
+    interface Unsupported extends Quantity<Unsupported> {
+    }
+
+    private static final UomUnit<javax.measure.quantity.Length> INCH = CENTIMETRE.multiply(new BigDecimal("2.54"));
+    private static final UomUnit<javax.measure.quantity.Temperature> DEGREE_FAHRENHEIT =
+            KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67"));
+
+    private static BigDecimal d(String v) {
+        return new BigDecimal(v);
+    }
+
+    private static Length length(String v, javax.measure.Unit<javax.measure.quantity.Length> unit) {
+        return Length.of(d(v), unit);
+    }
+
+    private static Temperature celsius(String v) {
+        return Temperature.of(d(v), DEGREE_CELSIUS);
+    }
+
+    private static Temperature kelvin(String v) {
+        return Temperature.of(d(v), KELVIN);
+    }
+
+    /** Asserts a decimal value equal to {@code expected} by {@code compareTo}, so the scale does not matter. */
+    private static void assertExactly(String expected, Quantity<?> q) {
+        assertInstanceOf(AbstractDecimalQuantity.class, q);
+        BigDecimal value = (BigDecimal) q.getValue();
+        assertEquals(0, d(expected).compareTo(value), () -> expected + " != " + value);
+    }
+
+    @Test
+    void twoThousandMetresIsEquivalentToTwoKilometres() {
+        assertTrue(length("2000", METRE).isEquivalentTo(length("2", KILOMETRE)));
+        assertTrue(length("2", KILOMETRE).isEquivalentTo(length("2000", METRE)));
+    }
+
+    @Test
+    void twoCelsiusIsEquivalentTo275KelvinNotToTwoKelvin() {
+        assertTrue(celsius("2").isEquivalentTo(kelvin("275.15")));
+        assertFalse(celsius("2").isEquivalentTo(kelvin("2")));
+    }
+
+    @Test
+    void twoCelsiusPlusTwoKelvinIsEquivalentTo275KelvinPlusTwoKelvin() {
+        assertTrue(celsius("2").add(kelvin("2")).isEquivalentTo(kelvin("275.15").add(kelvin("2"))));
+        assertTrue(celsius("2").add(kelvin("2")).isEquivalentTo(kelvin("277.15")));
+    }
+
+    @Test
+    void twoCelsiusPlusOneCelsiusIsTheKnownDiscrepancy() {
+        // The Javadoc says 274.15 degC, its own rule gives 276.15 degC; see docs/TODO.md item 1.
+        Temperature sum = celsius("2").add(celsius("1"));
+        assertExactly("276.15", sum);
+        assertSame(DEGREE_CELSIUS, sum.getUnit());
+    }
+
+    @Test
+    void addConvertsTheAddendAndKeepsThisUnit() {
+        Length sum = length("1", KILOMETRE).add(length("500", METRE));
+        assertExactly("1.5", sum);
+        assertSame(KILOMETRE, sum.getUnit());
+    }
+
+    @Test
+    void subtractConvertsTheSubtrahendAndKeepsThisUnit() {
+        Length difference = length("1", KILOMETRE).subtract(length("250", METRE));
+        assertExactly("0.75", difference);
+        assertSame(KILOMETRE, difference.getUnit());
+        // Literal rule, docs/TODO.md item 1: 275.15 K - 274.15 K = 1 K = -272.15 degC.
+        assertExactly("-272.15", celsius("2").subtract(celsius("1")));
+    }
+
+    @Test
+    void multiplyByQuantityIsTheProduct() {
+        Quantity<?> product = length("2", METRE).multiply(Time.of(d("3"), SECOND));
+        assertExactly("6", product);
+        assertEquals(METRE.multiply(SECOND), product.getUnit());
+    }
+
+    @Test
+    void divideByQuantityIsTheQuotient() {
+        Quantity<?> quotient = length("6", METRE).divide(Time.of(d("4"), SECOND));
+        assertExactly("1.5", quotient);
+        assertEquals(METRE.divide(SECOND), quotient.getUnit());
+    }
+
+    @Test
+    void multiplyAndDivideByNumber() {
+        Length product = length("2", KILOMETRE).multiply(3);
+        assertExactly("6", product);
+        assertSame(KILOMETRE, product.getUnit());
+        Length quotient = length("6", KILOMETRE).divide(4);
+        assertExactly("1.5", quotient);
+        assertSame(KILOMETRE, quotient.getUnit());
+        // Literal rule, docs/TODO.md item 1: 275.15 K * 2 = 550.3 K = 277.15 degC.
+        assertExactly("277.15", celsius("2").multiply(2));
+    }
+
+    @Test
+    void inverseHasReciprocalValueAndUnit() {
+        Quantity<?> inverse = Time.of(d("2"), MILLISECOND).inverse();
+        // 1 / (2 ms) is stated in the system unit: 500 /s.
+        assertExactly("500", inverse);
+        assertEquals(SECOND.inverse(), inverse.getUnit());
+    }
+
+    @Test
+    void negateIsMinusTheValueInTheSameUnit() {
+        Temperature negated = celsius("2").negate();
+        assertExactly("-2", negated);
+        assertSame(DEGREE_CELSIUS, negated.getUnit());
+    }
+
+    @Test
+    void toStatesTheQuantityInTheGivenUnit() {
+        Length metres = length("2", KILOMETRE).to(METRE);
+        assertExactly("2000", metres);
+        assertSame(METRE, metres.getUnit());
+    }
+
+    @Test
+    void toSystemUnitIsToTheSystemUnit() {
+        Quantity<javax.measure.quantity.Temperature> k = celsius("2").toSystemUnit();
+        assertExactly("275.15", k);
+        assertEquals(KELVIN, k.getUnit());
+    }
+
+    @Test
+    void asTypeSpeedOfLightExample() {
+        Quantity<Speed> c = length("2", KILOMETRE).multiply(299792458).divide(Time.of(d("1"), SECOND))
+                .asType(Speed.class);
+        assertInstanceOf(Speed.class, c);
+        assertExactly("599584916000", c);
+    }
+
+    @Test
+    void asTypeThrowsForADifferentDimensionOrWithoutASystemUnit() {
+        Quantity<?> speed = length("6", METRE).divide(Time.of(d("2"), SECOND));
+        assertThrows(ClassCastException.class, () -> speed.asType(javax.measure.quantity.Length.class));
+        assertThrows(UnsupportedOperationException.class, () -> speed.asType(Unsupported.class));
+    }
+
+    @Test
+    void getScaleReturnsTheScale() {
+        assertSame(Quantity.Scale.ABSOLUTE, length("1", METRE).getScale());
+        assertSame(Quantity.Scale.RELATIVE, Length.of(d("1"), METRE, Quantity.Scale.RELATIVE).getScale());
+    }
+
+    @Test
+    void isEquivalentToNullThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> length("1", METRE).isEquivalentTo(null));
+    }
+
+    @Test
+    void hundredCelsiusIsExactlyKelvin() {
+        assertExactly("373.15", celsius("100").to(KELVIN));
+    }
+
+    @Test
+    void fahrenheitToCelsiusIsExact() {
+        assertExactly("100", Temperature.of(d("212"), DEGREE_FAHRENHEIT).to(DEGREE_CELSIUS));
+    }
+
+    @Test
+    void inchToMetreIsExact() {
+        assertExactly("0.0254", length("1", INCH).to(METRE));
+    }
+
+    @Test
+    void degreesToRadiansRoundsOnceToTheContext() {
+        Quantity<?> pi = Angle.of(d("180"), DEGREE).to(RADIAN);
+        assertEquals(d("3.141592653589793238462643383279503"), pi.getValue());
+        assertEquals(Factor.PI.decimalValue(MathContext.DECIMAL128), pi.getValue());
+    }
+}

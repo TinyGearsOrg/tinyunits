@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.measure.quantity.*;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
 import org.junit.jupiter.api.Test;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Time;
 
@@ -85,5 +87,24 @@ class UomServiceProviderTest {
     void speedEndToEnd() {
         Quantity<Speed> v = Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR)).asType(Speed.class);
         assertEquals(10.0, v.to(UomUnitFormat.standard().parse("m/s").asType(Speed.class)).getValue().doubleValue(), 1e-12);
+    }
+
+    @Test
+    void factoryCreatesADecimalForABigDecimal() {
+        Quantity<javax.measure.quantity.Length> q = ServiceProvider.current()
+                .getQuantityFactory(javax.measure.quantity.Length.class).create(new BigDecimal("1.5"), SI.METRE);
+        assertInstanceOf(Length.class, q);
+        assertInstanceOf(AbstractDecimalQuantity.class, q);
+        assertEquals(new BigDecimal("1.5"), q.getValue());
+        assertSame(SI.METRE, q.getUnit());
+    }
+
+    @Test
+    void decimalSpeedEndToEnd() {
+        Quantity<Speed> v = Length.of(new BigDecimal("36"), SI.KILOMETRE).divide(Time.of(new BigDecimal("1"), SI.HOUR))
+                .asType(Speed.class);
+        Quantity<Speed> inMetresPerSecond = v.to(UomUnitFormat.standard().parse("m/s").asType(Speed.class));
+        assertInstanceOf(AbstractDecimalQuantity.class, inMetresPerSecond);
+        assertEquals(0, new BigDecimal("10").compareTo((BigDecimal) inMetresPerSecond.getValue()));
     }
 }
