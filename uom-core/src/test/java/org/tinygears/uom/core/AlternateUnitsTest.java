@@ -41,6 +41,24 @@ class AlternateUnitsTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void equivalenceIgnoresAlternateAtoms() {
+        UomUnit rad = ONE.alternate("rad");
+        UomUnit perSecond = (UomUnit) ONE.divide(SECOND);
+        UomUnit hz = perSecond.alternate("Hz");
+        UomUnit bq = perSecond.alternate("Bq");
+        assertTrue(rad.isEquivalentTo(ONE));
+        assertTrue(ONE.isEquivalentTo(rad));
+        assertTrue(hz.isEquivalentTo(perSecond));
+        assertTrue(perSecond.isEquivalentTo(hz));
+        assertTrue(hz.isEquivalentTo(bq));
+        assertTrue(bq.isEquivalentTo(hz));
+        assertFalse(hz.isEquivalentTo(rad));
+        assertFalse(rad.isEquivalentTo(hz));
+        assertFalse(hz.isEquivalentTo(perSecond.multiply(1000)));
+    }
+
+    @Test
     void sameDefinitionIsIdempotent() {
         assertEquals(ONE.alternate("rad"), ONE.alternate("rad"));
     }
