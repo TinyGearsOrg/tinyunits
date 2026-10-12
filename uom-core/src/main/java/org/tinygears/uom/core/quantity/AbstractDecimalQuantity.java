@@ -8,6 +8,8 @@ import java.util.Objects;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
+import javax.measure.spi.ServiceProvider;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
@@ -172,28 +174,91 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return value.compareTo(b) == 0 || value.subtract(b).abs().compareTo(bound) <= 0;
     }
 
+    /**
+     * Multiplies the system-unit values (operands are taken to the system unit, so offsets count), evaluated exactly
+     * and rounded once to the lower context of the two; the result is an {@link Untyped} quantity in the product of
+     * the system units, scale {@code ABSOLUTE}. A {@code double} operand gives an {@link UntypedDoubleQuantity}.
+     * Throws {@link UnconvertibleException} for a foreign unit.
+     */
     @Override
     public Quantity<?> multiply(Quantity<?> multiplicand) {
-        throw new UnsupportedOperationException("milestone 4, task 5");
+        return untyped(multiplicand, false);
     }
 
+    /**
+     * Divides by the same rule as {@link #multiply(Quantity)}; an unlimited context rounds a non-terminating quotient
+     * to {@code DECIMAL128}. Division by zero throws {@link ArithmeticException}.
+     */
     @Override
     public Quantity<?> divide(Quantity<?> divisor) {
-        throw new UnsupportedOperationException("milestone 4, task 5");
+        return untyped(divisor, true);
     }
 
+    /**
+     * Returns {@code 1 / systemValue} in the inverse system unit as an {@link Untyped} quantity, rounded to this
+     * context ({@code DECIMAL128} if unlimited and non-terminating). Zero throws {@link ArithmeticException}.
+     */
     @Override
     public Quantity<?> inverse() {
-        throw new UnsupportedOperationException("milestone 4, task 5");
+        Ratio a = system(value, unit, guardDigits(mathContext, BigDecimal.ONE));
+        return UntypedDecimalQuantity.of(roundOnce(a.den, a.num, mathContext, a.exact),
+                unit.getSystemUnit().inverse().getSystemUnit(), mathContext);
     }
 
+    /**
+     * Returns this quantity if it already is a {@code type}, otherwise one created by the provider's factory; a
+     * unit that does not measure {@code type} gives {@link ClassCastException}, a type the provider has no
+     * factory for gives {@link UnsupportedOperationException}. A decimal result gets this context; a factory
+     * result of another kind is returned as is.
+     */
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
-        throw new UnsupportedOperationException("milestone 4, task 5");
+        if (type.isInstance(this)) {
+            return type.cast(this);
+        }
+        QuantityFactory<T> factory;
+        try {
+            factory = ServiceProvider.current().getQuantityFactory(type);
+        } catch (IllegalArgumentException e) {
+            throw new UnsupportedOperationException("no quantity factory for " + type.getName(), e);
+        }
+        Quantity<T> q = factory.create(value, unit.asType(type), scale);
+        // toDecimal returns the factory's typed interface, which is a Quantity<T>.
+        return q instanceof AbstractDecimalQuantity<?, ?> d ? (Quantity<T>) d.toDecimal(mathContext) : q;
+    }
+
+    /** {@code sys(a)·sys(b)} or {@code sys(a)/sys(b)} as one exact quotient, rounded once. */
+    private Quantity<?> untyped(Quantity<?> that, boolean divide) {
+        UomUnit<?> thatUnit = uomUnit(that.getUnit());
+        Number n = that.getValue();
+        if (Precision.kind(n) == Precision.Kind.DOUBLE) {
+            R d = toDouble();
+            return divide ? d.divide(that) : d.multiply(that);
+        }
+        MathContext mc = contextWith(that);
+        BigDecimal b = Precision.toDecimal(n);
+        int digits = guardDigits(mc, b);
+        Ratio sa = system(value, unit, digits);
+        Ratio sb = system(b, thatUnit, digits);
+        BigDecimal num = divide ? sa.num.multiply(sb.den) : sa.num.multiply(sb.num);
+        BigDecimal den = divide ? sa.den.multiply(sb.num) : sa.den.multiply(sb.den);
+        UomUnit<?> product = divide ? unit.getSystemUnit().divide(thatUnit.getSystemUnit())
+                : unit.getSystemUnit().multiply(thatUnit.getSystemUnit());
+        return UntypedDecimalQuantity.of(roundOnce(num, den, mc, sa.exact && sb.exact), product.getSystemUnit(), mc);
+    }
+
+    /** The system value {@code f·v + o} as numerator over denominator. */
+    private static Ratio system(BigDecimal v, UomUnit<?> u, int digits) {
+        UomConverter c = u.toSystemConverter();
+        Ratio f = Ratio.of(c.factor(), digits);
+        Ratio o = Ratio.of(c.offset(), digits);
+        return new Ratio(v.multiply(f.num).multiply(o.den).add(o.num.multiply(f.den)), f.den.multiply(o.den),
+                f.exact && o.exact);
     }
 
     /** The result context against {@code that}: the lower one; an exact value adopts this context. */
-    private MathContext contextWith(Quantity<Q> that) {
+    private MathContext contextWith(Quantity<?> that) {
         if (Precision.kind(that.getValue()) == Precision.Kind.EXACT) {
             return mathContext;
         }
