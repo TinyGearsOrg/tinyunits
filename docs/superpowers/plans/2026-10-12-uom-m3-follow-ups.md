@@ -91,7 +91,6 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
 - 114 generated lines exceed 120 columns; the wrapping rule is documented only on `wrap`. `CatalogEmitter` hard-codes the
   header and the Javadoc text "The SI units" instead of using `className`/`systemName`. IO error messages print
   `e.getMessage()` only (use `e.toString()`).
-- Unit name `degree_celsius` should be `degree_Celsius` (SI spelling); the constant name stays.
 - `CatalogEmitterTest` compiles against a stand-in `UomSystemOfUnits` that can drift from the real class; the `uom-systems`
   compile catches it. `--check` flags extra files only when they carry the generated header (intentional, same as `Generate`).
 - `DefinitionParser.prefixed` finds the base unit by scanning the definitions list although a symbol map exists.

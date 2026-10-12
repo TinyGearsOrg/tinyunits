@@ -183,8 +183,9 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 @prefixed m k c m µ n p                       # generate km, cm, mm, µm, nm, pm
 ```
 
-- **Syntax.** `symbol:name formula [Type] # comment`. Space or `*` multiplies, `/` divides;
-  juxtaposition binds tighter than `*` and `/`, so `J / kg K` is `J / (kg K)`;
+- **Syntax.** `symbol:name formula [Type] # comment`. Space, `*` or `·` (U+00B7) multiplies, `/`
+  divides; `*`, `·` and `/` share one precedence and associate to the left; juxtaposition binds
+  tighter than them, so `J / kg K` is `J / (kg K)`;
   `^n` is an integer power, `a|b` an exact fraction, decimals are exact, parentheses group,
   `!` marks a base unit, `~` an alternate unit, `=` an affine function, `@include` includes a
   file, `@preferred` sets the preferred unit of a type, `@prefixed <symbol> <prefix>...` generates
@@ -209,8 +210,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   resources at run time: `UomUnitFormat` resolves symbols from the generated catalogs and
   evaluates formulas with `FormulaEvaluator`. Loading user `.units` files (F18) is to do.
 - **Prefixes.** `@prefixed` generates the curated prefixed units (`SI.KILOMETRE`). At run time
-  `UomUnitFormat` also resolves a metric prefix on any unit in `SI.PREFIXABLE`, so `km` parses
-  even without a constant; binary prefixes (`MiB`) are not resolved yet. Only units named in a
+  `UomUnitFormat` also resolves a metric prefix on any unit in `SI.PREFIXABLE`, so `Mm` and `dam`
+  parse without a constant; binary prefixes (`MiB`) are not resolved yet. Only units named in a
   `@prefixed` line are in `SI.PREFIXABLE`, so only they take prefixes at run time (`Gm`, but not
   `kmin`). A prefixed power is written with `^`: `km^2` parses as `(km)^2`, while `km²` does not
   parse (`m²` is a symbol of its own, not a prefixable unit).
