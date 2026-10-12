@@ -37,6 +37,11 @@ dynamic proxies in the picture.
 | F12 | Quantities and units are immutable, thread-safe and `Serializable`. |
 | F13 | A `module-info.java` (JPMS) for every published module. |
 | F14 | Users can define their own quantity types and units with the same annotation and generator as the built-in ones. |
+| F15 | **Unit definitions live in text data files**, in the syntax of the original uom `.units` files (GNU units style): `symbol:name formula`, `@include`, `#` comments, `!` base units, `~` alternate (dimensionless-distinct) units, `^` exponents, `a|b` exact fractions, decimal literals, and affine functions (`°F:degree_fahrenheit °C = (x - 32) * 5|9`). The files are the single source of truth for the catalogs (F6). |
+| F16 | **Typed catalog constants are generated from the data files** (e.g. `Unit<Length> INCH`, `Unit<Energy> JOULE`). The quantity type of a unit is inferred from its dimension, and may be stated explicitly in the definition where the dimension is ambiguous (e.g. energy and torque; hertz and becquerel; gray and sievert). An ambiguous definition with no explicit type is a build error. |
+| F17 | **The same definitions drive the unit parser (F9)**, so a symbol such as `"ft"` resolves to the same unit in code and in text. Whether definitions are processed at build time, at run time, or both is a design decision. |
+| F18 | **Users can supply their own `.units` files** (extending or including the built-in ones), processed by the same generator (F14). |
+| F19 | **Definition errors are build errors with file and line:** unknown unit, duplicate symbol, circular definition, dimension mismatch, unparsable formula. |
 
 ### Explicitly out of scope for 1.0
 
@@ -96,9 +101,9 @@ dynamic proxies in the picture.
    precision wins, and is mixing allowed at all?
 4. ~~**Equality.**~~ Resolved: `equals` is value and unit; `isEquivalentTo` (in the API since
    2.1) means the same physical quantity.
-5. **Catalog authoring.** Hand-written Java constants, or a data file (in the style of GNU
-   units) from which the catalogs are generated at build time? Hundreds of units favour a data
-   file.
+5. ~~**Catalog authoring.**~~ Resolved: data files in the original `.units` syntax (F15 to F19).
+   Still open for the design: build time versus run time processing (F17), and how the explicit
+   quantity type is written in a definition (F16).
 6. ~~**Java baseline.**~~ Resolved: Java 21.
 7. ~~**Group id and naming.**~~ Resolved: group id `org.tinygears`, project name `uom`, artifacts
    `uom-*`. The Java package prefix `org.tinygears.uom` is assumed. The GitHub repository is still
@@ -116,6 +121,11 @@ dynamic proxies in the picture.
 - **Generated code volume.** Two precisions per quantity type multiplies generated classes.
   Mitigation: keep generated classes thin and push shared logic into non-generated base
   classes.
+- **Definition data licensing.** GNU units' data file is GPL. The `.units` files must be
+  authored independently (from SI, NIST and CODATA definitions) and cross-checked against
+  reference values, never copied from GNU units, so the library stays Apache-2.0.
+- **Dimension ambiguity.** A formula determines a dimension, not a quantity type. Units such as
+  hertz/becquerel and gray/sievert need explicit typing (F16).
 - **Electromagnetic CGS semantics.** Treating ESU/EMU/Gaussian as conversion factors converts
   values but not formulas; the documentation must say so.
 
