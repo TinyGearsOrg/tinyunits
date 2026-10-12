@@ -80,6 +80,22 @@ class ConvertersDecimalTest {
     }
 
     @Test
+    void stickyDigitStaysBelowBothGuardBounds() {
+        // The offset's last digit is one unit below a rounding boundary: a sticky digit at that unit lands on it.
+        BigInteger n = new BigInteger("111706672390044947752674" + "9".repeat(78));
+        UomConverter lastDigit =
+                affine(Factor.ofLong(-2503), of(n, BigInteger.valueOf(5).multiply(BigInteger.TEN.pow(56))));
+        MathContext down = new MathContext(34, RoundingMode.DOWN);
+        BigDecimal v = new BigDecimal("-7.3820565E-114");
+        assertEquals(reference(lastDigit.factor(), lastDigit.offset(), v, down), lastDigit.convert(v, down));
+        assertEquals(new BigDecimal("2.234133447800898955053499999999999E+44"), lastDigit.convert(v, down));
+        // The rounding grid of the quotient sits digits(490309) below the numerator's leading digit.
+        UomConverter divisor = affine(of(1, 490309), Factor.ofLong(-1));
+        assertEquals(new BigDecimal("1E+97"),
+                divisor.convert(new BigDecimal("4.658E+102"), new MathContext(1, RoundingMode.HALF_UP)));
+    }
+
+    @Test
     void optimisationMatchesTheExactPath() {
         Random r = new Random(20261012L);
         for (int i = 0; i < 2000; i++) {
