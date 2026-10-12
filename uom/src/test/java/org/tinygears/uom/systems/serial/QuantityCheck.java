@@ -86,6 +86,8 @@ public final class QuantityCheck {
     public static void main(String[] args) throws Exception {
         if (args[0].equals("golden")) {
             golden(Path.of(args[1]));
+        } else if (args[0].equals("forged")) {
+            forged(Path.of(args[1]), Boolean.parseBoolean(args[2]));
         } else {
             units(Path.of(args[1]));
         }
@@ -134,6 +136,18 @@ public final class QuantityCheck {
                     && java.util.Objects.equals(c.getName(), u.getName()), "unit " + i + ": " + c + " read as " + u);
         }
         System.out.println("ok units " + read.size());
+    }
+
+    /** Reads one quantity, after touching SI if {@code touchFirst}; prints whether it was accepted. */
+    private static void forged(Path file, boolean touchFirst) throws Exception {
+        if (touchFirst) {
+            check(SI.HERTZ.getSymbol().equals("Hz"), "SI not loaded");
+        }
+        try {
+            System.out.println("accepted " + read(Files.readAllBytes(file)));
+        } catch (java.io.InvalidObjectException e) {
+            System.out.println("rejected " + e.getMessage());
+        }
     }
 
     private static void check(boolean condition, String message) {

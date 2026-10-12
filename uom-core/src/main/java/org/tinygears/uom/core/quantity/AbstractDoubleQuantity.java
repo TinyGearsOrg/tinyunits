@@ -24,11 +24,19 @@ import org.tinygears.uom.core.UomUnit;
  * Base class of the generated {@code double} quantities; {@code R} is the typed interface returned by
  * conversions. Operands of any precision are read as {@code double}s, so results stay {@code double}; a
  * {@link BigDecimal} or {@link java.math.BigInteger} outside the {@code double} range throws
- * {@link ArithmeticException}. Immutable. Serializable through a proxy that the current provider's factory reads
- * back (see {@link #writeReplace()}); the serialized form may change before 1.0.
+ * {@link ArithmeticException}. Immutable.
+ * <p>
+ * Serializable through a proxy (see {@link #writeReplace()}); the serialized form may change before 1.0. Reading
+ * rebuilds the quantity through the factory of the provider current at read time, then restores the exact value and
+ * scale: a user subclass, or a quantity read under another top-priority provider, comes back as that provider's
+ * class (so it no longer equals the original), and a provider without factories for the standard types makes typed
+ * reads fail.
  */
 public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /** Relative tolerance of {@link #isEquivalentTo}. */
     public static final double EQUIVALENCE_TOLERANCE = 1e-12;
@@ -96,7 +104,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     /**
      * The same quantity as a decimal: the value as written ({@link BigDecimal#valueOf(double)}), rounded to
-     * {@code mc}, which becomes its context. NaN or infinity throws {@link ArithmeticException}.
+     * {@code mc}, which becomes its context. NaN, infinity or a precision of {@code mc} over 100000 throws
+     * {@link ArithmeticException}.
      */
     public R toDecimal(MathContext mc) {
         return createDecimal(Precision.toDecimal(value).round(mc), unit, scale, mc);

@@ -41,7 +41,10 @@ public interface Frequency extends javax.measure.quantity.Frequency,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     Frequency toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     Frequency toDecimal(MathContext mc);
 
     static Frequency of(double value, Unit<javax.measure.quantity.Frequency> unit) {
@@ -64,7 +67,10 @@ public interface Frequency extends javax.measure.quantity.Frequency,
         return FrequencyFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static Frequency of(BigDecimal value, Unit<javax.measure.quantity.Frequency> unit,
             Quantity.Scale scale, MathContext mc) {
         return FrequencyFactory.INSTANCE.of(value, unit, scale, mc);

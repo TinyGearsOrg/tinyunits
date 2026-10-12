@@ -41,7 +41,10 @@ public interface Power extends javax.measure.quantity.Power,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     Power toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     Power toDecimal(MathContext mc);
 
     static Power of(double value, Unit<javax.measure.quantity.Power> unit) {
@@ -64,7 +67,10 @@ public interface Power extends javax.measure.quantity.Power,
         return PowerFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit,
             Quantity.Scale scale, MathContext mc) {
         return PowerFactory.INSTANCE.of(value, unit, scale, mc);

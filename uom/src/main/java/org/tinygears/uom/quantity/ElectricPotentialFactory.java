@@ -49,7 +49,10 @@ public final class ElectricPotentialFactory
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     public ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
             Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");

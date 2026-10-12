@@ -41,7 +41,10 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     ElectricPotential toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     ElectricPotential toDecimal(MathContext mc);
 
     static ElectricPotential of(double value, Unit<javax.measure.quantity.ElectricPotential> unit) {
@@ -64,7 +67,10 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
             Quantity.Scale scale, MathContext mc) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale, mc);

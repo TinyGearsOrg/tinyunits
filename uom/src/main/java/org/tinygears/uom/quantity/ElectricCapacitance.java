@@ -41,7 +41,10 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     ElectricCapacitance toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     ElectricCapacitance toDecimal(MathContext mc);
 
     static ElectricCapacitance of(double value, Unit<javax.measure.quantity.ElectricCapacitance> unit) {
@@ -64,7 +67,10 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static ElectricCapacitance of(BigDecimal value, Unit<javax.measure.quantity.ElectricCapacitance> unit,
             Quantity.Scale scale, MathContext mc) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale, mc);

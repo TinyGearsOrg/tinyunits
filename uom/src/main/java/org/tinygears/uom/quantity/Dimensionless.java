@@ -41,7 +41,10 @@ public interface Dimensionless extends javax.measure.quantity.Dimensionless,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     Dimensionless toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     Dimensionless toDecimal(MathContext mc);
 
     static Dimensionless of(double value, Unit<javax.measure.quantity.Dimensionless> unit) {
@@ -64,7 +67,10 @@ public interface Dimensionless extends javax.measure.quantity.Dimensionless,
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit,
             Quantity.Scale scale, MathContext mc) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale, mc);

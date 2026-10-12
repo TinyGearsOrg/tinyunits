@@ -41,7 +41,10 @@ public interface Temperature extends javax.measure.quantity.Temperature,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     Temperature toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     Temperature toDecimal(MathContext mc);
 
     static Temperature of(double value, Unit<javax.measure.quantity.Temperature> unit) {
@@ -64,7 +67,10 @@ public interface Temperature extends javax.measure.quantity.Temperature,
         return TemperatureFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static Temperature of(BigDecimal value, Unit<javax.measure.quantity.Temperature> unit,
             Quantity.Scale scale, MathContext mc) {
         return TemperatureFactory.INSTANCE.of(value, unit, scale, mc);

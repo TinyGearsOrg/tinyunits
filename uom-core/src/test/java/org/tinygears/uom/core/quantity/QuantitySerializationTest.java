@@ -458,6 +458,116 @@ class QuantitySerializationTest {
         }
     }
 
+    private static final MathContext MAX_CONTEXT = new MathContext(100_000, RoundingMode.HALF_UP);
+    private static final MathContext OVER_CONTEXT = new MathContext(100_001, RoundingMode.HALF_UP);
+
+    @Test
+    void contextPrecisionIsBoundedOnEveryPath() throws Exception {
+        assertDecimalRoundTrip(new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.ABSOLUTE, MAX_CONTEXT));
+        assertEquals(MAX_CONTEXT, ((TestLengthDecimalImpl) deserialize(serialize(
+                decimalProxy(new byte[] {1}, 0, 100_000, "HALF_UP")))).mathContext());
+        assertInvalid("invalid quantity: precision out of range: 100001",
+                decimalProxy(new byte[] {1}, 0, 100_001, "HALF_UP"));
+        assertInvalid("invalid quantity: precision out of range: 2147483647",
+                decimalProxy(QuantityProxy.UNTYPED_DECIMAL, UNTYPED, METRE, new byte[] {1}, 0, Integer.MAX_VALUE, "UP"));
+        NotSerializableException w = assertThrows(NotSerializableException.class,
+                () -> QuantityProxy.ofDecimal(Length.class, METRE, Quantity.Scale.ABSOLUTE, BigDecimal.ONE, OVER_CONTEXT));
+        assertEquals("invalid quantity: precision out of range: 100001", w.getMessage());
+        ArithmeticException e = assertThrows(ArithmeticException.class,
+                () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.ABSOLUTE, OVER_CONTEXT));
+        assertEquals("precision out of range: 100001", e.getMessage());
+        e = assertThrows(ArithmeticException.class,
+                () -> UntypedDecimalQuantity.of(BigDecimal.ONE, METRE, new MathContext(Integer.MAX_VALUE)));
+        assertEquals("precision out of range: 2147483647", e.getMessage());
+        e = assertThrows(ArithmeticException.class, () -> new TestLengthImpl(1.5, METRE).toDecimal(OVER_CONTEXT));
+        assertEquals("precision out of range: 100001", e.getMessage());
+        e = assertThrows(ArithmeticException.class,
+                () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).toDecimal(OVER_CONTEXT));
+        assertEquals("precision out of range: 100001", e.getMessage());
+        assertEquals(MAX_CONTEXT, ((TestLengthDecimalImpl) new TestLengthImpl(1.5, METRE).toDecimal(MAX_CONTEXT)).mathContext());
+    }
+
+    @Test
+    void boundsAreCheckedBeforeTheFactoryCreates() {
+        int[] calls = {0};
+        TestServiceProvider.FACTORIES.put(Speed.class, new FailingFactory() {
+            @Override
+            public Quantity<Speed> create(Number value, Unit<Speed> unit, Quantity.Scale scale) {
+                calls[0]++;
+                return TestSpeedDecimalImpl.FACTORY.create(value, unit, scale);
+            }
+        });
+        try {
+            String speed = Speed.class.getName();
+            assertInvalid("invalid quantity: precision out of range: 100001",
+                    decimalProxy("decimal", speed, KMH, new byte[] {1}, 0, 100_001, "UP"));
+            assertInvalid("invalid quantity: scale out of range: 100001",
+                    decimalProxy("decimal", speed, KMH, new byte[] {1}, 100_001, 7, "UP"));
+            assertEquals(0, calls[0]);
+        } finally {
+            TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
+        }
+    }
+
+    @Test
+    void arithmeticAtTheMaximumPrecisionIsBounded() {
+        TestLengthDecimalImpl q = new TestLengthDecimalImpl(new BigDecimal("1.5"), METRE, Quantity.Scale.ABSOLUTE,
+                MAX_CONTEXT);
+        UomUnit<Length> foot = METRE.multiply(new BigDecimal("0.3048"));
+        assertTimeoutPreemptively(Duration.ofSeconds(30), () -> {
+            assertEquals(new BigDecimal("2.25"), q.multiply(1.5).getValue());
+            assertEquals(100_000, ((BigDecimal) q.divide(7).getValue()).precision());
+            assertEquals(new BigDecimal("0.0015"), q.to(KILOMETRE).getValue());
+            assertEquals(100_000, ((BigDecimal) q.to(foot).getValue()).precision());
+            UomUnit<Length> piMetre = UomUnit.unchecked(METRE.scaledBy(org.tinygears.uom.core.Factor.PI));
+            assertEquals(100_000, ((BigDecimal) q.to(piMetre).getValue()).precision());
+            assertEquals(1, q.compareTo(new TestLengthDecimalImpl(BigDecimal.ONE, piMetre.multiply(new BigDecimal("0.4")),
+                    Quantity.Scale.ABSOLUTE, MAX_CONTEXT)));
+        });
+    }
+
+    /** A factory whose system unit is null or foreign, or whose create throws without a message. */
+    static final class OddFactory extends FailingFactory {
+        private final Unit<Speed> system;
+
+        OddFactory(Unit<Speed> system) {
+            this.system = system;
+        }
+
+        @Override
+        public Quantity<Speed> create(Number value, Unit<Speed> unit, Quantity.Scale scale) {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public Unit<Speed> getSystemUnit() {
+            return system;
+        }
+    }
+
+    @Test
+    void unexpectedFactoriesGetPreciseMessages() {
+        TestSpeedImpl q = new TestSpeedImpl(1.0, KMH, Quantity.Scale.ABSOLUTE);
+        @SuppressWarnings("unchecked")
+        Unit<Speed> foreign = (Unit<Speed>) java.lang.reflect.Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class<?>[] {Unit.class}, (p, m, a) -> null);
+        try {
+            TestServiceProvider.FACTORIES.put(Speed.class, new OddFactory(null));
+            InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> roundTrip(q));
+            assertEquals("invalid quantity: factory for javax.measure.quantity.Speed has no system unit", e.getMessage());
+            TestServiceProvider.FACTORIES.put(Speed.class, new OddFactory(foreign));
+            e = assertThrows(InvalidObjectException.class, () -> roundTrip(q));
+            assertEquals("invalid quantity: factory for javax.measure.quantity.Speed has a foreign system unit",
+                    e.getMessage());
+            TestServiceProvider.FACTORIES.put(Speed.class, new OddFactory(TestSpeedImpl.FACTORY.getSystemUnit()));
+            e = assertThrows(InvalidObjectException.class, () -> roundTrip(q));
+            assertEquals("invalid quantity: java.lang.IllegalStateException", e.getMessage());
+            assertTrue(e.getCause() instanceof IllegalStateException);
+        } finally {
+            TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
+        }
+    }
+
     /** Throws from create; its system unit is m/s. */
     static class FailingFactory implements QuantityFactory<Speed> {
         @Override

@@ -41,7 +41,10 @@ public interface Angle extends javax.measure.quantity.Angle,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     Angle toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     Angle toDecimal(MathContext mc);
 
     static Angle of(double value, Unit<javax.measure.quantity.Angle> unit) {
@@ -64,7 +67,10 @@ public interface Angle extends javax.measure.quantity.Angle,
         return AngleFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit,
             Quantity.Scale scale, MathContext mc) {
         return AngleFactory.INSTANCE.of(value, unit, scale, mc);

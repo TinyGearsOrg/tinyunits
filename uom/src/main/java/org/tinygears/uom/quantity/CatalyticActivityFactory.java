@@ -49,7 +49,10 @@ public final class CatalyticActivityFactory
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     public CatalyticActivity of(BigDecimal value, Unit<javax.measure.quantity.CatalyticActivity> unit,
             Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");

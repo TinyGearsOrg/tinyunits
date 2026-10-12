@@ -41,7 +41,10 @@ public interface Length extends javax.measure.quantity.Length,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     Length toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     Length toDecimal(MathContext mc);
 
     static Length of(double value, Unit<javax.measure.quantity.Length> unit) {
@@ -64,7 +67,10 @@ public interface Length extends javax.measure.quantity.Length,
         return LengthFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit,
             Quantity.Scale scale, MathContext mc) {
         return LengthFactory.INSTANCE.of(value, unit, scale, mc);

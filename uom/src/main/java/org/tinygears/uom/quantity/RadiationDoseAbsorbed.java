@@ -41,7 +41,10 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     RadiationDoseAbsorbed toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     RadiationDoseAbsorbed toDecimal(MathContext mc);
 
     static RadiationDoseAbsorbed of(double value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
@@ -64,7 +67,10 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static RadiationDoseAbsorbed of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
             Quantity.Scale scale, MathContext mc) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale, mc);

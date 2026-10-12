@@ -41,7 +41,10 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     LuminousIntensity toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     LuminousIntensity toDecimal(MathContext mc);
 
     static LuminousIntensity of(double value, Unit<javax.measure.quantity.LuminousIntensity> unit) {
@@ -64,7 +67,10 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static LuminousIntensity of(BigDecimal value, Unit<javax.measure.quantity.LuminousIntensity> unit,
             Quantity.Scale scale, MathContext mc) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale, mc);

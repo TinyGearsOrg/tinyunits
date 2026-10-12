@@ -2,6 +2,7 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -9,6 +10,9 @@ import org.tinygears.uom.core.UomUnit;
 
 /** A quantity of no standard type: a product, quotient or inverse, or a parsed value in an untyped unit. */
 public final class UntypedDoubleQuantity extends AbstractDoubleQuantity<Untyped, Untyped> implements Untyped {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     UntypedDoubleQuantity(double value, UomUnit<Untyped> unit, Quantity.Scale scale) {
         super(value, unit, scale);

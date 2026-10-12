@@ -15,6 +15,9 @@ final class Precision {
     /** Largest absolute scale accepted for a {@link BigDecimal} quantity value. */
     static final int MAX_SCALE = 100_000;
 
+    /** Largest context precision; a result needing more digits would fail the scale bound anyway. */
+    static final int MAX_PRECISION = 100_000;
+
     enum Kind { EXACT, DOUBLE, DECIMAL }
 
     private Precision() {
@@ -73,6 +76,13 @@ final class Precision {
             throw new ArithmeticException("scale out of range: " + v.scale());
         }
         return v;
+    }
+
+    static MathContext checked(MathContext mc) {
+        if (mc.getPrecision() > MAX_PRECISION) {
+            throw new ArithmeticException("precision out of range: " + mc.getPrecision());
+        }
+        return mc;
     }
 
     /** The lower precision; 0 is unlimited and highest; equal precision keeps {@code a}. */

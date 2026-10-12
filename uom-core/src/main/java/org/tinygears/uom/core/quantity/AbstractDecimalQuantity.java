@@ -26,24 +26,36 @@ import org.tinygears.uom.core.UomUnit;
  * {@link #negate()} keep the value as given. {@link MathContext#UNLIMITED} keeps results exact where they terminate;
  * non-terminating quotients and irrational conversions fall back to {@code DECIMAL128} with {@code HALF_EVEN},
  * whatever the rounding mode. A {@link BigDecimal} operand value or scalar whose scale exceeds ±100000 throws
- * {@link ArithmeticException}. Immutable. Serializable through a proxy that the current provider's factory reads
- * back with the exact value and context (see {@link #writeReplace()}); the serialized form may change before 1.0.
+ * {@link ArithmeticException}, as does a {@link MathContext} precision over 100000 (at construction, so in
+ * {@link #toDecimal(MathContext)} and every factory taking a context). Immutable.
+ * <p>
+ * Serializable through a proxy (see {@link #writeReplace()}); the serialized form may change before 1.0. Reading
+ * rebuilds the quantity through the factory of the provider current at read time, then restores the exact value,
+ * scale and context: a user subclass, or a quantity read under another top-priority provider, comes back as that
+ * provider's class (so it no longer equals the original), and a provider without factories for the standard types
+ * makes typed reads fail.
  */
 public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
         implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final BigDecimal value;
     private final UomUnit<Q> unit;
     private final Quantity.Scale scale;
     private final MathContext mathContext;
 
-    /** Throws {@link ArithmeticException} if the scale of {@code value} exceeds 100000 in magnitude. */
+    /**
+     * Throws {@link ArithmeticException} if the scale of {@code value} exceeds 100000 in magnitude or the precision
+     * of {@code mathContext} exceeds 100000.
+     */
     protected AbstractDecimalQuantity(BigDecimal value, UomUnit<Q> unit, Quantity.Scale scale,
             MathContext mathContext) {
         this.value = Precision.checked(Objects.requireNonNull(value, "value"));
         this.unit = Objects.requireNonNull(unit, "unit");
         this.scale = Objects.requireNonNull(scale, "scale");
-        this.mathContext = Objects.requireNonNull(mathContext, "mathContext");
+        this.mathContext = Precision.checked(Objects.requireNonNull(mathContext, "mathContext"));
     }
 
     protected abstract R create(BigDecimal value, UomUnit<Q> unit, Quantity.Scale scale, MathContext mc);
@@ -117,7 +129,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     /**
      * The same quantity with its value rounded to {@code mc}, which becomes its context. Throws
      * {@link ArithmeticException} if the result's scale exceeds the bound of ±100000 (conversion or rounding can
-     * push a value past it).
+     * push a value past it) or the precision of {@code mc} exceeds 100000.
      */
     public R toDecimal(MathContext mc) {
         return create(value.round(mc), unit, scale, mc);

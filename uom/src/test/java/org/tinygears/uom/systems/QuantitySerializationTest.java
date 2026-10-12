@@ -273,6 +273,45 @@ class QuantitySerializationTest {
         assertEquals("invalid quantity: unknown scale RELATIVE?", e.getMessage());
     }
 
+    @Test
+    void forgedAlternateAtomIsRejectedWhetherOrNotTheCatalogIsLoaded() throws Exception {
+        // A kHz whose Hz atom is defined as rad/s: same dimension, a different definition than the registered Hz.
+        UomUnit<?> fake = SI.RADIAN.divide(SI.SECOND).alternate("Hzx").multiply(1000);
+        byte[] bytes = replaceAll(QuantityCheck.write(create(javax.measure.quantity.Frequency.class, 50.0, fake,
+                Quantity.Scale.ABSOLUTE)), "Hzx", "Hz");
+        Path file = Files.createTempFile("forged", ".ser");
+        try {
+            Files.write(file, bytes);
+            String expected = "rejected invalid unit atom: symbol Hz is already associated to a different unit";
+            for (String touchFirst : List.of("false", "true")) {
+                String out = run(List.of(JAVA, "-XX:-UsePerfData", "-cp", System.getProperty("java.class.path"),
+                        QuantityCheck.class.getName(), "forged", file.toString(), touchFirst));
+                assertEquals(expected, out.strip(), "SI touched first: " + touchFirst);
+            }
+            InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> QuantityCheck.read(bytes));
+            assertEquals(expected.substring("rejected ".length()), e.getMessage());
+        } finally {
+            Files.deleteIfExists(file);
+        }
+    }
+
+    private static byte[] replaceAll(byte[] bytes, String from, String to) {
+        byte[] out = bytes;
+        while (indexOf(out, utf(from)) >= 0) {
+            out = replaceString(out, from, to);
+        }
+        return out;
+    }
+
+    private static int indexOf(byte[] bytes, byte[] part) {
+        for (int i = 0; i + part.length <= bytes.length; i++) {
+            if (Arrays.equals(bytes, i, i + part.length, part, 0, part.length)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /** {@code bytes} with the modified-UTF string {@code from} replaced by {@code to}, length prefix included. */
     private static byte[] replaceString(byte[] bytes, String from, String to) {
         byte[] f = utf(from);

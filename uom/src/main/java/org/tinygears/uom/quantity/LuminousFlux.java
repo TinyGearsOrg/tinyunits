@@ -41,7 +41,10 @@ public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     LuminousFlux toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     LuminousFlux toDecimal(MathContext mc);
 
     static LuminousFlux of(double value, Unit<javax.measure.quantity.LuminousFlux> unit) {
@@ -64,7 +67,10 @@ public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static LuminousFlux of(BigDecimal value, Unit<javax.measure.quantity.LuminousFlux> unit,
             Quantity.Scale scale, MathContext mc) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale, mc);

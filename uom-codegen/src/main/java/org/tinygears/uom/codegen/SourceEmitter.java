@@ -54,7 +54,10 @@ public final class SourceEmitter {
                 /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
                 $T toDouble();
 
-                /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+                /**
+                 * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+                 * 100000 throws ArithmeticException.
+                 */
                 $T toDecimal(java.math.MathContext mc);
 
                 static $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
@@ -77,7 +80,10 @@ public final class SourceEmitter {
                     return $TFactory.INSTANCE.of(value, unit, scale);
                 }
 
-                /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+                /**
+                 * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+                 * 100000 throws ArithmeticException.
+                 */
                 static $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
                     return $TFactory.INSTANCE.of(value, unit, scale, mc);
@@ -185,7 +191,10 @@ public final class SourceEmitter {
                     return of(value, unit, scale, java.math.MathContext.DECIMAL128);
                 }
 
-                /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+                /**
+                 * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+                 * 100000 throws ArithmeticException.
+                 */
                 public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
                     java.util.Objects.requireNonNull(value, "value");

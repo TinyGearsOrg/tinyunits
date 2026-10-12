@@ -95,6 +95,8 @@ final class QuantityProxy implements Serializable {
     private transient int decimalScale;
     private transient int precision;
     private transient String roundingMode;
+    private transient Class<?> typeClass;
+    private transient QuantityFactory<?> factory;
 
     QuantityProxy(String kind, String type, UomUnit<?> unit, String scale, long bits, byte[] unscaled,
             int decimalScale, int precision, String roundingMode) {
@@ -122,6 +124,9 @@ final class QuantityProxy implements Serializable {
         byte[] b = value.unscaledValue().toByteArray();
         if (b.length > MAX_VALUE_BYTES) {
             throw new NotSerializableException(VALUE_TOO_LARGE);
+        }
+        if (mc.getPrecision() > Precision.MAX_PRECISION) {
+            throw new NotSerializableException("invalid quantity: precision out of range: " + mc.getPrecision());
         }
         return new QuantityProxy(type == Untyped.class ? UNTYPED_DECIMAL : DECIMAL, name, unit, scale.name(), 0, b,
                 value.scale(), mc.getPrecision(), mc.getRoundingMode().name());
@@ -170,6 +175,11 @@ final class QuantityProxy implements Serializable {
             throw invalid("unknown kind " + kind);
         }
         type = read(in, String.class);
+        typeClass = typeClass();
+        if (typeClass != Untyped.class) {
+            // Before the unit: the factory may register the type's alternate atoms, whatever was loaded before.
+            factory = factory();
+        }
         unit = read(in, UomUnit.class);
         scale = read(in, String.class);
         if (isDecimal(kind)) {
@@ -203,31 +213,37 @@ final class QuantityProxy implements Serializable {
     @Serial
     private Object readResolve() throws InvalidObjectException {
         try {
-            if (type == null) {
-                throw invalid("null type");
-            }
-            Class<?> t = TYPES.get(type);
-            if (t == null) {
-                throw invalid("unknown type " + type);
-            }
-            boolean untyped = UNTYPED_DOUBLE.equals(kind) || UNTYPED_DECIMAL.equals(kind);
-            if (untyped != (t == Untyped.class)) {
-                throw invalid("kind " + kind + " does not match type " + type);
-            }
+            boolean untyped = typeClass == Untyped.class;
             if (unit == null) {
                 throw invalid("null unit");
             }
             Quantity.Scale s = scale();
             if (!isDecimal(kind)) {
                 double v = Double.longBitsToDouble(bits);
-                return untyped ? new UntypedDoubleQuantity(v, UomUnit.unchecked(unit), s) : typed(t, v, s, null);
+                return untyped ? new UntypedDoubleQuantity(v, UomUnit.unchecked(unit), s) : typed(v, s, null);
             }
             BigDecimal v = decimal();
             MathContext mc = mathContext();
-            return untyped ? new UntypedDecimalQuantity(v, UomUnit.unchecked(unit), s, mc) : typed(t, v, s, mc);
+            return untyped ? new UntypedDecimalQuantity(v, UomUnit.unchecked(unit), s, mc) : typed(v, s, mc);
         } catch (RuntimeException e) {
-            throw invalid(e.getMessage(), e);
+            throw invalid(e);
         }
+    }
+
+    /** The type named by the stream, checked against the kind. */
+    private Class<?> typeClass() throws InvalidObjectException {
+        if (type == null) {
+            throw invalid("null type");
+        }
+        Class<?> t = TYPES.get(type);
+        if (t == null) {
+            throw invalid("unknown type " + type);
+        }
+        boolean untyped = UNTYPED_DOUBLE.equals(kind) || UNTYPED_DECIMAL.equals(kind);
+        if (untyped != (t == Untyped.class)) {
+            throw invalid("kind " + kind + " does not match type " + type);
+        }
+        return t;
     }
 
     private Quantity.Scale scale() throws InvalidObjectException {
@@ -256,6 +272,9 @@ final class QuantityProxy implements Serializable {
         if (precision < 0) {
             throw invalid("negative precision " + precision);
         }
+        if (precision > Precision.MAX_PRECISION) {
+            throw invalid("precision out of range: " + precision);
+        }
         if (roundingMode == null) {
             throw invalid("null rounding mode");
         }
@@ -268,10 +287,15 @@ final class QuantityProxy implements Serializable {
     }
 
     /** The provider's quantity re-created with exactly this value, scale and context ({@code null} for double). */
-    private Object typed(Class<?> t, Number value, Quantity.Scale s, MathContext mc) throws InvalidObjectException {
-        QuantityFactory<?> factory = factory(t);
+    private Object typed(Number value, Quantity.Scale s, MathContext mc) throws InvalidObjectException {
         Unit<?> system = factory.getSystemUnit();
-        if (system == null || !unit.getDimension().equals(system.getDimension())) {
+        if (system == null) {
+            throw invalid("factory for " + type + " has no system unit");
+        }
+        if (!(system instanceof UomUnit<?>)) {
+            throw invalid("factory for " + type + " has a foreign system unit");
+        }
+        if (!unit.getDimension().equals(((UomUnit<?>) system).getDimension())) {
             throw invalid("unit " + unit + " of dimension " + unit.getDimension() + " does not measure " + type);
         }
         Quantity<?> q = create(factory, value, s);
@@ -285,11 +309,17 @@ final class QuantityProxy implements Serializable {
                 + ", not a " + kind + " quantity of this implementation");
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"}) // t is one of the quantity interfaces
-    private QuantityFactory<?> factory(Class<?> t) throws InvalidObjectException {
+    @SuppressWarnings({"unchecked", "rawtypes"}) // typeClass is one of the quantity interfaces
+    private QuantityFactory<?> factory() throws InvalidObjectException {
+        ServiceProvider provider;
+        try {
+            provider = ServiceProvider.current();
+        } catch (RuntimeException e) {
+            throw invalid(e);
+        }
         QuantityFactory<?> f;
         try {
-            f = ServiceProvider.current().getQuantityFactory((Class) t);
+            f = provider.getQuantityFactory((Class) typeClass);
         } catch (IllegalArgumentException | UnsupportedOperationException e) {
             throw invalid("no quantity factory for " + type, e);
         }
@@ -310,5 +340,10 @@ final class QuantityProxy implements Serializable {
 
     private static InvalidObjectException invalid(String message, Exception cause) {
         return new InvalidObjectException("invalid quantity: " + message, cause);
+    }
+
+    /** Wraps an unexpected failure; one without a message is named by its class. */
+    private static InvalidObjectException invalid(RuntimeException e) {
+        return invalid(e.getMessage() != null ? e.getMessage() : e.getClass().getName(), e);
     }
 }

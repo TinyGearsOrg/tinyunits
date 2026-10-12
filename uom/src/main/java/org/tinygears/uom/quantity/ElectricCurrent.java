@@ -41,7 +41,10 @@ public interface ElectricCurrent extends javax.measure.quantity.ElectricCurrent,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     ElectricCurrent toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     ElectricCurrent toDecimal(MathContext mc);
 
     static ElectricCurrent of(double value, Unit<javax.measure.quantity.ElectricCurrent> unit) {
@@ -64,7 +67,10 @@ public interface ElectricCurrent extends javax.measure.quantity.ElectricCurrent,
         return ElectricCurrentFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static ElectricCurrent of(BigDecimal value, Unit<javax.measure.quantity.ElectricCurrent> unit,
             Quantity.Scale scale, MathContext mc) {
         return ElectricCurrentFactory.INSTANCE.of(value, unit, scale, mc);

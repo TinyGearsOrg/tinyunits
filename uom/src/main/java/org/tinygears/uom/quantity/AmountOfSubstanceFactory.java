@@ -49,7 +49,10 @@ public final class AmountOfSubstanceFactory
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     public AmountOfSubstance of(BigDecimal value, Unit<javax.measure.quantity.AmountOfSubstance> unit,
             Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");

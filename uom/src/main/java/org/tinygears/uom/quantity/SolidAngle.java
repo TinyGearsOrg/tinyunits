@@ -41,7 +41,10 @@ public interface SolidAngle extends javax.measure.quantity.SolidAngle,
     /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
     SolidAngle toDouble();
 
-    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    /**
+     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
+     * 100000 throws ArithmeticException.
+     */
     SolidAngle toDecimal(MathContext mc);
 
     static SolidAngle of(double value, Unit<javax.measure.quantity.SolidAngle> unit) {
@@ -64,7 +67,10 @@ public interface SolidAngle extends javax.measure.quantity.SolidAngle,
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
+     * 100000 throws ArithmeticException.
+     */
     static SolidAngle of(BigDecimal value, Unit<javax.measure.quantity.SolidAngle> unit,
             Quantity.Scale scale, MathContext mc) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale, mc);

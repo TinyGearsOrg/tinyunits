@@ -164,7 +164,9 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     `BigDecimal` operand value or scalar (`ArithmeticException`, before any arithmetic); products and quotients whose
     scale passes the bound throw, zeros included. Zero offsets are skipped, so a result may have a different scale
     than before (`toString` and `scale()` only). Exact conversions do not align far-apart scales (`AffineConverter`),
-    so absurd scales stay fast.
+    so absurd scales stay fast. Likewise the precision of a decimal quantity's `MathContext` is limited to 100_000
+    (`ArithmeticException` at construction, so in `toDecimal(mc)` and every factory taking a context; a serialized
+    form beyond it is an `InvalidObjectException`): a result needing more digits would fail the scale bound anyway.
   - **Explicit conversions (D10).** `toDouble()` throws `ArithmeticException` for a value outside the `double` range;
     `toDecimal(mc)` rounds to `mc`, on both implementations. `asType` keeps the receiver's `MathContext` and never changes
     the value.
