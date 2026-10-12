@@ -111,11 +111,10 @@ public final class SourceEmitter {
             """;
 
     private static final String REGISTRY = """
-            /** The quantity factories of the generated types. */
+            /** The quantity factories of the generated types; each factory initialises only when its type is requested. */
             public final class QuantityTypes {
-                private static final java.util.Map<Class<?>, javax.measure.spi.QuantityFactory<?>> FACTORIES =
-                        java.util.Map.ofEntries(
-            $E);
+                private static final java.util.Set<Class<?>> TYPES = java.util.Set.of(
+            $S);
 
                 private QuantityTypes() {
                 }
@@ -123,15 +122,12 @@ public final class SourceEmitter {
                 @SuppressWarnings("unchecked")
                 public static <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> factory(
                         Class<Q> type) {
-                    javax.measure.spi.QuantityFactory<?> f = FACTORIES.get(type);
-                    if (f == null) {
-                        throw new IllegalArgumentException("no quantity factory for " + type.getName());
-                    }
-                    return (javax.measure.spi.QuantityFactory<Q>) f;
+                    java.util.Objects.requireNonNull(type, "type");
+            $F        throw new IllegalArgumentException("no quantity factory for " + type.getName());
                 }
 
                 public static java.util.Set<Class<?>> types() {
-                    return FACTORIES.keySet();
+                    return TYPES;
                 }
             }
             """;
@@ -162,10 +158,14 @@ public final class SourceEmitter {
     }
 
     public static String registry(List<QuantityTypeSpec> specs) {
-        String entries = specs.stream()
-                .map(s -> "                java.util.Map.entry(javax.measure.quantity." + s.name() + ".class, "
-                        + s.name() + "Factory.INSTANCE)")
+        String types = specs.stream()
+                .map(s -> "            javax.measure.quantity." + s.name() + ".class")
                 .collect(Collectors.joining(",\n"));
-        return HEADER + REGISTRY.replace("$E", entries);
+        String branches = specs.stream()
+                .map(s -> "        if (type == javax.measure.quantity." + s.name() + ".class) {\n"
+                        + "            return (javax.measure.spi.QuantityFactory<Q>) " + s.name() + "Factory.INSTANCE;\n"
+                        + "        }\n")
+                .collect(Collectors.joining());
+        return HEADER + REGISTRY.replace("$S", types).replace("$F", branches);
     }
 }

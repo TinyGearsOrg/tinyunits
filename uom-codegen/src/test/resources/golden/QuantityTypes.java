@@ -3,12 +3,11 @@
 
 package org.tinygears.uom.quantity;
 
-/** The quantity factories of the generated types. */
+/** The quantity factories of the generated types; each factory initialises only when its type is requested. */
 public final class QuantityTypes {
-    private static final java.util.Map<Class<?>, javax.measure.spi.QuantityFactory<?>> FACTORIES =
-            java.util.Map.ofEntries(
-                java.util.Map.entry(javax.measure.quantity.Length.class, LengthFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Speed.class, SpeedFactory.INSTANCE));
+    private static final java.util.Set<Class<?>> TYPES = java.util.Set.of(
+            javax.measure.quantity.Length.class,
+            javax.measure.quantity.Speed.class);
 
     private QuantityTypes() {
     }
@@ -16,14 +15,17 @@ public final class QuantityTypes {
     @SuppressWarnings("unchecked")
     public static <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> factory(
             Class<Q> type) {
-        javax.measure.spi.QuantityFactory<?> f = FACTORIES.get(type);
-        if (f == null) {
-            throw new IllegalArgumentException("no quantity factory for " + type.getName());
+        java.util.Objects.requireNonNull(type, "type");
+        if (type == javax.measure.quantity.Length.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) LengthFactory.INSTANCE;
         }
-        return (javax.measure.spi.QuantityFactory<Q>) f;
+        if (type == javax.measure.quantity.Speed.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) SpeedFactory.INSTANCE;
+        }
+        throw new IllegalArgumentException("no quantity factory for " + type.getName());
     }
 
     public static java.util.Set<Class<?>> types() {
-        return FACTORIES.keySet();
+        return TYPES;
     }
 }

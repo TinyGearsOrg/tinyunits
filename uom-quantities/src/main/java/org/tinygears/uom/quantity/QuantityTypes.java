@@ -3,20 +3,19 @@
 
 package org.tinygears.uom.quantity;
 
-/** The quantity factories of the generated types. */
+/** The quantity factories of the generated types; each factory initialises only when its type is requested. */
 public final class QuantityTypes {
-    private static final java.util.Map<Class<?>, javax.measure.spi.QuantityFactory<?>> FACTORIES =
-            java.util.Map.ofEntries(
-                java.util.Map.entry(javax.measure.quantity.Length.class, LengthFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Mass.class, MassFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Time.class, TimeFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Temperature.class, TemperatureFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Area.class, AreaFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Speed.class, SpeedFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Frequency.class, FrequencyFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Radioactivity.class, RadioactivityFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Energy.class, EnergyFactory.INSTANCE),
-                java.util.Map.entry(javax.measure.quantity.Dimensionless.class, DimensionlessFactory.INSTANCE));
+    private static final java.util.Set<Class<?>> TYPES = java.util.Set.of(
+            javax.measure.quantity.Length.class,
+            javax.measure.quantity.Mass.class,
+            javax.measure.quantity.Time.class,
+            javax.measure.quantity.Temperature.class,
+            javax.measure.quantity.Area.class,
+            javax.measure.quantity.Speed.class,
+            javax.measure.quantity.Frequency.class,
+            javax.measure.quantity.Radioactivity.class,
+            javax.measure.quantity.Energy.class,
+            javax.measure.quantity.Dimensionless.class);
 
     private QuantityTypes() {
     }
@@ -24,14 +23,41 @@ public final class QuantityTypes {
     @SuppressWarnings("unchecked")
     public static <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> factory(
             Class<Q> type) {
-        javax.measure.spi.QuantityFactory<?> f = FACTORIES.get(type);
-        if (f == null) {
-            throw new IllegalArgumentException("no quantity factory for " + type.getName());
+        java.util.Objects.requireNonNull(type, "type");
+        if (type == javax.measure.quantity.Length.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) LengthFactory.INSTANCE;
         }
-        return (javax.measure.spi.QuantityFactory<Q>) f;
+        if (type == javax.measure.quantity.Mass.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) MassFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Time.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) TimeFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Temperature.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) TemperatureFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Area.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) AreaFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Speed.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) SpeedFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Frequency.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) FrequencyFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Radioactivity.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) RadioactivityFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Energy.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) EnergyFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Dimensionless.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) DimensionlessFactory.INSTANCE;
+        }
+        throw new IllegalArgumentException("no quantity factory for " + type.getName());
     }
 
     public static java.util.Set<Class<?>> types() {
-        return FACTORIES.keySet();
+        return TYPES;
     }
 }
