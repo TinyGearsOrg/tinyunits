@@ -53,8 +53,15 @@ Unchanged, tracked with options in `docs/TODO.md`; decimal quantities follow the
   (documented in the class Javadoc and DESIGN section 4).
 - The double-operand path in `AbstractDecimalQuantity` casts the `createDouble` result to the typed interface without a check
   (unchecked cast); it relies on the generated `XDecimal.createDouble` returning the matching `XDouble`.
-- Cost of decimal arithmetic is linear in the digit count of the operands (exact single-rounding formulation); a value with
-  100000 digits is slow but bounded.
+- Cost of decimal arithmetic with exact factors is linear in the digit count of the operands (exact single-rounding
+  formulation); a value with 100000 digits is slow but bounded. Only the scale is bounded (D9), not the precision.
+- Open (final review): arithmetic with irrational factors (pi, for example degree and radian) computes pi to the operands'
+  digit count (guard digits grow with precision, Machin series, O(n^2)): `deg.add(rad)` takes 0.15 s at 1k digits, 3.3 s at
+  6k, more than 30 s at 20k; `compareTo` 24 s at 20k digits. A scale-valid `BigDecimal` can therefore still stall angle
+  arithmetic. Fix by bounding the precision of operands, or capping the guard digits and documenting best effort beyond.
+- Task 1 concerns, for the record: the converter's sticky digit needed a second limit (below the larger term's last digit)
+  beyond the brief, justified by a counterexample; exact conversion results keep the scale they had before (`1E+6` m in km
+  prints `1000`, not `1E+3`).
 - `asType` applies the receiver's `MathContext` only when the factory returns a decimal quantity (re-created through `create`);
   any other factory result is returned as is (D10).
 - `toDecimal(MathContext)` on a `double` quantity rounds to the given context (same as on the decimal side); `toDecimal` rounding
