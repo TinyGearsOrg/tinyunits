@@ -1,4 +1,4 @@
-# tinyunits: Requirements
+# uom: Requirements
 
 Status: draft for review. Nothing here is implemented; the code currently in the repository is a
 throwaway sketch of the annotation-processor idea and will be replaced.
@@ -13,7 +13,7 @@ differs from existing implementations (e.g. Indriya) in two ways:
    standard interfaces, not just `Quantity<Length>` instances of one generic class.
 2. **Multiple unit systems** with conversion between them, as a first-class feature.
 
-Success means a developer can use tinyunits wherever JSR-385 code is expected, gets typed values
+Success means a developer can use uom wherever JSR-385 code is expected, gets typed values
 and catalogs for SI, Imperial/US customary and CGS units, and has no runtime reflection or
 dynamic proxies in the picture.
 
@@ -73,17 +73,17 @@ dynamic proxies in the picture.
 | N5 | **Diagnostics:** the processor reports misuse as compile errors attached to the offending element (wrong shape of annotated type, duplicate names, unknown dimension). |
 | N6 | **Testing:** unit tests per module, a processor test that compiles sample inputs and asserts on diagnostics and generated behaviour, and a property-style round-trip test over every catalog unit (convert to the system unit and back within tolerance). |
 | N7 | **Documentation:** README with a five-minute example, a guide for defining custom quantities, and a table of catalog units with their systems. |
-| N8 | **Release:** versioned releases on Maven Central under a stable group id, semantic versioning, a public API definition (what is stable) in the docs. |
+| N8 | **Release:** versioned releases on Maven Central as `org.tinygears:uom-*`, semantic versioning, a public API definition (what is stable) in the docs. |
 
 ## 5. Proposed module layout (for discussion, to be settled in the design)
 
 | Module | Contents |
 |--------|----------|
-| `tinyunits-api` | Our own annotations and shared types not covered by JSR-385 |
-| `tinyunits-core` | Units, converters, dimensions, prefixes, parser, formatter, unit-system service |
-| `tinyunits-processor` | The annotation processor (build time) |
-| `tinyunits-quantities` | Standard typed quantity types with generated implementations (double and BigDecimal) |
-| `tinyunits-systems` | Unit catalogs: SI, Imperial/US customary, CGS, CGS electromagnetic |
+| `uom-api` | Our own annotations and shared types not covered by JSR-385 |
+| `uom-core` | Units, converters, dimensions, prefixes, parser, formatter, unit-system service |
+| `uom-processor` | The annotation processor (build time) |
+| `uom-quantities` | Standard typed quantity types with generated implementations (double and BigDecimal) |
+| `uom-systems` | Unit catalogs: SI, Imperial/US customary, CGS, CGS electromagnetic |
 
 ## 6. Open questions
 
@@ -100,8 +100,9 @@ dynamic proxies in the picture.
    units) from which the catalogs are generated at build time? Hundreds of units favour a data
    file.
 6. ~~**Java baseline.**~~ Resolved: Java 21.
-7. **Group id and naming.** Final Maven group id, package prefix and artifact names for the
-   Central release.
+7. ~~**Group id and naming.**~~ Resolved: group id `org.tinygears`, project name `uom`, artifacts
+   `uom-*`. The Java package prefix `org.tinygears.uom` is assumed. The GitHub repository is still
+   named `tinyunits`.
 
 ## 7. Risks
 
@@ -122,7 +123,7 @@ dynamic proxies in the picture.
 
 1. A user can write `@QuantityType`-style annotated interfaces, build with Maven, and get typed
    `double` and `BigDecimal` quantities with no manual implementation.
-2. Typed quantities from tinyunits are accepted by generic JSR-385 code, and the conformance
+2. Typed quantities from uom are accepted by generic JSR-385 code, and the conformance
    tests (N1) pass.
 3. All four unit systems in F6 are available as catalogs, with the round-trip test (N6)
    passing for every unit.
