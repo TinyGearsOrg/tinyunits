@@ -42,6 +42,13 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
   Reject in the parser or document it.
 - `UomUnitFormat.format` refuses units of other JSR-385 implementations (ruled: keep, because `UomUnit.equals` needs
   `UomUnit`), so `UomQuantityFormat.format` throws for foreign quantities. Decide whether a best-effort symbol is wanted.
+- `ServiceProvider.of(name)` can not find `UomServiceProvider`: unit-api 2.2 takes the name from `@jakarta.inject.Named` or
+  `@javax.inject.Named`, else from the provider's `toString()`; we depend on neither inject API and do not override
+  `toString`. Pick a name and expose it one of the two ways.
+- Prefixed ohm names are `kiloohm` and `megaohm` (prefix name plus unit name); the SI Brochure contracts them to `kilohm` and
+  `megohm`. Decide whether `@prefixed` should apply the SI elisions.
+- Dimensionless quantities format as `5.0 1` (the symbol of `ONE` is `1`), in both `toString` and `UomQuantityFormat`.
+  Decide whether to print `5.0` alone and parse it back.
 - Ruled, kept: `UomServiceProvider.getQuantityFactory` throws `IllegalArgumentException` for an unsupported quantity type,
   because unit-api 2.2 specifies no exception. `getUnitFormat(name, variant)` ignores the variant per the `FormatService`
   Javadoc.
