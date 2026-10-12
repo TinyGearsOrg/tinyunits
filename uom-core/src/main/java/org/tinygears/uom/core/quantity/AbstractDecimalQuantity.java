@@ -208,8 +208,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     /**
      * Returns this quantity if it already is a {@code type}, otherwise one created by the provider's factory; a
      * unit that does not measure {@code type} gives {@link ClassCastException}, a type the provider has no
-     * factory for gives {@link UnsupportedOperationException}. A decimal result gets this context; a factory
-     * result of another kind is returned as is.
+     * factory for gives {@link UnsupportedOperationException}. The value is never changed: a decimal result
+     * carries this value and context, a factory result of another kind is returned as is.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -224,8 +224,13 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
             throw new UnsupportedOperationException("no quantity factory for " + type.getName(), e);
         }
         Quantity<T> q = factory.create(value, unit.asType(type), scale);
-        // toDecimal returns the factory's typed interface, which is a Quantity<T>.
-        return q instanceof AbstractDecimalQuantity<?, ?> d ? (Quantity<T>) d.toDecimal(mathContext) : q;
+        // with returns the factory's typed interface, which is a Quantity<T>.
+        return q instanceof AbstractDecimalQuantity<?, ?> d ? (Quantity<T>) d.with(value, mathContext) : q;
+    }
+
+    /** This quantity's class, unit and scale with the given value and context, unrounded. */
+    private R with(BigDecimal v, MathContext mc) {
+        return create(v, unit, scale, mc);
     }
 
     /** {@code sys(a)·sys(b)} or {@code sys(a)/sys(b)} as one exact quotient, rounded once. */
@@ -253,7 +258,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         UomConverter c = u.toSystemConverter();
         Ratio f = Ratio.of(c.factor(), digits);
         Ratio o = Ratio.of(c.offset(), digits);
-        return new Ratio(v.multiply(f.num).multiply(o.den).add(o.num.multiply(f.den)), f.den.multiply(o.den),
+        return new Ratio(plus(v.multiply(f.num).multiply(o.den), o.num.multiply(f.den)), f.den.multiply(o.den),
                 f.exact && o.exact);
     }
 
@@ -285,9 +290,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         int digits = guardDigits(mc, b);
         Ratio f = Ratio.of(tb.factor().divide(ta.factor()), digits);
         Ratio o = Ratio.of(tb.offset().divide(ta.factor()), digits);
-        BigDecimal term = b.multiply(f.num).multiply(o.den).add(o.num.multiply(f.den));
+        BigDecimal term = plus(b.multiply(f.num).multiply(o.den), o.num.multiply(f.den));
         BigDecimal ad = value.multiply(f.den).multiply(o.den);
-        BigDecimal num = subtract ? ad.subtract(term) : ad.add(term);
+        BigDecimal num = plus(ad, subtract ? term.negate() : term);
         return create(roundOnce(num, f.den.multiply(o.den), mc, f.exact && o.exact), unit, scale, mc);
     }
 
@@ -295,8 +300,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     private R scalar(BigDecimal s, boolean divide) {
         UomConverter ta = unit.toSystemConverter();
         Ratio q = Ratio.of(ta.offset().divide(ta.factor()), guardDigits(mathContext, s));
-        BigDecimal aq = value.multiply(q.den).add(q.num);
-        BigDecimal num = divide ? aq.subtract(q.num.multiply(s)) : aq.multiply(s).subtract(q.num);
+        BigDecimal aq = plus(value.multiply(q.den), q.num);
+        BigDecimal num = divide ? plus(aq, q.num.multiply(s).negate()) : plus(aq.multiply(s), q.num.negate());
         BigDecimal den = divide ? q.den.multiply(s) : q.den;
         return create(roundOnce(num, den, mathContext, q.exact), unit, scale, mathContext);
     }
@@ -310,12 +315,15 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
             try {
                 return num.divide(den);
             } catch (ArithmeticException nonTerminating) {
-                if (den.signum() == 0) {
-                    throw nonTerminating;
-                }
+                // a zero den throws again below
             }
         }
         return num.divide(den, Precision.calculation(mc));
+    }
+
+    /** {@code a + b}, skipping a zero {@code b} so far-apart scales are not aligned. */
+    private static BigDecimal plus(BigDecimal a, BigDecimal b) {
+        return b.signum() == 0 ? a : a.add(b);
     }
 
     /** Digits for approximating an irrational factor: the context's plus both operands', so cancellation shows. */

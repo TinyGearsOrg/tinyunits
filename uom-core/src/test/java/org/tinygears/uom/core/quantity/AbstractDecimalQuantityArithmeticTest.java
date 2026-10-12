@@ -327,6 +327,17 @@ class AbstractDecimalQuantityArithmeticTest {
     }
 
     @Test
+    void zeroOffsetDoesNotAlignScales() {
+        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+            TestLengthDecimalImpl big = q("1e99999", METRE, UNLIMITED);
+            assertEquals("1E+99999 m", big.add(q("0", METRE, UNLIMITED)).toString());
+            assertEquals("1E+99999 m", big.subtract(q("0", METRE, UNLIMITED)).toString());
+            assertEquals("2E+99999 m", big.multiply(2).toString());
+            assertEquals("5E+99998 m", big.divide(2).toString());
+        });
+    }
+
+    @Test
     void irrationalFactorsAreApproximatedBeyondTheContext() {
         UomUnit<Length> piOver180 = UomUnit.unchecked(
                 METRE.scaledBy(Factor.PI.divide(Factor.ofLong(180))));

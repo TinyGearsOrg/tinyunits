@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -21,6 +23,7 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
+import javax.measure.spi.QuantityFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -50,6 +53,7 @@ class UntypedDecimalQuantityTest {
     @AfterAll
     static void removeFactories() {
         TestServiceProvider.FACTORIES.remove(Speed.class);
+        TestServiceProvider.SYSTEM_UNITS.remove(Length.class);
     }
 
     private static TestLengthDecimalImpl q(String value, UomUnit<Length> unit) {
@@ -61,7 +65,8 @@ class UntypedDecimalQuantityTest {
     }
 
     /** Asserts an untyped decimal result: numerically equal value, unit and context. */
-    private static UntypedDecimalQuantity assertUntyped(String value, Unit<?> unit, MathContext mc, Quantity<?> actual) {
+    private static UntypedDecimalQuantity assertUntyped(String value, Unit<?> unit, MathContext mc,
+            Quantity<?> actual) {
         UntypedDecimalQuantity r = assertInstanceOf(UntypedDecimalQuantity.class, actual);
         assertEquals(0, new BigDecimal(value).compareTo(r.getValue()), () -> value + " vs " + r.getValue());
         assertEquals(unit, r.getUnit());
@@ -120,6 +125,28 @@ class UntypedDecimalQuantityTest {
         assertUntyped("0.33333", METRE.divide(SECOND), five, q("1", METRE, five).divide(foreign(3, SECOND)));
         assertUntyped("0.33333", METRE.divide(SECOND), five,
                 q("1", METRE, five).divide(foreign(new BigDecimal("3"), SECOND)));
+        // Exact values never pass through double.
+        BigInteger big = BigInteger.TEN.pow(400).add(BigInteger.ONE);
+        MathContext unlimited = MathContext.UNLIMITED;
+        assertUntyped(big.toString(), METRE.multiply(METRE), unlimited,
+                q("1", METRE, unlimited).multiply(foreign(big, METRE)));
+        assertUntyped("9007199254740993", METRE.multiply(METRE), DECIMAL128,
+                q("1", METRE).multiply(foreign((1L << 53) + 1, METRE)));
+        String digits39 = "1.23456789012345678901234567890123456789";
+        assertUntyped(digits39, METRE.multiply(METRE), unlimited,
+                q("1", METRE, unlimited).multiply(foreign(new BigDecimal(digits39), METRE)));
+    }
+
+    @Test
+    void zeroOffsetDoesNotAlignScales() {
+        MathContext unlimited = MathContext.UNLIMITED;
+        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
+            Quantity<?> big = q("1e+99999", METRE, unlimited).multiply(q("1", METRE, unlimited));
+            assertEquals("1E+99999 m^2", big.toString());
+            Quantity<?> one = q("1e-99999", METRE, unlimited).multiply(q("1e+99999", METRE, unlimited));
+            assertEquals(1, ((BigDecimal) one.getValue()).precision());
+            assertEquals(1, ((BigDecimal) q("1e+99999", METRE, unlimited).inverse().getValue()).precision());
+        });
     }
 
     @Test
@@ -166,6 +193,42 @@ class UntypedDecimalQuantityTest {
         TestSpeedDecimalImpl typed = assertInstanceOf(TestSpeedDecimalImpl.class, speed);
         assertEquals(five, typed.mathContext());
         assertEquals(new BigDecimal("3.3333"), typed.getValue());
+    }
+
+    @Test
+    void asTypeNeverChangesTheValue() {
+        UntypedDecimalQuantity u =
+                UntypedDecimalQuantity.of(new BigDecimal("1.23456789"), METRE.divide(SECOND), DECIMAL32);
+        TestSpeedDecimalImpl kept = assertInstanceOf(TestSpeedDecimalImpl.class, u.asType(Speed.class));
+        assertEquals(new BigDecimal("1.23456789"), kept.getValue());
+        assertEquals(DECIMAL32, kept.mathContext());
+        // A factory that rounds at creation does not round the receiver's value a second time.
+        TestServiceProvider.FACTORIES.put(Speed.class, new RoundingFactory());
+        try {
+            TestSpeedDecimalImpl typed = assertInstanceOf(TestSpeedDecimalImpl.class, u.asType(Speed.class));
+            assertEquals(new BigDecimal("1.23456789"), typed.getValue());
+            assertEquals(DECIMAL32, typed.mathContext());
+        } finally {
+            TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
+        }
+    }
+
+    /** Rounds to two digits at creation. */
+    private static final class RoundingFactory implements QuantityFactory<Speed> {
+        @Override
+        public Quantity<Speed> create(Number value, Unit<Speed> unit, Quantity.Scale scale) {
+            return TestSpeedDecimalImpl.FACTORY.create(((BigDecimal) value).round(new MathContext(2)), unit, scale);
+        }
+
+        @Override
+        public Quantity<Speed> create(Number value, Unit<Speed> unit) {
+            return create(value, unit, Quantity.Scale.ABSOLUTE);
+        }
+
+        @Override
+        public Unit<Speed> getSystemUnit() {
+            return TestSpeedDecimalImpl.FACTORY.getSystemUnit();
+        }
     }
 
     @Test
