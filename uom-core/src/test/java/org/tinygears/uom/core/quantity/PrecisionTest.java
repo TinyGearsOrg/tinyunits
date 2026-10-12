@@ -40,9 +40,17 @@ class PrecisionTest {
     }
 
     @Test
+    void kindRejectsNull() {
+        assertThrows(NullPointerException.class, () -> Precision.kind(null));
+    }
+
+    @Test
     void toDoubleRejectsOutOfRangeDecimals() {
         assertThrows(ArithmeticException.class, () -> Precision.toDouble(new BigDecimal("1e400")));
         assertThrows(ArithmeticException.class, () -> Precision.toDouble(new BigDecimal("-1e400")));
+        assertEquals("value out of double range: precision 1, scale -400",
+                assertThrows(ArithmeticException.class, () -> Precision.toDouble(new BigDecimal("1e400")))
+                        .getMessage());
         assertEquals(0.0, Precision.toDouble(new BigDecimal("1e-400")));
         assertEquals(2.5, Precision.toDouble(new BigDecimal("2.5")));
     }
@@ -54,6 +62,10 @@ class PrecisionTest {
         assertEquals(new BigDecimal("7"), Precision.toDecimal(7L));
         assertEquals(new BigDecimal("12"), Precision.toDecimal(new BigInteger("12")));
         assertEquals(new BigDecimal("3"), Precision.toDecimal(new AtomicInteger(3)));
+        assertEquals(new BigDecimal(BigInteger.TWO.pow(200)), Precision.toDecimal(BigInteger.TWO.pow(200)));
+        assertEquals(new BigDecimal("0.0"), Precision.toDecimal(-0.0));
+        assertEquals(new BigDecimal("4.9E-324"), Precision.toDecimal(Double.MIN_VALUE));
+        assertEquals(new BigDecimal("3.4028235E38"), Precision.toDecimal(Float.MAX_VALUE));
         BigDecimal b = new BigDecimal("1.50");
         assertSame(b, Precision.toDecimal(b));
         assertThrows(ArithmeticException.class, () -> Precision.toDecimal(Double.NaN));

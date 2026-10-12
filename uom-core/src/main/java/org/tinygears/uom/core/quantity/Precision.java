@@ -5,6 +5,7 @@ package org.tinygears.uom.core.quantity;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -20,6 +21,7 @@ final class Precision {
     }
 
     static Kind kind(Number n) {
+        Objects.requireNonNull(n, "number");
         if (n instanceof Byte || n instanceof Short || n instanceof Integer || n instanceof Long
                 || n instanceof BigInteger || n instanceof AtomicInteger || n instanceof AtomicLong) {
             return Kind.EXACT;
@@ -29,8 +31,9 @@ final class Precision {
 
     static double toDouble(Number n) {
         double d = n.doubleValue();
-        if (n instanceof BigDecimal && Double.isInfinite(d)) {
-            throw new ArithmeticException("value out of double range: " + n);
+        if (n instanceof BigDecimal b && Double.isInfinite(d)) {
+            throw new ArithmeticException(
+                    "value out of double range: precision " + b.precision() + ", scale " + b.scale());
         }
         return d;
     }
