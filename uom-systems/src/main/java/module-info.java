@@ -4,4 +4,6 @@ module org.tinygears.uom.systems {
     requires transitive org.tinygears.uom.quantities;
 
     exports org.tinygears.uom.systems;
+
+    provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider;
 }
