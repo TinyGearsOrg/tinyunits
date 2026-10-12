@@ -86,4 +86,20 @@ class ConvertersTest {
         };
         assertThrows(IllegalArgumentException.class, () -> IDENTITY.concatenate(foreign));
     }
+
+    @Test
+    void decimalRoundsOnceForLargeValues() {
+        // Exact result is 1.00004999e32 (rounds down at 5 digits); a 5-digit 5/9 would push it up.
+        BigDecimal v = new BigDecimal("1800089982").scaleByPowerOfTen(23).add(BigDecimal.valueOf(32));
+        BigDecimal exact = v.subtract(BigDecimal.valueOf(32)).multiply(BigDecimal.valueOf(5))
+                .divide(BigDecimal.valueOf(9), new MathContext(100));
+        MathContext mc = new MathContext(5);
+        assertEquals(0, affine(of(5, 9), of(-160, 9)).convert(v, mc).compareTo(exact.round(mc)));
+    }
+
+    @Test
+    void decimalUnlimitedPrecisionStaysExactForDecimalCoefficients() {
+        UomConverter c = affine(Factor.decimal("1.5"), Factor.decimal("0.25"));
+        assertEquals(0, c.convert(new BigDecimal("3"), MathContext.UNLIMITED).compareTo(new BigDecimal("4.75")));
+    }
 }

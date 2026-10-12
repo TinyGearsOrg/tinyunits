@@ -84,7 +84,18 @@ final class AffineConverter implements UomConverter {
 
     @Override
     public BigDecimal convert(BigDecimal value, MathContext mc) {
-        return value.multiply(factor.decimalValue(mc)).add(offset.decimalValue(mc), mc);
+        if (mc.getPrecision() == 0) {
+            try {
+                return value.multiply(factor.decimalValue(mc)).add(offset.decimalValue(mc));
+            } catch (ArithmeticException inexact) {
+                // Non-terminating or irrational coefficients: fall back to DECIMAL128.
+                return convert(value, MathContext.DECIMAL128);
+            }
+        }
+        // Guard digits cover the coefficient error, which scales with the value's integer digits.
+        int guard = mc.getPrecision() + 10 + Math.max(0, value.precision() - value.scale());
+        MathContext work = new MathContext(guard);
+        return value.multiply(factor.decimalValue(work), work).add(offset.decimalValue(work), work).round(mc);
     }
 
     @Override
