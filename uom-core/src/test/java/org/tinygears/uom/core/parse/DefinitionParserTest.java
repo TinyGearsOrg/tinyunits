@@ -137,6 +137,7 @@ class DefinitionParserTest {
         fails("1x m\n", "test.units:1: invalid symbol '1x'");
         fails(".x m\n", "test.units:1: invalid symbol '.x'");
         fails("a*b m\n", "test.units:1: invalid symbol 'a*b'");
+        fails("a·b m\n", "test.units:1: invalid symbol 'a·b'");
         fails("pi:pie 3\n", "test.units:1: symbol 'pi' is reserved");
     }
 

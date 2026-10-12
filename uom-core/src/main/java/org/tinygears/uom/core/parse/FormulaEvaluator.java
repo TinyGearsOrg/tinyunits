@@ -14,7 +14,7 @@ public final class FormulaEvaluator {
     private static final int MAX_LENGTH = 10_000;
     private static final int MAX_DEPTH = 100;
     private static final int MAX_DECIMAL_EXPONENT = 10_000;
-    private static final String DELIMITERS = "*/()^|=#[]!~@,";
+    private static final String DELIMITERS = "*/·()^|=#[]!~@,";
 
     private final String s;
     private final Function<String, UomUnit<?>> lookup;
@@ -43,7 +43,7 @@ public final class FormulaEvaluator {
         return result;
     }
 
-    /** {@code *} and {@code /}: equal precedence, left-associative, looser than juxtaposition. */
+    /** {@code *}, {@code ·} (U+00B7) and {@code /}: equal precedence, left-associative, looser than juxtaposition. */
     private UomUnit<?> expr(int depth) throws FormulaException {
         UomUnit<?> left = product(depth);
         while (true) {
@@ -57,7 +57,7 @@ public final class FormulaEvaluator {
             skipSpace();
             UomUnit<?> right = product(depth);
             UomUnit<?> l = left;
-            left = c == '*' ? guard(col, () -> l.multiply(right)) : guard(col, () -> l.divide(right));
+            left = c == '*' || c == '·' ? guard(col, () -> l.multiply(right)) : guard(col, () -> l.divide(right));
         }
     }
 
@@ -66,7 +66,7 @@ public final class FormulaEvaluator {
         UomUnit<?> left = term(depth);
         while (true) {
             skipSpace();
-            if (pos >= s.length() || ")*/".indexOf(s.charAt(pos)) >= 0) {
+            if (pos >= s.length() || ")*/·".indexOf(s.charAt(pos)) >= 0) {
                 return left;
             }
             int col = pos + 1;

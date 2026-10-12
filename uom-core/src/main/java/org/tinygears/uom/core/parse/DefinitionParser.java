@@ -22,7 +22,7 @@ import org.tinygears.uom.core.UomUnit;
 /** Parses {@code .units} definition files: one {@code symbol[:name] body [Type] [# comment]} per line. */
 public final class DefinitionParser {
     private static final Pattern TYPE = Pattern.compile("[A-Z][A-Za-z0-9]*");
-    private static final String DELIMITERS = "*/()^|=#[]!~@,";
+    private static final String DELIMITERS = "*/·()^|=#[]!~@,";
     private static final String BASE_LETTERS = "LMTIΘNJK";
     private static final UomUnit<?>[] BASES = {BaseUnits.METRE, BaseUnits.KILOGRAM, BaseUnits.SECOND,
         BaseUnits.AMPERE, BaseUnits.KELVIN, BaseUnits.MOLE, BaseUnits.CANDELA, BaseUnits.KELVIN};

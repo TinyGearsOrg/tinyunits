@@ -177,4 +177,18 @@ class FormulaEvaluatorTest {
                 }));
         assertTrue(e.getMessage().contains("Silent"));
     }
+
+    @Test
+    void dotIsMultiplication() throws FormulaException {
+        assertEquals(METRE.multiply(SECOND), eval("m·s"));
+        assertEquals(eval("kg m / s^2"), eval("kg·m/s^2"));
+        assertEquals(METRE.multiply(SECOND), eval("m ·s"));
+        assertEquals(METRE.multiply(SECOND), eval("m· s"));
+        FormulaEvaluator.evaluate("m·s", name -> {
+            assertTrue(name.indexOf('·') < 0, name);
+            return UNITS.get(name);
+        });
+        fails("m·", "unexpected end of formula", 3);
+        fails("·m", "unexpected '·'", 1);
+    }
 }
