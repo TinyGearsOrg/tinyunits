@@ -98,6 +98,13 @@ class ConvertersTest {
     }
 
     @Test
+    void exactDecimalConversionRoundsOnce() {
+        // Exact result 0.1499...98 rounds to 0.1 at one digit; rounding to guard digits first gives 0.15, then 0.2.
+        BigDecimal v = new BigDecimal("0.0749999999999999999999");
+        assertEquals(new BigDecimal("0.1"), scale(ofLong(2)).convert(v, new MathContext(1)));
+    }
+
+    @Test
     void decimalUnlimitedPrecisionStaysExactForDecimalCoefficients() {
         UomConverter c = affine(Factor.decimal("1.5"), Factor.decimal("0.25"));
         assertEquals(0, c.convert(new BigDecimal("3"), MathContext.UNLIMITED).compareTo(new BigDecimal("4.75")));

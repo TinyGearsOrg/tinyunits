@@ -182,6 +182,14 @@ public final class Factor {
         return BigInteger.valueOf(a).gcd(BigInteger.valueOf(b)).intValue();
     }
 
+    BigInteger numerator() {
+        return num;
+    }
+
+    BigInteger denominator() {
+        return den;
+    }
+
     public boolean isExact() {
         return index == 1 && piExp == 0;
     }

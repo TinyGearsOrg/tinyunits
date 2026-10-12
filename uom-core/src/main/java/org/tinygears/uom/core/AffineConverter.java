@@ -92,7 +92,13 @@ final class AffineConverter implements UomConverter {
                 return convert(value, MathContext.DECIMAL128);
             }
         }
-        // Guard digits cover the coefficient error, which scales with the value's integer digits.
+        if (factor.isExact() && offset.isExact()) {
+            // value * nf/df + no/do as one exact quotient, rounded once.
+            BigDecimal n = value.multiply(new BigDecimal(factor.numerator().multiply(offset.denominator())))
+                    .add(new BigDecimal(offset.numerator().multiply(factor.denominator())));
+            return n.divide(new BigDecimal(factor.denominator().multiply(offset.denominator())), mc);
+        }
+        // Best effort for irrational coefficients: guard digits cover the coefficient error.
         int guard = mc.getPrecision() + 10 + Math.max(0, value.precision() - value.scale());
         MathContext work = new MathContext(guard);
         return value.multiply(factor.decimalValue(work), work).add(offset.decimalValue(work), work).round(mc);
