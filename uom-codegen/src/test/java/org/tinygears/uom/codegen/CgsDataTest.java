@@ -220,6 +220,33 @@ class CgsDataTest {
     }
 
     @Test
+    void names() {
+        Map<String, String> expected = Map.ofEntries(Map.entry("dyn", "dyne"), Map.entry("erg", "erg"),
+                Map.entry("Ba", "barye"), Map.entry("Gal", "galileo"), Map.entry("cm²", "square centimetre"),
+                Map.entry("cm³", "cubic centimetre"), Map.entry("P", "poise"), Map.entry("St", "stokes"),
+                Map.entry("statC", "statcoulomb"), Map.entry("statA", "statampere"), Map.entry("statV", "statvolt"),
+                Map.entry("statΩ", "statohm"), Map.entry("statF", "statfarad"), Map.entry("statH", "stathenry"),
+                Map.entry("abA", "abampere"), Map.entry("abC", "abcoulomb"), Map.entry("abV", "abvolt"),
+                Map.entry("abΩ", "abohm"), Map.entry("abF", "abfarad"), Map.entry("abH", "abhenry"),
+                Map.entry("G", "gauss"), Map.entry("Mx", "maxwell"), Map.entry("Oe", "oersted"),
+                Map.entry("Gb", "gilbert"), Map.entry("Fr", "franklin"));
+        Map<String, String> actual = new HashMap<>();
+        for (Definition d : parsed.get(GAUSSIAN).definitions()) {
+            if (FILES.contains(d.source()) && !isPrefixed(d)) {
+                actual.put(d.symbol(), d.unit().getName());
+            }
+        }
+        assertEquals(expected, actual);
+        assertEquals("Area", entry("cm²").definition().explicitType());
+        assertEquals("Volume", entry("cm³").definition().explicitType());
+    }
+
+    private static boolean isPrefixed(Definition d) {
+        return parsed.get(GAUSSIAN).prefixed().stream().anyMatch(p -> p.source().equals(d.source())
+                && p.line() == d.line());
+    }
+
+    @Test
     void noAlternateUnits() {
         for (Definition d : parsed.get(GAUSSIAN).definitions()) {
             if (!d.source().equals("si.units")) {
