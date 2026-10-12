@@ -89,6 +89,11 @@ class UomUnitTest {
     }
 
     @Test
+    void isEquivalentToNullThrows() {
+        assertThrows(NullPointerException.class, () -> METRE.isEquivalentTo(null));
+    }
+
+    @Test
     void zeroExponentsAreDropped() {
         assertEquals(METRE, UomUnit.of(atoms(M, 1, S, 0), Converters.IDENTITY, null, null));
     }

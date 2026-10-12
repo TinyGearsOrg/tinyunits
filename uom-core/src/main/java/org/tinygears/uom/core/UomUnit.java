@@ -145,7 +145,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
     /** Same dimension and an identity converter; alternate atoms may differ, so rad is equivalent to one. */
     @Override
     public boolean isEquivalentTo(Unit<Q> that) {
-        return that instanceof UomUnit<?> u && isCompatible(u) && converterTo(u).isIdentity();
+        return Objects.requireNonNull(that, "that") instanceof UomUnit<?> u && isCompatible(u) && converterTo(u).isIdentity();
     }
 
     @Override
