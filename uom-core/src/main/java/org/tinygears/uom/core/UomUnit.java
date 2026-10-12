@@ -1,11 +1,15 @@
 package org.tinygears.uom.core;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import javax.measure.IncommensurableException;
 import javax.measure.Prefix;
@@ -182,67 +186,142 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
     }
 
     @Override
-    public Unit<Q> shift(Number offset) {
-        throw notYet();
+    public UomUnit<Q> shift(Number offset) {
+        return transform(Converters.shift(toFactor(offset)));
     }
 
     @Override
-    public Unit<Q> shift(double offset) {
-        throw notYet();
+    public UomUnit<Q> shift(double offset) {
+        return shift((Number) offset);
     }
 
     @Override
-    public Unit<Q> multiply(Number multiplier) {
-        throw notYet();
+    public UomUnit<Q> multiply(Number multiplier) {
+        return transform(Converters.scale(toFactor(multiplier)));
     }
 
     @Override
-    public Unit<Q> multiply(double multiplier) {
-        throw notYet();
+    public UomUnit<Q> multiply(double multiplier) {
+        return multiply((Number) multiplier);
+    }
+
+    public UomUnit<?> scaledBy(Factor factor) {
+        return transform(Converters.scale(factor));
     }
 
     @Override
-    public Unit<?> multiply(Unit<?> multiplier) {
-        throw notYet();
+    public UomUnit<Q> divide(Number divisor) {
+        return transform(Converters.scale(Factor.ONE.divide(toFactor(divisor))));
     }
 
     @Override
-    public Unit<?> inverse() {
-        throw notYet();
+    public UomUnit<Q> divide(double divisor) {
+        return divide((Number) divisor);
+    }
+
+    /** {@code operation} converts from the new unit to this one. */
+    @Override
+    public UomUnit<Q> transform(UnitConverter operation) {
+        UomConverter c = toSystem.concatenate(operation);
+        if (c.factor().isZero()) {
+            throw new ArithmeticException("zero scale factor: " + this);
+        }
+        return new UomUnit<>(atoms, c, null, null);
     }
 
     @Override
-    public Unit<Q> divide(Number divisor) {
-        throw notYet();
+    public UomUnit<Q> prefix(Prefix prefix) {
+        Factor f = Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent());
+        UomUnit<Q> u = transform(Converters.scale(f));
+        return symbol == null ? u : u.named(prefix.getSymbol() + symbol, null);
     }
 
     @Override
-    public Unit<Q> divide(double divisor) {
-        throw notYet();
+    public UomUnit<?> multiply(Unit<?> multiplier) {
+        return combine(multiplier, false);
     }
 
     @Override
-    public Unit<?> divide(Unit<?> divisor) {
-        throw notYet();
+    public UomUnit<?> divide(Unit<?> divisor) {
+        return combine(divisor, true);
+    }
+
+    private UomUnit<?> combine(Unit<?> other, boolean quotient) {
+        UomUnit<?> that = requireLinear(uomUnit(other));
+        requireLinear(this);
+        Map<UnitAtom, Integer> m = new LinkedHashMap<>(atoms);
+        that.atoms.forEach((a, n) -> {
+            int e = m.getOrDefault(a, 0);
+            m.put(a, quotient ? Math.subtractExact(e, n) : Math.addExact(e, n));
+        });
+        Factor f = quotient
+                ? toSystem.factor().divide(that.toSystem.factor())
+                : toSystem.factor().multiply(that.toSystem.factor());
+        String s = symbol == null || that.symbol == null ? null : symbol + (quotient ? "/" : "·") + that.symbol;
+        return of(m, Converters.scale(f), s, null);
     }
 
     @Override
-    public Unit<?> root(int n) {
-        throw notYet();
+    public UomUnit<?> inverse() {
+        return pow(-1);
     }
 
     @Override
-    public Unit<?> pow(int n) {
-        throw notYet();
+    public UomUnit<?> pow(int n) {
+        if (n == 0) {
+            return BaseUnits.ONE;
+        }
+        if (n == 1) {
+            return this;
+        }
+        requireLinear(this);
+        Factor f = toSystem.factor().pow(n);
+        Map<UnitAtom, Integer> m = new LinkedHashMap<>();
+        atoms.forEach((a, e) -> m.put(a, Math.multiplyExact(e, n)));
+        return of(m, Converters.scale(f), symbol == null ? null : symbol + "^" + n, null);
     }
 
     @Override
-    public Unit<Q> transform(UnitConverter operation) {
-        throw notYet();
+    public UomUnit<?> root(int n) {
+        if (n == 0) {
+            throw new ArithmeticException("zeroth root");
+        }
+        if (n == 1) {
+            return this;
+        }
+        requireLinear(this);
+        Map<UnitAtom, Integer> m = new LinkedHashMap<>();
+        atoms.forEach((a, e) -> {
+            if (e % n != 0) {
+                throw new ArithmeticException("exponent " + e + " of " + a.symbol() + " not divisible by " + n);
+            }
+            m.put(a, Math.divideExact(e, n));
+        });
+        return of(m, Converters.scale(toSystem.factor().root(n)), null, null);
     }
 
-    @Override
-    public Unit<Q> prefix(Prefix prefix) {
-        throw notYet();
+    private static UomUnit<?> requireLinear(UomUnit<?> u) {
+        if (!u.toSystem.isLinear()) {
+            throw new UnconvertibleException("unit with an offset cannot be combined: " + u);
+        }
+        return u;
+    }
+
+    private static Factor toFactor(Number n) {
+        if (n instanceof Byte || n instanceof Short || n instanceof Integer || n instanceof Long
+                || n instanceof AtomicInteger || n instanceof AtomicLong) {
+            return Factor.ofLong(n.longValue());
+        }
+        if (n instanceof BigInteger b) {
+            return Factor.of(b, BigInteger.ONE);
+        }
+        if (n instanceof BigDecimal b) {
+            return Factor.decimal(b.toPlainString());
+        }
+        double d = n.doubleValue();
+        if (!Double.isFinite(d)) {
+            throw new IllegalArgumentException("not a finite number: " + n);
+        }
+        return Factor.decimal(BigDecimal.valueOf(d).toPlainString());
     }
 }
