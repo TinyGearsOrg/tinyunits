@@ -42,6 +42,9 @@ dynamic proxies in the picture.
 | F17 | **The same definitions drive the unit parser (F9)**, so a symbol such as `"ft"` resolves to the same unit in code and in text. Whether definitions are processed at build time, at run time, or both is a design decision. |
 | F18 | **Users can supply their own `.units` files** (extending or including the built-in ones), processed by the same generator (F14). |
 | F19 | **Definition errors are build errors with file and line:** unknown unit, duplicate symbol, circular definition, dimension mismatch, unparsable formula. |
+| F20 | **Quantity equality.** `isEquivalentTo` follows the standard: same numerical value after conversion to the same unit, ignoring rounding errors (2 km is equivalent to 2000 m; 2 °C is equivalent to 275.15 K, not to 2 K). `equals` and `hashCode` are strict and mutually consistent: same implementation type, same unit and same value (`Double.compare` semantics for double, `compareTo == 0` with equal scale handling to be fixed in the design for BigDecimal). The tolerance used by `isEquivalentTo` is a design decision (open). `equals` is deliberately not `isEquivalentTo`, because a tolerance cannot satisfy the `equals` contract. |
+| F21 | **Unit equality.** `Unit.equals` follows the examples in the standard: `getSystemUnit().equals(...)` must identify a quantity type, and alternate units differ from the unit they are derived from (`RADIAN.equals(ONE)` is false although they are compatible). Equality is structural over the system-unit decomposition and the converter, not over symbol or name. `isEquivalentTo` on units means the converter between them is the identity. |
+| F22 | **No `Comparable`.** `Quantity` in unit-api 2.2 does not extend `Comparable`. Ordering is provided through a separate documented mechanism (design decision), and the implementation must not claim consistency with `equals`. |
 
 ### Explicitly out of scope for 1.0
 
@@ -99,8 +102,8 @@ dynamic proxies in the picture.
    from the system unit)?
 3. **Precision promotion.** When a `double` quantity is combined with a `BigDecimal` one, which
    precision wins, and is mixing allowed at all?
-4. ~~**Equality.**~~ Resolved: `equals` is value and unit; `isEquivalentTo` (in the API since
-   2.1) means the same physical quantity.
+4. ~~**Equality.**~~ Resolved, see F20 to F22. The standard defines `isEquivalentTo` for
+   quantities and units but says nothing about `Quantity.equals`.
 5. ~~**Catalog authoring.**~~ Resolved: data files in the original `.units` syntax (F15 to F19).
    Still open for the design: build time versus run time processing (F17), and how the explicit
    quantity type is written in a definition (F16).
