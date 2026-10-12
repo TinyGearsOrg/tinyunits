@@ -198,12 +198,24 @@ public final class Factor {
         return BigInteger.valueOf(a).gcd(BigInteger.valueOf(b)).intValue();
     }
 
-    BigInteger numerator() {
+    /** Radicand numerator {@code n}; it carries the sign, which applies outside the root. */
+    public BigInteger numerator() {
         return num;
     }
 
-    BigInteger denominator() {
+    /** Radicand denominator {@code d}, always positive. */
+    public BigInteger denominator() {
         return den;
+    }
+
+    /** Exponent {@code k} of pi inside the radicand. */
+    public int piExponent() {
+        return piExp;
+    }
+
+    /** Root index {@code r}, 1 for a rational multiple of a power of pi. */
+    public int rootIndex() {
+        return index;
     }
 
     public boolean isExact() {

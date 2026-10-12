@@ -153,14 +153,15 @@ public final class DefinitionParser {
         checkSymbol(src, ln, symbol);
 
         UomUnit<?> unit;
+        UomUnit<?> alternateOf = null;
         int eq = body.indexOf('=');
         if (body.startsWith("!")) {
             unit = base(src, ln, symbol, body.substring(1).strip());
         } else if (body.startsWith("~")) {
             String formula = body.substring(1);
-            UomUnit<?> u = formula.isBlank() ? BaseUnits.ONE : evaluate(formula);
+            alternateOf = formula.isBlank() ? BaseUnits.ONE : evaluate(formula);
             try {
-                unit = u.alternate(symbol);
+                unit = alternateOf.alternate(symbol);
             } catch (IllegalArgumentException e) {
                 throw new DefinitionException(src, ln, "alternate unit must be an unscaled unit", e);
             }
@@ -173,7 +174,7 @@ public final class DefinitionParser {
         }
         UomUnit<?> named = unit.named(symbol, name);
         units.put(symbol, named);
-        definitions.add(new Definition(symbol, name, named, type, src, ln));
+        definitions.add(new Definition(symbol, name, named, alternateOf, type, src, ln));
     }
 
     private UomUnit<?> evaluate(String formula) throws FormulaException {

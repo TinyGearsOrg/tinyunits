@@ -86,6 +86,9 @@ class DefinitionParserTest {
         assertTrue(hz.isCompatible(ONE.divide(SECOND)));
         UomUnit in = find(d, "in").unit();
         assertTrue(in.isEquivalentTo(METRE.multiply(254).divide(10000)));
+        assertEquals(ONE.divide(SECOND), find(d, "Hz").alternateOf());
+        assertEquals(ONE, find(d, "rad").alternateOf());
+        assertNull(find(d, "in").alternateOf());
         assertEquals(List.of(new Preferred("Length", "m", "test.units", 11)), d.preferred());
         Definition m = find(d, "m");
         assertEquals("test.units", m.source());

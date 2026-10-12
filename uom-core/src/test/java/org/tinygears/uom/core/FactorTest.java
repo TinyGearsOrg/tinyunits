@@ -108,4 +108,30 @@ class FactorTest {
             assertEquals(BigInteger.TEN.pow(19_000), decimal("1e19000").numerator());
         });
     }
+
+    @Test
+    void parts() {
+        assertParts(of(6, 4), 3, 2, 0, 1);
+        assertParts(of(-6, 4), -3, 2, 0, 1);
+        assertParts(PI.divide(ofLong(180)), 1, 180, 1, 1);
+        assertParts(ofLong(2).root(2), 2, 1, 0, 2);
+        assertParts(ofLong(-2).multiply(ofLong(2).root(2)), -8, 1, 0, 2);
+    }
+
+    private static void assertParts(Factor f, long n, long d, int k, int r) {
+        assertEquals(BigInteger.valueOf(n), f.numerator());
+        assertEquals(BigInteger.valueOf(d), f.denominator());
+        assertEquals(k, f.piExponent());
+        assertEquals(r, f.rootIndex());
+    }
+
+    @Test
+    void partsReconstructTheFactor() {
+        for (Factor f : new Factor[] {of(6, 4), of(-6, 4), PI.divide(ofLong(180)), ofLong(2).root(2),
+                ofLong(-2).multiply(ofLong(2).root(2)), PI.pow(-2).multiply(of(3, 7)).root(3), ZERO, ONE}) {
+            Factor magnitude = of(f.numerator().abs(), f.denominator()).multiply(PI.pow(f.piExponent()))
+                    .root(f.rootIndex());
+            assertEquals(f, f.signum() < 0 ? magnitude.negate() : magnitude);
+        }
+    }
 }
