@@ -10,14 +10,14 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <!-- Never published: runs the JSR-385 TCK (FULL profile) against uom-systems and its provider. -->
+  <!-- Never published: runs the JSR-385 TCK (FULL profile) against the uom module and its provider. -->
   <artifactId>uom-tck</artifactId>
   <name>uom-tck</name>
 
   <dependencies>
     <dependency>
       <groupId>org.tinygears</groupId>
-      <artifactId>uom-systems</artifactId>
+      <artifactId>uom</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

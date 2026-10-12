@@ -22,24 +22,24 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
  data/*.units ────────────┼─> uom-codegen (internal tool, not published)
    si, us-customary,      │        │ writes sources, committed to the repo
    imperial, cgs,         │        v
-   cgs-esu, cgs-emu,      │   uom-quantities   typed interfaces, LengthDouble, LengthDecimal, ...
-   cgs-gaussian           │   uom-systems      generated catalogs: SI, USCustomary, Imperial, CGS,
+   cgs-esu, cgs-emu,      │   uom  .quantity   typed interfaces, LengthDouble, LengthDecimal, ...
+   cgs-gaussian           │        .systems    generated catalogs: SI, USCustomary, Imperial, CGS,
                           │                    ESU, EMU, Gaussian
                           │
- data/*.units ────────────┴─> planned: copied into uom-systems as resources, parsed at run time (not done)
+ data/*.units ────────────┴─> planned: copied into uom as resources, parsed at run time (not done)
 ```
 
 | Module | Contents | Published |
 |--------|----------|-----------|
 | `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
-| `uom-quantities` | Generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type | yes |
-| `uom-systems` | Generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `UomSystemOfUnits`, `UnitSystems`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
+| `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `UomSystemOfUnits`, `UnitSystems`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
-| `uom-tck` | Runs the JSR-385 TCK against `uom-systems`; test only | no |
+| `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
 
-Dependencies: `uom-systems` -> `uom-quantities` -> `uom-core` -> `unit-api`. `uom-codegen` ->
-`uom-core`. Module names: `org.tinygears.uom.core`, `.quantities`, `.systems`; they require
-`java.measure`. The provider is declared with `provides` and `META-INF/services`.
+Dependencies: `uom` -> `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core`. Module names:
+`org.tinygears.uom.core` and `org.tinygears.uom` (requires the core transitively); they require
+`java.measure`. The quantity types and the catalogs are one module because the typed quantities
+need the provider (`asType`, products, factories through `ServiceProvider`). The provider is declared with `provides` and `META-INF/services`.
 
 ## 3. Units core (`uom-core`)
 
@@ -189,12 +189,12 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
 Files live in `data/`: `quantity-types.txt` (quantity types and their system units, built from
 the standard's 33 types, no extras) and one `.units` file per unit system: `si.units`, `us-customary.units`,
 `imperial.units`, `cgs.units`, `cgs-esu.units`, `cgs-emu.units` and `cgs-gaussian.units`. Planned: copy the `.units` files into
-`uom-systems` as resources for run-time loading (not done yet).
+`uom` as resources for run-time loading (not done yet).
 
 **Generator (milestones 2, 3 and 5).** `uom-codegen` (not published) reads `data/quantity-types.txt`
 and the seven `.units` files listed in `Generate.CATALOGS` (`si.units` first) and writes the sources of section 4 into
-`uom-quantities/src/main/java/org/tinygears/uom/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
-`CGS`, `ESU`, `EMU`, `Gaussian`) into `uom-systems/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
+`uom/src/main/java/org/tinygears/uom/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
+`CGS`, `ESU`, `EMU`, `Gaussian`) into `uom/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
 file missing from the list is caught by the data-versus-list test, not by the generator. `Generate` takes
 three arguments: `<dataDir> <quantitiesOut> <systemsOut>`.
 
@@ -294,7 +294,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 
 - `unit-tck` 2.2 against our provider (N1): module `uom-tck`, 113 of 113 tests pass, 0 skipped
   (`docs/spikes/2026-tck-m3.md`). Own contract tests from the Javadoc: `QuantityContractTest`
-  (`uom-systems`) and the `contract` package of `uom-core`.
+  (`uom`) and the `contract` package of `uom-core`.
 - Parsed units equal generated constants; catalog round trip for every unit (N6).
 - Generator golden tests: sample inputs compile, behave, and report errors with file and line.
 - CI drift check: regenerate and fail on a non-empty `git diff`.

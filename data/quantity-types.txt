@@ -1,4 +1,4 @@
-# Quantity types generated into uom-quantities (org.tinygears.uom.quantity).
+# Quantity types generated into uom (org.tinygears.uom.quantity).
 # Format: one "Name formula" per line; Name is a javax.measure.quantity interface.
 # The formula is the unscaled system unit, in units defined by si.units.
 # Text after '#' is a comment; blank lines are ignored.

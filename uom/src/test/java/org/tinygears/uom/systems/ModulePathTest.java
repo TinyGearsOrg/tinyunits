@@ -23,9 +23,7 @@ class ModulePathTest {
     private static String modulePath() {
         Path classes = HERE.resolve("target/classes");
         Path core = HERE.resolve("../uom-core/target/classes").normalize();
-        Path quantities = HERE.resolve("../uom-quantities/target/classes").normalize();
-        Assumptions.assumeTrue(Files.isDirectory(classes) && Files.isDirectory(core)
-                && Files.isDirectory(quantities), "sibling classes not built");
+        Assumptions.assumeTrue(Files.isDirectory(classes) && Files.isDirectory(core), "sibling classes not built");
         String jar = null;
         for (String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
             if (Path.of(entry).getFileName().toString().equals("unit-api-2.2.jar")) {
@@ -33,14 +31,16 @@ class ModulePathTest {
             }
         }
         Assumptions.assumeTrue(jar != null, "unit-api-2.2.jar not on the class path");
-        return String.join(File.pathSeparator, classes.toString(), jar, core.toString(), quantities.toString());
+        return String.join(File.pathSeparator, classes.toString(), jar, core.toString());
     }
 
     @Test
     void describesModuleOnModulePath() throws Exception {
-        String out = run(List.of(JAVA, "--module-path", modulePath(), "--describe-module", "org.tinygears.uom.systems"));
+        String out = run(List.of(JAVA, "--module-path", modulePath(), "--describe-module", "org.tinygears.uom"));
         assertTrue(out.contains("provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider"), out);
-        assertTrue(out.contains("requires org.tinygears.uom.quantities transitive"), out);
+        assertTrue(out.contains("requires org.tinygears.uom.core transitive"), out);
+        assertTrue(out.contains("exports org.tinygears.uom.quantity"), out);
+        assertTrue(out.contains("exports org.tinygears.uom.systems"), out);
     }
 
     @Test
@@ -53,9 +53,9 @@ class ModulePathTest {
             Path target = cp.resolve(name);
             Files.createDirectories(target.getParent());
             Files.copy(HERE.resolve("target/test-classes").resolve(name), target);
-            String out = run(List.of(JAVA, "--module-path", modulePath, "--add-modules", "org.tinygears.uom.systems",
+            String out = run(List.of(JAVA, "--module-path", modulePath, "--add-modules", "org.tinygears.uom",
                     "-cp", cp.toString(), PrintCurrentProvider.class.getName()));
-            assertEquals("org.tinygears.uom.systems.UomServiceProvider in org.tinygears.uom.systems", out.strip());
+            assertEquals("org.tinygears.uom.systems.UomServiceProvider in org.tinygears.uom", out.strip());
         } finally {
             Files.delete(cp.resolve(name));
             for (Path dir = cp.resolve(name).getParent(); !dir.equals(cp.getParent()); dir = dir.getParent()) {

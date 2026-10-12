@@ -46,7 +46,7 @@ class CatalogEmitterTest {
             new StringReader("Length m\nTime s\n"), DEFS);
     private static final List<CatalogEntry> ENTRIES = CatalogBuilder.build(DEFS, TYPES);
 
-    // Stand-in for the real class in uom-systems, which uom-codegen must not depend on.
+    // Stand-in for the real class in uom, which uom-codegen must not depend on.
     private static final String SYSTEM_STAND_IN = """
             package org.tinygears.uom.systems;
 
@@ -265,7 +265,7 @@ class CatalogEmitterTest {
             sources.put(q + "Factory", SourceEmitter.factory(s, parsed.get("si.units")));
         }
         sources.put("org.tinygears.uom.systems.UomSystemOfUnits", Files.readString(Path.of(
-                "../uom-systems/src/main/java/org/tinygears/uom/systems/UomSystemOfUnits.java")));
+                "../uom/src/main/java/org/tinygears/uom/systems/UomSystemOfUnits.java")));
         catalogs.forEach((file, c) -> sources.put("org.tinygears.uom.systems." + c.className(),
                 CatalogEmitter.catalog(c, parsed.get(file))));
         try (URLClassLoader loader = InMemoryCompiler.compile(sources, tmp)) {

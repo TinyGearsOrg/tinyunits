@@ -88,7 +88,7 @@ dynamic proxies in the picture.
 
 ## 5. Module layout
 
-See `DESIGN.md`: `uom-core`, `uom-quantities` and `uom-systems` are published; `uom-codegen` is an
+See `DESIGN.md`: `uom-core` and `uom` are published; `uom-codegen` is an
 internal tool and is not.
 
 ## 6. Open questions
