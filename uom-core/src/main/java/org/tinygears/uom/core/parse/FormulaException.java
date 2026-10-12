@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package org.tinygears.uom.core.parse;
 
 /** A malformed or unevaluable unit formula; {@link #column()} is 1-based. */

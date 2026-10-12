@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package org.tinygears.uom.core.parse;
 
 import java.util.List;

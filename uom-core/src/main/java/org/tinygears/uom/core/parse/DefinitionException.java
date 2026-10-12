@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package org.tinygears.uom.core.parse;
 
 /** An error in a definition file; the message reads {@code source:line: text}. */

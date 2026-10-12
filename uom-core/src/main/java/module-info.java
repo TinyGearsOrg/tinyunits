@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 module org.tinygears.uom.core {
     requires transitive java.measure;
 
