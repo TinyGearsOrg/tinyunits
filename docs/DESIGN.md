@@ -124,8 +124,10 @@ types plus the extras the catalogs need, such as viscosity).
 
 - **Precision (F23).** Base classes accept any `Quantity<Q>` whose unit is a `UomUnit` (foreign units are rejected, D8). `Double`
   and `Float` values count as `double`, `BigDecimal` as decimal, integral types as exact (they
-  do not lower the precision). The result type follows the lower-precision rule, the result
-  unit is the left operand's unit, scalar `Number` arguments adopt the receiver's precision.
+  do not lower the precision). The result type follows the lower-precision rule; for `add`,
+  `subtract` and the scalar operations the result unit is the left operand's unit (quantity-by-quantity
+  `multiply`/`divide` and `inverse` return untyped results in system units); scalar `Number`
+  arguments adopt the receiver's precision.
 - **Equality (F20).** `equals`: same implementation class, same unit, same scale, same value (`Double.compare`
   for `double`; for decimal, `compareTo == 0` with a defined scale rule to be fixed in the
   plan). `isEquivalentTo`: same value after conversion to the same unit within a tolerance

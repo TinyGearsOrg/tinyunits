@@ -1,7 +1,8 @@
 # Milestone 1 follow-ups
 
 Findings from the per-task and final reviews that were triaged as follow-up work, not merge blockers.
-Milestone 2 planning should pick up the items marked "M2" or "M4".
+The items that milestone 2 resolved are listed at the end ("Done in milestone 2"); milestone 3 and 4 planning should
+pick up the items marked "M3+" or "M4".
 
 ## Parked residual (final review, no second fix wave)
 

@@ -19,17 +19,17 @@ unmarked items are later or opportunistic.
   `BaseUnits.ONE.alternate("Hz")` before first use makes `QuantityTypes` fail with `ExceptionInInitializerError` and then
   `NoClassDefFoundError` (the root cause only appears in the first error's cause). Build the registry lazily per type or
   register catalog alternates eagerly in core; at minimum document the failure.
+- Offset-unit arithmetic (decision D5): it follows the Javadoc rule literally (`2 degC - 1 degC` = -272.15 degC,
+  `20 degC - 0 degC` = -253.15 degC). The owner should confirm decision D5 before the TCK work.
 
 ## Design points and notes
 
-- Surprising but literal: offset-unit arithmetic follows the Javadoc rule literally (`2 degC - 1 degC` = -272.15 degC,
-  `20 degC - 0 degC` = -253.15 degC). The owner should confirm decision D5 before the TCK work.
 - Tolerance of `isEquivalentTo` is relative only: asymmetric near zero for offset units (`0.001 degC` vs `273.151 K`) and
   against infinity (`inf m` vs `1e308 km`); the `isEquivalentTo` Javadoc states the offset case only. Decide in M4 whether an absolute floor is wanted.
 - The generated factory's foreign-unit message uses the unit's `toString`; `uom-core` uses the class name. Align them (the
   test Proxy units must otherwise answer `toString`).
 - An unlabelled shifted or scaled unit (`KELVIN.shift(273.15)`, `METRE.multiply(1000)`) has a null symbol but prints with
-  the system label: `100 degC` prints "100.0 K", and a negated `0 km` built as `METRE.multiply(1000)` prints `0.0 m`. Fix with the M3 SI catalog or a label rule in the milestone 1 unit code.
+  the system label: `100 degC` prints "100.0 K", and `2 km` built as `METRE.multiply(1000)` prints `2.0 m`. Fix with the M3 SI catalog or a label rule in the milestone 1 unit code.
   `AbstractDoubleQuantityTest.toStringFormats` only checks `startsWith("1.5 ")`, so it passes with the wrong label; assert
   the full text once the label is fixed.
 - TCK: the `Quantity` Javadoc example "2 degC + 1 degC = 274.15 degC" contradicts its own rule (276.15 degC); we follow the
