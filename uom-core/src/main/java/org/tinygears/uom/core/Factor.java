@@ -46,6 +46,14 @@ public final class Factor {
         return make(n, d, 0, 1);
     }
 
+    /** Rebuilds {@code (n/d * pi^k)^(1/r)} from normalized parts; the pow/root limit does not apply here. */
+    public static Factor of(BigInteger numerator, BigInteger denominator, int piExponent, int rootIndex) {
+        if (rootIndex <= 0) {
+            throw new IllegalArgumentException("root index must be positive: " + rootIndex);
+        }
+        return make(numerator, denominator, piExponent, rootIndex);
+    }
+
     public static Factor ofLong(long n) {
         return of(n, 1);
     }

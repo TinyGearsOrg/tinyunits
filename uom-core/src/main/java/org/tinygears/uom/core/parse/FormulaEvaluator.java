@@ -151,7 +151,7 @@ public final class FormulaEvaluator {
             Factor f = pi;
             return guard(col, () -> BaseUnits.ONE.scaledBy(f));
         }
-        UomUnit<?> unit = lookup.apply(name);
+        UomUnit<?> unit = guard(col, () -> lookup.apply(name));
         if (unit == null) {
             pos = start;
             throw error("unknown unit '" + name + "'");
@@ -224,7 +224,7 @@ public final class FormulaEvaluator {
         try {
             return op.get();
         } catch (RuntimeException e) {
-            throw new FormulaException(String.valueOf(e.getMessage()), column, e);
+            throw new FormulaException(e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), column, e);
         }
     }
 }

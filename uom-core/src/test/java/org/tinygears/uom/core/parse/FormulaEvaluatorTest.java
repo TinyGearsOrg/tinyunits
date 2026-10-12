@@ -151,4 +151,29 @@ class FormulaEvaluatorTest {
             assertEquals(METRE.multiply(new BigDecimal("1e10000")), eval("1e10000 m"));
         });
     }
+
+    @Test
+    void lookupFailureIsWrappedWithColumn() {
+        FormulaException e = assertThrows(FormulaException.class,
+                () -> FormulaEvaluator.evaluate("m  zz", n -> {
+                    if (n.equals("zz")) {
+                        throw new IllegalStateException("boom");
+                    }
+                    return METRE;
+                }));
+        assertTrue(e.getMessage().contains("boom"));
+        assertEquals(4, e.column());
+        assertInstanceOf(IllegalStateException.class, e.getCause());
+    }
+
+    @Test
+    void messageLessLookupFailureUsesClassName() {
+        class Silent extends RuntimeException {
+        }
+        FormulaException e = assertThrows(FormulaException.class,
+                () -> FormulaEvaluator.evaluate("m", n -> {
+                    throw new Silent();
+                }));
+        assertTrue(e.getMessage().contains("Silent"));
+    }
 }

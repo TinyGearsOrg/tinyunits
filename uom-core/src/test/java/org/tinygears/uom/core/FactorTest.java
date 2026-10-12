@@ -154,4 +154,33 @@ class FactorTest {
         assertEquals(expected, actual);
         assertEquals(expected.hashCode(), actual.hashCode());
     }
+
+    @Test
+    void partsRoundTrip() {
+        Factor huge = Factor.of(BigInteger.ONE, BigInteger.ONE, 1500, 1);
+        for (Factor f : new Factor[] {ZERO, of(6, 4), of(-3, 7), PI.divide(ofLong(180)), ofLong(2).root(2),
+                PI.root(3), ofLong(-8).root(3), huge}) {
+            Factor g = Factor.of(f.numerator(), f.denominator(), f.piExponent(), f.rootIndex());
+            assertEquals(f, g);
+            assertEquals(f.hashCode(), g.hashCode());
+        }
+        assertEquals(1500, huge.piExponent());
+    }
+
+    @Test
+    void partsBeyondPowAndRootLimits() {
+        Factor pi = Factor.of(BigInteger.ONE, BigInteger.ONE, 1500, 1);
+        Factor root = Factor.of(BigInteger.valueOf(3), BigInteger.ONE, 0, 2000);
+        assertEquals(2000, root.rootIndex());
+        assertTrue(!pi.equals(root));
+    }
+
+    @Test
+    void partsRejectBadInput() {
+        assertThrows(IllegalArgumentException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, 0));
+        assertThrows(IllegalArgumentException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, -1));
+        assertThrows(ArithmeticException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ZERO, 0, 1));
+        assertThrows(ArithmeticException.class,
+                () -> Factor.of(BigInteger.ONE.shiftLeft(70_000), BigInteger.ONE, 0, 1));
+    }
 }

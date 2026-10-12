@@ -28,6 +28,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
     private final UomConverter toSystem;
     private final String symbol;
     private final String name;
+    private final UomDimension dimension;
     private final Map<UomUnit<?>, UomConverter> converterCache = new ConcurrentHashMap<>();
 
     private UomUnit(Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
@@ -35,6 +36,17 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
         this.toSystem = toSystem;
         this.symbol = symbol;
         this.name = name;
+        UomDimension d = UomDimension.NONE;
+        for (Map.Entry<UnitAtom, Integer> e : atoms.entrySet()) {
+            d = d.multiply(e.getKey().dimension().pow(e.getValue()));
+        }
+        this.dimension = d;
+    }
+
+    /** Caller guarantees the unit belongs to Q; for generated code. */
+    @SuppressWarnings("unchecked")
+    public static <Q extends Quantity<Q>> UomUnit<Q> unchecked(UomUnit<?> unit) {
+        return (UomUnit<Q>) Objects.requireNonNull(unit, "unit");
     }
 
     public static <Q extends Quantity<Q>> UomUnit<Q> of(
@@ -72,11 +84,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
 
     @Override
     public UomDimension getDimension() {
-        UomDimension d = UomDimension.NONE;
-        for (Map.Entry<UnitAtom, Integer> e : atoms.entrySet()) {
-            d = d.multiply(e.getKey().dimension().pow(e.getValue()));
-        }
-        return d;
+        return dimension;
     }
 
     @Override

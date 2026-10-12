@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
@@ -115,5 +117,27 @@ class UomUnitTest {
         assertEquals(km(), k);
         assertEquals("x", k.getSymbol());
         assertEquals("y", k.getName());
+    }
+
+    @Test
+    void uncheckedReturnsTheSameUnit() {
+        UomUnit<?> original = METRE.divide(SECOND);
+        UomUnit<javax.measure.quantity.Speed> speed = UomUnit.unchecked(original);
+        assertEquals(original, speed);
+        assertSame(original, speed);
+        assertThrows(NullPointerException.class, () -> UomUnit.unchecked(null));
+    }
+
+    @Test
+    void dimensionIsComputedOnce() {
+        UomUnit<?> u = METRE.divide(SECOND);
+        assertSame(u.getDimension(), u.getDimension());
+    }
+
+    @Test
+    void dimensionOverflowSurfacesAtConstruction() {
+        UnitAtom other = new UnitAtom("m2", UomDimension.LENGTH);
+        assertThrows(ArithmeticException.class,
+                () -> UomUnit.of(atoms(M, Integer.MAX_VALUE, other, 2), Converters.IDENTITY, null, null));
     }
 }
