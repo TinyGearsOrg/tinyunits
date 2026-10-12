@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,7 +223,12 @@ class UnitFormatTest {
     void unitsWithoutFaithfulFormAreRefused() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> format.format(BaseUnits.KELVIN.shift(5)));
-        assertEquals("unit can not be formatted: K", e.getMessage());
+        assertEquals("unit can not be formatted: K (factor 1, offset 5)", e.getMessage());
+        e = assertThrows(IllegalArgumentException.class, () -> format.format(SI.DEGREE_CELSIUS.multiply(2)));
+        assertEquals("unit can not be formatted: K (factor 2, offset 5463/20)", e.getMessage());
+        e = assertThrows(IllegalArgumentException.class,
+                () -> format.format(SI.METRE.multiply(BigInteger.TWO.pow(60_000))));
+        assertTrue(e.getMessage().startsWith("unit can not be formatted: m (factor "), e.getMessage().substring(0, 40));
         assertThrows(IllegalArgumentException.class, () -> format.format(SI.METRE.multiply(-2)));
         assertThrows(IllegalArgumentException.class, () -> format.format(SI.METRE.pow(2).multiply(2).root(2)));
     }
@@ -262,7 +268,7 @@ class UnitFormatTest {
             } else if (!unit.toSystemConverter().offset().isZero() || unit.toSystemConverter().factor().signum() < 0) {
                 branch = "refused";
                 IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> format.format(unit));
-                assertEquals("unit can not be formatted: " + unit, e.getMessage());
+                assertTrue(e.getMessage().startsWith("unit can not be formatted: " + unit + " (factor "));
                 branches.merge(branch, 1, Integer::sum);
                 continue;
             } else {
@@ -276,6 +282,89 @@ class UnitFormatTest {
         assertTrue(branches.getOrDefault("catalog", 0) >= 3, branches::toString);
         assertTrue(branches.getOrDefault("formula", 0) >= 120, branches::toString);
         assertTrue(branches.getOrDefault("refused", 0) >= 5, branches::toString);
+    }
+
+    private void assertRoundTrips(UomUnit<?> unit, String notText) {
+        String text = format.format(unit);
+        assertFalse(text.equals(notText), text);
+        assertEquals(unit, format.parse(text), text);
+    }
+
+    @Test
+    void symbolsThatParseAsAnotherUnitAreNotUsed() {
+        assertRoundTrips(SI.DAY.prefix(MetricPrefix.CENTI), "cd");
+        assertRoundTrips(SI.METRE.prefix(MetricPrefix.ATTO).prefix(MetricPrefix.DECI), "dam");
+        assertRoundTrips(SI.DAY.prefix(MetricPrefix.ATTO).prefix(MetricPrefix.RONTO), "rad");
+        assertRoundTrips(SI.TONNE.prefix(MetricPrefix.ATTO).prefix(MetricPrefix.KILO), "kat");
+        assertEquals("7·m", format.format(SI.METRE.multiply(7).named("km", null)));
+        assertEquals("km", format.format(SI.KILOMETRE));
+        assertEquals("d", format.format(SI.DAY));
+    }
+
+    @Test
+    void symbolShadowedByALabelIsNotUsed() {
+        UomUnitFormat f = UomUnitFormat.standard();
+        UomUnit<?> furlong = SI.METRE.multiply(201.168);
+        f.label(furlong, "Gm");
+        assertEquals("Gm", f.format(furlong));
+        UomUnit<?> gigametre = (UomUnit<?>) format.parse("Gm");
+        assertEquals("Gm", gigametre.getSymbol());
+        assertEquals("1000000000·m", f.format(gigametre));
+        assertEquals(gigametre, f.parse(f.format(gigametre)));
+    }
+
+    @Test
+    void everyPrefixedUnitRoundTripsOrIsRefused() {
+        MetricPrefix[] prefixes = MetricPrefix.values();
+        List<UomUnit<?>> units = new ArrayList<>();
+        for (UomUnit<?> unit : SI.UNITS) {
+            for (MetricPrefix p : prefixes) {
+                units.add(unit.prefix(p));
+            }
+            for (int n : new int[] {-3, -2, 2, 3}) {
+                for (MetricPrefix p : List.of(MetricPrefix.KILO, MetricPrefix.MILLI, MetricPrefix.DECA,
+                        MetricPrefix.CENTI, MetricPrefix.MICRO)) {
+                    try {
+                        units.add(unit.pow(n).prefix(p));
+                    } catch (RuntimeException e) {
+                        // offset units have no powers
+                    }
+                }
+            }
+        }
+        Random random = new Random(3);
+        for (int i = 0; i < 30; i++) {
+            UomUnit<?> unit = SI.UNITS.get(random.nextInt(SI.UNITS.size()));
+            for (MetricPrefix p : prefixes) {
+                for (MetricPrefix q : prefixes) {
+                    units.add(unit.prefix(p).prefix(q));
+                }
+            }
+        }
+        int roundTrips = 0;
+        int refused = 0;
+        List<String> bad = new ArrayList<>();
+        for (UomUnit<?> unit : units) {
+            String text;
+            try {
+                text = format.format(unit);
+            } catch (IllegalArgumentException e) {
+                refused++;
+                continue;
+            }
+            try {
+                if (unit.equals(format.parse(text))) {
+                    roundTrips++;
+                } else {
+                    bad.add("mismatch " + text);
+                }
+            } catch (MeasurementParseException e) {
+                bad.add("unparseable " + text);
+            }
+        }
+        assertEquals(List.of(), bad);
+        assertTrue(units.size() > 20_000, "units: " + units.size());
+        assertTrue(refused > 100 && roundTrips > 15_000, "refused " + refused + ", round trips " + roundTrips);
     }
 
     @Test

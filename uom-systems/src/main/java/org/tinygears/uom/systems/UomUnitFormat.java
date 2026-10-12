@@ -46,35 +46,49 @@ public final class UomUnitFormat implements UnitFormat {
     }
 
     /**
-     * The label, else the symbol, else the symbol of an equal unit of the systems, else an exact formula such as
-     * {@code 1|1000·m/s} that parses back to an equal unit.
+     * The first of these texts that parses back to an equal unit: the label, the symbol, the symbol of an equal
+     * unit of the systems, an exact formula such as {@code 1|1000·m/s}.
      *
-     * @throws IllegalArgumentException for a unit with an offset, a negative factor or a factor with a root:
-     *     the formula grammar has no faithful form for them (offset units get one in milestone 6)
+     * @throws IllegalArgumentException when none does: a unit with an offset, a negative factor, a factor with a
+     *     root or a formula too long to parse has no faithful form (offset units get one in milestone 6)
      */
     @Override
     public String format(Unit<?> unit) {
         String label = labels.get(Objects.requireNonNull(unit, "unit"));
-        if (label != null) {
+        if (label != null && parsesTo(label, unit)) {
             return label;
         }
-        if (unit.getSymbol() != null) {
+        if (unit.getSymbol() != null && parsesTo(unit.getSymbol(), unit)) {
             return unit.getSymbol();
         }
         for (UomSystemOfUnits system : systems) {
             for (Unit<?> known : system.getUnits()) {
-                if (known.equals(unit)) {
+                if (known.equals(unit) && parsesTo(known.getSymbol(), unit)) {
                     return known.getSymbol();
                 }
             }
         }
-        if (unit instanceof UomUnit<?> u && u.toSystemConverter().offset().isZero()) {
-            Factor f = u.toSystemConverter().factor();
-            if (f.signum() > 0 && f.rootIndex() == 1) {
-                return formula(f, u.getSystemUnit().getSymbol());
+        if (!(unit instanceof UomUnit<?> u)) {
+            throw new IllegalArgumentException("unit can not be formatted: " + unit);
+        }
+        Factor f = u.toSystemConverter().factor();
+        Factor offset = u.toSystemConverter().offset();
+        if (offset.isZero() && f.signum() > 0 && f.rootIndex() == 1) {
+            String formula = formula(f, u.getSystemUnit().getSymbol());
+            if (parsesTo(formula, unit)) {
+                return formula;
             }
         }
-        throw new IllegalArgumentException("unit can not be formatted: " + unit);
+        throw new IllegalArgumentException(
+                "unit can not be formatted: " + unit + " (factor " + f + ", offset " + offset + ")");
+    }
+
+    private boolean parsesTo(String text, Unit<?> unit) {
+        try {
+            return unit.equals(FormulaEvaluator.evaluate(text, this::lookup));
+        } catch (FormulaException e) {
+            return false;
+        }
     }
 
     /** {@code n|d·pi^k·label}; juxtaposition binds tighter than the left-associative {@code ·} and {@code /}. */
