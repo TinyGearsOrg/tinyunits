@@ -196,6 +196,17 @@ class UntypedDecimalQuantityTest {
     }
 
     @Test
+    void asTypeKeepsARelativeScale() {
+        // Untyped results are ABSOLUTE, so a fixture quantity in m/s stands in for a RELATIVE receiver.
+        TestLengthDecimalImpl relative = new TestLengthDecimalImpl(new BigDecimal("2.5"),
+                UomUnit.unchecked(METRE.divide(SECOND)), Quantity.Scale.RELATIVE, DECIMAL32);
+        TestSpeedDecimalImpl typed = assertInstanceOf(TestSpeedDecimalImpl.class, relative.asType(Speed.class));
+        assertSame(Quantity.Scale.RELATIVE, typed.getScale());
+        assertEquals(DECIMAL32, typed.mathContext());
+        assertEquals(new BigDecimal("2.5"), typed.getValue());
+    }
+
+    @Test
     void asTypeNeverChangesTheValue() {
         UntypedDecimalQuantity u =
                 UntypedDecimalQuantity.of(new BigDecimal("1.23456789"), METRE.divide(SECOND), DECIMAL32);

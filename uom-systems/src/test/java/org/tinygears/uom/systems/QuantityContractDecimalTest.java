@@ -91,6 +91,57 @@ class QuantityContractDecimalTest {
     }
 
     @Test
+    void fourCentimetresPlusOneInchIsTheSystemUnitSum() {
+        Length sum = length("4", CENTIMETRE).add(length("1", INCH));
+        assertEquals(0, sum.compareTo(length("0.04", METRE).add(length("0.0254", METRE))));
+        assertEquals(0, sum.compareTo(length("0.0654", METRE)));
+        assertExactly("6.54", sum);
+    }
+
+    @Test
+    void additionIsCommutative() {
+        assertEquals(0, celsius("2").add(kelvin("2")).compareTo(kelvin("2").add(celsius("2"))));
+    }
+
+    @Test
+    void additionIsAssociative() {
+        Temperature a = celsius("2");
+        Temperature b = celsius("1");
+        Temperature c = kelvin("3");
+        assertExactly("279.15", a.add(b).add(c));
+        assertExactly("279.15", a.add(b.add(c)));
+        assertEquals(0, a.add(b).add(c).compareTo(kelvin("552.3")));
+    }
+
+    @Test
+    void multiplicationIsCommutativeAndAssociative() {
+        Length a = length("2", KILOMETRE);
+        Time b = Time.of(d("3"), SECOND);
+        Length c = length("5", CENTIMETRE);
+        assertExactly("6000", a.multiply(b));
+        assertExactly("6000", b.multiply(a));
+        assertEquals(a.multiply(b).getUnit(), b.multiply(a).getUnit());
+        assertExactly("300", a.multiply(b).multiply(c));
+        assertExactly("300", a.multiply(b.multiply(c)));
+    }
+
+    @Test
+    void implementationsAreComparable() {
+        assertInstanceOf(Comparable.class, length("1", METRE));
+        assertEquals(0, length("1", KILOMETRE).compareTo(length("1000", METRE)));
+        assertEquals(-1, Integer.signum(length("1", METRE).compareTo(length("1", KILOMETRE))));
+        assertEquals(1, Integer.signum(length("1", KILOMETRE).compareTo(length("999.999", METRE))));
+    }
+
+    @Test
+    void decimalArithmeticIsExact() {
+        // Each is inexact in double: 0.30000000000000004, 3.3000000000000003, 0.19999999999999998.
+        assertExactly("0.3", length("0.1", METRE).add(length("0.2", METRE)));
+        assertExactly("3.3", length("1.1", KILOMETRE).multiply(3));
+        assertExactly("0.2", length("0.3", METRE).subtract(length("0.1", METRE)));
+    }
+
+    @Test
     void addConvertsTheAddendAndKeepsThisUnit() {
         Length sum = length("1", KILOMETRE).add(length("500", METRE));
         assertExactly("1.5", sum);
@@ -195,11 +246,16 @@ class QuantityContractDecimalTest {
     @Test
     void fahrenheitToCelsiusIsExact() {
         assertExactly("100", Temperature.of(d("212"), DEGREE_FAHRENHEIT).to(DEGREE_CELSIUS));
+        // A double computation gives 50.00000000000001.
+        assertExactly("50", Temperature.of(d("122"), DEGREE_FAHRENHEIT).to(DEGREE_CELSIUS));
     }
 
     @Test
     void inchToMetreIsExact() {
         assertExactly("0.0254", length("1", INCH).to(METRE));
+        // A double computation gives 0.07619999999999999 for 3 in.
+        assertExactly("0.0762", length("3", INCH).to(METRE));
+        assertExactly("0.3048", length("12", INCH).to(METRE));
     }
 
     @Test
