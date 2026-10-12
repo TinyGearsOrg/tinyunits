@@ -15,6 +15,7 @@
     <module>uom-codegen</module>
     <module>uom-quantities</module>
     <module>uom-systems</module>
+    <module>uom-tck</module>
   </modules>
 
   <properties>
