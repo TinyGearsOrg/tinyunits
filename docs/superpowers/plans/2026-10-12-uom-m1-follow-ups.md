@@ -13,11 +13,6 @@ Milestone 2 planning should pick up the items marked "M2" or "M4".
 
 ## For milestone 2 (generator)
 
-- **M2** Add `Factor.of(BigInteger n, BigInteger d, int piExponent, int rootIndex)` routed through `make`: `pow` and `root`
-  are capped at 1000, so rebuilding a factor from its accessors fails above that. Until then the generator fails the build
-  if a part exceeds 1000.
-- **M2** Decide the license-header convention for new source files (Apache-2.0 repo; none of the files has one).
-- **M2** `UomUnit.getDimension()` is recomputed on every call; make it a final field (N3).
 - **M2** `Factor.make` checks the size cap before root normalization, so some products whose normal form fits are rejected
   (documented ceiling); move the check after the normalization loop.
 
@@ -36,8 +31,7 @@ Milestone 2 planning should pick up the items marked "M2" or "M4".
 
 ## Behavior and messages
 
-- A throwing lookup passed to `FormulaEvaluator.evaluate` escapes unwrapped (the parser's own lookup is total, but the
-  milestone 3 prefix lookup will not be); wrap it in `guard`; the guard message can read "null" for message-less exceptions.
+- The `FormulaEvaluator` guard message can read "null" for message-less exceptions.
 - `rad.alternate("rad")` throws while `METRE.alternate("m")` returns an equal unit (alternate atoms store the decomposition
   they were built from); accept `{existingAtom:1}` as the same definition or document it. `asType` NPEs when a provider
   returns a null factory.
@@ -45,7 +39,7 @@ Milestone 2 planning should pick up the items marked "M2" or "M4".
   registry mode for runtime-loaded files (F18).
 - `DefinitionParser`: empty name `x: m` yields an empty name; symbol rule duplicated from `FormulaEvaluator`; unclear
   messages for `x#y m` and `x[Foo] m`; `m:metre ! L` accepted.
-- `AffineConverter.convert(double)` turns `-0.0` into `+0.0`; `UomConverter` equality with third-party implementations is
+- `UomConverter` equality with third-party implementations is
   asymmetric (consider sealing); the per-unit converter cache keeps targets alive (revisit before the milestone 6 unit
   parser); `getDimension` and `UomDimension.getBaseDimensions()` return mutable copies.
 - `Factor.toString` prints `(-2)^(1/2)` for a negative irrational; prefix parsing reads `Prefix.getValue().toString()`;
@@ -62,3 +56,11 @@ Milestone 2 planning should pick up the items marked "M2" or "M4".
 - Decisions the spike raised: is a TCK pass enough for N1 or do we add our own behaviour tests (recommended: both); the
   provider needs a `QuantityFactory` for all 33 `javax.measure.quantity` types; catalog unit symbols must round-trip through
   the default `UnitFormat` (ties symbol rules to the milestone 6 formatter).
+
+## Done in milestone 2
+
+- `Factor.of(BigInteger n, BigInteger d, int piExponent, int rootIndex)` parts factory, routed through `make`.
+- `UomUnit.getDimension()` is a cached final field.
+- License-header decision: the line `// SPDX-License-Identifier: Apache-2.0` on every source file, checked by `LicenseHeaderTest`.
+- A throwing lookup passed to `FormulaEvaluator.evaluate` is wrapped by `guard`.
+- `AffineConverter.convert(double)` keeps `-0.0`.
