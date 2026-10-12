@@ -66,6 +66,7 @@
                   <arguments>
                     <argument>data</argument>
                     <argument>uom-quantities/src/main/java/org/tinygears/uom/quantity</argument>
+                    <argument>uom-systems/src/main/java/org/tinygears/uom/systems</argument>
                   </arguments>
                 </configuration>
               </execution>

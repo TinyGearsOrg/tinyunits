@@ -39,7 +39,7 @@ class DefinitionParserTest {
             Hz:hertz           ~ 1/s   [Frequency]
             N:newton           kg m / s^2 [Force]
             in:inch            0.0254 m
-            °C:degree_celsius  K = x + 273.15
+            °C:degree_Celsius  K = x + 273.15
             @preferred Length m
             """;
     private static final String BASE = "m:metre !L\nkg:kilogram !M\ns:second !T\nK:kelvin !Θ\n";
@@ -82,7 +82,7 @@ class DefinitionParserTest {
         assertEquals("Frequency", find(d, "Hz").explicitType());
         assertEquals("Force", find(d, "N").explicitType());
         assertNull(find(d, "in").explicitType());
-        assertEquals("degree celsius", find(d, "°C").name());
+        assertEquals("degree Celsius", find(d, "°C").name());
         UomUnit degC = find(d, "°C").unit();
         assertEquals(373.15, degC.getConverterTo(KELVIN).convert(100.0), 1e-12);
         UomUnit<?> hz = find(d, "Hz").unit();
@@ -154,7 +154,7 @@ class DefinitionParserTest {
 
     @Test
     void affineDefinitions() {
-        Definitions d = parse(BASE + "°C:degree_celsius K = x + 273.15\n"
+        Definitions d = parse(BASE + "°C:degree_Celsius K = x + 273.15\n"
                 + "°F:degree_fahrenheit °C = (x - 32) * 5|9\n"
                 + "°F2 °C = (x - 32) / 9 * 5\n"
                 + "neg K = -x + 1\n");
@@ -287,7 +287,7 @@ class DefinitionParserTest {
     }
 
     private static final String PREFIX_BASE = BASE + "g:gram 1|1000 kg\nHz:hertz ~ 1/s [Frequency]\n"
-            + "Bq:becquerel ~ 1/s [Radioactivity]\n°C:degree_celsius K = x + 273.15\n";
+            + "Bq:becquerel ~ 1/s [Radioactivity]\n°C:degree_Celsius K = x + 273.15\n";
 
     @Test
     void prefixedDirective() {

@@ -40,7 +40,7 @@ class CatalogBuilderTest {
             Bq:becquerel ~ 1/s [Radioactivity]
             N:newton kg m / s^2 [Force]
             J:joule N m [Energy]
-            °C:degree_celsius K = x + 273.15 [Temperature]
+            °C:degree_Celsius K = x + 273.15 [Temperature]
             min:minute 60 s
             au:astronomical_unit 149597870700 m
             x:angular_velocity rad / s
