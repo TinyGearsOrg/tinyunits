@@ -360,6 +360,9 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         @Serial
         private static final long serialVersionUID = 1L;
 
+        private static final String TOO_MANY_ATOMS = "invalid unit: too many atoms";
+        private static final String TOO_MANY_EXPONENTS = "invalid unit: too many exponents";
+
         private transient UnitAtom[] atoms;
         private transient int[] exponents;
         private transient UomConverter toSystem;
@@ -377,8 +380,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         @Serial
         private void writeObject(ObjectOutputStream out) throws IOException {
             out.defaultWriteObject();
-            SerialForm.writeObjects(out, atoms);
-            SerialForm.writeInts(out, exponents);
+            SerialForm.writeObjects(out, atoms, TOO_MANY_ATOMS);
+            SerialForm.writeInts(out, exponents, TOO_MANY_EXPONENTS);
             out.writeUnshared(toSystem);
             out.writeUnshared(symbol);
             out.writeUnshared(name);
@@ -387,8 +390,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         @Serial
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             in.defaultReadObject();
-            atoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, "invalid unit: too many atoms");
-            exponents = SerialForm.readInts(in, "invalid unit: too many exponents");
+            atoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, TOO_MANY_ATOMS);
+            exponents = SerialForm.readInts(in, TOO_MANY_EXPONENTS);
             toSystem = SerialForm.read(in, UomConverter.class);
             symbol = SerialForm.read(in, String.class);
             name = SerialForm.read(in, String.class);

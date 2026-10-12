@@ -131,6 +131,8 @@ public record UomDimension(int length, int mass, int time, int current, int temp
         @Serial
         private static final long serialVersionUID = 1L;
 
+        private static final String TOO_MANY = "invalid dimension: too many exponents";
+
         private transient int[] exponents;
 
         Proxy(int[] exponents) {
@@ -140,13 +142,13 @@ public record UomDimension(int length, int mass, int time, int current, int temp
         @Serial
         private void writeObject(ObjectOutputStream out) throws IOException {
             out.defaultWriteObject();
-            SerialForm.writeInts(out, exponents);
+            SerialForm.writeInts(out, exponents, TOO_MANY);
         }
 
         @Serial
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             in.defaultReadObject();
-            exponents = SerialForm.readInts(in, "invalid dimension: too many exponents");
+            exponents = SerialForm.readInts(in, TOO_MANY);
         }
 
         @Serial

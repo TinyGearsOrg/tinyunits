@@ -44,6 +44,9 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
         @Serial
         private static final long serialVersionUID = 1L;
 
+        private static final String TOO_MANY_ATOMS = "invalid unit atom: too many definition atoms";
+        private static final String TOO_MANY_EXPONENTS = "invalid unit atom: too many definition exponents";
+
         private transient String symbol;
         private transient UomDimension dimension;
         private transient UnitAtom[] definitionAtoms;
@@ -61,8 +64,8 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
             out.defaultWriteObject();
             out.writeUnshared(symbol);
             out.writeUnshared(dimension);
-            SerialForm.writeObjects(out, definitionAtoms);
-            SerialForm.writeInts(out, definitionExponents);
+            SerialForm.writeObjects(out, definitionAtoms, TOO_MANY_ATOMS);
+            SerialForm.writeInts(out, definitionExponents, TOO_MANY_EXPONENTS);
         }
 
         @Serial
@@ -70,9 +73,8 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
             in.defaultReadObject();
             symbol = SerialForm.read(in, String.class);
             dimension = SerialForm.read(in, UomDimension.class);
-            definitionAtoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new,
-                    "invalid unit atom: too many definition atoms");
-            definitionExponents = SerialForm.readInts(in, "invalid unit atom: too many definition exponents");
+            definitionAtoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, TOO_MANY_ATOMS);
+            definitionExponents = SerialForm.readInts(in, TOO_MANY_EXPONENTS);
         }
 
         @Serial

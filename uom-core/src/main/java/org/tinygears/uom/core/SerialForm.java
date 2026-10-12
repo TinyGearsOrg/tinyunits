@@ -4,6 +4,7 @@ package org.tinygears.uom.core;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.function.IntFunction;
@@ -20,7 +21,17 @@ final class SerialForm {
     private SerialForm() {
     }
 
-    static void writeObjects(ObjectOutputStream out, Object[] a) throws IOException {
+    /** Refuses an array the reader would reject, so the failure is at the writing end. */
+    private static void checkLength(int n, String tooMany) throws NotSerializableException {
+        if (n > MAX_ELEMENTS) {
+            throw new NotSerializableException(tooMany);
+        }
+    }
+
+    static void writeObjects(ObjectOutputStream out, Object[] a, String tooMany) throws IOException {
+        if (a != null) {
+            checkLength(a.length, tooMany);
+        }
         out.writeInt(a == null ? -1 : a.length);
         if (a != null) {
             for (Object o : a) {
@@ -42,7 +53,10 @@ final class SerialForm {
         return a;
     }
 
-    static void writeInts(ObjectOutputStream out, int[] a) throws IOException {
+    static void writeInts(ObjectOutputStream out, int[] a, String tooMany) throws IOException {
+        if (a != null) {
+            checkLength(a.length, tooMany);
+        }
         out.writeInt(a == null ? -1 : a.length);
         if (a != null) {
             for (int v : a) {

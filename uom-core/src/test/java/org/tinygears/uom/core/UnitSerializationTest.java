@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidObjectException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
@@ -235,6 +236,12 @@ class UnitSerializationTest {
                         null, null)),
                 serialize(UomUnit.of(Map.of(new UnitAtom("t1-a", d), 1,
                         new UnitAtom("t1-b", new UomDimension(2, 0, 0, 0, 0, 0, 0)), 1), Converters.IDENTITY, null, null)));
+        // An atom written twice (in the unit and in an alternate's definition) with one symbol object or two.
+        UnitAtom q = new UnitAtom("t1-q", UomDimension.NONE);
+        UnitAtom alt = atom(UomUnit.of(Map.of(q, 1), Converters.IDENTITY, null, null).alternate("t1-alt-q"));
+        assertArrayEquals(serialize(UomUnit.of(Map.of(alt, 1, q, 1), Converters.IDENTITY, null, null)),
+                serialize(UomUnit.of(Map.of(alt, 1, new UnitAtom(new String("t1-q"), UomDimension.NONE), 1),
+                        Converters.IDENTITY, null, null)));
     }
 
     private static Path location(Class<?> c) throws Exception {
@@ -446,11 +453,12 @@ class UnitSerializationTest {
         UomConverter max = (UomConverter) deserialize(serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO,
                 ones, zeros)));
         assertEquals(1000, max.getConversionSteps().size());
-        Factor[] manyOnes = new Factor[100_000];
-        Factor[] manyZeros = new Factor[100_000];
-        Arrays.fill(manyOnes, Factor.ONE);
-        Arrays.fill(manyZeros, Factor.ZERO);
-        byte[] forged = serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO, manyOnes, manyZeros));
+        // The writer refuses more than 1000 steps, so the forged count of 100_000 is patched into the stream.
+        Factor[] few = Arrays.copyOf(ones, 999);
+        byte[] bytes = serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO, few, Arrays.copyOf(zeros, 999)));
+        int at = indexOf(bytes, new byte[] {0, 0, 0x03, (byte) 0xe7});
+        assertTrue(at > 0);
+        byte[] forged = patchLength(bytes, at, 100_000, 0);
         InvalidObjectException e = assertTimeoutPreemptively(Duration.ofSeconds(1),
                 () -> assertThrows(InvalidObjectException.class, () -> deserialize(forged)));
         assertEquals("invalid converter: too many conversion steps", e.getMessage());
@@ -471,6 +479,108 @@ class UnitSerializationTest {
         InvalidObjectException e = assertTimeoutPreemptively(Duration.ofSeconds(1),
                 () -> assertThrows(InvalidObjectException.class, () -> deserialize(forged)));
         assertEquals("invalid factor: factor too large", e.getMessage());
+    }
+
+    /** {@code bytes} with the four bytes at {@code at} replaced by {@code length}, the {@code drop} after them removed. */
+    private static byte[] patchLength(byte[] bytes, int at, int length, int drop) {
+        byte[] out = new byte[bytes.length - drop];
+        System.arraycopy(bytes, 0, out, 0, at);
+        out[at] = (byte) (length >>> 24);
+        out[at + 1] = (byte) (length >>> 16);
+        out[at + 2] = (byte) (length >>> 8);
+        out[at + 3] = (byte) length;
+        System.arraycopy(bytes, at + 4 + drop, out, at + 4, bytes.length - at - 4 - drop);
+        return out;
+    }
+
+    @Test
+    void forgedNegativeLengthAndEmptyNumber() throws Exception {
+        byte[] dim = serialize(new UomDimension.Proxy(new int[] {0x5a5a5a5a}));
+        int at = indexOf(dim, new byte[] {0, 0, 0, 1, 0x5a, 0x5a, 0x5a, 0x5a});
+        assertTrue(at > 0);
+        InvalidObjectException e = assertThrows(InvalidObjectException.class,
+                () -> deserialize(patchLength(dim, at, -2, 0)));
+        assertEquals("negative length -2", e.getMessage());
+
+        byte[] factor = serialize(new Factor.Proxy(new BigInteger(1, new byte[] {0x51, 0x52, 0x53, 0x54}),
+                BigInteger.ONE, 0, 1));
+        int n = indexOf(factor, new byte[] {0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54});
+        assertTrue(n > 0);
+        e = assertThrows(InvalidObjectException.class, () -> deserialize(patchLength(factor, n, 0, 4)));
+        assertEquals("invalid factor: empty number", e.getMessage());
+    }
+
+    @Test
+    void factorByteCapIsExact() throws Exception {
+        // 8193 bytes hold up to 65_543 bits with the sign; 65_544 bits need 8194 and are refused before allocation.
+        BigInteger max = BigInteger.ONE.shiftLeft(65_536).subtract(BigInteger.ONE);
+        assertEquals(8193, max.toByteArray().length);
+        assertEquals(max, ((Factor) deserialize(serialize(new Factor.Proxy(max, BigInteger.TWO, 0, 1)))).numerator());
+        BigInteger widest = BigInteger.ONE.shiftLeft(65_542);
+        assertEquals(8193, widest.toByteArray().length);
+        InvalidObjectException e = assertInvalid("invalid factor: factor too large",
+                new Factor.Proxy(widest, BigInteger.ONE, 0, 1));
+        assertTrue(e.getCause() instanceof ArithmeticException, "rejected by the bit check after reading");
+        BigInteger over = BigInteger.ONE.shiftLeft(65_543);
+        assertEquals(8194, over.toByteArray().length);
+        e = assertInvalid("invalid factor: factor too large", new Factor.Proxy(over, BigInteger.ONE, 0, 1));
+        assertNull(e.getCause(), "rejected by the byte cap before reading");
+    }
+
+    @Test
+    void wrongElementTypes() throws Exception {
+        int[] seen = {0};
+        UomConverter chain = Converters.scale(Factor.ofLong(2)).concatenate(Converters.shift(Factor.ONE));
+        // The third factor written is the first step factor.
+        InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> readReplacing(chain,
+                o -> o instanceof Factor.Proxy && ++seen[0] == 3 ? "x" : o));
+        assertEquals(6, seen[0]);
+        assertEquals("expected Factor, got java.lang.String", e.getMessage());
+        e = assertThrows(InvalidObjectException.class, () -> readReplacing(METRE.divide(SECOND),
+                o -> o instanceof UnitAtom.Proxy ? "x" : o));
+        assertEquals("expected UnitAtom, got java.lang.String", e.getMessage());
+        e = assertThrows(InvalidObjectException.class, () -> readReplacing(METRE,
+                o -> o instanceof AffineConverter.Proxy ? "x" : o));
+        assertEquals("expected UomConverter, got java.lang.String", e.getMessage());
+    }
+
+    @Test
+    void writeRefusesWhatReadWouldReject() throws Exception {
+        UomConverter c = Converters.IDENTITY;
+        for (int i = 1; i < 1000; i++) {
+            c = c.concatenate(Converters.IDENTITY);
+        }
+        assertEquals(1000, roundTrip(c).getConversionSteps().size());
+        UomConverter over = c.concatenate(Converters.IDENTITY);
+        NotSerializableException e = assertThrows(NotSerializableException.class, () -> serialize(over));
+        assertEquals("invalid converter: too many conversion steps", e.getMessage());
+
+        Map<UnitAtom, Integer> atoms = new LinkedHashMap<>();
+        for (int i = 0; i < 1000; i++) {
+            atoms.put(new UnitAtom("t1-many-" + i, UomDimension.NONE), 1);
+        }
+        UomUnit<?> wide = UomUnit.of(atoms, Converters.IDENTITY, null, null);
+        assertEquals(wide, roundTrip(wide));
+        atoms.put(new UnitAtom("t1-many-1000", UomDimension.NONE), 1);
+        UomUnit<?> wider = UomUnit.of(atoms, Converters.IDENTITY, null, null);
+        e = assertThrows(NotSerializableException.class, () -> serialize(wider));
+        assertEquals("invalid unit: too many atoms", e.getMessage());
+    }
+
+    @Test
+    void inexactFoldIsCheckedInDecimal() throws Exception {
+        Factor r2 = Factor.ofLong(2).root(2);
+        Factor r3 = Factor.ofLong(3).root(2);
+        assertInvalid("invalid converter: steps do not compose to x -> 1000 * x + 7", new AffineConverter.Proxy(
+                Factor.ofLong(1000), Factor.ofLong(7), new Factor[] {Factor.ONE, Factor.ONE}, new Factor[] {r2, r3}));
+        // Off by one part in 10^30: still rejected.
+        assertInvalid("invalid converter: steps do not compose to x -> 1 * x + 0", new AffineConverter.Proxy(
+                Factor.ONE, Factor.ZERO, new Factor[] {Factor.ONE, Factor.ONE},
+                new Factor[] {r2, r2.multiply(Factor.of(BigInteger.TEN.pow(30).add(BigInteger.ONE),
+                        BigInteger.TEN.pow(30))).negate()}));
+        UomConverter ok = (UomConverter) deserialize(serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO,
+                new Factor[] {Factor.ONE, Factor.ONE}, new Factor[] {r2, r2.negate()})));
+        assertEquals(Converters.IDENTITY, ok);
     }
 
     private static int indexOf(byte[] bytes, byte[] part) {

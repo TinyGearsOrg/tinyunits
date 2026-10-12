@@ -42,7 +42,9 @@ final class AlternateUnits {
     /**
      * Resolves an atom read from a stream without registering it, so untrusted data cannot bind a symbol: a
      * registered symbol must match (same definition, or the same atom when none is given) and gives the
-     * registered atom; an unregistered one gives an equal, unregistered atom.
+     * registered atom; an unregistered one gives an equal, unregistered atom. Without a definition (a base atom,
+     * or an unregistered atom written again) only symbol and dimension are compared: a weaker check, but
+     * harmless since atoms are equal by symbol and dimension.
      */
     static UnitAtom restore(String symbol, UomDimension dimension, Map<UnitAtom, Integer> definition) {
         checkSymbol(symbol);

@@ -15,7 +15,10 @@ import java.util.List;
 import java.util.Objects;
 import javax.measure.UnitConverter;
 
-/** Serializable through a proxy that rebuilds with {@link Converters} and keeps the conversion steps in order. */
+/**
+ * Serializable through a proxy: one step is rebuilt with {@link Converters}; several are validated and rebuilt
+ * through the package-private constructor, keeping the stored factor, offset and step order.
+ */
 final class AffineConverter implements UomConverter, Serializable {
 
     private final Factor factor;
@@ -28,7 +31,7 @@ final class AffineConverter implements UomConverter, Serializable {
         this(factor, offset, null);
     }
 
-    private AffineConverter(Factor factor, Factor offset, List<UnitConverter> steps) {
+    AffineConverter(Factor factor, Factor offset, List<UnitConverter> steps) {
         this.factor = factor;
         this.offset = offset;
         this.factorD = factor.doubleValue();
@@ -166,6 +169,11 @@ final class AffineConverter implements UomConverter, Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
+        private static final String TOO_MANY_STEPS = "invalid converter: too many conversion steps";
+        private static final MathContext FOLD = new MathContext(60);
+        private static final BigDecimal TOLERANCE = new BigDecimal("1e-40");
+        private static final int MAX_DECIMAL_BITS = 4096;
+
         private transient Factor factor;
         private transient Factor offset;
         private transient Factor[] stepFactors;
@@ -183,8 +191,8 @@ final class AffineConverter implements UomConverter, Serializable {
             out.defaultWriteObject();
             out.writeUnshared(factor);
             out.writeUnshared(offset);
-            SerialForm.writeObjects(out, stepFactors);
-            SerialForm.writeObjects(out, stepOffsets);
+            SerialForm.writeObjects(out, stepFactors, TOO_MANY_STEPS);
+            SerialForm.writeObjects(out, stepOffsets, TOO_MANY_STEPS);
         }
 
         @Serial
@@ -192,10 +200,8 @@ final class AffineConverter implements UomConverter, Serializable {
             in.defaultReadObject();
             factor = SerialForm.read(in, Factor.class);
             offset = SerialForm.read(in, Factor.class);
-            stepFactors = SerialForm.readObjects(in, Factor.class, Factor[]::new,
-                    "invalid converter: too many conversion steps");
-            stepOffsets = SerialForm.readObjects(in, Factor.class, Factor[]::new,
-                    "invalid converter: too many conversion steps");
+            stepFactors = SerialForm.readObjects(in, Factor.class, Factor[]::new, TOO_MANY_STEPS);
+            stepOffsets = SerialForm.readObjects(in, Factor.class, Factor[]::new, TOO_MANY_STEPS);
         }
 
         @Serial
@@ -228,15 +234,49 @@ final class AffineConverter implements UomConverter, Serializable {
                         folded = false;
                     }
                 }
-                // Steps concatenated in another grouping may not fold exactly left to right; the stored values stand.
-                if (folded && (!f.equals(factor) || !o.equals(offset))) {
+                // Steps grouped otherwise may not fold exactly left to right; a decimal fold checks them then.
+                if (folded ? !f.equals(factor) || !o.equals(offset) : !decimalFoldAgrees()) {
                     throw new IllegalArgumentException(
                             "steps do not compose to x -> " + factor + " * x + " + offset);
                 }
+                // Validated above; the package-private constructor keeps the stored values and the step list.
                 return new AffineConverter(factor, offset, List.copyOf(steps));
             } catch (RuntimeException e) {
                 throw new InvalidObjectException("invalid converter: " + e.getMessage(), e);
             }
+        }
+
+        /**
+         * Left fold of the steps to 60 digits against the stored values, within 1e-40 relative to the largest
+         * term (1e-40 absolute if all are zero). Parts over 4096 bits or values without a decimal skip the check.
+         */
+        private boolean decimalFoldAgrees() {
+            List<Factor> all = new ArrayList<>(List.of(factor, offset));
+            all.addAll(List.of(stepFactors));
+            all.addAll(List.of(stepOffsets));
+            if (all.stream().anyMatch(x -> x.numerator().bitLength() > MAX_DECIMAL_BITS
+                    || x.denominator().bitLength() > MAX_DECIMAL_BITS)) {
+                return true;
+            }
+            try {
+                BigDecimal f = stepFactors[0].decimalValue(FOLD);
+                BigDecimal o = stepOffsets[0].decimalValue(FOLD);
+                BigDecimal terms = o.abs();
+                for (int i = 1; i < stepFactors.length; i++) {
+                    BigDecimal t = f.multiply(stepOffsets[i].decimalValue(FOLD), FOLD);
+                    o = o.add(t, FOLD);
+                    terms = terms.add(t.abs(), FOLD);
+                    f = f.multiply(stepFactors[i].decimalValue(FOLD), FOLD);
+                }
+                return close(f, factor.decimalValue(FOLD), f.abs()) && close(o, offset.decimalValue(FOLD), terms);
+            } catch (ArithmeticException e) {
+                return true;
+            }
+        }
+
+        private static boolean close(BigDecimal a, BigDecimal b, BigDecimal scale) {
+            BigDecimal bound = scale.max(a.abs()).max(b.abs()).multiply(TOLERANCE);
+            return a.subtract(b).abs().compareTo(bound.signum() == 0 ? TOLERANCE : bound) <= 0;
         }
     }
 
