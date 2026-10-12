@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import javax.measure.MetricPrefix;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
@@ -424,6 +426,15 @@ class DefinitionParserTest {
     }
 
     @Test
+    void duplicateExtends() {
+        fails("@extends b\n\n@extends b\n", Map.of("b", BASE), "test.units:3: duplicate '@extends' of 'b'");
+        Definitions d = parse("@extends a\n", Map.of("a", "@extends b\n", "b", BASE));
+        assertEquals(List.of(new Extends("a", "test.units", 1)), d.extended());
+        d = parse("@extends b\n@extends a\n", Map.of("a", "@extends b\n", "b", BASE));
+        assertEquals(List.of(new Extends("b", "test.units", 1), new Extends("a", "test.units", 2)), d.extended());
+    }
+
+    @Test
     void extendsErrors() {
         fails("@extends missing.units\n", "test.units:1: cannot include 'missing.units'");
         fails("\n@extends a\n", Map.of("a", "@extends b\n", "b", "@include a\n"),
@@ -444,18 +455,46 @@ class DefinitionParserTest {
 
     @Test
     void memberErrors() {
-        fails(BASE + "@member m x s\n", "test.units:5: unknown unit 'x'");
-        fails(BASE + "@member cm\ncm 1|100 m\n", "test.units:5: unknown unit 'cm'");
-        fails(BASE + "@member m s\n@member kg m\n", "test.units:6: duplicate member 'm'");
-        fails(BASE + "@member s s\n", "test.units:5: duplicate member 's'");
-        fails(BASE + "@member\n", "test.units:5: expected '@member symbol...'");
+        Map<String, String> base = Map.of("b", BASE);
+        fails("@include b\n@member m x s\n", base, "test.units:2: unknown unit 'x'");
+        fails("@include b\n@member cm\ncm 1|100 m\n", base, "test.units:2: unknown unit 'cm'");
+        fails("@include b\n@member m s\n@member kg m\n", base, "test.units:3: duplicate member 'm'");
+        fails("@include b\n@member s s\n", base, "test.units:2: duplicate member 's'");
+        fails("@include b\n@member\n", base, "test.units:2: expected '@member symbol...'");
         fails("@include a\n", Map.of("a", BASE + "@member q\n"), "a:5: unknown unit 'q'");
     }
 
     @Test
+    void memberDefinedInTheSameFile() {
+        fails(BASE + "@member m\n", "test.units:5: unit 'm' is defined in this file");
+        fails("@include b\nx 2 m\n@member s x\n", Map.of("b", BASE), "test.units:3: unit 'x' is defined in this file");
+        fails("@include a\n", Map.of("a", BASE + "@member K\n"), "a:5: unit 'K' is defined in this file");
+    }
+
+    @Test
+    void memberFromExtendedFileAndNonAsciiSymbols() {
+        Definitions d = parse("@extends e\n@member Ω °F m\n",
+                Map.of("e", BASE + "Ω:ohm m\n°F:degree_Fahrenheit K = (x + 459.67) * 5|9\n"));
+        assertEquals(List.of(new Member("Ω", "test.units", 2), new Member("°F", "test.units", 2),
+                new Member("m", "test.units", 2)), d.members());
+    }
+
+    @Test
     void memberInIncludedFileIsNotReported() {
-        Definitions d = parse("@include a\n@member m\n", Map.of("a", BASE + "@member m s\n"));
+        Definitions d = parse("@include a\n@member m\n", Map.of("a", "@include b\n@member m s\n", "b", BASE));
         assertEquals(List.of(new Member("m", "test.units", 2)), d.members());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
+        "const", "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally", "float",
+        "for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new",
+        "package", "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+        "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while", "_", "true",
+        "false", "null", "var", "yield", "record", "sealed", "permits"})
+    void reservedSystemNames(String name) {
+        fails("@system " + name + "\n", "test.units:1: invalid system name '" + name + "'");
+        assertEquals(name + "1", parse("@system " + name + "1\n").system());
     }
 
     @Test

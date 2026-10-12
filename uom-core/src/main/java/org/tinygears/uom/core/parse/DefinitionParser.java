@@ -28,13 +28,14 @@ public final class DefinitionParser {
     private static final Pattern TYPE = Pattern.compile("[A-Z][A-Za-z0-9]*");
     private static final String DELIMITERS = "*/·()^|=#[]!~@,";
     private static final String BASE_LETTERS = "LMTIΘNJK";
-    // JLS 3.9 reserved keywords, '_' and the literals; avoids depending on the java.compiler module.
+    // JLS 3.9 reserved keywords, '_', the literals and the restricted identifiers that are not type names;
+    // avoids depending on the java.compiler module.
     private static final Set<String> RESERVED = Set.of("abstract", "assert", "boolean", "break", "byte", "case",
             "catch", "char", "class", "const", "continue", "default", "do", "double", "else", "enum", "extends",
             "final", "finally", "float", "for", "goto", "if", "implements", "import", "instanceof", "int",
             "interface", "long", "native", "new", "package", "private", "protected", "public", "return", "short",
             "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try",
-            "void", "volatile", "while", "_", "true", "false", "null");
+            "void", "volatile", "while", "_", "true", "false", "null", "var", "yield", "record", "sealed", "permits");
     private static final Map<String, MetricPrefix> PREFIXES = Arrays.stream(MetricPrefix.values())
             .collect(Collectors.toUnmodifiableMap(MetricPrefix::getSymbol, p -> p));
     private static final UomUnit<?>[] BASES = {BaseUnits.METRE, BaseUnits.KILOGRAM, BaseUnits.SECOND,
@@ -129,6 +130,9 @@ public final class DefinitionParser {
                 if (w.length != 2) {
                     throw new DefinitionException(src, ln, "expected '@extends name'", null);
                 }
+                if (root() && extended.stream().anyMatch(e -> e.file().equals(w[1]))) {
+                    throw new DefinitionException(src, ln, "duplicate '@extends' of '" + w[1] + "'", null);
+                }
                 include(src, ln, w[1]);
                 if (root()) {
                     extended.add(new Extends(w[1], src, ln));
@@ -171,6 +175,9 @@ public final class DefinitionParser {
         for (String symbol : List.of(w).subList(1, w.length)) {
             if (!units.containsKey(symbol)) {
                 throw new DefinitionException(src, ln, "unknown unit '" + symbol + "'", null);
+            }
+            if (definitions.stream().anyMatch(d -> d.symbol().equals(symbol) && d.source().equals(src))) {
+                throw new DefinitionException(src, ln, "unit '" + symbol + "' is defined in this file", null);
             }
             if (root()) {
                 if (members.stream().anyMatch(m -> m.symbol().equals(symbol))) {
