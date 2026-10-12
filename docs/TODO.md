@@ -25,7 +25,11 @@ that methods exist), and whether any reference implementation (for example Indri
 **Code and docs touched by a change:** `AbstractDoubleQuantity` (`combine`, `scalar`), its arithmetic tests, requirement F24,
 DESIGN section 4.
 
-**Needed by:** the TCK work in milestone 3.
+**Where the code keeps today's behaviour:** `AbstractDoubleQuantity.combine` and `scalar`. `QuantityContractTest` asserts
+the Javadoc discrepancy (276.15 degC against the Javadoc's 274.15). The TCK passes (113 of 113) with the current rule, so
+the decision no longer blocks milestone 3.
+
+**Needed by:** nothing in milestone 3 any more; decide before 1.0.
 
 ## 2. `asType` and alternate units
 
@@ -37,7 +41,7 @@ dimension-correct narrowings fail with `ClassCastException`:
 - `Frequency.of(2, Hz).multiply(Time.of(3, s)).asType(Dimensionless.class)`: the source unit `Hz·s` contains the alternate
   atom `Hz`, the target's system unit is `ONE`.
 
-Milestone 3 meets the same problem with `rad` and `sr` (Angle, SolidAngle).
+The same applies to `rad` and `sr` (Angle, SolidAngle).
 
 **Options for the acceptance rule** (dimensions must be equal in all of them):
 - **A. Accept when the target's system unit has no alternate atom.** Fixes `Hz·s` to Dimensionless; does not fix `1/s` to
@@ -48,8 +52,16 @@ Milestone 3 meets the same problem with `rad` and `sr` (Angle, SolidAngle).
   `rad` to `sr`, which is the intended distinction.
 - **D. Keep the current structural rule** and document it.
 
-**Needed by:** the provider and TCK work in milestone 3 (the TCK needs a quantity factory for all 33 standard types).
+**Where the code keeps today's behaviour:** `UomUnit.asType` (`uom-core`) compares the system units with `equals`. The TCK
+passes (113 of 113) with it. The generated catalog already has `rad` and `sr` (`SI.RADIAN`, `SI.STERADIAN`) as alternate units.
 
-**Related risks, not decisions:** `asType` assumes `ServiceProvider.current()` is ours, and one conflicting alternate-unit
-registration breaks `QuantityTypes` for the life of the class loader; both are listed in
-`docs/superpowers/plans/2026-10-12-uom-m2-follow-ups.md`.
+**Needed by:** nothing in milestone 3 any more; decide before 1.0.
+
+**Related risk, not a decision:** `asType` uses `ServiceProvider.current()`; our provider has priority 100, but a provider of
+higher priority on the class path still breaks it. Other items: `docs/superpowers/plans/2026-10-12-uom-m3-follow-ups.md`.
+
+## 3. Offset-unit products
+
+**Status:** undecided. `UomUnit.multiply(Unit)` and `divide(Unit)` throw for a unit with an offset (DESIGN section 3), while the
+`Unit` Javadoc says multiplication of offset units is supported. Kept in `UomUnit` and its tests in
+`uom-core`. Options: keep and document, or apply the offset to the system unit first.
