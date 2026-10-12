@@ -38,8 +38,10 @@ public final class MagneticFluxFactory implements javax.measure.spi.QuantityFact
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFlux> u) {
             return new MagneticFluxDecimal(value, u, scale, mc);

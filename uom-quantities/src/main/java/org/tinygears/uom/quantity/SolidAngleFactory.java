@@ -38,8 +38,10 @@ public final class SolidAngleFactory implements javax.measure.spi.QuantityFactor
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> u) {
             return new SolidAngleDecimal(value, u, scale, mc);

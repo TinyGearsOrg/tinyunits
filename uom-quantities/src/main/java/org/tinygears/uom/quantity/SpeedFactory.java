@@ -38,8 +38,10 @@ public final class SpeedFactory implements javax.measure.spi.QuantityFactory<jav
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Speed> u) {
             return new SpeedDecimal(value, u, scale, mc);

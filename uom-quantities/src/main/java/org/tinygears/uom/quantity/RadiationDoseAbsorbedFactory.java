@@ -38,8 +38,10 @@ public final class RadiationDoseAbsorbedFactory implements javax.measure.spi.Qua
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> u) {
             return new RadiationDoseAbsorbedDecimal(value, u, scale, mc);

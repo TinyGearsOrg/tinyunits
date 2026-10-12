@@ -38,8 +38,10 @@ public final class AreaFactory implements javax.measure.spi.QuantityFactory<java
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> u) {
             return new AreaDecimal(value, u, scale, mc);

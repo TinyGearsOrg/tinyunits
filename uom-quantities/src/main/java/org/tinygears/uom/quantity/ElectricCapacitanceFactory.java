@@ -38,8 +38,10 @@ public final class ElectricCapacitanceFactory implements javax.measure.spi.Quant
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> u) {
             return new ElectricCapacitanceDecimal(value, u, scale, mc);

@@ -194,6 +194,14 @@ class SourceEmitterTest {
         assertEquals(MathContext.DECIMAL128, ((AbstractDecimalQuantity<?, ?>) fromInteger).mathContext());
         assertEquals(3.0, ((Quantity<?>) create.invoke(factory, 3, BaseUnits.METRE)).getValue());
         assertEquals(3.0, ((Quantity<?>) create.invoke(factory, 3L, BaseUnits.METRE)).getValue());
+        java.lang.reflect.Method createScaled = factory.getClass()
+                .getMethod("create", Number.class, Unit.class, Quantity.Scale.class);
+        for (Number n : List.of(new BigDecimal("4"), BigInteger.TWO)) {
+            Quantity<?> relative = (Quantity<?>) createScaled.invoke(factory, n, BaseUnits.METRE,
+                    Quantity.Scale.RELATIVE);
+            assertInstanceOf(BigDecimal.class, relative.getValue());
+            assertEquals(Quantity.Scale.RELATIVE, relative.getScale());
+        }
 
         Unit<?> foreign = (Unit<?>) Proxy.newProxyInstance(Unit.class.getClassLoader(), new Class<?>[] {Unit.class},
                 (proxy, method, args) -> "foreign");
@@ -203,5 +211,8 @@ class SourceEmitterTest {
         assertInstanceOf(UnconvertibleException.class, e.getCause());
         e = assertThrows(InvocationTargetException.class, () -> of.invoke(factory, null, BaseUnits.METRE));
         assertInstanceOf(NullPointerException.class, e.getCause());
+        e = assertThrows(InvocationTargetException.class, () -> of.invoke(factory, null, foreign));
+        assertInstanceOf(NullPointerException.class, e.getCause());
+        assertEquals("value", e.getCause().getMessage());
     }
 }

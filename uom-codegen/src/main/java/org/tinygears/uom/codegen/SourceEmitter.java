@@ -154,8 +154,10 @@ public final class SourceEmitter {
                     return of(value, unit, scale, java.math.MathContext.DECIMAL128);
                 }
 
+                /** A decimal quantity with context {@code mc}. */
                 public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+                    java.util.Objects.requireNonNull(value, "value");
                     if (java.util.Objects.requireNonNull(unit, "unit")
                             instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> u) {
                         return new $TDecimal(value, u, scale, mc);

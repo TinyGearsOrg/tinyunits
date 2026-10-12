@@ -38,8 +38,10 @@ public final class ElectricPotentialFactory implements javax.measure.spi.Quantit
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> u) {
             return new ElectricPotentialDecimal(value, u, scale, mc);

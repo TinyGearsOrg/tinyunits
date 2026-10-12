@@ -38,8 +38,10 @@ public final class FrequencyFactory implements javax.measure.spi.QuantityFactory
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Frequency of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Frequency> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> u) {
             return new FrequencyDecimal(value, u, scale, mc);

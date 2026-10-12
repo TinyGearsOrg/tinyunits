@@ -38,8 +38,10 @@ public final class MassFactory implements javax.measure.spi.QuantityFactory<java
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> u) {
             return new MassDecimal(value, u, scale, mc);

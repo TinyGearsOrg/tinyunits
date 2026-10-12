@@ -38,8 +38,10 @@ public final class RadiationDoseEffectiveFactory implements javax.measure.spi.Qu
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> u) {
             return new RadiationDoseEffectiveDecimal(value, u, scale, mc);

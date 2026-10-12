@@ -38,8 +38,10 @@ public final class LengthFactory implements javax.measure.spi.QuantityFactory<ja
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> u) {
             return new LengthDecimal(value, u, scale, mc);

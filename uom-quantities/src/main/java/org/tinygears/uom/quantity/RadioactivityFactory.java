@@ -38,8 +38,10 @@ public final class RadioactivityFactory implements javax.measure.spi.QuantityFac
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> u) {
             return new RadioactivityDecimal(value, u, scale, mc);

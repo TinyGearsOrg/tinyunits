@@ -38,8 +38,10 @@ public final class EnergyFactory implements javax.measure.spi.QuantityFactory<ja
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Energy of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Energy> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> u) {
             return new EnergyDecimal(value, u, scale, mc);

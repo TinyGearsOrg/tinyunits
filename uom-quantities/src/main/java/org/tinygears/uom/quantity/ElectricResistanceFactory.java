@@ -38,8 +38,10 @@ public final class ElectricResistanceFactory implements javax.measure.spi.Quanti
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public ElectricResistance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> u) {
             return new ElectricResistanceDecimal(value, u, scale, mc);

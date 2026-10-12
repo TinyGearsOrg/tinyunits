@@ -38,8 +38,10 @@ public final class ElectricConductanceFactory implements javax.measure.spi.Quant
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public ElectricConductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> u) {
             return new ElectricConductanceDecimal(value, u, scale, mc);

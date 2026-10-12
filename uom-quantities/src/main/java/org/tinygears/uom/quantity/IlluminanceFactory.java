@@ -38,8 +38,10 @@ public final class IlluminanceFactory implements javax.measure.spi.QuantityFacto
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
+    /** A decimal quantity with context {@code mc}. */
     public Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        java.util.Objects.requireNonNull(value, "value");
         if (java.util.Objects.requireNonNull(unit, "unit")
                 instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> u) {
             return new IlluminanceDecimal(value, u, scale, mc);
