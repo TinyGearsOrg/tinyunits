@@ -31,13 +31,23 @@ import org.tinygears.uom.quantity.QuantityTypes;
  * number is localized, never the unit: the same text is written with each ASCII digit, {@code .}, {@code -} and
  * {@code E} replaced by the locale's digit, decimal separator, minus sign and exponent separator of
  * {@link DecimalFormatSymbols} ({@code -1,5E10 km} in {@code de-DE}, {@code \u22121,5×10^10 km} in {@code sv-SE});
- * an exponent {@code +} stays ASCII, {@code NaN}, {@code Infinity} and {@code -Infinity} keep their ROOT text and
- * no grouping separator is written. Parsing accepts the locale's digits and ASCII digits, only the locale's
- * decimal separator, the locale's minus sign, {@code -} or {@code +}, and the locale's exponent separator,
- * {@code E} or {@code e}. A grouping separator (exactly the locale's) is an error unless {@link #withGrouping}
- * is on, in which case it is skipped between two digits; {@code withGrouping(true)} on ROOT skips {@code ,}.
- * The number ends at the first whitespace ({@link Character#isWhitespace}, which excludes the no-break spaces
- * some locales group with). A locale whose symbols would make numbers ambiguous is refused by {@code withLocale}.
+ * an exponent {@code +} stays ASCII, {@code NaN}, {@code Infinity} and {@code -Infinity} keep their ROOT text, and
+ * neither grouping separators nor the bidi marks that {@code DecimalFormat} puts around a minus sign are written.
+ *
+ * <p>Parsing in a locale accepts the locale's digits and ASCII digits, mixed freely in one number; only the
+ * locale's decimal separator; the locale's minus sign, {@code -} or {@code +}; and the locale's exponent separator,
+ * {@code E} or {@code e} (inside a multi-character separator such as {@code fa}'s {@code ×۱۰^} the characters must
+ * match exactly, so {@code ۱×10^۱۰} is invalid while {@code ۱E۱۰} is accepted). Format characters (Unicode
+ * {@code Cf}, such as bidi marks) are skipped at the start and end of the number and after a leading sign. Only
+ * the exact grouping character of the locale is recognised ({@code fr-FR} groups with U+202F, so U+00A0 is
+ * rejected). A grouping separator is an error unless {@link #withGrouping} is on; then it is skipped between two
+ * digits of the integer part, without checking group sizes ({@code 1.5 km} in {@code de-DE} is 15 km), and is
+ * an error after the decimal separator or in the exponent. The number ends at the first whitespace
+ * ({@link Character#isWhitespace}, which excludes no-break spaces): {@code 1 234 km} with ASCII spaces is 1 of
+ * the unit {@code 234 km} (the unit grammar's product), so space-grouping locales need a no-break grouping
+ * character. {@code withGrouping(true)} on ROOT groups with {@code ,} and no longer accepts the extra forms of
+ * {@code Double.parseDouble} (hexadecimal floats, a {@code d} or {@code f} suffix). A locale whose symbols would
+ * make numbers ambiguous is refused by {@code withLocale}.
  */
 public final class UomQuantityFormat implements QuantityFormat {
     private static final DecimalFormatSymbols ROOT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ROOT);
@@ -107,6 +117,24 @@ public final class UomQuantityFormat implements QuantityFormat {
         return !Locale.ROOT.equals(locale);
     }
 
+    /** Equal formats have the same locale symbols and grouping and the same unit format instance. */
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof UomQuantityFormat f && f.unitFormat == unitFormat && f.locale.equals(locale)
+                && f.grouping == grouping && f.zero == zero && f.decimal == decimal && f.group == group
+                && f.minus == minus && f.exponent.equals(exponent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(System.identityHashCode(unitFormat), locale, grouping);
+    }
+
+    @Override
+    public String toString() {
+        return "UomQuantityFormat[locale=" + locale.toLanguageTag() + ", grouping=" + grouping + "]";
+    }
+
     private void check() {
         for (int i = 0; i < 10; i++) {
             if (Character.digit(zero + i, 10) != i) {
@@ -132,8 +160,8 @@ public final class UomQuantityFormat implements QuantityFormat {
     }
 
     private void checkSymbol(String what, char c) {
-        if (Character.isLetterOrDigit(c) || Character.isWhitespace(c) || c == '+') {
-            throw unsafe(what + " '" + c + "' is a letter, digit or space");
+        if (Character.isLetterOrDigit(c) || Character.isWhitespace(c) || isFormatMark(c) || c == '+') {
+            throw unsafe(what + " '" + c + "' is a letter, digit, space, format mark or plus");
         }
     }
 
@@ -225,23 +253,42 @@ public final class UomQuantityFormat implements QuantityFormat {
      */
     private String normalize(CharSequence csq, int from, int to) {
         String s = csq.toString();
-        String token = s.substring(from, to);
-        int signed = token.isEmpty() || !isSign(token.charAt(0)) ? 0 : 1;
-        String rest = token.substring(signed);
-        if (rest.equals("NaN") || rest.equals("Infinity")) {
-            return (signed == 1 && token.charAt(0) != '+' ? "-" : "") + rest;
+        // Format marks (Cf) before or after the number and after a leading sign, as DecimalFormat writes them.
+        while (from < to && isFormatMark(s.charAt(from))) {
+            from++;
         }
-        StringBuilder sb = new StringBuilder(token.length());
+        while (to > from && isFormatMark(s.charAt(to - 1))) {
+            to--;
+        }
         int i = from;
+        StringBuilder sb = new StringBuilder(to - from);
+        if (i < to && isSign(s.charAt(i))) {
+            sb.append(s.charAt(i) == '+' ? '+' : '-');
+            i++;
+            while (i < to && isFormatMark(s.charAt(i))) {
+                i++;
+            }
+        }
+        String rest = s.substring(i, to);
+        if (rest.equals("NaN") || rest.equals("Infinity")) {
+            return sb + rest;
+        }
+        boolean fraction = false;
+        boolean exponentPart = false;
         while (i < to) {
             char c = s.charAt(i);
             if (isDigit(c)) {
                 sb.append((char) ('0' + (c >= '0' && c <= '9' ? c - '0' : c - zero)));
             } else if (c == decimal) {
                 sb.append('.');
+                fraction = true;
             } else if (c == group) {
                 if (!grouping) {
                     throw new MeasurementParseException("grouping separator not allowed: '" + c + "'", csq, i);
+                }
+                if (exponentPart || fraction) {
+                    throw new MeasurementParseException("grouping separator not allowed "
+                            + (exponentPart ? "in the exponent" : "after the decimal separator"), csq, i);
                 }
                 if (i == from || !isDigit(s.charAt(i - 1)) || i + 1 >= to || !isDigit(s.charAt(i + 1))) {
                     throw new MeasurementParseException("grouping separator not between digits", csq, i);
@@ -250,16 +297,22 @@ public final class UomQuantityFormat implements QuantityFormat {
                 sb.append(c == '+' ? '+' : '-');
             } else if (s.startsWith(exponent, i)) {
                 sb.append('E');
+                exponentPart = true;
                 i += exponent.length();
                 continue;
             } else if (c == 'E' || c == 'e') {
                 sb.append('E');
+                exponentPart = true;
             } else {
                 throw new NumberFormatException();
             }
             i++;
         }
         return sb.toString();
+    }
+
+    private static boolean isFormatMark(char c) {
+        return Character.getType(c) == Character.FORMAT;
     }
 
     private boolean isDigit(char c) {
