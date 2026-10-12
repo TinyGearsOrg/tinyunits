@@ -5,8 +5,8 @@ package org.tinygears.uom.systems;
 import java.util.List;
 
 /**
- * The systems of units this library provides, SI (the default) first. Formats resolve exact symbols in this order,
- * before any prefix reading.
+ * The systems of units this library provides, SI (the default) first. Symbols are unique across systems, so the
+ * order does not affect exact symbol lookup; it decides which symbol a format picks among equal units.
  */
 public final class UnitSystems {
 

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +29,6 @@ import javax.measure.quantity.MagneticFluxDensity;
 import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
@@ -63,21 +63,24 @@ class SystemsCatalogTest {
             new Catalog("cgs-emu.units", "EMU", EMU.SYSTEM, EMU.UNITS, EMU.PREFIXABLE),
             new Catalog("cgs-gaussian.units", "Gaussian", Gaussian.SYSTEM, Gaussian.UNITS, Gaussian.PREFIXABLE));
 
-    private static final Map<String, Definitions> PARSED = new HashMap<>();
+    private static final Map<String, Definitions> PARSED = load();
 
-    @BeforeAll
-    static void load() throws IOException {
+    private static Map<String, Definitions> load() {
+        Map<String, Definitions> parsed = new HashMap<>();
         DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(DATA.resolve(name),
                 StandardCharsets.UTF_8);
         for (Catalog c : CATALOGS) {
             try (Reader in = resolver.open(c.file())) {
-                PARSED.put(c.file(), DefinitionParser.parse(c.file(), in, resolver));
+                parsed.put(c.file(), DefinitionParser.parse(c.file(), in, resolver));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         }
+        return parsed;
     }
 
     /** Own definitions, then the members of the extended files, then the {@code @member} lines. */
-    private static Set<String> members(String file) {
+    static Set<String> members(String file) {
         Definitions d = PARSED.get(file);
         Set<String> symbols = new LinkedHashSet<>();
         d.definitions().stream().filter(x -> x.source().equals(file)).forEach(x -> symbols.add(x.symbol()));
@@ -91,6 +94,13 @@ class SystemsCatalogTest {
     private static UomUnit<?> unit(String file, String symbol) {
         return PARSED.get(file).definitions().stream().filter(d -> d.symbol().equals(symbol)).findFirst()
                 .map(Definition::unit).orElseThrow(() -> new AssertionError(file + ": " + symbol));
+    }
+
+    /** The {@code @prefixed} symbols of the parse that are members (an owner's status carries over). */
+    static Set<String> prefixable(String file) {
+        Set<String> members = members(file);
+        return PARSED.get(file).prefixed().stream().map(Prefixed::unitSymbol).filter(members::contains)
+                .collect(Collectors.toSet());
     }
 
     /** Own {@code @preferred} line, else the first extended file's, else null (SI's rule applies). */
@@ -132,6 +142,7 @@ class SystemsCatalogTest {
             assertEquals(distinct, c.system().getUnits(), c.name());
             sizes.put(c.name(), List.of(distinct.size(), expected.size()));
         }
+        // Deliberate tripwires: a data change that alters a system's size must update these on purpose.
         Map<String, List<Integer>> pinned = new LinkedHashMap<>();
         pinned.put("SI", List.of(128, 128));
         pinned.put("USCustomary", List.of(35, 35));
@@ -159,11 +170,9 @@ class SystemsCatalogTest {
     @Test
     void prefixableAgreesWithTheData() {
         for (Catalog c : CATALOGS) {
-            Set<String> members = members(c.file());
-            Set<String> expected = PARSED.get(c.file()).prefixed().stream().map(Prefixed::unitSymbol)
-                    .filter(members::contains).collect(Collectors.toSet());
+            Set<String> expected = prefixable(c.file());
             assertEquals(expected, c.prefixable(), c.name());
-            for (String symbol : members) {
+            for (String symbol : members(c.file())) {
                 assertEquals(expected.contains(symbol), c.system().isPrefixable(symbol), c.name() + ": " + symbol);
             }
         }

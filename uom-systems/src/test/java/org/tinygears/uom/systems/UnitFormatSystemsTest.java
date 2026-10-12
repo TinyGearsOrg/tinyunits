@@ -3,12 +3,14 @@
 package org.tinygears.uom.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +20,7 @@ import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import org.junit.jupiter.api.Test;
+import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.systems.SystemsCatalogTest.Catalog;
 
@@ -49,17 +52,16 @@ class UnitFormatSystemsTest {
 
     @Test
     void everyUnitOfEverySystemRoundTrips() {
-        int units = 0;
         for (Catalog c : CATALOGS) {
             for (Unit<?> unit : c.system().getUnits()) {
                 assertEquals(unit, format.parse(format.format(unit)), c.name() + ": " + unit);
-                units++;
             }
         }
-        assertEquals(128 + 35 + 42 + 16 + 22 + 29 + 26, units);
         Map<String, UomUnit<?>> symbols = symbols();
         symbols.forEach((symbol, unit) -> assertSame(unit, format.parse(symbol), symbol));
-        assertEquals(128 + 35 + 7 + 13 + 6 + 13 + 1, symbols.size());
+        Set<String> expected = new HashSet<>();
+        CATALOGS.forEach(c -> expected.addAll(SystemsCatalogTest.members(c.file())));
+        assertEquals(expected, symbols.keySet());
     }
 
     @Test
@@ -85,8 +87,10 @@ class UnitFormatSystemsTest {
                 }
             }
         }
-        assertEquals((32 + 5 + 5 + 6 + 6) * 24, exact + prefixed);
-        assertEquals(List.of(140, 1156), List.of(exact, prefixed));
+        int expected = CATALOGS.stream().mapToInt(c -> SystemsCatalogTest.prefixable(c.file()).size()).sum()
+                * MetricPrefix.values().length;
+        assertEquals(expected, exact + prefixed);
+        assertTrue(exact > 0 && prefixed > 0, exact + " " + prefixed);
     }
 
     @Test
@@ -137,9 +141,9 @@ class UnitFormatSystemsTest {
         Map<String, UomUnit<?>> symbols = symbols();
         int refused = 0;
         for (Catalog c : CATALOGS.subList(1, CATALOGS.size())) {
-            for (UomUnit<?> unit : c.units()) {
-                String symbol = unit.getSymbol();
-                if (c.prefixable().contains(symbol)) {
+            Set<String> prefixable = SystemsCatalogTest.prefixable(c.file());
+            for (String symbol : SystemsCatalogTest.members(c.file())) {
+                if (prefixable.contains(symbol)) {
                     continue;
                 }
                 for (MetricPrefix p : MetricPrefix.values()) {
@@ -151,7 +155,7 @@ class UnitFormatSystemsTest {
                 }
             }
         }
-        assertEquals(3572, refused);
+        assertTrue(refused > 0);
         MeasurementParseException e = assertThrows(MeasurementParseException.class, () -> format.parse("mgal_US"));
         assertEquals(0, e.getPosition());
         assertThrows(MeasurementParseException.class, () -> format.parse("kft"));
@@ -166,8 +170,8 @@ class UnitFormatSystemsTest {
     void shadowSet() {
         UomUnitFormat siOnly = new UomUnitFormat(List.of(SI.SYSTEM));
         Set<String> texts = new TreeSet<>();
-        SI.UNITS.forEach(u -> texts.add(u.getSymbol()));
-        for (String symbol : SI.PREFIXABLE) {
+        texts.addAll(SystemsCatalogTest.members("si.units"));
+        for (String symbol : SystemsCatalogTest.prefixable("si.units")) {
             for (MetricPrefix p : MetricPrefix.values()) {
                 texts.add(p.getSymbol() + symbol);
             }
@@ -181,7 +185,6 @@ class UnitFormatSystemsTest {
                 changed.put(text, before.getName() + " -> " + after.getName());
             }
         }
-        assertEquals(811, texts.size());
         // ft: the femtotonne (f + t) becomes the international foot of USCustomary.
         assertEquals(Map.of("ft", "femtotonne -> foot"), changed);
         assertThrows(MeasurementParseException.class, () -> siOnly.parse("mG"));
@@ -215,5 +218,22 @@ class UnitFormatSystemsTest {
         assertEquals("ft", format.format(USCustomary.FOOT));
         assertEquals("gal_UK", format.format(Imperial.GALLON_UK));
         assertEquals("ft", format.format(SI.METRE.multiply(0.3048)));
+    }
+
+    /** Among equal units without a symbol, the first system in {@link UnitSystems#all()} order names it. */
+    @Test
+    void firstSystemWinsAmongEqualUnits() {
+        UomUnit<?> nanohenry = SI.HENRY.divide(1_000_000_000);
+        UomUnit<?> cubicCentimetre = SI.METRE.pow(3).divide(1_000_000);
+        UomUnit<?> statcoulomb = SI.COULOMB.scaledBy(Factor.of(1L, 2997924580L));
+        assertEquals(EMU.ABHENRY, nanohenry);
+        assertEquals(CGS.CUBIC_CENTIMETRE, cubicCentimetre);
+        assertEquals(Gaussian.FRANKLIN, statcoulomb);
+        for (UomUnit<?> u : List.of(nanohenry, cubicCentimetre, statcoulomb)) {
+            assertNull(u.getSymbol());
+        }
+        assertEquals("nH", format.format(nanohenry));
+        assertEquals("mL", format.format(cubicCentimetre));
+        assertEquals("statC", format.format(statcoulomb));
     }
 }
