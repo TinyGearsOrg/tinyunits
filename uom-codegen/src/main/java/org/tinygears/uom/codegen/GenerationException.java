@@ -2,10 +2,17 @@
 
 package org.tinygears.uom.codegen;
 
-/** An error in a generator input file; the message reads {@code source:line: text}. */
+/** An error in a generator input; with a file position the message reads {@code source:line: text}. */
 public final class GenerationException extends RuntimeException {
     private final String source;
     private final int line;
+
+    /** An error without a file position; the message is {@code text}. */
+    public GenerationException(String text) {
+        super(text);
+        this.source = null;
+        this.line = 0;
+    }
 
     public GenerationException(String source, int line, String text) {
         this(source, line, text, null);

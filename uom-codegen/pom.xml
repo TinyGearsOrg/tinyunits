@@ -21,4 +21,26 @@
       <version>${project.version}</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <!-- tests compile generated sources with javax.tools -->
+              <compilerArgs>
+                <arg>--add-modules</arg>
+                <arg>java.compiler</arg>
+                <arg>--add-reads</arg>
+                <arg>org.tinygears.uom.codegen=java.compiler</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
