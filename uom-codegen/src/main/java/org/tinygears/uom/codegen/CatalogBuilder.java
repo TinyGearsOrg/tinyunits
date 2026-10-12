@@ -76,7 +76,8 @@ public final class CatalogBuilder {
 
     /**
      * The factory system unit a definition reuses: one equal to its type's system unit, with the same symbol and name.
-     * The first such definition of a type must agree; a later one that differs (an alias) keeps its own unit.
+     * The first such definition of a type, in file order across all catalogs ({@code claimed} spans them), must agree;
+     * a later one with another symbol or name (an alias) keeps its own unit.
      */
     private static String shared(Definition d, String type, Map<String, QuantityTypeSpec> byName,
             Set<String> claimed) {
@@ -104,7 +105,9 @@ public final class CatalogBuilder {
 
     /**
      * One catalog per parsed file, in map order; parents must precede dependents. The first catalog (SI) gives the
-     * preferred units of types that a catalog without {@code @extends} does not prefer itself.
+     * preferred units of types that a catalog without {@code @extends} does not prefer itself. Sharing a factory system
+     * unit is decided in this order too: the first definition equal to a system unit, across all catalogs, must carry
+     * its symbol and name (see {@code Generate.CATALOGS}, SI first).
      */
     public static Map<String, Catalog> catalogs(Map<String, Definitions> parsed, List<QuantityTypeSpec> types) {
         Map<String, Catalog> done = new LinkedHashMap<>();

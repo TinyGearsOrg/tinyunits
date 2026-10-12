@@ -164,6 +164,37 @@ class CatalogBuilderTest {
     }
 
     @Test
+    void systemUnitWithTheSameNameButAnotherSymbolFails() {
+        List<QuantityTypeSpec> types = new ArrayList<>(types(defs(BASE)));
+        QuantityTypeSpec length = types.get(0);
+        types.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "M", "metre", "types.txt", 1));
+        fails(() -> CatalogBuilder.build(defs(BASE), types), 1,
+                "unit 'm' (metre) is the system unit of Length, which types.txt:1 defines as 'M' (metre)");
+    }
+
+    // The first entry is decided across catalogs in generation order, so a later catalog's alias keeps its unit.
+    @Test
+    void aliasInALaterCatalogKeepsItsOwnUnit() {
+        Map<String, String> files = Map.of("a.units", BASE + "@system A\n",
+                "b.units", "@system B\n@include a.units\nmtr:metre_alias m\n");
+        Map<String, Definitions> parsed = new LinkedHashMap<>();
+        for (String f : List.of("a.units", "b.units")) {
+            parsed.put(f, DefinitionParser.parse(f, new StringReader(files.get(f)),
+                    name -> new StringReader(files.get(name))));
+        }
+        Map<String, CatalogBuilder.Catalog> c = CatalogBuilder.catalogs(parsed, types(parsed.get("a.units")));
+        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT", c.get("a.units").entries().get(0).shared());
+        CatalogEntry alias = c.get("b.units").entries().get(0);
+        assertEquals("mtr", alias.definition().symbol());
+        assertEquals("Length", alias.quantityType());
+        assertNull(alias.shared());
+        GenerationException e = assertThrows(GenerationException.class,
+                () -> CatalogBuilder.catalogs(Map.of("b.units", parsed.get("b.units")), types(parsed.get("a.units"))));
+        assertEquals("b.units:3: unit 'mtr' (metre alias) is the system unit of Length, which types.txt:1 defines as"
+                + " 'm' (metre)", e.getMessage());
+    }
+
+    @Test
     void ambiguousType() {
         Definitions d = defs(BASE);
         List<QuantityTypeSpec> types = new ArrayList<>(types(d));

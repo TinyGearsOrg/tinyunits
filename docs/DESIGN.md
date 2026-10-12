@@ -35,6 +35,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
 | `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `UomSystemOfUnits`, `UnitSystems`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
+| `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
 
 Dependencies: `uom` -> `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core`. Module names:
 `org.tinygears.uom.core` and `org.tinygears.uom` (requires the core transitively); they require
@@ -275,7 +276,9 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   symbol and name agree (`LengthFactory.SYSTEM_UNIT == BaseUnits.METRE`), and a catalog constant equal to a type's system
   unit with the same symbol and name is that factory's unit (`SI.NEWTON == ForceFactory.SYSTEM_UNIT`), so `PREFERRED` and
   the fallback of the other catalogs hold the same objects. The first such definition of a type must agree in symbol and
-  name (else a generation error with file and line); a later alias with another symbol keeps its own unit. Factories never
+  name (else a generation error with file and line); a later alias with another symbol or name keeps its own unit.
+  "First" is file order across all catalogs in `Generate.CATALOGS` order (SI first), so an alias in a later catalog of a
+  unit SI already defines keeps its own unit. Factories never
   reference catalogs, so class initialisation runs from a catalog to the factories only.
 - **Preferred layering (D4).** `PREFERRED` has all 33 types: the file's own `@preferred` lines, else those of the first
   extended system (in `@extends` order), else `SI`'s (the fallback relies on `si.units` being first in `Generate.CATALOGS`).
@@ -329,8 +332,9 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
 5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`. Done: `USCustomary`, `Imperial`, `CGS`,
    `ESU`, `EMU`, `Gaussian` catalogs (35, 42, 16, 22, 29, 26 distinct units, with `SI` 128), the directives `@system`,
-   `@extends`, `@member`, `to(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 870 tests in
-   `mvn -q -B clean verify` (core 430, codegen 139, quantities 29, systems 158, tck 113, examples 1). Follow-ups:
+   `@extends`, `@member`, `to(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 899 tests in
+   `mvn -q -B clean verify` (core 430, codegen 160, uom 195, tck 113, examples 1; counted after merging the quantities and
+   systems modules into `uom`). Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m5-follow-ups.md`.
 6. Locale-aware formatting (and a faithful form for derived offset units), serialization, JPMS
    polish, documentation, Maven Central release.
