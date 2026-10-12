@@ -43,4 +43,36 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- Run from the repository root: mvn -q -B -Pgenerate -pl uom-codegen -am process-classes
+         (the relative paths below resolve against the invocation directory). -->
+    <profile>
+      <id>generate</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>generate</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.tinygears.uom.codegen.Generate</mainClass>
+                  <arguments>
+                    <argument>data</argument>
+                    <argument>uom-quantities/src/main/java/org/tinygears/uom/quantity</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

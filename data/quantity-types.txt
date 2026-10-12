@@ -1,0 +1,14 @@
+# Quantity types generated into uom-quantities (org.tinygears.uom.quantity).
+# Format: one "Name formula" per line; Name is a javax.measure.quantity interface.
+# The formula is the unscaled system unit, in units defined by base.units.
+# Text after '#' is a comment; blank lines are ignored.
+Length m
+Mass kg
+Time s
+Temperature K
+Area m^2
+Speed m / s
+Frequency Hz
+Radioactivity Bq
+Energy J
+Dimensionless 1

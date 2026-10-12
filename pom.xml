@@ -13,6 +13,7 @@
   <modules>
     <module>uom-core</module>
     <module>uom-codegen</module>
+    <module>uom-quantities</module>
   </modules>
 
   <properties>
@@ -43,6 +44,11 @@
             <!-- class path so test-only service providers work -->
             <useModulePath>false</useModulePath>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>3.2.0</version>
         </plugin>
       </plugins>
     </pluginManagement>

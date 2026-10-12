@@ -1,0 +1,12 @@
+# Bootstrap unit set for the generator; the SI catalog replaces it in milestone 3.
+m:metre !L
+kg:kilogram !M
+s:second !T
+A:ampere !I
+K:kelvin !Θ
+mol:mole !N
+cd:candela !J
+rad:radian ~
+Hz:hertz ~ 1/s [Frequency]
+Bq:becquerel ~ 1/s [Radioactivity]
+J:joule kg m^2 / s^2 [Energy]
