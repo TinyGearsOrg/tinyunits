@@ -3,6 +3,7 @@
 package org.tinygears.uom.examples;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.measure.Quantity;
@@ -93,6 +94,49 @@ public final class Examples {
                 + " | 1/3 m = " + third;
     }
 
+    /** Mixing precisions: the lower one wins, so a double operand makes the result a double. */
+    static String mixedPrecision() {
+        Length decimal = Length.of(new BigDecimal("1.5"), SI.METRE);
+        Length binary = Length.of(2.5, SI.METRE);
+        Length sum = decimal.add(binary);
+        boolean sameEitherWay = decimal.add(binary).getClass() == binary.add(decimal).getClass();
+        String tooBig;
+        try {
+            binary.add(Length.of(new BigDecimal("1e400"), SI.METRE));
+            tooBig = "no exception";
+        } catch (ArithmeticException e) {
+            tooBig = "ArithmeticException";
+        }
+        return sum.getValue().getClass().getSimpleName() + " " + sum + " | same type either way: " + sameEitherWay
+                + " | 1e400 into a double: " + tooBig;
+    }
+
+    /** A decimal carries a MathContext (DECIMAL128 by default); toDecimal and toDouble change the precision. */
+    static String contexts() {
+        Length precise = Length.of(new BigDecimal("1.23456789"), SI.METRE);
+        Length rounded = precise.toDecimal(new MathContext(4));
+        Length viaFactory = Length.of(
+                new BigDecimal("1.23456789"), SI.METRE, Quantity.Scale.ABSOLUTE, MathContext.DECIMAL32);
+        return rounded + " | " + viaFactory.divide(3) + " | " + precise.toDouble().getValue().getClass().getSimpleName();
+    }
+
+    /** Strict equals separates the precisions; isEquivalentTo compares what they measure. */
+    static String decimalEquality() {
+        Length decimal = Length.of(new BigDecimal("2"), SI.KILOMETRE);
+        Length binary = Length.of(2000, SI.METRE);
+        Length scaled = Length.of(new BigDecimal("2.00"), SI.KILOMETRE);
+        return "decimal equals double: " + decimal.equals(binary) + " | equivalent: " + decimal.isEquivalentTo(binary)
+                + " | 2 equals 2.00: " + decimal.equals(scaled);
+    }
+
+    /** The quantity format prints a decimal with its own digits; parsing always gives a double quantity. */
+    static String decimalFormat() {
+        QuantityFormat format = ServiceProvider.current().getFormatService().getQuantityFormat();
+        Quantity<?> parsed = format.parse("1.50 km");
+        String printed = format.format(Length.of(new BigDecimal("1.50"), SI.KILOMETRE));
+        return printed + " | " + parsed.getValue().getClass().getSimpleName() + " " + parsed.getValue();
+    }
+
     static Map<String, String> all() {
         Map<String, String> out = new LinkedHashMap<>();
         out.put("basics", basics());
@@ -103,6 +147,10 @@ public final class Examples {
         out.put("provider", provider());
         out.put("work", work());
         out.put("decimals", decimals());
+        out.put("mixedPrecision", mixedPrecision());
+        out.put("contexts", contexts());
+        out.put("decimalEquality", decimalEquality());
+        out.put("decimalFormat", decimalFormat());
         return out;
     }
 

@@ -10,15 +10,21 @@ import org.junit.jupiter.api.Test;
 class ExamplesTest {
     @Test
     void examplesPrintWhatTheDocumentationShows() {
-        assertEquals(Map.of(
-                "basics", "42.595 km = 42595.0 m",
-                "speed", "10.0 m/s",
-                "temperature", "373.15 K | 100.0 °C",
-                "equality", "equals=false equivalent=true",
-                "formats", "km mK km^2 | 20.0 km",
-                "provider", "UomServiceProvider true",
-                "work", "30.0 J",
-                "decimals", "0.3 m equals 0.3 m: true | 0.30000000000000004 m equals 0.3 m: false"
-                        + " | 1/3 m = 0.3333333333333333333333333333333333 m"), Examples.all());
+        assertEquals(Map.ofEntries(
+                Map.entry("basics", "42.595 km = 42595.0 m"),
+                Map.entry("speed", "10.0 m/s"),
+                Map.entry("temperature", "373.15 K | 100.0 °C"),
+                Map.entry("equality", "equals=false equivalent=true"),
+                Map.entry("formats", "km mK km^2 | 20.0 km"),
+                Map.entry("provider", "UomServiceProvider true"),
+                Map.entry("work", "30.0 J"),
+                Map.entry("decimals", "0.3 m equals 0.3 m: true | 0.30000000000000004 m equals 0.3 m: false"
+                        + " | 1/3 m = 0.3333333333333333333333333333333333 m"),
+                Map.entry("mixedPrecision",
+                        "Double 4.0 m | same type either way: true | 1e400 into a double: ArithmeticException"),
+                Map.entry("contexts", "1.235 m | 0.4115226 m | Double"),
+                Map.entry("decimalEquality",
+                        "decimal equals double: false | equivalent: true | 2 equals 2.00: true"),
+                Map.entry("decimalFormat", "1.50 km | Double 1.5")), Examples.all());
     }
 }
