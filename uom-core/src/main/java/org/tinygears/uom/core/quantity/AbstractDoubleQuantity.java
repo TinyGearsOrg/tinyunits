@@ -69,9 +69,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     /**
      * Converts to the unit {@code system} gives for {@link #quantityType()} as {@link #to(Unit)} does, so
      * the scale is kept; a foreign unit or one of another dimension throws {@link UnconvertibleException}. A system
-     * without a unit for the type ({@code getUnit} returns null) throws {@link UnsupportedOperationException}, and
-     * so does every {@link Untyped} quantity, which no system of this library maps; those systems have a unit for
-     * each of the 33 standard types.
+     * without a unit for the type ({@code getUnit} returns null) throws {@link UnsupportedOperationException}.
+     * Untyped quantities look up {@link Untyped}, so they throw too unless the system maps it (no system of this
+     * library does); those systems have a unit for each of the 33 standard types.
      */
     public R to(SystemOfUnits system) {
         Objects.requireNonNull(system, "system");

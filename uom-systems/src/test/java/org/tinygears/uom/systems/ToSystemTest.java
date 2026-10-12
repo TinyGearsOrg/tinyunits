@@ -18,6 +18,8 @@ import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
 import org.junit.jupiter.api.Test;
+import org.tinygears.uom.core.UomConverter;
+import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 import org.tinygears.uom.core.quantity.UntypedDecimalQuantity;
@@ -60,17 +62,26 @@ class ToSystemTest {
         for (UomSystemOfUnits system : UnitSystems.all()) {
             for (Class<?> type : QuantityTypes.types()) {
                 QuantityFactory f = QuantityTypes.factory((Class) type);
-                Unit<?> target = system.getUnit((Class) type);
+                UomUnit target = (UomUnit) system.getUnit((Class) type);
                 assertNotNull(target, system.getName() + " " + type.getSimpleName());
-                for (Number one : new Number[] {1, new BigDecimal("1")}) {
-                    Quantity q = f.create(one, f.getSystemUnit());
-                    Quantity r = to(q, system);
-                    String where = system.getName() + " " + type.getSimpleName() + " " + one.getClass();
-                    assertSame(target, r.getUnit(), where);
-                    assertEquals(f.getSystemUnit().getDimension(), r.getUnit().getDimension(), where);
-                    assertTrue(type.isInstance(r), where);
-                    assertTrue(r.isEquivalentTo(q), where);
-                }
+                // a source unit that is not the system unit, so a wrong conversion shows in the value
+                UomUnit src = type == javax.measure.quantity.Temperature.class ? SI.DEGREE_CELSIUS
+                        : ((UomUnit) f.getSystemUnit()).multiply(2.5);
+                UomConverter c = src.getConverterTo(target);
+                String where = system.getName() + " " + type.getSimpleName();
+
+                Quantity r = to(f.create(1.75, src), system);
+                assertSame(target, r.getUnit(), where);
+                assertEquals(f.getSystemUnit().getDimension(), r.getUnit().getDimension(), where);
+                assertTrue(type.isInstance(r), where);
+                double expected = c.convert(1.75);
+                assertEquals(expected, r.getValue().doubleValue(), 1e-12 * Math.abs(expected), where);
+
+                Quantity d = to(f.create(new BigDecimal("1.75"), src), system);
+                assertSame(target, d.getUnit(), where);
+                assertTrue(type.isInstance(d), where);
+                BigDecimal exact = c.convert(new BigDecimal("1.75"), MathContext.DECIMAL128);
+                assertEquals(0, exact.compareTo((BigDecimal) d.getValue()), where + ": " + exact + " vs " + d);
             }
         }
     }
@@ -110,6 +121,11 @@ class ToSystemTest {
         // non-terminating, so the DECIMAL128 default context rounds it
         BigDecimal expected = BigDecimal.ONE.divide(new BigDecimal("0.45359237"), MathContext.DECIMAL128);
         assertEquals(expected, Mass.of(BigDecimal.ONE, SI.KILOGRAM).to(Imperial.SYSTEM).getValue());
+        // UNLIMITED falls back to DECIMAL128 for the non-terminating quotient and stays the context
+        Mass unlimited = Mass.of(BigDecimal.ONE, SI.KILOGRAM, Quantity.Scale.ABSOLUTE, MathContext.UNLIMITED)
+                .to(Imperial.SYSTEM);
+        assertEquals(expected, unlimited.getValue());
+        assertEquals(MathContext.UNLIMITED, ((AbstractDecimalQuantity<?, ?>) (Object) unlimited).mathContext());
     }
 
     @Test
