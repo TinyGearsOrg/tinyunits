@@ -17,6 +17,8 @@ class ExamplesTest {
                 "equality", "equals=false equivalent=true",
                 "formats", "km mK km^2 | 20.0 km",
                 "provider", "UomServiceProvider true",
-                "work", "30.0 J"), Examples.all());
+                "work", "30.0 J",
+                "decimals", "0.3 m equals 0.3 m: true | 0.30000000000000004 m equals 0.3 m: false"
+                        + " | 1/3 m = 0.3333333333333333333333333333333333 m"), Examples.all());
     }
 }

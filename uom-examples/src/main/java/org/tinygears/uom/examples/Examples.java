@@ -2,6 +2,7 @@
 
 package org.tinygears.uom.examples;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.measure.Quantity;
@@ -82,6 +83,16 @@ public final class Examples {
         return work.to(SI.JOULE).getValue() + " J";
     }
 
+    /** BigDecimal quantities add exactly where doubles do not; division rounds to DECIMAL128 by default. */
+    static String decimals() {
+        Length decimal = Length.of(new BigDecimal("0.1"), SI.METRE).add(Length.of(new BigDecimal("0.2"), SI.METRE));
+        Length binary = Length.of(0.1, SI.METRE).add(Length.of(0.2, SI.METRE));
+        Length third = Length.of(BigDecimal.ONE, SI.METRE).divide(3);
+        return decimal + " equals 0.3 m: " + decimal.equals(Length.of(new BigDecimal("0.3"), SI.METRE))
+                + " | " + binary + " equals 0.3 m: " + binary.equals(Length.of(0.3, SI.METRE))
+                + " | 1/3 m = " + third;
+    }
+
     static Map<String, String> all() {
         Map<String, String> out = new LinkedHashMap<>();
         out.put("basics", basics());
@@ -91,6 +102,7 @@ public final class Examples {
         out.put("formats", formats());
         out.put("provider", provider());
         out.put("work", work());
+        out.put("decimals", decimals());
         return out;
     }
 
