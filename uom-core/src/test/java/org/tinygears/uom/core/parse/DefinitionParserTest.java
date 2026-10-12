@@ -246,7 +246,7 @@ class DefinitionParserTest {
         assertEquals(plain, parse(HAPPY.replace("\n", "\r\n")));
         assertEquals(plain, parse(HAPPY.replace("\n", "\r")));
         assertEquals(plain, parse(HAPPY.replace(" ", "\t")));
-        assertEquals(new Definitions(List.of(), List.of(), List.of()), parse(""));
+        assertEquals(new Definitions(List.of(), List.of(), List.of(), null, List.of(), List.of()), parse(""));
         assertEquals(List.of("m"), symbols(parse("  \n\t\nm !L\n   \n")));
         Definitions u = parse(BASE + "Ω:ohm m\nµ:micro 1|1000000\nx Ω µ\n");
         assertEquals(METRE.divide(1000000), find(u, "x").unit());
@@ -261,6 +261,9 @@ class DefinitionParserTest {
         Definitions p = parse(BASE + "@prefixed m k\n");
         assertThrows(UnsupportedOperationException.class, () -> p.prefixed().clear());
         assertThrows(UnsupportedOperationException.class, () -> p.prefixed().get(0).prefixSymbols().clear());
+        Definitions s = parse("@extends a\n@member m\n", Map.of("a", BASE));
+        assertThrows(UnsupportedOperationException.class, () -> s.extended().clear());
+        assertThrows(UnsupportedOperationException.class, () -> s.members().clear());
     }
 
     @Test
@@ -371,6 +374,84 @@ class DefinitionParserTest {
         assertEquals(0xB5, d.prefixed().get(0).prefixSymbols().get(0).codePointAt(0));
         assertEquals("µm", find(d, "µm").symbol());
         fails(BASE + "@prefixed m μ\n", "test.units:5: unknown metric prefix 'μ'");
+    }
+
+    @Test
+    void systemDirective() {
+        assertEquals("Foo", parse(BASE + "@system Foo # the name\n").system());
+        assertNull(parse(BASE).system());
+        fails("@system Foo\n\n@system Bar\n", "test.units:3: duplicate '@system'");
+        fails("@system Foo\n@system Foo\n", "test.units:2: duplicate '@system'");
+        fails("@system 9x\n", "test.units:1: invalid system name '9x'");
+        fails("@system class\n", "test.units:1: invalid system name 'class'");
+        fails("@system\n", "test.units:1: expected '@system Name'");
+        fails("@system A B\n", "test.units:1: expected '@system Name'");
+    }
+
+    @Test
+    void systemInIncludedFileIsNotTheRoots() {
+        assertNull(parse("@include a\n", Map.of("a", "@system A\n")).system());
+        assertEquals("Top", parse("@include a\n@system Top\n", Map.of("a", "@system A\n")).system());
+        assertEquals("Top", parse("@system Top\n@extends a\n", Map.of("a", "@system A\n")).system());
+    }
+
+    @Test
+    void extendsDirective() {
+        Definitions d = parse("@extends b.units\nx 2 m\n", Map.of("b.units", BASE));
+        assertEquals(List.of("m", "kg", "s", "K", "x"), symbols(d));
+        assertEquals("b.units", find(d, "m").source());
+        assertEquals(List.of(new Extends("b.units", "test.units", 1)), d.extended());
+        assertEquals(List.of(), parse(BASE).extended());
+    }
+
+    @Test
+    void extendsAfterIncludeOfTheSameFileIsRecorded() {
+        Definitions d = parse("@include b\n@extends b\n", Map.of("b", BASE));
+        assertEquals(List.of("m", "kg", "s", "K"), symbols(d));
+        assertEquals(List.of(new Extends("b", "test.units", 2)), d.extended());
+    }
+
+    @Test
+    void extendsInIncludedFileIsNotReported() {
+        Definitions d = parse("@include a\n@extends c\n",
+                Map.of("a", "@extends b\n", "b", BASE, "c", "c1 m\n"));
+        assertEquals(List.of("m", "kg", "s", "K", "c1"), symbols(d));
+        assertEquals(List.of(new Extends("c", "test.units", 2)), d.extended());
+    }
+
+    @Test
+    void extendsErrors() {
+        fails("@extends missing.units\n", "test.units:1: cannot include 'missing.units'");
+        fails("\n@extends a\n", Map.of("a", "@extends b\n", "b", "@include a\n"),
+                "b:1: include cycle: a -> b -> a");
+        fails("@extends test.units\n", "test.units:1: include cycle: test.units -> test.units");
+        fails("@extends\n", "test.units:1: expected '@extends name'");
+        fails("@extends a b\n", "test.units:1: expected '@extends name'");
+    }
+
+    @Test
+    void memberDirective() {
+        Definitions d = parse("@include si\n@member cm g s\n@member K\n",
+                Map.of("si", PREFIX_BASE + "@prefixed m c\n"));
+        assertEquals(List.of(new Member("cm", "test.units", 2), new Member("g", "test.units", 2),
+                new Member("s", "test.units", 2), new Member("K", "test.units", 3)), d.members());
+        assertEquals(List.of(), parse(BASE).members());
+    }
+
+    @Test
+    void memberErrors() {
+        fails(BASE + "@member m x s\n", "test.units:5: unknown unit 'x'");
+        fails(BASE + "@member cm\ncm 1|100 m\n", "test.units:5: unknown unit 'cm'");
+        fails(BASE + "@member m s\n@member kg m\n", "test.units:6: duplicate member 'm'");
+        fails(BASE + "@member s s\n", "test.units:5: duplicate member 's'");
+        fails(BASE + "@member\n", "test.units:5: expected '@member symbol...'");
+        fails("@include a\n", Map.of("a", BASE + "@member q\n"), "a:5: unknown unit 'q'");
+    }
+
+    @Test
+    void memberInIncludedFileIsNotReported() {
+        Definitions d = parse("@include a\n@member m\n", Map.of("a", BASE + "@member m s\n"));
+        assertEquals(List.of(new Member("m", "test.units", 2)), d.members());
     }
 
     @Test

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.measure.MeasurementException;
+import javax.lang.model.SourceVersion;
 import javax.measure.MetricPrefix;
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
@@ -43,6 +44,9 @@ public final class DefinitionParser {
     private final List<Definition> definitions = new ArrayList<>();
     private final List<Preferred> preferred = new ArrayList<>();
     private final List<Prefixed> prefixed = new ArrayList<>();
+    private String system;
+    private final List<Extends> extended = new ArrayList<>();
+    private final List<Member> members = new ArrayList<>();
     private final List<String> stack = new ArrayList<>();
     private final Set<String> done = new HashSet<>();
 
@@ -62,7 +66,7 @@ public final class DefinitionParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new Definitions(p.definitions, p.preferred, p.prefixed);
+        return new Definitions(p.definitions, p.preferred, p.prefixed, p.system, p.extended, p.members);
     }
 
     private void file(String source, Reader reader) throws IOException {
@@ -114,7 +118,55 @@ public final class DefinitionParser {
                 preferred.add(new Preferred(w[1], w[2], src, ln));
             }
             case "@prefixed" -> prefixed(src, ln, w);
+            case "@system" -> system(src, ln, w);
+            case "@extends" -> {
+                if (w.length != 2) {
+                    throw new DefinitionException(src, ln, "expected '@extends name'", null);
+                }
+                include(src, ln, w[1]);
+                if (root()) {
+                    extended.add(new Extends(w[1], src, ln));
+                }
+            }
+            case "@member" -> member(src, ln, w);
             default -> throw new DefinitionException(src, ln, "unknown directive '" + w[0] + "'", null);
+        }
+    }
+
+    // Nested files are parsed on their own by the generator, so their system directives are not the root's.
+    private boolean root() {
+        return stack.size() == 1;
+    }
+
+    private void system(String src, int ln, String[] w) {
+        if (w.length != 2) {
+            throw new DefinitionException(src, ln, "expected '@system Name'", null);
+        }
+        if (!SourceVersion.isName(w[1])) {
+            throw new DefinitionException(src, ln, "invalid system name '" + w[1] + "'", null);
+        }
+        if (root()) {
+            if (system != null) {
+                throw new DefinitionException(src, ln, "duplicate '@system'", null);
+            }
+            system = w[1];
+        }
+    }
+
+    private void member(String src, int ln, String[] w) {
+        if (w.length < 2) {
+            throw new DefinitionException(src, ln, "expected '@member symbol...'", null);
+        }
+        for (String symbol : List.of(w).subList(1, w.length)) {
+            if (!units.containsKey(symbol)) {
+                throw new DefinitionException(src, ln, "unknown unit '" + symbol + "'", null);
+            }
+            if (root()) {
+                if (members.stream().anyMatch(m -> m.symbol().equals(symbol))) {
+                    throw new DefinitionException(src, ln, "duplicate member '" + symbol + "'", null);
+                }
+                members.add(new Member(symbol, src, ln));
+            }
         }
     }
 

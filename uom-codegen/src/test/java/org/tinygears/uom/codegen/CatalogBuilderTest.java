@@ -156,7 +156,8 @@ class CatalogBuilderTest {
     void preferredUnknownSymbol() {
         Definitions parsed = defs(BASE);
         Definitions d = new Definitions(parsed.definitions(),
-                List.of(new Preferred("Length", "nope", "test.units", 7)), parsed.prefixed());
+                List.of(new Preferred("Length", "nope", "test.units", 7)), parsed.prefixed(), null, List.of(),
+                List.of());
         List<QuantityTypeSpec> types = types(d);
         fails(() -> CatalogBuilder.preferred(d, CatalogBuilder.build(d, types), types), 7, "unknown unit 'nope'");
     }

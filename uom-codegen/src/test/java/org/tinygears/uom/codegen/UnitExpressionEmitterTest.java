@@ -130,7 +130,7 @@ class UnitExpressionEmitterTest {
     void cyclicDefinition() {
         UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
         Definitions cyclic = new Definitions(List.of(new Definition("x", "ex", x, x, null, "f", 1)), List.of(),
-                List.of());
+                List.of(), null, List.of(), List.of());
         GenerationException e = assertThrows(GenerationException.class, () -> UnitExpressionEmitter.emit(x, cyclic));
         assertEquals("alternate unit definitions nest too deeply at 'x'", e.getMessage());
     }
