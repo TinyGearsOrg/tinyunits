@@ -2,7 +2,7 @@
 
 Findings from the per-task reviews of milestone 4 (`BigDecimal` quantities) that were triaged as follow-up work, not merge
 blockers. Milestone 4 state: 33 quantity types with a `double` and a `BigDecimal` implementation each (133 generated quantity
-files), 128 SI catalog entries, TCK 113 of 113 tests passing, 701 tests in `mvn -q -B clean verify` (core 343, codegen 97,
+files), 128 SI catalog entries, TCK 113 of 113 tests passing, 708 tests in `mvn -q -B clean verify` (core 350, codegen 97,
 quantities 28, systems 119, tck 113, examples 1). "D1" to "D12" refer to the decisions of
 `2026-10-12-uom-m4-decimal.md`; "M5" and later refer to the milestones in `docs/DESIGN.md` section 7.
 
@@ -17,7 +17,11 @@ quantities 28, systems 119, tck 113, examples 1). "D1" to "D12" refer to the dec
 - M2, the `isEquivalentTo` tolerance of `BigDecimal` and the absolute floor: decided in D5, relative only with no floor
   (asymmetric near zero for offset units, as for `double`).
 - M2, `create(Number, Unit, Scale)` with `BigDecimal` and `Integer` through the factory: covered by
-  `GeneratedDecimalQuantitiesTest` (`createDispatchesOnNumberKind`, `scaleRoundTrips`).
+  `GeneratedDecimalQuantitiesTest`; `scaleRoundTrips` calls it with `BigDecimal` and `Double`, `Integer` reaches it only through
+  the 2-argument `create` (`createDispatchesOnNumberKind`).
+- M3, `Dimensionless` from `m/m`: covered for decimals by `GeneratedDecimalQuantitiesTest.asTypeFromProductsStaysDecimal`.
+- Final review: `BigDecimal` operand values and scalars are bounded like quantity values (D9): `Precision.toDecimal` throws
+  `ArithmeticException("scale out of range: N")` before any arithmetic, so `multiply(1e-20000000)` no longer takes seconds.
 - M3, decimal `equals` scale rule and the `BigDecimal` `isEquivalentTo` tolerance (DESIGN section 8): D4 and D5.
 
 ## Open owner decisions
@@ -40,14 +44,19 @@ Unchanged, tracked with options in `docs/TODO.md`; decimal quantities follow the
   equivalent. Document on `isEquivalentTo` or require a minimum precision.
 - `isEquivalentTo` of a decimal against a `double` quantity throws `ArithmeticException` when the decimal is outside the
   `double` range (F23 (3)), where `false` would be the expected answer of an equivalence test.
+- `compareTo` of a decimal outside the `double` range against a `double` quantity throws `ArithmeticException` (both
+  directions), although the sign is obvious; consider returning it.
+- `UNLIMITED`: `to()` and `add()` can disagree. The converter falls back to `DECIMAL128` whenever the factor is not exact in
+  its own path, even where the exact result terminates (about 45 per 600k random checks; example
+  `254.000000000000000000000000000000000000254 m` to inches), while `add` keeps the exact quotient.
+- `UNLIMITED` with a rounding mode other than `HALF_EVEN` silently rounds `HALF_EVEN` on the `DECIMAL128` fallback
+  (documented in the class Javadoc and DESIGN section 4).
 - The double-operand path in `AbstractDecimalQuantity` casts the `createDouble` result to the typed interface without a check
   (unchecked cast); it relies on the generated `XDecimal.createDouble` returning the matching `XDouble`.
 - Cost of decimal arithmetic is linear in the digit count of the operands (exact single-rounding formulation); a value with
   100000 digits is slow but bounded.
 - `asType` applies the receiver's `MathContext` only when the factory returns a decimal quantity (re-created through `create`);
   any other factory result is returned as is (D10).
-- `Precision.toDouble(BigInteger)` does not range-check (`10^400` gives `Infinity`); EXACT `BigInteger` operands of a `double`
-  operation must not rely on it silently.
 - `toDecimal(MathContext)` on a `double` quantity rounds to the given context (same as on the decimal side); `toDecimal` rounding
   near the scale limit can raise `ArithmeticException` when the rounded value leaves the D9 bound.
 - Result scale and representation change with zero offsets: the zero-offset add is skipped, so `1 m + 0.000 m` has the scale of
@@ -59,7 +68,10 @@ Unchanged, tracked with options in `docs/TODO.md`; decimal quantities follow the
 ## Formats (`uom-systems`)
 
 - `UomQuantityFormat.parse` always returns a `double` quantity; a decimal-preserving parse (`1.10 m` as `BigDecimal`) is
-  milestone 6 (D12). `format` prints `BigDecimal.toString()`.
+  milestone 6 (D12). `format` prints `BigDecimal.toString()`, so a decimal outside the `double` range formats fine but parses
+  back silently as `Infinity`.
+- The milestone 3 format items (prefixed ohm names `kiloohm`/`megaohm` and the others in `2026-10-12-uom-m3-follow-ups.md`)
+  stay open as they are; milestone 4 does not change them.
 
 ## Generator (`uom-codegen`)
 
@@ -68,6 +80,15 @@ Unchanged, tracked with options in `docs/TODO.md`; decimal quantities follow the
 
 ## Tests and process
 
+- Task 1 rulings: `compareTo` accepted for the `1e+20000000` case (the brief contradicted itself); the irrational converter
+  branch left untouched (already bounded). Note: the `UNLIMITED` converter branch still aligns exactly (25 ms at scale 1e5).
+- Task 3 deviation: no `TestLengthDecimal` interface; the fixture `TestLengthDecimalImpl` implements `TestLength`, which
+  matches the generated shape.
+- Task 4 deviation: single rounding (D6a) is built directly on `BigDecimal`, because `Factor` caps at about 19.7k digits
+  (scale 43,690), which would make `1e+99999 m + 1 m` throw.
+- Task 5 note: `UntypedDecimalQuantity.createDouble` builds its result with the package-private `UntypedDoubleQuantity`
+  constructor (takes a `UomUnit<Untyped>` without `UomUnit.unchecked`).
+- Task 10 ruling: no separate Task 10 review; the final whole-branch review checked the documentation.
 - Task 1: one test line is 121 characters (limit 120).
 - Task 3: the `getClass()` check in `AbstractDecimalQuantity.equals` has a surviving mutant (`instanceof`), because the core
   tests have one decimal subclass only; the generated `LengthDecimal` and `LengthDouble` are tested in `uom-quantities`.

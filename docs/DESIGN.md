@@ -129,12 +129,15 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
 
 - **Precision (F23).** Base classes accept any `Quantity<Q>` whose unit is a `UomUnit` (foreign units are rejected, D8).
   Decimal quantities carry a `MathContext`, default `DECIMAL128`; `getValue()` is a `BigDecimal` (decimal) or a
-  `Double`. Details (milestone 4, D2 to D11):
+  `Double`. Every computed result (conversion, arithmetic, `toDecimal`) is rounded to the result context, so `DECIMAL32`
+  `1.23456789 m + 0 m` is `1.234568 m`; creation and `negate` keep the value as given. `UNLIMITED` is exact where the
+  result terminates and falls back to `DECIMAL128` otherwise. Details (milestone 4, D2 to D11):
   - **Operand kinds (D2).** `Byte`, `Short`, `Integer`, `Long`, `BigInteger`, `AtomicInteger` and `AtomicLong` are exact
     and never lower the precision; `BigDecimal` is decimal; `Double`, `Float` and any other `Number` count as `double`.
     A foreign `BigDecimal` value has no context and counts as unlimited.
   - **Result type (D3).** If either operand is `double`, the result is a `double` quantity of the same typed interface,
-    built through the receiver's hook (`createDouble` or `createDecimal`), in both argument orders. Two decimals give the
+    in both argument orders: a decimal receiver builds it through `createDouble`, a `double` receiver through `create`
+    (`createDecimal` serves only `toDecimal`). Two decimals give the
     lower `MathContext` precision (0, unlimited, is highest; equal precision keeps the receiver's rounding mode). Scalar
     `Number` arguments adopt the receiver's precision. A `BigDecimal` outside the `double` range gives
     `ArithmeticException`, never `Infinity`. The result unit is the left operand's unit for `add`, `subtract` and the scalar
@@ -275,8 +278,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    entries, TCK 113 of 113 tests, 554 tests in `mvn -q -B clean verify`. Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m3-follow-ups.md`.
 4. `BigDecimal`: decimal base class and the precision rule. Done: `AbstractDecimalQuantity`, `Precision`, 33 `XDecimal`
-   classes (133 generated quantity files), 33 types, 128 SI catalog entries, TCK 113 of 113 tests, 701 tests in
-   `mvn -q -B clean verify` (core 343, codegen 97, quantities 28, systems 119, tck 113, examples 1). Follow-ups:
+   classes (133 generated quantity files), 33 types, 128 SI catalog entries, TCK 113 of 113 tests, 708 tests in
+   `mvn -q -B clean verify` (core 350, codegen 97, quantities 28, systems 119, tck 113, examples 1). Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
 5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`.
 6. Locale-aware formatting (and a faithful form for derived offset units), serialization, JPMS

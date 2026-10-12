@@ -23,7 +23,9 @@ section 7.
   `create(Number, Unit)` with a foreign unit (`GeneratedQuantitiesTest:139`), `isEquivalentTo` through the typed interface
   (`QuantityContractTest:46`, `GeneratedQuantitiesTest:83`), a typed result of quantity times quantity narrowed with
   `asType` (`GeneratedQuantitiesTest:112`). Still open: `to(foreignUnit)` through the typed interface, `compareTo` across
-  different types, `create(Number, Unit, Scale)` with `BigDecimal` and `Integer` (covered by milestone 4, `GeneratedDecimalQuantitiesTest`), `Dimensionless` from `m/m`, `equals` of
+  different types, `create(Number, Unit, Scale)` with `BigDecimal` and `Integer` (covered by milestone 4, `GeneratedDecimalQuantitiesTest`;
+  `Integer` only through the 2-argument `create`), `Dimensionless` from `m/m` (covered for decimals by milestone 4,
+  `asTypeFromProductsStaysDecimal`), `equals` of
   1 km against 1000 m.
 
 ## Open owner decisions

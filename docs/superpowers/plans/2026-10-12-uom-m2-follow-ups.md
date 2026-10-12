@@ -38,7 +38,8 @@ The two owner decisions below (`asType` and alternate units, offset-unit arithme
 - TCK: the `Quantity` Javadoc example "2 degC + 1 degC = 274.15 degC" contradicts its own rule (276.15 degC); we follow the
   rule (F24). Record it when the TCK runs for real (M3).
 - M3: `-pl uom-codegen` without `-am` fails because `~/.m2` holds a stale `uom-core` snapshot; always build with `-am`.
-- M4 covered `create(Number, Unit, Scale)` with `BigDecimal` and `Integer` (`GeneratedDecimalQuantitiesTest`).
+- M4 covered `create(Number, Unit, Scale)` with `BigDecimal` (`GeneratedDecimalQuantitiesTest.scaleRoundTrips`); `Integer` only
+  through the 2-argument `create`, which delegates to it (`createDispatchesOnNumberKind`).
 - M3: the plan's coverage gaps for typed quantities (status in `2026-10-12-uom-m3-follow-ups.md`; `Scale.RELATIVE` through `of`,
   `compareTo` of 1 km and 1000 m and `create` with a foreign unit are now covered): `to(foreignUnit)` through the typed interface, `compareTo` across
   types, `isEquivalentTo` through the typed interface, `Scale.RELATIVE` through `of`, `create(Number, Unit, Scale)` with
