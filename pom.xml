@@ -12,6 +12,7 @@
 
   <modules>
     <module>uom-core</module>
+    <module>uom-codegen</module>
   </modules>
 
   <properties>
