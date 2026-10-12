@@ -2,8 +2,10 @@
 
 package org.tinygears.uom.core;
 
+import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -164,16 +166,36 @@ final class AffineConverter implements UomConverter, Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private final Factor factor;
-        private final Factor offset;
-        private final Factor[] stepFactors;
-        private final Factor[] stepOffsets;
+        private transient Factor factor;
+        private transient Factor offset;
+        private transient Factor[] stepFactors;
+        private transient Factor[] stepOffsets;
 
         Proxy(Factor factor, Factor offset, Factor[] stepFactors, Factor[] stepOffsets) {
             this.factor = factor;
             this.offset = offset;
             this.stepFactors = stepFactors;
             this.stepOffsets = stepOffsets;
+        }
+
+        @Serial
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.defaultWriteObject();
+            out.writeUnshared(factor);
+            out.writeUnshared(offset);
+            SerialForm.writeObjects(out, stepFactors);
+            SerialForm.writeObjects(out, stepOffsets);
+        }
+
+        @Serial
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            factor = SerialForm.read(in, Factor.class);
+            offset = SerialForm.read(in, Factor.class);
+            stepFactors = SerialForm.readObjects(in, Factor.class, Factor[]::new,
+                    "invalid converter: too many conversion steps");
+            stepOffsets = SerialForm.readObjects(in, Factor.class, Factor[]::new,
+                    "invalid converter: too many conversion steps");
         }
 
         @Serial
@@ -188,17 +210,30 @@ final class AffineConverter implements UomConverter, Serializable {
                         || stepFactors.length == 0) {
                     throw new IllegalArgumentException("step factors and offsets do not match");
                 }
-                UomConverter c = null;
+                List<UnitConverter> steps = new ArrayList<>(stepFactors.length);
+                Factor f = null;
+                Factor o = null;
+                boolean folded = true;
                 for (int i = 0; i < stepFactors.length; i++) {
-                    UomConverter step = Converters.affine(Objects.requireNonNull(stepFactors[i], "null step"),
-                            Objects.requireNonNull(stepOffsets[i], "null step"));
-                    c = c == null ? step : c.concatenate(step);
+                    Factor sf = Objects.requireNonNull(stepFactors[i], "null step");
+                    Factor so = Objects.requireNonNull(stepOffsets[i], "null step");
+                    steps.add(Converters.affine(sf, so));
+                    if (!folded) {
+                        continue;
+                    }
+                    try {
+                        o = f == null ? so : f.multiply(so).add(o);
+                        f = f == null ? sf : f.multiply(sf);
+                    } catch (ArithmeticException inexact) {
+                        folded = false;
+                    }
                 }
-                if (!c.factor().equals(factor) || !c.offset().equals(offset)) {
+                // Steps concatenated in another grouping may not fold exactly left to right; the stored values stand.
+                if (folded && (!f.equals(factor) || !o.equals(offset))) {
                     throw new IllegalArgumentException(
                             "steps do not compose to x -> " + factor + " * x + " + offset);
                 }
-                return c;
+                return new AffineConverter(factor, offset, List.copyOf(steps));
             } catch (RuntimeException e) {
                 throw new InvalidObjectException("invalid converter: " + e.getMessage(), e);
             }

@@ -5,12 +5,12 @@ package org.tinygears.uom.core.serial;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import javax.measure.MeasurementException;
 import javax.measure.UnitConverter;
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
@@ -31,16 +31,21 @@ public final class SerialCheck {
         UomUnit<?> degree = (UomUnit<?>) read(Files.readAllBytes(dir.resolve("degree.ser")));
         check("Hz".equals(hz.getSymbol()) && "hertz".equals(hz.getName()), "hertz labels: " + hz);
         check("°".equals(degree.getSymbol()) && "degree".equals(degree.getName()), "degree labels: " + degree);
-        // Reading registered the alternate atoms: binding their symbols to other units now fails.
-        for (String symbol : List.of("Hz", "rad")) {
-            try {
-                BaseUnits.METRE.alternate(symbol);
-                throw new AssertionError(symbol + " was not registered by reading");
-            } catch (MeasurementException expected) {
-                // registered
-            }
+        // Reading does not register: rad can still be bound to another unit, after which degree.ser conflicts.
+        BaseUnits.METRE.alternate("rad");
+        try {
+            read(Files.readAllBytes(dir.resolve("degree.ser")));
+            throw new AssertionError("degree read although rad is bound to metre");
+        } catch (InvalidObjectException expected) {
+            check(expected.getMessage().equals("invalid unit atom: symbol rad is already associated to a different unit"),
+                    expected.getMessage());
         }
-        check(hz.equals(BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz")), "hertz differs from Hz");
+        // A later registration with the same definition gives an equal unit, and reading then resolves to it.
+        UomUnit<?> registered = BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz");
+        check(hz.equals(registered), "hertz differs from Hz");
+        check(registered.atoms().keySet().iterator().next()
+                == ((UomUnit<?>) read(Files.readAllBytes(dir.resolve("hertz.ser")))).atoms().keySet().iterator().next(),
+                "hertz does not resolve to the registered atom");
 
         UomUnit<?> celsius = BaseUnits.KELVIN.shift(273.15);
         check(celsius.equals(read(write(celsius))), "offset unit round trip");

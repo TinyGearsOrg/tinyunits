@@ -30,14 +30,15 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.UnaryOperator;
 import javax.measure.MeasurementException;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.tinygears.uom.core.serial.SerialCheck;
 
 class UnitSerializationTest {
 
@@ -189,19 +190,17 @@ class UnitSerializationTest {
     void goldenFiles() throws Exception {
         Map<String, UomUnit<?>> units = goldenUnits();
         assertEquals(12, units.size());
-        if (System.getProperty("uom.writeGolden") != null) {
-            Path dir = Path.of("src/test/resources" + GOLDEN);
+        boolean write = System.getProperty("uom.writeGolden") != null;
+        Path dir = Path.of("src/test/resources" + GOLDEN);
+        if (write) {
             Files.createDirectories(dir);
             for (Map.Entry<String, UomUnit<?>> e : units.entrySet()) {
                 Files.write(dir.resolve(e.getKey() + ".ser"), serialize(e.getValue()));
             }
         }
         for (Map.Entry<String, UomUnit<?>> e : units.entrySet()) {
-            byte[] golden;
-            try (InputStream in = UnitSerializationTest.class.getResourceAsStream(GOLDEN + e.getKey() + ".ser")) {
-                assertTrue(in != null, "missing golden file " + e.getKey());
-                golden = in.readAllBytes();
-            }
+            // In write mode the class path still holds the previous copies.
+            byte[] golden = write ? Files.readAllBytes(dir.resolve(e.getKey() + ".ser")) : golden(e.getKey());
             UomUnit<?> read = (UomUnit<?>) deserialize(golden);
             assertEquals(e.getValue(), read, e.getKey());
             assertEquals(e.getValue().getSymbol(), read.getSymbol(), e.getKey());
@@ -210,30 +209,96 @@ class UnitSerializationTest {
         }
     }
 
+    private static byte[] golden(String name) throws IOException {
+        try (InputStream in = UnitSerializationTest.class.getResourceAsStream(GOLDEN + name + ".ser")) {
+            assertTrue(in != null, "missing golden file " + name);
+            return in.readAllBytes();
+        }
+    }
+
+    @Test
+    void bytesDependOnValuesNotIdentity() throws Exception {
+        UomUnit<?> hz = ONE.divide(SECOND).alternate(new String("Hz")).named(new String("Hz"), new String("hertz"));
+        assertArrayEquals(golden("hertz"), serialize(hz));
+        UomUnit<?> celsius = KELVIN.transform(Converters.affine(Factor.of(7, 7), Factor.of(10926L, 40L)))
+                .named(new String("°C"), new String("degree Celsius"));
+        assertArrayEquals(golden("celsius"), serialize(celsius));
+        // The same object written twice must not differ from equal objects written once each.
+        assertArrayEquals(serialize(METRE.named("t1-x", "t1-x")),
+                serialize(METRE.named(new String("t1-x"), new String("t1-x"))));
+        Factor third = Factor.of(1, 3);
+        assertArrayEquals(serialize(Converters.affine(third, third)),
+                serialize(Converters.affine(Factor.of(1, 3), Factor.of(1, 3))));
+        UomDimension d = new UomDimension(2, 0, 0, 0, 0, 0, 0);
+        assertArrayEquals(
+                serialize(UomUnit.of(Map.of(new UnitAtom("t1-a", d), 1, new UnitAtom("t1-b", d), 1), Converters.IDENTITY,
+                        null, null)),
+                serialize(UomUnit.of(Map.of(new UnitAtom("t1-a", d), 1,
+                        new UnitAtom("t1-b", new UomDimension(2, 0, 0, 0, 0, 0, 0)), 1), Converters.IDENTITY, null, null)));
+    }
+
+    private static Path location(Class<?> c) throws Exception {
+        return Path.of(c.getProtectionDomain().getCodeSource().getLocation().toURI());
+    }
+
+    private static String goldenDir() throws Exception {
+        return Path.of(UnitSerializationTest.class.getResource(GOLDEN + "hertz.ser").toURI()).getParent().toString();
+    }
+
     @Test
     void freshJvmReadsGoldenFilesOnTheClassPath() throws Exception {
-        String jar = unitApiJar();
-        Path classes = Path.of("target/classes").toAbsolutePath();
-        Path testClasses = Path.of("target/test-classes").toAbsolutePath();
-        Assumptions.assumeTrue(Files.isDirectory(classes) && Files.isDirectory(testClasses), "no target classes");
-        String out = ModulePathTest.runBounded(List.of(java(), "-cp",
-                String.join(File.pathSeparator, classes.toString(), testClasses.toString(), jar),
-                "org.tinygears.uom.core.serial.SerialCheck", testClasses.resolve(GOLDEN.substring(1)).toString()),
-                Duration.ofSeconds(60));
+        String out = ModulePathTest.runBounded(List.of(java(), "-cp", System.getProperty("java.class.path"),
+                "org.tinygears.uom.core.serial.SerialCheck", goldenDir()), Duration.ofSeconds(60));
         assertTrue(out.contains("ok named=false atoms=[Hz]"), out);
     }
 
     @Test
     void roundTripOnTheModulePath() throws Exception {
-        String jar = unitApiJar();
-        Path classes = Path.of("target/classes").toAbsolutePath();
-        Path testClasses = Path.of("target/test-classes").toAbsolutePath();
-        Assumptions.assumeTrue(Files.isDirectory(classes) && Files.isDirectory(testClasses), "no target classes");
-        String out = ModulePathTest.runBounded(List.of(java(), "--module-path", classes + File.pathSeparator + jar,
-                "--add-modules", "org.tinygears.uom.core", "-cp", testClasses.toString(),
-                "org.tinygears.uom.core.serial.SerialCheck", testClasses.resolve(GOLDEN.substring(1)).toString()),
-                Duration.ofSeconds(60));
+        String modules = location(UomUnit.class) + File.pathSeparator + location(javax.measure.Unit.class);
+        String out = ModulePathTest.runBounded(List.of(java(), "--module-path", modules,
+                "--add-modules", "org.tinygears.uom.core", "-cp", location(SerialCheck.class).toString(),
+                "org.tinygears.uom.core.serial.SerialCheck", goldenDir()), Duration.ofSeconds(60));
         assertTrue(out.contains("ok named=true atoms=[Hz]"), out);
+    }
+
+    @Test
+    void readingNeverRegisters() throws Exception {
+        String out = ModulePathTest.runBounded(List.of(java(), "-cp", System.getProperty("java.class.path"),
+                PoisonCheck.class.getName()), Duration.ofSeconds(60));
+        assertTrue(out.contains("ok poison"), out);
+    }
+
+    /** Fresh JVM: a forged Hz read before any registration must not break the real one, nor grow the registry. */
+    static final class PoisonCheck {
+        public static void main(String[] args) throws Exception {
+            UnitAtom m = atom(METRE);
+            UnitAtom forged = (UnitAtom) deserialize(serialize(
+                    new UnitAtom.Proxy("Hz", UomDimension.LENGTH, new UnitAtom[] {m}, new int[] {1})));
+            int size = AlternateUnits.size();
+            for (int i = 0; i < 10_000; i++) {
+                deserialize(serialize(
+                        new UnitAtom.Proxy("t1-unique-" + i, UomDimension.LENGTH, new UnitAtom[] {m}, new int[] {1})));
+            }
+            check(AlternateUnits.size() == size, "registry grew to " + AlternateUnits.size());
+            UomUnit<?> hz = ONE.divide(SECOND).alternate("Hz").named("Hz", "hertz");
+            check(!forged.equals(atom(hz)), "forged atom equals the real one");
+            check(AlternateUnits.size() == size + 1, "Hz not registered");
+            try {
+                deserialize(serialize(
+                        new UnitAtom.Proxy("Hz", UomDimension.LENGTH, new UnitAtom[] {m}, new int[] {1})));
+                throw new AssertionError("forged Hz read after registration");
+            } catch (InvalidObjectException expected) {
+                check(expected.getMessage().equals(
+                        "invalid unit atom: symbol Hz is already associated to a different unit"), expected.getMessage());
+            }
+            System.out.println("ok poison");
+        }
+
+        private static void check(boolean condition, String message) {
+            if (!condition) {
+                throw new AssertionError(message);
+            }
+        }
     }
 
     private static InvalidObjectException assertInvalid(String message, Object forged) {
@@ -322,12 +387,16 @@ class UnitSerializationTest {
                 ONE.divide(SECOND).alternate("Hz"),
                 o -> o instanceof UomDimension.Proxy ? new UomDimension.Proxy(new int[3]) : o));
         assertEquals("invalid dimension: expected 7 exponents, got 3", e.getMessage());
-        // A valid forged definition registers its symbol.
+        // A valid definition read for an unknown symbol does not register it; a later registration equals it.
+        int size = AlternateUnits.size();
         UnitAtom fresh = (UnitAtom) deserialize(serialize(
                 new UnitAtom.Proxy("t1-forge-new", perSecond, new UnitAtom[] {s}, new int[] {-1})));
         assertEquals(new UnitAtom("t1-forge-new", perSecond), fresh);
-        assertSame(fresh, atom(ONE.divide(SECOND).alternate("t1-forge-new")));
+        assertEquals(size, AlternateUnits.size());
+        assertEquals(fresh, atom(ONE.divide(SECOND).alternate("t1-forge-new")));
         assertThrows(MeasurementException.class, () -> METRE.alternate("t1-forge-new"));
+        assertInvalid("invalid unit atom: symbol t1-forge-new is already associated to a different unit",
+                new UnitAtom.Proxy("t1-forge-new", UomDimension.LENGTH, new UnitAtom[] {m}, new int[] {1}));
     }
 
     @Test
@@ -353,6 +422,64 @@ class UnitSerializationTest {
         UomConverter copy = (UomConverter) deserialize(serialize(new AffineConverter.Proxy(Factor.ofLong(6), Factor.ZERO,
                 new Factor[] {two, Factor.ofLong(3)}, new Factor[] {Factor.ZERO, Factor.ZERO})));
         assertEquals(List.of(Converters.scale(two), Converters.scale(Factor.ofLong(3))), copy.getConversionSteps());
+    }
+
+    @Test
+    void stepsGroupedOtherwiseStillRoundTrip() throws Exception {
+        Factor r2 = Factor.ofLong(2).root(2);
+        UomUnit<?> u = KELVIN.shift(1).transform(Converters.shift(r2).concatenate(Converters.shift(r2.negate())));
+        assertUnitRoundTrip(u);
+        assertEquals(u.toSystemConverter().getConversionSteps(),
+                roundTrip(u).toSystemConverter().getConversionSteps());
+        // When the steps do fold, they must agree with the stored values.
+        assertInvalid("invalid converter: steps do not compose to x -> 1 * x + 2", new AffineConverter.Proxy(
+                Factor.ONE, Factor.ofLong(2), new Factor[] {Factor.ONE, Factor.ONE},
+                new Factor[] {Factor.ONE, Factor.ofLong(3)}));
+    }
+
+    @Test
+    void conversionStepsAreBounded() throws Exception {
+        Factor[] ones = new Factor[1000];
+        Factor[] zeros = new Factor[1000];
+        Arrays.fill(ones, Factor.ONE);
+        Arrays.fill(zeros, Factor.ZERO);
+        UomConverter max = (UomConverter) deserialize(serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO,
+                ones, zeros)));
+        assertEquals(1000, max.getConversionSteps().size());
+        Factor[] manyOnes = new Factor[100_000];
+        Factor[] manyZeros = new Factor[100_000];
+        Arrays.fill(manyOnes, Factor.ONE);
+        Arrays.fill(manyZeros, Factor.ZERO);
+        byte[] forged = serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO, manyOnes, manyZeros));
+        InvalidObjectException e = assertTimeoutPreemptively(Duration.ofSeconds(1),
+                () -> assertThrows(InvalidObjectException.class, () -> deserialize(forged)));
+        assertEquals("invalid converter: too many conversion steps", e.getMessage());
+    }
+
+    @Test
+    void forgedLengthIsRejectedBeforeAllocation() throws Exception {
+        byte[] bytes = serialize(new Factor.Proxy(new BigInteger(1, new byte[] {0x51, 0x52, 0x53, 0x54}),
+                BigInteger.ONE, 0, 1));
+        byte[] marker = {0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54};
+        int at = indexOf(bytes, marker);
+        assertTrue(at > 0);
+        bytes[at] = 0x7f;
+        bytes[at + 1] = (byte) 0xff;
+        bytes[at + 2] = (byte) 0xff;
+        bytes[at + 3] = (byte) 0xff;
+        byte[] forged = Arrays.copyOf(bytes, at + 4);
+        InvalidObjectException e = assertTimeoutPreemptively(Duration.ofSeconds(1),
+                () -> assertThrows(InvalidObjectException.class, () -> deserialize(forged)));
+        assertEquals("invalid factor: factor too large", e.getMessage());
+    }
+
+    private static int indexOf(byte[] bytes, byte[] part) {
+        for (int i = 0; i + part.length <= bytes.length; i++) {
+            if (Arrays.equals(bytes, i, i + part.length, part, 0, part.length)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Test
@@ -453,16 +580,5 @@ class UnitSerializationTest {
 
     private static String java() {
         return System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-    }
-
-    private static String unitApiJar() {
-        for (String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
-            if (Path.of(entry).getFileName().toString().equals("unit-api-2.2.jar")) {
-                return entry;
-            }
-        }
-        Path m2 = Path.of(System.getProperty("user.home"), ".m2/repository/javax/measure/unit-api/2.2/unit-api-2.2.jar");
-        Assumptions.assumeTrue(Files.isRegularFile(m2), "unit-api-2.2.jar not found");
-        return m2.toString();
     }
 }

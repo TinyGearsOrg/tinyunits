@@ -2,7 +2,10 @@
 
 package org.tinygears.uom.core;
 
+import java.io.IOException;
 import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -128,10 +131,22 @@ public record UomDimension(int length, int mass, int time, int current, int temp
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private final int[] exponents;
+        private transient int[] exponents;
 
         Proxy(int[] exponents) {
             this.exponents = exponents;
+        }
+
+        @Serial
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.defaultWriteObject();
+            SerialForm.writeInts(out, exponents);
+        }
+
+        @Serial
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            exponents = SerialForm.readInts(in, "invalid dimension: too many exponents");
         }
 
         @Serial

@@ -2,8 +2,10 @@
 
 package org.tinygears.uom.core;
 
+import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -375,16 +377,42 @@ public final class Factor implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private final BigInteger numerator;
-        private final BigInteger denominator;
-        private final int piExponent;
-        private final int rootIndex;
+        private transient BigInteger numerator;
+        private transient BigInteger denominator;
+        private transient int piExponent;
+        private transient int rootIndex;
 
         Proxy(BigInteger numerator, BigInteger denominator, int piExponent, int rootIndex) {
             this.numerator = numerator;
             this.denominator = denominator;
             this.piExponent = piExponent;
             this.rootIndex = rootIndex;
+        }
+
+        @Serial
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.defaultWriteObject();
+            SerialForm.writeBytes(out, numerator == null ? null : numerator.toByteArray());
+            SerialForm.writeBytes(out, denominator == null ? null : denominator.toByteArray());
+            out.writeInt(piExponent);
+            out.writeInt(rootIndex);
+        }
+
+        @Serial
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            numerator = readNumber(in);
+            denominator = readNumber(in);
+            piExponent = in.readInt();
+            rootIndex = in.readInt();
+        }
+
+        private static BigInteger readNumber(ObjectInputStream in) throws IOException {
+            byte[] b = SerialForm.readBytes(in, MAX_BITS / 8 + 1, "invalid factor: factor too large");
+            if (b != null && b.length == 0) {
+                throw new InvalidObjectException("invalid factor: empty number");
+            }
+            return b == null ? null : new BigInteger(b);
         }
 
         @Serial

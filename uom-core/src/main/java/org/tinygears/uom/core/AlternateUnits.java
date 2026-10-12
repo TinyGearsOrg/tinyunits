@@ -27,7 +27,10 @@ final class AlternateUnits {
     }
 
     static UnitAtom register(String symbol, UomUnit<?> definition) {
-        return restore(symbol, definition.getDimension(), definition.atoms());
+        checkSymbol(symbol);
+        Registered fresh = new Registered(new UnitAtom(symbol, definition.getDimension()), definition.atoms());
+        Registered existing = REGISTRY.putIfAbsent(symbol, fresh);
+        return existing == null ? fresh.atom() : matching(existing, fresh.atom(), definition.atoms());
     }
 
     /** The registered definition of {@code atom}, or null if the atom is not registered. */
@@ -37,37 +40,40 @@ final class AlternateUnits {
     }
 
     /**
-     * Registers {@code symbol} with {@code definition} unless that exact registration exists. Without a
-     * definition only an equal registered atom resolves; an unregistered symbol gives an unregistered atom.
+     * Resolves an atom read from a stream without registering it, so untrusted data cannot bind a symbol: a
+     * registered symbol must match (same definition, or the same atom when none is given) and gives the
+     * registered atom; an unregistered one gives an equal, unregistered atom.
      */
     static UnitAtom restore(String symbol, UomDimension dimension, Map<UnitAtom, Integer> definition) {
-        if (symbol.isBlank() || symbol.chars().anyMatch(Character::isWhitespace)) {
-            throw new MeasurementException("invalid unit symbol: '" + symbol + "'");
-        }
+        checkSymbol(symbol);
         UnitAtom atom = new UnitAtom(symbol, dimension);
-        Registered existing;
-        if (definition == null) {
-            existing = REGISTRY.get(symbol);
-            if (existing == null) {
-                return atom;
-            }
-            if (existing.atom().equals(atom)) {
-                return existing.atom();
-            }
-        } else {
+        Map<UnitAtom, Integer> atoms = null;
+        if (definition != null) {
             UomUnit<?> unit = UomUnit.of(definition, Converters.IDENTITY, null, null);
             if (!unit.getDimension().equals(dimension)) {
                 throw new MeasurementException("dimension " + dimension + " of " + symbol
                         + " does not match its definition " + unit.getDimension());
             }
-            existing = REGISTRY.putIfAbsent(symbol, new Registered(atom, unit.atoms()));
-            if (existing == null) {
-                return atom;
-            }
-            if (existing.definition().equals(unit.atoms())) {
-                return existing.atom();
-            }
+            atoms = unit.atoms();
         }
-        throw new MeasurementException("symbol " + symbol + " is already associated to a different unit");
+        Registered existing = REGISTRY.get(symbol);
+        return existing == null ? atom : matching(existing, atom, atoms);
+    }
+
+    static int size() {
+        return REGISTRY.size();
+    }
+
+    private static UnitAtom matching(Registered existing, UnitAtom atom, Map<UnitAtom, Integer> definition) {
+        if (definition == null ? existing.atom().equals(atom) : existing.definition().equals(definition)) {
+            return existing.atom();
+        }
+        throw new MeasurementException("symbol " + atom.symbol() + " is already associated to a different unit");
+    }
+
+    private static void checkSymbol(String symbol) {
+        if (symbol.isBlank() || symbol.chars().anyMatch(Character::isWhitespace)) {
+            throw new MeasurementException("invalid unit symbol: '" + symbol + "'");
+        }
     }
 }

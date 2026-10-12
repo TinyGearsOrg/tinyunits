@@ -2,8 +2,10 @@
 
 package org.tinygears.uom.core;
 
+import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -358,11 +360,11 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private final UnitAtom[] atoms;
-        private final int[] exponents;
-        private final UomConverter toSystem;
-        private final String symbol;
-        private final String name;
+        private transient UnitAtom[] atoms;
+        private transient int[] exponents;
+        private transient UomConverter toSystem;
+        private transient String symbol;
+        private transient String name;
 
         Proxy(UnitAtom[] atoms, int[] exponents, UomConverter toSystem, String symbol, String name) {
             this.atoms = atoms;
@@ -370,6 +372,26 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             this.toSystem = toSystem;
             this.symbol = symbol;
             this.name = name;
+        }
+
+        @Serial
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.defaultWriteObject();
+            SerialForm.writeObjects(out, atoms);
+            SerialForm.writeInts(out, exponents);
+            out.writeUnshared(toSystem);
+            out.writeUnshared(symbol);
+            out.writeUnshared(name);
+        }
+
+        @Serial
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            atoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, "invalid unit: too many atoms");
+            exponents = SerialForm.readInts(in, "invalid unit: too many exponents");
+            toSystem = SerialForm.read(in, UomConverter.class);
+            symbol = SerialForm.read(in, String.class);
+            name = SerialForm.read(in, String.class);
         }
 
         @Serial

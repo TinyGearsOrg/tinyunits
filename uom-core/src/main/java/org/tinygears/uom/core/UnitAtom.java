@@ -2,7 +2,10 @@
 
 package org.tinygears.uom.core;
 
+import java.io.IOException;
 import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
@@ -10,7 +13,7 @@ import java.util.Objects;
 
 /**
  * An irreducible unit: one of the SI base units or an alternate unit. Serializable through a proxy that carries
- * an alternate atom's definition and re-registers it on read.
+ * an alternate atom's definition; reading checks it against the registry but never registers it.
  */
 public record UnitAtom(String symbol, UomDimension dimension) implements Serializable {
 
@@ -41,16 +44,35 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private final String symbol;
-        private final UomDimension dimension;
-        private final UnitAtom[] definitionAtoms;
-        private final int[] definitionExponents;
+        private transient String symbol;
+        private transient UomDimension dimension;
+        private transient UnitAtom[] definitionAtoms;
+        private transient int[] definitionExponents;
 
         Proxy(String symbol, UomDimension dimension, UnitAtom[] definitionAtoms, int[] definitionExponents) {
             this.symbol = symbol;
             this.dimension = dimension;
             this.definitionAtoms = definitionAtoms;
             this.definitionExponents = definitionExponents;
+        }
+
+        @Serial
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.defaultWriteObject();
+            out.writeUnshared(symbol);
+            out.writeUnshared(dimension);
+            SerialForm.writeObjects(out, definitionAtoms);
+            SerialForm.writeInts(out, definitionExponents);
+        }
+
+        @Serial
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            symbol = SerialForm.read(in, String.class);
+            dimension = SerialForm.read(in, UomDimension.class);
+            definitionAtoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new,
+                    "invalid unit atom: too many definition atoms");
+            definitionExponents = SerialForm.readInts(in, "invalid unit atom: too many definition exponents");
         }
 
         @Serial
