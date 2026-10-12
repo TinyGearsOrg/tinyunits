@@ -6,16 +6,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.Definitions;
+import org.tinygears.uom.core.parse.Extends;
+import org.tinygears.uom.core.parse.Member;
 import org.tinygears.uom.core.parse.Preferred;
 
 /** Resolves each definition to a catalog constant name and quantity type (decision D5). */
@@ -25,10 +27,14 @@ public final class CatalogBuilder {
 
     /** One entry per definition, in file order. */
     public static List<CatalogEntry> build(Definitions definitions, List<QuantityTypeSpec> types) {
+        return build(definitions.definitions(), types);
+    }
+
+    private static List<CatalogEntry> build(List<Definition> definitions, List<QuantityTypeSpec> types) {
         Map<String, QuantityTypeSpec> byName = byName(types);
         Map<String, Definition> byConstant = new HashMap<>();
         List<CatalogEntry> result = new ArrayList<>();
-        for (Definition d : definitions.definitions()) {
+        for (Definition d : definitions) {
             String constant = d.name().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]", "_");
             if (!SourceVersion.isName(constant)) {
                 throw error(d, "invalid constant name '" + constant + "' for '" + d.symbol() + "'");
@@ -64,40 +70,123 @@ public final class CatalogBuilder {
         return matches.isEmpty() ? null : matches.get(0);
     }
 
-    /** Type name to constant name, from the {@code @preferred} directives. */
-    public static Map<String, String> preferred(Definitions definitions, List<CatalogEntry> entries,
-            List<QuantityTypeSpec> types) {
+    /**
+     * A catalog class: unit references are qualified by their class ({@code SI.CENTIMETRE}) or are factory system
+     * units; {@code units} maps symbols to references in list order, {@code preferred} maps every type name to one.
+     */
+    public record Catalog(String file, String className, List<CatalogEntry> entries, Map<String, String> units,
+            Set<String> prefixable, Map<String, String> preferred) {
+    }
+
+    /**
+     * One catalog per parsed file, in map order; parents must precede dependents. The first catalog (SI) gives the
+     * preferred units of types that a catalog without {@code @extends} does not prefer itself.
+     */
+    public static Map<String, Catalog> catalogs(Map<String, Definitions> parsed, List<QuantityTypeSpec> types) {
+        Map<String, Catalog> done = new LinkedHashMap<>();
+        Map<String, String> fileByClass = new HashMap<>();
+        parsed.forEach((file, d) -> {
+            if (d.system() == null) {
+                throw new GenerationException(file, 0, "no @system directive");
+            }
+            String previous = fileByClass.putIfAbsent(d.system(), file);
+            if (previous != null) {
+                throw new GenerationException(file, 0, "duplicate system '" + d.system() + "' (also in " + previous
+                        + ")");
+            }
+            done.put(file, catalog(file, d, types, done));
+        });
+        return Collections.unmodifiableMap(done);
+    }
+
+    private static Catalog catalog(String file, Definitions d, List<QuantityTypeSpec> types,
+            Map<String, Catalog> done) {
+        String cls = d.system();
+        List<CatalogEntry> entries = build(d.definitions().stream().filter(x -> x.source().equals(file)).toList(),
+                types);
+        Map<String, Definition> bySymbol = new HashMap<>();
+        d.definitions().forEach(x -> bySymbol.putIfAbsent(x.symbol(), x));
+        Map<String, String> units = new LinkedHashMap<>();
+        entries.forEach(e -> units.put(e.definition().symbol(), cls + "." + e.constantName()));
+        List<Catalog> parents = new ArrayList<>();
+        for (Extends x : d.extended()) {
+            Catalog parent = done.get(x.file());
+            if (parent == null) {
+                throw new GenerationException(x.source(), x.line(), "'" + x.file()
+                        + "' is not a catalog generated before '" + file + "'");
+            }
+            parents.add(parent);
+            parent.units().forEach(units::putIfAbsent);
+        }
+        Set<String> prefixable = new TreeSet<>();
+        d.prefixed().stream().filter(p -> p.source().equals(file)).forEach(p -> prefixable.add(p.unitSymbol()));
+        parents.forEach(p -> prefixable.addAll(p.prefixable()));
+        for (Member m : d.members()) {
+            Definition def = bySymbol.get(m.symbol());
+            if (def == null) {
+                throw new GenerationException(m.source(), m.line(), "unknown unit '" + m.symbol() + "'");
+            }
+            Catalog owner = done.get(def.source());
+            if (owner == null) {
+                throw new GenerationException(m.source(), m.line(), "unit '" + m.symbol() + "' is defined in '"
+                        + def.source() + "', which is not a catalog generated before '" + file + "'");
+            }
+            units.putIfAbsent(m.symbol(), owner.units().get(m.symbol()));
+            if (d.prefixed().stream().anyMatch(p -> p.source().equals(def.source())
+                    && p.unitSymbol().equals(m.symbol()))) {
+                prefixable.add(m.symbol());
+            }
+        }
+        // UomSystemOfUnits rejects a prefixable symbol that is not one of its units.
+        prefixable.retainAll(units.keySet());
+        Map<String, String> fallback = !parents.isEmpty() ? parents.get(0).preferred()
+                : done.isEmpty() ? null : done.values().iterator().next().preferred();
+        Map<String, String> own = ownPreferred(file, d, types, bySymbol, units, cls);
+        Map<String, String> preferred = new LinkedHashMap<>();
+        for (QuantityTypeSpec t : types) {
+            String ref = own.get(t.name());
+            if (ref == null) {
+                ref = fallback != null ? fallback.get(t.name())
+                        : "org.tinygears.uom.quantity." + t.name() + "Factory.SYSTEM_UNIT";
+            }
+            preferred.put(t.name(), ref);
+        }
+        return new Catalog(file, cls, entries, Collections.unmodifiableMap(units),
+                Collections.unmodifiableSet(prefixable), Collections.unmodifiableMap(preferred));
+    }
+
+    /** Type name to unit reference, from the {@code @preferred} lines of {@code file} itself. */
+    private static Map<String, String> ownPreferred(String file, Definitions d, List<QuantityTypeSpec> types,
+            Map<String, Definition> bySymbol, Map<String, String> units, String cls) {
         Map<String, QuantityTypeSpec> byName = byName(types);
-        Map<String, CatalogEntry> bySymbol = entries.stream()
-                .collect(Collectors.toMap(e -> e.definition().symbol(), e -> e));
-        Map<String, String> result = new LinkedHashMap<>();
-        for (Preferred p : definitions.preferred()) {
-            CatalogEntry entry = bySymbol.get(p.symbol());
-            if (entry == null) {
+        Map<String, String> result = new HashMap<>();
+        for (Preferred p : d.preferred()) {
+            if (!p.source().equals(file)) {
+                continue;
+            }
+            Definition def = bySymbol.get(p.symbol());
+            if (def == null) {
                 throw new GenerationException(p.source(), p.line(), "unknown unit '" + p.symbol() + "'");
+            }
+            if (!units.containsKey(p.symbol())) {
+                throw new GenerationException(p.source(), p.line(), "unit '" + p.symbol() + "' is not a unit of "
+                        + cls);
             }
             QuantityTypeSpec spec = byName.get(p.quantityType());
             if (spec == null) {
                 throw new GenerationException(p.source(), p.line(), "unknown quantity type '" + p.quantityType()
                         + "'");
             }
-            if (!spec.systemUnit().equals(entry.definition().unit().getSystemUnit())) {
+            if (!spec.systemUnit().equals(def.unit().getSystemUnit())) {
                 throw new GenerationException(p.source(), p.line(), "unit '" + p.symbol() + "' is not a unit of "
                         + spec.name());
             }
-            if (result.putIfAbsent(spec.name(), entry.constantName()) != null) {
+            if (result.putIfAbsent(spec.name(), units.get(p.symbol())) != null) {
                 throw new GenerationException(p.source(), p.line(), "duplicate preferred unit for '" + spec.name()
                         + "'");
             }
         }
-        return Collections.unmodifiableMap(result);
-    }
-
-    /** The symbols of the units named by {@code @prefixed}, in order of first appearance. */
-    public static Set<String> prefixable(Definitions definitions) {
-        Set<String> result = new LinkedHashSet<>();
-        definitions.prefixed().forEach(p -> result.add(p.unitSymbol()));
-        return Collections.unmodifiableSet(result);
+        return result;
     }
 
     private static Map<String, QuantityTypeSpec> byName(List<QuantityTypeSpec> types) {

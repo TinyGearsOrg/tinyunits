@@ -359,11 +359,5 @@ class CgsDataTest {
                 assertEquals(p.quantityType(), entries.get(file).get(p.symbol()).quantityType(), p.symbol());
             }
         }
-        // Gaussian's parse also sees ESU's and EMU's @preferred lines; layering by source is the generator's job.
-        for (String file : List.of(CGS, ESU, EMU)) {
-            Definitions defs = parsed.get(file);
-            assertEquals(preferred(file).keySet(), CatalogBuilder.preferred(defs, CatalogBuilder.build(defs, specs),
-                    specs).keySet(), file);
-        }
     }
 }

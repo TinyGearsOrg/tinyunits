@@ -2,6 +2,8 @@
 # All definitions are exact except the dalton: CODATA 2018 value, approximate, written as an exact decimal literal.
 # Format: symbol:name formula [Type]; '~' defines an alternate unit, '!' a base unit; '#' starts a comment.
 
+@system SI
+
 # Base units
 m:metre !L
 kg:kilogram !M

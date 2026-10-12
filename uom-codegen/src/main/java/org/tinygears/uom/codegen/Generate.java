@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,7 +24,9 @@ import org.tinygears.uom.core.parse.Definitions;
 
 /** Generates the quantity and catalog sources from {@code data/}: {@code [--check] <dataDir> <quantitiesOut> <systemsOut>}. */
 public final class Generate {
-    private static final String SI_UNITS = "si.units";
+    /** The catalog files, one class each; parents precede dependents and SI comes first. */
+    public static final List<String> CATALOGS = List.of("si.units", "us-customary.units", "imperial.units",
+            "cgs.units", "cgs-esu.units", "cgs-emu.units", "cgs-gaussian.units");
     private static final String TYPES = "quantity-types.txt";
     // Only files starting with both header lines count as stale; hand-written files are never removed.
     private static final String HEADER_1 = "// SPDX-License-Identifier: Apache-2.0";
@@ -76,19 +79,14 @@ public final class Generate {
     }
 
     public static Output generate(Path dataDir) {
-        Definitions definitions;
-        try (Reader in = open(dataDir, SI_UNITS)) {
-            definitions = DefinitionParser.parse(SI_UNITS, in, name -> Files.newBufferedReader(
-                    dataDir.resolve(name), StandardCharsets.UTF_8));
-        } catch (DefinitionException e) {
-            String prefix = e.source() + ":" + e.line() + ": ";
-            throw new GenerationException(e.source(), e.line(), e.getMessage().substring(prefix.length()), e);
-        } catch (IOException | UncheckedIOException e) {
-            throw new GenerationException(SI_UNITS, 0, "cannot read " + SI_UNITS, e);
+        Map<String, Definitions> parsed = new LinkedHashMap<>();
+        for (String file : CATALOGS) {
+            parsed.put(file, parse(dataDir, file));
         }
+        Definitions si = parsed.get(CATALOGS.get(0));
         List<QuantityTypeSpec> specs;
         try (Reader in = open(dataDir, TYPES)) {
-            specs = QuantityTypesParser.parse(TYPES, in, definitions);
+            specs = QuantityTypesParser.parse(TYPES, in, si);
         } catch (IOException | UncheckedIOException e) {
             throw new GenerationException(TYPES, 0, "cannot read " + TYPES, e);
         }
@@ -100,14 +98,24 @@ public final class Generate {
             files.put(s.name() + ".java", SourceEmitter.typedInterface(s));
             files.put(s.name() + "Double.java", SourceEmitter.doubleImplementation(s));
             files.put(s.name() + "Decimal.java", SourceEmitter.decimalImplementation(s));
-            files.put(s.name() + "Factory.java", SourceEmitter.factory(s, definitions));
+            files.put(s.name() + "Factory.java", SourceEmitter.factory(s, si));
         }
         files.put("QuantityTypes.java", SourceEmitter.registry(specs));
-        List<CatalogEntry> entries = CatalogBuilder.build(definitions, specs);
-        String catalog = CatalogEmitter.catalog("SI", "SI", entries,
-                CatalogBuilder.preferred(definitions, entries, specs), specs, CatalogBuilder.prefixable(definitions),
-                definitions);
-        return new Output(Collections.unmodifiableMap(files), Map.of("SI.java", catalog));
+        Map<String, String> systems = new TreeMap<>();
+        CatalogBuilder.catalogs(parsed, specs).forEach((file, c) -> systems.put(c.className() + ".java",
+                CatalogEmitter.catalog(c, parsed.get(file))));
+        return new Output(Collections.unmodifiableMap(files), Collections.unmodifiableMap(systems));
+    }
+
+    private static Definitions parse(Path dataDir, String file) {
+        try (Reader in = open(dataDir, file)) {
+            return DefinitionParser.parse(file, in, name -> open(dataDir, name));
+        } catch (DefinitionException e) {
+            String prefix = e.source() + ":" + e.line() + ": ";
+            throw new GenerationException(e.source(), e.line(), e.getMessage().substring(prefix.length()), e);
+        } catch (IOException | UncheckedIOException e) {
+            throw new GenerationException(file, 0, "cannot read " + file, e);
+        }
     }
 
     private static Reader open(Path dataDir, String name) throws IOException {

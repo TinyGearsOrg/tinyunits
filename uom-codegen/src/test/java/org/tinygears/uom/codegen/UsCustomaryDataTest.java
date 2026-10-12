@@ -255,8 +255,6 @@ class UsCustomaryDataTest {
         assertEquals(usPreferred, preferred(uk, US));
         assertEquals(Map.of("Volume", "gal_UK"), preferred(uk, UK));
         assertNull(preferred(uk, UK).get("Length"));
-        assertEquals(usPreferred.keySet(), CatalogBuilder.preferred(us, CatalogBuilder.build(us, specs), specs)
-                .keySet());
         for (Preferred p : uk.preferred()) {
             assertEquals(p.quantityType(), ukEntries.get(p.symbol()).quantityType(), p.symbol());
         }
