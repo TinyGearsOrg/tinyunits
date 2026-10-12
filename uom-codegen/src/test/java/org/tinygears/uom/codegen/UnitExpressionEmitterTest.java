@@ -37,7 +37,7 @@ class UnitExpressionEmitterTest {
             Bq:becquerel ~ 1/s [Radioactivity]
             J:joule kg m^2 / s^2 [Energy]
             """;
-    static final Definitions DEFS = DefinitionParser.parse("base.units", new StringReader(BASE), null);
+    static final Definitions DEFS = DefinitionParser.parse("test.units", new StringReader(BASE), null);
 
     @TempDir
     Path tmp;

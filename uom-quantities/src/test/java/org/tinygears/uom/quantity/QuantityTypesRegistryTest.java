@@ -14,19 +14,35 @@ import org.tinygears.uom.core.BaseUnits;
 class QuantityTypesRegistryTest {
 
     private static final Set<Class<?>> TYPES = Set.of(
-            javax.measure.quantity.Length.class, javax.measure.quantity.Mass.class,
-            javax.measure.quantity.Time.class, javax.measure.quantity.Temperature.class,
-            javax.measure.quantity.Area.class, javax.measure.quantity.Speed.class,
-            javax.measure.quantity.Frequency.class, javax.measure.quantity.Radioactivity.class,
-            javax.measure.quantity.Energy.class, javax.measure.quantity.Dimensionless.class);
+            javax.measure.quantity.Acceleration.class, javax.measure.quantity.AmountOfSubstance.class,
+            javax.measure.quantity.Angle.class, javax.measure.quantity.Area.class,
+            javax.measure.quantity.CatalyticActivity.class, javax.measure.quantity.Dimensionless.class,
+            javax.measure.quantity.ElectricCapacitance.class, javax.measure.quantity.ElectricCharge.class,
+            javax.measure.quantity.ElectricConductance.class, javax.measure.quantity.ElectricCurrent.class,
+            javax.measure.quantity.ElectricInductance.class, javax.measure.quantity.ElectricPotential.class,
+            javax.measure.quantity.ElectricResistance.class, javax.measure.quantity.Energy.class,
+            javax.measure.quantity.Force.class, javax.measure.quantity.Frequency.class,
+            javax.measure.quantity.Illuminance.class, javax.measure.quantity.Length.class,
+            javax.measure.quantity.LuminousFlux.class, javax.measure.quantity.LuminousIntensity.class,
+            javax.measure.quantity.MagneticFlux.class, javax.measure.quantity.MagneticFluxDensity.class,
+            javax.measure.quantity.Mass.class, javax.measure.quantity.Power.class,
+            javax.measure.quantity.Pressure.class, javax.measure.quantity.RadiationDoseAbsorbed.class,
+            javax.measure.quantity.RadiationDoseEffective.class, javax.measure.quantity.Radioactivity.class,
+            javax.measure.quantity.SolidAngle.class, javax.measure.quantity.Speed.class,
+            javax.measure.quantity.Temperature.class, javax.measure.quantity.Time.class,
+            javax.measure.quantity.Volume.class);
+
+    /** Not a standard type, so no factory exists for it. */
+    interface Probe extends Quantity<Probe> {
+    }
 
     @Test
     void registry() throws Exception {
         assertEquals(TYPES, QuantityTypes.types());
         assertEquals(BaseUnits.METRE, QuantityTypes.factory(javax.measure.quantity.Length.class).getSystemUnit());
         var e = assertThrows(IllegalArgumentException.class,
-                () -> QuantityTypes.factory(javax.measure.quantity.Power.class));
-        assertEquals("no quantity factory for javax.measure.quantity.Power", e.getMessage());
+                () -> QuantityTypes.factory(Probe.class));
+        assertEquals("no quantity factory for " + Probe.class.getName(), e.getMessage());
         assertThrows(UnsupportedOperationException.class, () -> QuantityTypes.types().clear());
     }
 

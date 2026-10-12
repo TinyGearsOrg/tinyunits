@@ -28,7 +28,7 @@ class QuantityTypesIsolationTest {
             Method factory = types.getMethod("factory", Class.class);
             Object length = factory.invoke(null, l.javax("Length"));
             assertSame(Class.forName(PKG + "LengthFactory", true, l).getField("INSTANCE").get(null), length);
-            assertEquals(10, ((Set<?>) types.getMethod("types").invoke(null)).size());
+            assertEquals(33, ((Set<?>) types.getMethod("types").invoke(null)).size());
 
             var first = assertThrows(InvocationTargetException.class, () -> factory.invoke(null, l.javax("Frequency")));
             assertInstanceOf(ExceptionInInitializerError.class, first.getCause());
@@ -46,7 +46,7 @@ class QuantityTypesIsolationTest {
     void typesDoesNotInitialiseFactories() throws Exception {
         try (Loader l = new Loader()) {
             Class<?> types = Class.forName(PKG + "QuantityTypes", true, l);
-            assertEquals(10, ((Set<?>) types.getMethod("types").invoke(null)).size());
+            assertEquals(33, ((Set<?>) types.getMethod("types").invoke(null)).size());
             assertNull(l.loaded(PKG + "LengthFactory"));
             assertNull(l.loaded(PKG + "FrequencyFactory"));
         }

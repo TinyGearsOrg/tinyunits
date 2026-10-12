@@ -77,13 +77,13 @@ class GeneratedSourcesUpToDateTest {
     @Test
     void generatedFilesCarryTheHeader() {
         Map<String, String> files = Generate.generate(DATA);
-        assertEquals(31, files.size());
+        assertEquals(100, files.size());
         files.forEach((name, text) -> assertTrue(text.startsWith(HEADER), name));
     }
 
     private Path dataDir(String types) throws IOException {
         Path dir = Files.createDirectories(tmp.resolve("data"));
-        Files.copy(DATA.resolve("base.units"), dir.resolve("base.units"));
+        Files.copy(DATA.resolve("si.units"), dir.resolve("si.units"));
         if (types != null) {
             Files.writeString(dir.resolve("quantity-types.txt"), types);
         }
@@ -110,15 +110,15 @@ class GeneratedSourcesUpToDateTest {
         GenerationException e = assertThrows(GenerationException.class, () -> Generate.generate(dir));
         assertEquals("quantity-types.txt:0: cannot read quantity-types.txt", e.getMessage());
         e = assertThrows(GenerationException.class, () -> Generate.generate(tmp.resolve("nowhere")));
-        assertEquals("base.units:0: cannot read base.units", e.getMessage());
+        assertEquals("si.units:0: cannot read si.units", e.getMessage());
     }
 
     @Test
     void definitionErrorsUseTheGeneratorFormat() throws IOException {
         Path dir = Files.createDirectories(tmp.resolve("bad"));
-        Files.writeString(dir.resolve("base.units"), "m:metre !L\nx:foo bar\n");
+        Files.writeString(dir.resolve("si.units"), "m:metre !L\nx:foo bar\n");
         GenerationException e = assertThrows(GenerationException.class, () -> Generate.generate(dir));
-        assertEquals("base.units:2: unknown unit 'bar'", e.getMessage());
+        assertEquals("si.units:2: unknown unit 'bar'", e.getMessage());
     }
 
     private record Run(int status, String err) {
@@ -177,6 +177,6 @@ class GeneratedSourcesUpToDateTest {
     void generationErrorExitsWithOne() throws IOException {
         Run r = run(tmp.resolve("nowhere").toString(), tmp.resolve("out").toString());
         assertEquals(1, r.status());
-        assertTrue(r.err().contains("base.units:0: cannot read base.units"), r.err());
+        assertTrue(r.err().contains("si.units:0: cannot read si.units"), r.err());
     }
 }

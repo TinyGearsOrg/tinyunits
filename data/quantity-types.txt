@@ -1,14 +1,37 @@
 # Quantity types generated into uom-quantities (org.tinygears.uom.quantity).
 # Format: one "Name formula" per line; Name is a javax.measure.quantity interface.
-# The formula is the unscaled system unit, in units defined by base.units.
+# The formula is the unscaled system unit, in units defined by si.units.
 # Text after '#' is a comment; blank lines are ignored.
-Length m
-Mass kg
-Time s
-Temperature K
-Area m^2
-Speed m / s
-Frequency Hz
-Radioactivity Bq
-Energy J
+Acceleration m / s^2
+AmountOfSubstance mol
+Angle rad
+Area m²
+CatalyticActivity kat
 Dimensionless 1
+ElectricCapacitance F
+ElectricCharge C
+ElectricConductance S
+ElectricCurrent A
+ElectricInductance H
+ElectricPotential V
+ElectricResistance Ω
+Energy J
+Force N
+Frequency Hz
+Illuminance lx
+Length m
+LuminousFlux lm
+LuminousIntensity cd
+MagneticFlux Wb
+MagneticFluxDensity T
+Mass kg
+Power W
+Pressure Pa
+RadiationDoseAbsorbed Gy
+RadiationDoseEffective Sv
+Radioactivity Bq
+SolidAngle sr
+Speed m / s
+Temperature K
+Time s
+Volume m³

@@ -212,7 +212,7 @@ class GeneratedQuantitiesTest {
         assertNotNull(factory.getField("SYSTEM_UNIT").get(null));
         assertNotNull(factory.getField("INSTANCE").get(null));
         Class<?> types = Class.forName(pkg + "QuantityTypes", true, l);
-        assertEquals(10, ((java.util.Set<?>) types.getMethod("types").invoke(null)).size());
+        assertEquals(33, ((java.util.Set<?>) types.getMethod("types").invoke(null)).size());
     }
 
     private static void touch(ClassLoader l, String simple) throws Exception {

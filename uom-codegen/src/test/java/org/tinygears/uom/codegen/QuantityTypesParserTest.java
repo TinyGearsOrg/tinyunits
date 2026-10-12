@@ -26,7 +26,7 @@ class QuantityTypesParserTest {
             """;
 
     private static Definitions defs(String text) {
-        return DefinitionParser.parse("base.units", new StringReader(text), null);
+        return DefinitionParser.parse("test.units", new StringReader(text), null);
     }
 
     private static List<QuantityTypeSpec> parse(String text) {

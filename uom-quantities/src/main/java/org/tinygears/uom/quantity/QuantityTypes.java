@@ -6,16 +6,39 @@ package org.tinygears.uom.quantity;
 /** The quantity factories of the generated types; each factory initialises only when its type is requested. */
 public final class QuantityTypes {
     private static final java.util.Set<Class<?>> TYPES = java.util.Set.of(
-            javax.measure.quantity.Length.class,
-            javax.measure.quantity.Mass.class,
-            javax.measure.quantity.Time.class,
-            javax.measure.quantity.Temperature.class,
+            javax.measure.quantity.Acceleration.class,
+            javax.measure.quantity.AmountOfSubstance.class,
+            javax.measure.quantity.Angle.class,
             javax.measure.quantity.Area.class,
-            javax.measure.quantity.Speed.class,
-            javax.measure.quantity.Frequency.class,
-            javax.measure.quantity.Radioactivity.class,
+            javax.measure.quantity.CatalyticActivity.class,
+            javax.measure.quantity.Dimensionless.class,
+            javax.measure.quantity.ElectricCapacitance.class,
+            javax.measure.quantity.ElectricCharge.class,
+            javax.measure.quantity.ElectricConductance.class,
+            javax.measure.quantity.ElectricCurrent.class,
+            javax.measure.quantity.ElectricInductance.class,
+            javax.measure.quantity.ElectricPotential.class,
+            javax.measure.quantity.ElectricResistance.class,
             javax.measure.quantity.Energy.class,
-            javax.measure.quantity.Dimensionless.class);
+            javax.measure.quantity.Force.class,
+            javax.measure.quantity.Frequency.class,
+            javax.measure.quantity.Illuminance.class,
+            javax.measure.quantity.Length.class,
+            javax.measure.quantity.LuminousFlux.class,
+            javax.measure.quantity.LuminousIntensity.class,
+            javax.measure.quantity.MagneticFlux.class,
+            javax.measure.quantity.MagneticFluxDensity.class,
+            javax.measure.quantity.Mass.class,
+            javax.measure.quantity.Power.class,
+            javax.measure.quantity.Pressure.class,
+            javax.measure.quantity.RadiationDoseAbsorbed.class,
+            javax.measure.quantity.RadiationDoseEffective.class,
+            javax.measure.quantity.Radioactivity.class,
+            javax.measure.quantity.SolidAngle.class,
+            javax.measure.quantity.Speed.class,
+            javax.measure.quantity.Temperature.class,
+            javax.measure.quantity.Time.class,
+            javax.measure.quantity.Volume.class);
 
     private QuantityTypes() {
     }
@@ -24,35 +47,104 @@ public final class QuantityTypes {
     public static <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> factory(
             Class<Q> type) {
         java.util.Objects.requireNonNull(type, "type");
-        if (type == javax.measure.quantity.Length.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) LengthFactory.INSTANCE;
+        if (type == javax.measure.quantity.Acceleration.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) AccelerationFactory.INSTANCE;
         }
-        if (type == javax.measure.quantity.Mass.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) MassFactory.INSTANCE;
+        if (type == javax.measure.quantity.AmountOfSubstance.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) AmountOfSubstanceFactory.INSTANCE;
         }
-        if (type == javax.measure.quantity.Time.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) TimeFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Temperature.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) TemperatureFactory.INSTANCE;
+        if (type == javax.measure.quantity.Angle.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) AngleFactory.INSTANCE;
         }
         if (type == javax.measure.quantity.Area.class) {
             return (javax.measure.spi.QuantityFactory<Q>) AreaFactory.INSTANCE;
         }
-        if (type == javax.measure.quantity.Speed.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) SpeedFactory.INSTANCE;
+        if (type == javax.measure.quantity.CatalyticActivity.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) CatalyticActivityFactory.INSTANCE;
         }
-        if (type == javax.measure.quantity.Frequency.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) FrequencyFactory.INSTANCE;
+        if (type == javax.measure.quantity.Dimensionless.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) DimensionlessFactory.INSTANCE;
         }
-        if (type == javax.measure.quantity.Radioactivity.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) RadioactivityFactory.INSTANCE;
+        if (type == javax.measure.quantity.ElectricCapacitance.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ElectricCapacitanceFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.ElectricCharge.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ElectricChargeFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.ElectricConductance.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ElectricConductanceFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.ElectricCurrent.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ElectricCurrentFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.ElectricInductance.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ElectricInductanceFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.ElectricPotential.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ElectricPotentialFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.ElectricResistance.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ElectricResistanceFactory.INSTANCE;
         }
         if (type == javax.measure.quantity.Energy.class) {
             return (javax.measure.spi.QuantityFactory<Q>) EnergyFactory.INSTANCE;
         }
-        if (type == javax.measure.quantity.Dimensionless.class) {
-            return (javax.measure.spi.QuantityFactory<Q>) DimensionlessFactory.INSTANCE;
+        if (type == javax.measure.quantity.Force.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) ForceFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Frequency.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) FrequencyFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Illuminance.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) IlluminanceFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Length.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) LengthFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.LuminousFlux.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) LuminousFluxFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.LuminousIntensity.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) LuminousIntensityFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.MagneticFlux.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) MagneticFluxFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.MagneticFluxDensity.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) MagneticFluxDensityFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Mass.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) MassFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Power.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) PowerFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Pressure.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) PressureFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.RadiationDoseAbsorbed.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) RadiationDoseAbsorbedFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.RadiationDoseEffective.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) RadiationDoseEffectiveFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Radioactivity.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) RadioactivityFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.SolidAngle.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) SolidAngleFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Speed.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) SpeedFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Temperature.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) TemperatureFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Time.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) TimeFactory.INSTANCE;
+        }
+        if (type == javax.measure.quantity.Volume.class) {
+            return (javax.measure.spi.QuantityFactory<Q>) VolumeFactory.INSTANCE;
         }
         throw new IllegalArgumentException("no quantity factory for " + type.getName());
     }

@@ -7,7 +7,7 @@ package org.tinygears.uom.quantity;
 public final class AreaFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Area> {
 
     public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> SYSTEM_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE.pow(2));
+            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE.pow(2).named("m²", "square metre"));
 
     public static final AreaFactory INSTANCE = new AreaFactory();
 

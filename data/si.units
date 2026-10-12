@@ -1,0 +1,82 @@
+# SI units, from the BIPM SI Brochure, 9th edition (2019), with the non-SI units accepted for use with the SI.
+# All definitions are exact except the dalton: CODATA 2018 value, approximate, written as an exact decimal literal.
+# Format: symbol:name formula [Type]; '~' defines an alternate unit, '!' a base unit; '#' starts a comment.
+
+# Base units
+m:metre !L
+kg:kilogram !M
+s:second !T
+A:ampere !I
+K:kelvin !Θ
+mol:mole !N
+cd:candela !J
+
+# Alternate units (distinct atoms with the same dimension as their formula)
+rad:radian ~ [Angle]
+sr:steradian ~ [SolidAngle]
+Hz:hertz ~ 1/s [Frequency]
+Bq:becquerel ~ 1/s [Radioactivity]
+
+# Derived units with special names
+N:newton kg m / s^2 [Force]
+Pa:pascal N / m^2 [Pressure]
+J:joule N m [Energy]
+W:watt J / s [Power]
+C:coulomb A s [ElectricCharge]
+V:volt W / A [ElectricPotential]
+F:farad C / V [ElectricCapacitance]
+Ω:ohm V / A [ElectricResistance]
+S:siemens A / V [ElectricConductance]
+Wb:weber V s [MagneticFlux]
+T:tesla Wb / m^2 [MagneticFluxDensity]
+H:henry Wb / A [ElectricInductance]
+lm:lumen cd sr [LuminousFlux]
+lx:lux lm / m^2 [Illuminance]
+kat:katal mol / s [CatalyticActivity]
+Gy:gray ~ J / kg [RadiationDoseAbsorbed]
+Sv:sievert ~ J / kg [RadiationDoseEffective]
+°C:degree_celsius K = x + 273.15 [Temperature]
+m²:square_metre m^2 [Area]
+m³:cubic_metre m^3 [Volume]
+g:gram 1|1000 kg [Mass]
+
+# Non-SI units accepted for use with the SI
+min:minute 60 s
+h:hour 3600 s
+d:day 86400 s
+ha:hectare 10000 m^2
+L:litre 1|1000 m^3
+t:tonne 1000 kg
+eV:electronvolt 1.602176634e-19 J
+Da:dalton 1.66053906660e-27 kg
+au:astronomical_unit 149597870700 m
+deg:degree pi|180 rad
+arcmin:arcminute pi|10800 rad
+arcsec:arcsecond pi|648000 rad
+
+# Prefixed units generated as constants; other metric prefixes resolve at run time
+@prefixed m k c m µ n p
+@prefixed g m µ
+@prefixed s m µ n p
+@prefixed A m µ
+@prefixed mol m
+@prefixed Hz k M G T
+@prefixed N k m
+@prefixed Pa h k M G
+@prefixed J k M G m
+@prefixed W k M G m
+@prefixed C m µ
+@prefixed V k m µ
+@prefixed F m µ n p
+@prefixed Ω k M
+@prefixed S m
+@prefixed Wb m
+@prefixed T m µ n
+@prefixed H m µ n
+@prefixed eV k M G T
+@prefixed L m c d
+@prefixed Bq k M G
+@prefixed Gy m
+@prefixed Sv m µ
+@prefixed rad m
+@prefixed lx k

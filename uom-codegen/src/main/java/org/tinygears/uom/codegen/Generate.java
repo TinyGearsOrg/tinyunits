@@ -22,7 +22,7 @@ import org.tinygears.uom.core.parse.Definitions;
 
 /** Generates the quantity sources from {@code data/}: {@code [--check] <dataDir> <outDir>}. */
 public final class Generate {
-    private static final String BASE_UNITS = "base.units";
+    private static final String SI_UNITS = "si.units";
     private static final String TYPES = "quantity-types.txt";
     // Must match SourceEmitter's header; only files starting with both lines count as stale.
     private static final String HEADER_1 = "// SPDX-License-Identifier: Apache-2.0";
@@ -69,14 +69,14 @@ public final class Generate {
     /** File name to source text for every generated file, sorted by name. */
     public static Map<String, String> generate(Path dataDir) {
         Definitions definitions;
-        try (Reader in = open(dataDir, BASE_UNITS)) {
-            definitions = DefinitionParser.parse(BASE_UNITS, in, name -> Files.newBufferedReader(
+        try (Reader in = open(dataDir, SI_UNITS)) {
+            definitions = DefinitionParser.parse(SI_UNITS, in, name -> Files.newBufferedReader(
                     dataDir.resolve(name), StandardCharsets.UTF_8));
         } catch (DefinitionException e) {
             String prefix = e.source() + ":" + e.line() + ": ";
             throw new GenerationException(e.source(), e.line(), e.getMessage().substring(prefix.length()), e);
         } catch (IOException | UncheckedIOException e) {
-            throw new GenerationException(BASE_UNITS, 0, "cannot read " + BASE_UNITS, e);
+            throw new GenerationException(SI_UNITS, 0, "cannot read " + SI_UNITS, e);
         }
         List<QuantityTypeSpec> specs;
         try (Reader in = open(dataDir, TYPES)) {
