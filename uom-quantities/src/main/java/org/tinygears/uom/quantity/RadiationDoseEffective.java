@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.RadiationDoseEffective} of this implementation. */
 public interface RadiationDoseEffective extends javax.measure.quantity.RadiationDoseEffective,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.RadiationDoseEffective>> {
+        Comparable<Quantity<javax.measure.quantity.RadiationDoseEffective>> {
 
     @Override
-    RadiationDoseEffective add(javax.measure.Quantity<javax.measure.quantity.RadiationDoseEffective> addend);
+    RadiationDoseEffective add(Quantity<javax.measure.quantity.RadiationDoseEffective> addend);
 
     @Override
-    RadiationDoseEffective subtract(javax.measure.Quantity<javax.measure.quantity.RadiationDoseEffective> subtrahend);
+    RadiationDoseEffective subtract(Quantity<javax.measure.quantity.RadiationDoseEffective> subtrahend);
 
     @Override
-    RadiationDoseEffective to(javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit);
+    RadiationDoseEffective to(Unit<javax.measure.quantity.RadiationDoseEffective> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    RadiationDoseEffective to(javax.measure.spi.SystemOfUnits system);
+    RadiationDoseEffective to(SystemOfUnits system);
 
     @Override
     RadiationDoseEffective negate();
@@ -36,31 +42,31 @@ public interface RadiationDoseEffective extends javax.measure.quantity.Radiation
     RadiationDoseEffective toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    RadiationDoseEffective toDecimal(java.math.MathContext mc);
+    RadiationDoseEffective toDecimal(MathContext mc);
 
-    static RadiationDoseEffective of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit) {
+    static RadiationDoseEffective of(double value, Unit<javax.measure.quantity.RadiationDoseEffective> unit) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit);
     }
 
-    static RadiationDoseEffective of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
-            javax.measure.Quantity.Scale scale) {
+    static RadiationDoseEffective of(double value, Unit<javax.measure.quantity.RadiationDoseEffective> unit,
+            Quantity.Scale scale) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit) {
+    static RadiationDoseEffective of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseEffective> unit) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
-            javax.measure.Quantity.Scale scale) {
+    static RadiationDoseEffective of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseEffective> unit,
+            Quantity.Scale scale) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static RadiationDoseEffective of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseEffective> unit,
+            Quantity.Scale scale, MathContext mc) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

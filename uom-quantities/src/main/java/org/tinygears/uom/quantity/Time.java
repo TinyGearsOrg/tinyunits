@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Time} of this implementation. */
 public interface Time extends javax.measure.quantity.Time,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Time>> {
+        Comparable<Quantity<javax.measure.quantity.Time>> {
 
     @Override
-    Time add(javax.measure.Quantity<javax.measure.quantity.Time> addend);
+    Time add(Quantity<javax.measure.quantity.Time> addend);
 
     @Override
-    Time subtract(javax.measure.Quantity<javax.measure.quantity.Time> subtrahend);
+    Time subtract(Quantity<javax.measure.quantity.Time> subtrahend);
 
     @Override
-    Time to(javax.measure.Unit<javax.measure.quantity.Time> unit);
+    Time to(Unit<javax.measure.quantity.Time> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Time to(javax.measure.spi.SystemOfUnits system);
+    Time to(SystemOfUnits system);
 
     @Override
     Time negate();
@@ -36,31 +42,31 @@ public interface Time extends javax.measure.quantity.Time,
     Time toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Time toDecimal(java.math.MathContext mc);
+    Time toDecimal(MathContext mc);
 
-    static Time of(double value, javax.measure.Unit<javax.measure.quantity.Time> unit) {
+    static Time of(double value, Unit<javax.measure.quantity.Time> unit) {
         return TimeFactory.INSTANCE.of(value, unit);
     }
 
-    static Time of(double value, javax.measure.Unit<javax.measure.quantity.Time> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Time of(double value, Unit<javax.measure.quantity.Time> unit,
+            Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit) {
+    static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit) {
         return TimeFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit,
+            Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit,
+            Quantity.Scale scale, MathContext mc) {
         return TimeFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

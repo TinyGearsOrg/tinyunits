@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class VolumeDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Volume, Volume>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class VolumeDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Volume, Volume>
         implements Volume {
 
-    VolumeDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> unit,
-            javax.measure.Quantity.Scale scale) {
+    VolumeDouble(double value, UomUnit<javax.measure.quantity.Volume> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Volume create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Volume create(double value, UomUnit<javax.measure.quantity.Volume> unit,
+            Quantity.Scale scale) {
         return new VolumeDouble(value, unit, scale);
     }
 
     @Override
-    protected Volume createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Volume createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Volume> unit, Quantity.Scale scale, MathContext mc) {
         return new VolumeDecimal(value, unit, scale, mc);
     }
 

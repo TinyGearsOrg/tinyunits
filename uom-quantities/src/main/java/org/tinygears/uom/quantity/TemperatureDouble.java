@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class TemperatureDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Temperature, Temperature>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class TemperatureDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Temperature, Temperature>
         implements Temperature {
 
-    TemperatureDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> unit,
-            javax.measure.Quantity.Scale scale) {
+    TemperatureDouble(double value, UomUnit<javax.measure.quantity.Temperature> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Temperature create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Temperature create(double value, UomUnit<javax.measure.quantity.Temperature> unit,
+            Quantity.Scale scale) {
         return new TemperatureDouble(value, unit, scale);
     }
 
     @Override
-    protected Temperature createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Temperature createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale, MathContext mc) {
         return new TemperatureDecimal(value, unit, scale, mc);
     }
 

@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.ElectricResistance} of this implementation. */
 public interface ElectricResistance extends javax.measure.quantity.ElectricResistance,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricResistance>> {
+        Comparable<Quantity<javax.measure.quantity.ElectricResistance>> {
 
     @Override
-    ElectricResistance add(javax.measure.Quantity<javax.measure.quantity.ElectricResistance> addend);
+    ElectricResistance add(Quantity<javax.measure.quantity.ElectricResistance> addend);
 
     @Override
-    ElectricResistance subtract(javax.measure.Quantity<javax.measure.quantity.ElectricResistance> subtrahend);
+    ElectricResistance subtract(Quantity<javax.measure.quantity.ElectricResistance> subtrahend);
 
     @Override
-    ElectricResistance to(javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit);
+    ElectricResistance to(Unit<javax.measure.quantity.ElectricResistance> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    ElectricResistance to(javax.measure.spi.SystemOfUnits system);
+    ElectricResistance to(SystemOfUnits system);
 
     @Override
     ElectricResistance negate();
@@ -36,31 +42,31 @@ public interface ElectricResistance extends javax.measure.quantity.ElectricResis
     ElectricResistance toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    ElectricResistance toDecimal(java.math.MathContext mc);
+    ElectricResistance toDecimal(MathContext mc);
 
-    static ElectricResistance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit) {
+    static ElectricResistance of(double value, Unit<javax.measure.quantity.ElectricResistance> unit) {
         return ElectricResistanceFactory.INSTANCE.of(value, unit);
     }
 
-    static ElectricResistance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricResistance of(double value, Unit<javax.measure.quantity.ElectricResistance> unit,
+            Quantity.Scale scale) {
         return ElectricResistanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricResistance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit) {
+    static ElectricResistance of(BigDecimal value, Unit<javax.measure.quantity.ElectricResistance> unit) {
         return ElectricResistanceFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricResistance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricResistance of(BigDecimal value, Unit<javax.measure.quantity.ElectricResistance> unit,
+            Quantity.Scale scale) {
         return ElectricResistanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static ElectricResistance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static ElectricResistance of(BigDecimal value, Unit<javax.measure.quantity.ElectricResistance> unit,
+            Quantity.Scale scale, MathContext mc) {
         return ElectricResistanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

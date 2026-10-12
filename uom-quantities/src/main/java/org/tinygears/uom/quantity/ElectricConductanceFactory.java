@@ -3,55 +3,65 @@
 
 package org.tinygears.uom.quantity;
 
-/** Creates {@link ElectricConductance} quantities. */
-public final class ElectricConductanceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricConductance> {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.util.Objects;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> SYSTEM_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2).multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(3)).divide(org.tinygears.uom.core.BaseUnits.KILOGRAM).divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2)).named("S", "siemens"));
+/** Creates {@link ElectricConductance} quantities. */
+public final class ElectricConductanceFactory
+        implements QuantityFactory<javax.measure.quantity.ElectricConductance> {
+
+    public static final UomUnit<javax.measure.quantity.ElectricConductance> SYSTEM_UNIT =
+            UomUnit.unchecked(BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(3)).divide(BaseUnits.KILOGRAM).divide(BaseUnits.METRE.pow(2)).named("S", "siemens"));
 
     public static final ElectricConductanceFactory INSTANCE = new ElectricConductanceFactory();
 
     private ElectricConductanceFactory() {
     }
 
-    public ElectricConductance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public ElectricConductance of(double value, Unit<javax.measure.quantity.ElectricConductance> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    public ElectricConductance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
-            javax.measure.Quantity.Scale scale) {
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> u) {
+    public ElectricConductance of(double value, Unit<javax.measure.quantity.ElectricConductance> unit,
+            Quantity.Scale scale) {
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricConductance> u) {
             return new ElectricConductanceDouble(value, u, scale);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public ElectricConductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public ElectricConductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricConductance> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public ElectricConductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
-            javax.measure.Quantity.Scale scale) {
-        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    public ElectricConductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricConductance> unit,
+            Quantity.Scale scale) {
+        return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    public ElectricConductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> u) {
+    public ElectricConductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricConductance> unit,
+            Quantity.Scale scale, MathContext mc) {
+        Objects.requireNonNull(value, "value");
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricConductance> u) {
             return new ElectricConductanceDecimal(value, u, scale, mc);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
-    public ElectricConductance create(Number value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit) {
-        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public ElectricConductance create(Number value, Unit<javax.measure.quantity.ElectricConductance> unit) {
+        return create(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /**
@@ -59,20 +69,20 @@ public final class ElectricConductanceFactory implements javax.measure.spi.Quant
      * not rounded; all others a double one.
      */
     @Override
-    public ElectricConductance create(Number value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
-            javax.measure.Quantity.Scale scale) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (value instanceof java.math.BigDecimal d) {
+    public ElectricConductance create(Number value, Unit<javax.measure.quantity.ElectricConductance> unit,
+            Quantity.Scale scale) {
+        Objects.requireNonNull(value, "value");
+        if (value instanceof BigDecimal d) {
             return of(d, unit, scale);
         }
-        if (value instanceof java.math.BigInteger i) {
-            return of(new java.math.BigDecimal(i), unit, scale);
+        if (value instanceof BigInteger i) {
+            return of(new BigDecimal(i), unit, scale);
         }
         return of(value.doubleValue(), unit, scale);
     }
 
     @Override
-    public javax.measure.Unit<javax.measure.quantity.ElectricConductance> getSystemUnit() {
+    public Unit<javax.measure.quantity.ElectricConductance> getSystemUnit() {
         return SYSTEM_UNIT;
     }
 }

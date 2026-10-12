@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.ElectricInductance} of this implementation. */
 public interface ElectricInductance extends javax.measure.quantity.ElectricInductance,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricInductance>> {
+        Comparable<Quantity<javax.measure.quantity.ElectricInductance>> {
 
     @Override
-    ElectricInductance add(javax.measure.Quantity<javax.measure.quantity.ElectricInductance> addend);
+    ElectricInductance add(Quantity<javax.measure.quantity.ElectricInductance> addend);
 
     @Override
-    ElectricInductance subtract(javax.measure.Quantity<javax.measure.quantity.ElectricInductance> subtrahend);
+    ElectricInductance subtract(Quantity<javax.measure.quantity.ElectricInductance> subtrahend);
 
     @Override
-    ElectricInductance to(javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit);
+    ElectricInductance to(Unit<javax.measure.quantity.ElectricInductance> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    ElectricInductance to(javax.measure.spi.SystemOfUnits system);
+    ElectricInductance to(SystemOfUnits system);
 
     @Override
     ElectricInductance negate();
@@ -36,31 +42,31 @@ public interface ElectricInductance extends javax.measure.quantity.ElectricInduc
     ElectricInductance toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    ElectricInductance toDecimal(java.math.MathContext mc);
+    ElectricInductance toDecimal(MathContext mc);
 
-    static ElectricInductance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit) {
+    static ElectricInductance of(double value, Unit<javax.measure.quantity.ElectricInductance> unit) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit);
     }
 
-    static ElectricInductance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricInductance of(double value, Unit<javax.measure.quantity.ElectricInductance> unit,
+            Quantity.Scale scale) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricInductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit) {
+    static ElectricInductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricInductance> unit) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricInductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricInductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricInductance> unit,
+            Quantity.Scale scale) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static ElectricInductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static ElectricInductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricInductance> unit,
+            Quantity.Scale scale, MathContext mc) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

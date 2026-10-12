@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class TimeDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Time, Time>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class TimeDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Time, Time>
         implements Time {
 
-    TimeDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> unit,
-            javax.measure.Quantity.Scale scale) {
+    TimeDouble(double value, UomUnit<javax.measure.quantity.Time> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Time create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Time create(double value, UomUnit<javax.measure.quantity.Time> unit,
+            Quantity.Scale scale) {
         return new TimeDouble(value, unit, scale);
     }
 
     @Override
-    protected Time createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Time createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Time> unit, Quantity.Scale scale, MathContext mc) {
         return new TimeDecimal(value, unit, scale, mc);
     }
 

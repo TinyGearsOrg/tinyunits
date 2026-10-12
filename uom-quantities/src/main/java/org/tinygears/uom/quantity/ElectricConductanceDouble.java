@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ElectricConductanceDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.ElectricConductance, ElectricConductance>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class ElectricConductanceDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.ElectricConductance, ElectricConductance>
         implements ElectricConductance {
 
-    ElectricConductanceDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> unit,
-            javax.measure.Quantity.Scale scale) {
+    ElectricConductanceDouble(double value, UomUnit<javax.measure.quantity.ElectricConductance> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected ElectricConductance create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected ElectricConductance create(double value, UomUnit<javax.measure.quantity.ElectricConductance> unit,
+            Quantity.Scale scale) {
         return new ElectricConductanceDouble(value, unit, scale);
     }
 
     @Override
-    protected ElectricConductance createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected ElectricConductance createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.ElectricConductance> unit, Quantity.Scale scale, MathContext mc) {
         return new ElectricConductanceDecimal(value, unit, scale, mc);
     }
 

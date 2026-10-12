@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class IlluminanceDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Illuminance, Illuminance>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class IlluminanceDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Illuminance, Illuminance>
         implements Illuminance {
 
-    IlluminanceDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    IlluminanceDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Illuminance> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Illuminance create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Illuminance create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Illuminance> unit, Quantity.Scale scale, MathContext mc) {
         return new IlluminanceDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Illuminance createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Illuminance createDouble(double value,
+            UomUnit<javax.measure.quantity.Illuminance> unit, Quantity.Scale scale) {
         return new IlluminanceDouble(value, unit, scale);
     }
 

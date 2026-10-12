@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class CatalyticActivityDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.CatalyticActivity, CatalyticActivity>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class CatalyticActivityDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.CatalyticActivity, CatalyticActivity>
         implements CatalyticActivity {
 
-    CatalyticActivityDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> unit,
-            javax.measure.Quantity.Scale scale) {
+    CatalyticActivityDouble(double value, UomUnit<javax.measure.quantity.CatalyticActivity> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected CatalyticActivity create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected CatalyticActivity create(double value, UomUnit<javax.measure.quantity.CatalyticActivity> unit,
+            Quantity.Scale scale) {
         return new CatalyticActivityDouble(value, unit, scale);
     }
 
     @Override
-    protected CatalyticActivity createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected CatalyticActivity createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.CatalyticActivity> unit, Quantity.Scale scale, MathContext mc) {
         return new CatalyticActivityDecimal(value, unit, scale, mc);
     }
 

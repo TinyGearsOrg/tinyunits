@@ -31,7 +31,9 @@ class FactorEmitterTest {
     @ParameterizedTest
     @MethodSource("factors")
     void rebuildsEqualFactor(Factor factor) throws Exception {
-        String source = "public class E { public static Object value() { return " + FactorEmitter.emit(factor)
+        Imports imports = UnitExpressionEmitterTest.imports();
+        String expression = FactorEmitter.emit(factor, imports);
+        String source = imports.block() + "public class E { public static Object value() { return " + expression
                 + "; } }";
         try (URLClassLoader loader = InMemoryCompiler.compile(Map.of("E", source), tmp)) {
             Object result = loader.loadClass("E").getMethod("value").invoke(null);
@@ -42,12 +44,15 @@ class FactorEmitterTest {
 
     @Test
     void exactText() {
-        assertEquals("org.tinygears.uom.core.Factor.of(60L, 1L)", FactorEmitter.emit(Factor.ofLong(60)));
-        assertEquals("org.tinygears.uom.core.Factor.of(-3L, 2L)", FactorEmitter.emit(Factor.of(-3, 2)));
-        assertEquals("org.tinygears.uom.core.Factor.ONE", FactorEmitter.emit(Factor.ONE));
-        assertEquals("org.tinygears.uom.core.Factor.ZERO", FactorEmitter.emit(Factor.ZERO));
-        assertEquals("org.tinygears.uom.core.Factor.PI", FactorEmitter.emit(Factor.PI));
-        assertEquals("org.tinygears.uom.core.Factor.of(new java.math.BigInteger(\"1\"), "
-                + "new java.math.BigInteger(\"180\"), 1, 1)", FactorEmitter.emit(Factor.PI.divide(Factor.ofLong(180))));
+        Imports imports = UnitExpressionEmitterTest.imports();
+        assertEquals("Factor.of(60L, 1L)", FactorEmitter.emit(Factor.ofLong(60), imports));
+        assertEquals("Factor.of(-3L, 2L)", FactorEmitter.emit(Factor.of(-3, 2), imports));
+        assertEquals("Factor.ONE", FactorEmitter.emit(Factor.ONE, imports));
+        assertEquals("Factor.ZERO", FactorEmitter.emit(Factor.ZERO, imports));
+        assertEquals("Factor.PI", FactorEmitter.emit(Factor.PI, imports));
+        assertEquals("import org.tinygears.uom.core.Factor;\n\n", imports.block());
+        assertEquals("Factor.of(new BigInteger(\"1\"), new BigInteger(\"180\"), 1, 1)",
+                FactorEmitter.emit(Factor.PI.divide(Factor.ofLong(180)), imports));
+        assertEquals("import java.math.BigInteger;\nimport org.tinygears.uom.core.Factor;\n\n", imports.block());
     }
 }

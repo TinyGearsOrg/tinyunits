@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class SpeedDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Speed, Speed>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class SpeedDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Speed, Speed>
         implements Speed {
 
-    SpeedDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Speed> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    SpeedDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Speed> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Speed create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Speed> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Speed create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Speed> unit, Quantity.Scale scale, MathContext mc) {
         return new SpeedDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Speed createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Speed> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Speed createDouble(double value,
+            UomUnit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         return new SpeedDouble(value, unit, scale);
     }
 

@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.LuminousFlux} of this implementation. */
 public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.LuminousFlux>> {
+        Comparable<Quantity<javax.measure.quantity.LuminousFlux>> {
 
     @Override
-    LuminousFlux add(javax.measure.Quantity<javax.measure.quantity.LuminousFlux> addend);
+    LuminousFlux add(Quantity<javax.measure.quantity.LuminousFlux> addend);
 
     @Override
-    LuminousFlux subtract(javax.measure.Quantity<javax.measure.quantity.LuminousFlux> subtrahend);
+    LuminousFlux subtract(Quantity<javax.measure.quantity.LuminousFlux> subtrahend);
 
     @Override
-    LuminousFlux to(javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit);
+    LuminousFlux to(Unit<javax.measure.quantity.LuminousFlux> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    LuminousFlux to(javax.measure.spi.SystemOfUnits system);
+    LuminousFlux to(SystemOfUnits system);
 
     @Override
     LuminousFlux negate();
@@ -36,31 +42,31 @@ public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
     LuminousFlux toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    LuminousFlux toDecimal(java.math.MathContext mc);
+    LuminousFlux toDecimal(MathContext mc);
 
-    static LuminousFlux of(double value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit) {
+    static LuminousFlux of(double value, Unit<javax.measure.quantity.LuminousFlux> unit) {
         return LuminousFluxFactory.INSTANCE.of(value, unit);
     }
 
-    static LuminousFlux of(double value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
-            javax.measure.Quantity.Scale scale) {
+    static LuminousFlux of(double value, Unit<javax.measure.quantity.LuminousFlux> unit,
+            Quantity.Scale scale) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit) {
+    static LuminousFlux of(BigDecimal value, Unit<javax.measure.quantity.LuminousFlux> unit) {
         return LuminousFluxFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
-            javax.measure.Quantity.Scale scale) {
+    static LuminousFlux of(BigDecimal value, Unit<javax.measure.quantity.LuminousFlux> unit,
+            Quantity.Scale scale) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static LuminousFlux of(BigDecimal value, Unit<javax.measure.quantity.LuminousFlux> unit,
+            Quantity.Scale scale, MathContext mc) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

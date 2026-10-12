@@ -67,8 +67,14 @@ class UnitExpressionEmitterTest {
                 .filter(d -> d.symbol().equals(s)).findFirst().map(Definition::unit).orElse(null));
     }
 
-    private UomUnit<?> run(String expression) throws Exception {
-        String source = "public class E { public static Object value() { return " + expression + "; } }";
+    /** Imports for a class {@code E} in the unnamed package. */
+    static Imports imports() {
+        return new Imports("", List.of("E"));
+    }
+
+    private UomUnit<?> run(String expression, Imports imports) throws Exception {
+        String source = imports.block() + "public class E { public static Object value() { return " + expression
+                + "; } }";
         try (URLClassLoader loader = InMemoryCompiler.compile(Map.of("E", source), tmp)) {
             return (UomUnit<?>) loader.loadClass("E").getMethod("value").invoke(null);
         }
@@ -78,7 +84,8 @@ class UnitExpressionEmitterTest {
     @ValueSource(strings = {"m", "m / s", "m^2", "Hz", "Bq", "1"})
     void roundTrips(String formula) throws Exception {
         UomUnit<?> unit = evaluate(formula);
-        UomUnit<?> result = run(UnitExpressionEmitter.emit(unit, DEFS));
+        Imports imports = imports();
+        UomUnit<?> result = run(UnitExpressionEmitter.emit(unit, DEFS, imports), imports);
         assertEquals(unit, result);
         if (unit.getSymbol() != null) {
             assertEquals(unit.getSymbol(), result.getSymbol());
@@ -88,7 +95,8 @@ class UnitExpressionEmitterTest {
     @Test
     void namedJoule() throws Exception {
         UomUnit<?> unit = evaluate("J");
-        UomUnit<?> result = run(UnitExpressionEmitter.emit(unit, DEFS) + ".named(\"J\", \"joule\")");
+        Imports imports = imports();
+        UomUnit<?> result = run(UnitExpressionEmitter.emit(unit, DEFS, imports) + ".named(\"J\", \"joule\")", imports);
         assertEquals(unit, result);
         assertEquals("J", result.getSymbol());
         assertEquals("joule", result.getName());
@@ -96,28 +104,34 @@ class UnitExpressionEmitterTest {
 
     @Test
     void exactText() throws Exception {
-        assertEquals("org.tinygears.uom.core.BaseUnits.METRE.divide(org.tinygears.uom.core.BaseUnits.SECOND)",
-                UnitExpressionEmitter.emit(evaluate("m / s"), DEFS));
-        assertEquals("org.tinygears.uom.core.BaseUnits.ONE.divide(org.tinygears.uom.core.BaseUnits.SECOND)"
-                + ".alternate(\"Hz\")", UnitExpressionEmitter.emit(evaluate("Hz"), DEFS));
-        assertEquals("org.tinygears.uom.core.BaseUnits.KILOGRAM.multiply(org.tinygears.uom.core.BaseUnits.METRE"
-                + ".pow(2)).divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))",
-                UnitExpressionEmitter.emit(evaluate("J"), DEFS));
-        assertEquals("org.tinygears.uom.core.BaseUnits.ONE", UnitExpressionEmitter.emit(BaseUnits.ONE, DEFS));
+        Imports imports = imports();
+        assertEquals("", imports.block());
+        assertEquals("BaseUnits.METRE.divide(BaseUnits.SECOND)",
+                UnitExpressionEmitter.emit(evaluate("m / s"), DEFS, imports));
+        assertEquals("BaseUnits.ONE.divide(BaseUnits.SECOND).alternate(\"Hz\")",
+                UnitExpressionEmitter.emit(evaluate("Hz"), DEFS, imports));
+        assertEquals("BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))",
+                UnitExpressionEmitter.emit(evaluate("J"), DEFS, imports));
+        assertEquals("BaseUnits.ONE", UnitExpressionEmitter.emit(BaseUnits.ONE, DEFS, imports));
+        assertEquals("import org.tinygears.uom.core.BaseUnits;\n\n", imports.block());
+        Imports clash = new Imports("", List.of("E", "BaseUnits"));
+        assertEquals("org.tinygears.uom.core.BaseUnits.ONE", UnitExpressionEmitter.emit(BaseUnits.ONE, DEFS, clash));
+        assertEquals("", clash.block());
     }
 
     @Test
     void undefinedAtom() {
         UomUnit<?> unit = UomUnit.of(Map.of(new UnitAtom("x\"y", UomDimension.NONE), 1), Converters.IDENTITY,
                 null, null);
-        GenerationException e = assertThrows(GenerationException.class, () -> UnitExpressionEmitter.emit(unit, DEFS));
+        GenerationException e = assertThrows(GenerationException.class, () -> UnitExpressionEmitter.emit(unit, DEFS,
+                imports()));
         assertEquals("no definition for alternate unit 'x\"y'", e.getMessage());
     }
 
     @Test
     void scaledUnit() {
         GenerationException e = assertThrows(GenerationException.class,
-                () -> UnitExpressionEmitter.emit(BaseUnits.METRE.multiply(1000), DEFS));
+                () -> UnitExpressionEmitter.emit(BaseUnits.METRE.multiply(1000), DEFS, imports()));
         assertEquals("unit must be an unscaled system unit", e.getMessage());
     }
 
@@ -131,7 +145,8 @@ class UnitExpressionEmitterTest {
         UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
         Definitions cyclic = new Definitions(List.of(new Definition("x", "ex", x, x, null, "f", 1)), List.of(),
                 List.of(), null, List.of(), List.of());
-        GenerationException e = assertThrows(GenerationException.class, () -> UnitExpressionEmitter.emit(x, cyclic));
+        GenerationException e = assertThrows(GenerationException.class, () -> UnitExpressionEmitter.emit(x, cyclic,
+                imports()));
         assertEquals("alternate unit definitions nest too deeply at 'x'", e.getMessage());
     }
 
@@ -145,8 +160,9 @@ class UnitExpressionEmitterTest {
             case "1" -> BaseUnits.ONE;
             default -> si(si, symbol);
         };
-        String text = UnitExpressionEmitter.emitUnit(unit, si);
-        assertEquals(unit, run(text));
+        Imports imports = imports();
+        String text = UnitExpressionEmitter.emitUnit(unit, si, imports);
+        assertEquals(unit, run(text, imports));
         assertEquals(!unit.toSystemConverter().equals(Converters.IDENTITY), text.contains(".transform("), text);
         String unquoted = text.replaceAll("\"[^\"]*\"", "\"\"");
         assertFalse(DOUBLE_LITERAL.matcher(unquoted).find(), text);
@@ -156,10 +172,12 @@ class UnitExpressionEmitterTest {
     void emitUnitNamed() throws Exception {
         Definitions si = siDefinitions();
         UomUnit<?> unit = si(si, "min");
-        String text = UnitExpressionEmitter.emitUnit(unit, si);
-        assertTrue(text.endsWith(".transform(org.tinygears.uom.core.Converters.affine("
-                + "org.tinygears.uom.core.Factor.of(60L, 1L), org.tinygears.uom.core.Factor.ZERO))"), text);
-        UomUnit<?> result = run(text + ".named(\"min\", \"minute\")");
+        Imports imports = imports();
+        String text = UnitExpressionEmitter.emitUnit(unit, si, imports);
+        assertTrue(text.endsWith(".transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO))"), text);
+        assertEquals("import org.tinygears.uom.core.BaseUnits;\nimport org.tinygears.uom.core.Converters;\n"
+                + "import org.tinygears.uom.core.Factor;\n\n", imports.block());
+        UomUnit<?> result = run(text + ".named(\"min\", \"minute\")", imports);
         assertEquals(unit, result);
         assertEquals("min", result.getSymbol());
         assertEquals("minute", result.getName());

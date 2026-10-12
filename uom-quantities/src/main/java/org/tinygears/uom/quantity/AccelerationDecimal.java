@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class AccelerationDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Acceleration, Acceleration>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class AccelerationDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Acceleration, Acceleration>
         implements Acceleration {
 
-    AccelerationDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Acceleration> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    AccelerationDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Acceleration> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Acceleration create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Acceleration> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Acceleration create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale, MathContext mc) {
         return new AccelerationDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Acceleration createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Acceleration> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Acceleration createDouble(double value,
+            UomUnit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale) {
         return new AccelerationDouble(value, unit, scale);
     }
 

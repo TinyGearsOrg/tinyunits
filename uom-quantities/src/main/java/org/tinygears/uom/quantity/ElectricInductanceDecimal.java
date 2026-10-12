@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ElectricInductanceDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.ElectricInductance, ElectricInductance>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class ElectricInductanceDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.ElectricInductance, ElectricInductance>
         implements ElectricInductance {
 
-    ElectricInductanceDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    ElectricInductanceDecimal(BigDecimal value, UomUnit<javax.measure.quantity.ElectricInductance> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected ElectricInductance create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected ElectricInductance create(BigDecimal value,
+            UomUnit<javax.measure.quantity.ElectricInductance> unit, Quantity.Scale scale, MathContext mc) {
         return new ElectricInductanceDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected ElectricInductance createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected ElectricInductance createDouble(double value,
+            UomUnit<javax.measure.quantity.ElectricInductance> unit, Quantity.Scale scale) {
         return new ElectricInductanceDouble(value, unit, scale);
     }
 

@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class SolidAngleDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.SolidAngle, SolidAngle>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class SolidAngleDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.SolidAngle, SolidAngle>
         implements SolidAngle {
 
-    SolidAngleDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    SolidAngleDecimal(BigDecimal value, UomUnit<javax.measure.quantity.SolidAngle> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected SolidAngle create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected SolidAngle create(BigDecimal value,
+            UomUnit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale, MathContext mc) {
         return new SolidAngleDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected SolidAngle createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected SolidAngle createDouble(double value,
+            UomUnit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         return new SolidAngleDouble(value, unit, scale);
     }
 

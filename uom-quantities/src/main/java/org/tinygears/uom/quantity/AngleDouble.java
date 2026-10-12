@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class AngleDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Angle, Angle>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class AngleDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Angle, Angle>
         implements Angle {
 
-    AngleDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> unit,
-            javax.measure.Quantity.Scale scale) {
+    AngleDouble(double value, UomUnit<javax.measure.quantity.Angle> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Angle create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Angle create(double value, UomUnit<javax.measure.quantity.Angle> unit,
+            Quantity.Scale scale) {
         return new AngleDouble(value, unit, scale);
     }
 
     @Override
-    protected Angle createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Angle createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Angle> unit, Quantity.Scale scale, MathContext mc) {
         return new AngleDecimal(value, unit, scale, mc);
     }
 

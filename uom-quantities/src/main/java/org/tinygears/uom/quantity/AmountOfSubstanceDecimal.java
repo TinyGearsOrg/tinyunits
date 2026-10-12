@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class AmountOfSubstanceDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.AmountOfSubstance, AmountOfSubstance>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class AmountOfSubstanceDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.AmountOfSubstance, AmountOfSubstance>
         implements AmountOfSubstance {
 
-    AmountOfSubstanceDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    AmountOfSubstanceDecimal(BigDecimal value, UomUnit<javax.measure.quantity.AmountOfSubstance> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected AmountOfSubstance create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected AmountOfSubstance create(BigDecimal value,
+            UomUnit<javax.measure.quantity.AmountOfSubstance> unit, Quantity.Scale scale, MathContext mc) {
         return new AmountOfSubstanceDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected AmountOfSubstance createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected AmountOfSubstance createDouble(double value,
+            UomUnit<javax.measure.quantity.AmountOfSubstance> unit, Quantity.Scale scale) {
         return new AmountOfSubstanceDouble(value, unit, scale);
     }
 

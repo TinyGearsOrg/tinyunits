@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ElectricResistanceDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.ElectricResistance, ElectricResistance>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class ElectricResistanceDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.ElectricResistance, ElectricResistance>
         implements ElectricResistance {
 
-    ElectricResistanceDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> unit,
-            javax.measure.Quantity.Scale scale) {
+    ElectricResistanceDouble(double value, UomUnit<javax.measure.quantity.ElectricResistance> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected ElectricResistance create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected ElectricResistance create(double value, UomUnit<javax.measure.quantity.ElectricResistance> unit,
+            Quantity.Scale scale) {
         return new ElectricResistanceDouble(value, unit, scale);
     }
 
     @Override
-    protected ElectricResistance createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected ElectricResistance createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.ElectricResistance> unit, Quantity.Scale scale, MathContext mc) {
         return new ElectricResistanceDecimal(value, unit, scale, mc);
     }
 

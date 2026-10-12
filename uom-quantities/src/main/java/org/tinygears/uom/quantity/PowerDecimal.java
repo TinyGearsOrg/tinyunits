@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class PowerDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Power, Power>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class PowerDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Power, Power>
         implements Power {
 
-    PowerDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    PowerDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Power> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Power create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Power create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Power> unit, Quantity.Scale scale, MathContext mc) {
         return new PowerDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Power createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Power createDouble(double value,
+            UomUnit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         return new PowerDouble(value, unit, scale);
     }
 

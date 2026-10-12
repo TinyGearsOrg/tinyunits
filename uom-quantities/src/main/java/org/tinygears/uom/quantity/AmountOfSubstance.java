@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.AmountOfSubstance} of this implementation. */
 public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubstance,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.AmountOfSubstance>> {
+        Comparable<Quantity<javax.measure.quantity.AmountOfSubstance>> {
 
     @Override
-    AmountOfSubstance add(javax.measure.Quantity<javax.measure.quantity.AmountOfSubstance> addend);
+    AmountOfSubstance add(Quantity<javax.measure.quantity.AmountOfSubstance> addend);
 
     @Override
-    AmountOfSubstance subtract(javax.measure.Quantity<javax.measure.quantity.AmountOfSubstance> subtrahend);
+    AmountOfSubstance subtract(Quantity<javax.measure.quantity.AmountOfSubstance> subtrahend);
 
     @Override
-    AmountOfSubstance to(javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit);
+    AmountOfSubstance to(Unit<javax.measure.quantity.AmountOfSubstance> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    AmountOfSubstance to(javax.measure.spi.SystemOfUnits system);
+    AmountOfSubstance to(SystemOfUnits system);
 
     @Override
     AmountOfSubstance negate();
@@ -36,31 +42,31 @@ public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubsta
     AmountOfSubstance toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    AmountOfSubstance toDecimal(java.math.MathContext mc);
+    AmountOfSubstance toDecimal(MathContext mc);
 
-    static AmountOfSubstance of(double value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit) {
+    static AmountOfSubstance of(double value, Unit<javax.measure.quantity.AmountOfSubstance> unit) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit);
     }
 
-    static AmountOfSubstance of(double value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static AmountOfSubstance of(double value, Unit<javax.measure.quantity.AmountOfSubstance> unit,
+            Quantity.Scale scale) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit) {
+    static AmountOfSubstance of(BigDecimal value, Unit<javax.measure.quantity.AmountOfSubstance> unit) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static AmountOfSubstance of(BigDecimal value, Unit<javax.measure.quantity.AmountOfSubstance> unit,
+            Quantity.Scale scale) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static AmountOfSubstance of(BigDecimal value, Unit<javax.measure.quantity.AmountOfSubstance> unit,
+            Quantity.Scale scale, MathContext mc) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

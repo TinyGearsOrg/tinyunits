@@ -3,807 +3,882 @@
 
 package org.tinygears.uom.systems;
 
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.measure.quantity.Acceleration;
+import javax.measure.quantity.AmountOfSubstance;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Area;
+import javax.measure.quantity.CatalyticActivity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.ElectricCapacitance;
+import javax.measure.quantity.ElectricCharge;
+import javax.measure.quantity.ElectricConductance;
+import javax.measure.quantity.ElectricCurrent;
+import javax.measure.quantity.ElectricInductance;
+import javax.measure.quantity.ElectricPotential;
+import javax.measure.quantity.ElectricResistance;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Force;
+import javax.measure.quantity.Frequency;
+import javax.measure.quantity.Illuminance;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.LuminousFlux;
+import javax.measure.quantity.LuminousIntensity;
+import javax.measure.quantity.MagneticFlux;
+import javax.measure.quantity.MagneticFluxDensity;
+import javax.measure.quantity.Mass;
+import javax.measure.quantity.Power;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.RadiationDoseAbsorbed;
+import javax.measure.quantity.RadiationDoseEffective;
+import javax.measure.quantity.Radioactivity;
+import javax.measure.quantity.SolidAngle;
+import javax.measure.quantity.Speed;
+import javax.measure.quantity.Temperature;
+import javax.measure.quantity.Time;
+import javax.measure.quantity.Volume;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.Converters;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.quantity.AccelerationFactory;
+import org.tinygears.uom.quantity.AmountOfSubstanceFactory;
+import org.tinygears.uom.quantity.AngleFactory;
+import org.tinygears.uom.quantity.AreaFactory;
+import org.tinygears.uom.quantity.CatalyticActivityFactory;
+import org.tinygears.uom.quantity.DimensionlessFactory;
+import org.tinygears.uom.quantity.ElectricCapacitanceFactory;
+import org.tinygears.uom.quantity.ElectricChargeFactory;
+import org.tinygears.uom.quantity.ElectricConductanceFactory;
+import org.tinygears.uom.quantity.ElectricCurrentFactory;
+import org.tinygears.uom.quantity.ElectricInductanceFactory;
+import org.tinygears.uom.quantity.ElectricPotentialFactory;
+import org.tinygears.uom.quantity.ElectricResistanceFactory;
+import org.tinygears.uom.quantity.EnergyFactory;
+import org.tinygears.uom.quantity.ForceFactory;
+import org.tinygears.uom.quantity.FrequencyFactory;
+import org.tinygears.uom.quantity.IlluminanceFactory;
+import org.tinygears.uom.quantity.LengthFactory;
+import org.tinygears.uom.quantity.LuminousFluxFactory;
+import org.tinygears.uom.quantity.LuminousIntensityFactory;
+import org.tinygears.uom.quantity.MagneticFluxDensityFactory;
+import org.tinygears.uom.quantity.MagneticFluxFactory;
+import org.tinygears.uom.quantity.MassFactory;
+import org.tinygears.uom.quantity.PowerFactory;
+import org.tinygears.uom.quantity.PressureFactory;
+import org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory;
+import org.tinygears.uom.quantity.RadiationDoseEffectiveFactory;
+import org.tinygears.uom.quantity.RadioactivityFactory;
+import org.tinygears.uom.quantity.SolidAngleFactory;
+import org.tinygears.uom.quantity.SpeedFactory;
+import org.tinygears.uom.quantity.TemperatureFactory;
+import org.tinygears.uom.quantity.TimeFactory;
+import org.tinygears.uom.quantity.VolumeFactory;
+
 /** The SI units; generated from {@code data/si.units} and {@code data/quantity-types.txt}. */
 public final class SI {
 
     private SI() {
     }
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> METRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Length> METRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .named("m", "metre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> KILOGRAM =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
+    public static final UomUnit<Mass> KILOGRAM =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
                     .named("kg", "kilogram"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> SECOND =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
+    public static final UomUnit<Time> SECOND =
+            UomUnit.unchecked(BaseUnits.SECOND
                     .named("s", "second"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> AMPERE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricCurrent> AMPERE =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .named("A", "ampere"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> KELVIN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
+    public static final UomUnit<Temperature> KELVIN =
+            UomUnit.unchecked(BaseUnits.KELVIN
                     .named("K", "kelvin"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> MOLE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
+    public static final UomUnit<AmountOfSubstance> MOLE =
+            UomUnit.unchecked(BaseUnits.MOLE
                     .named("mol", "mole"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> CANDELA =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
+    public static final UomUnit<LuminousIntensity> CANDELA =
+            UomUnit.unchecked(BaseUnits.CANDELA
                     .named("cd", "candela"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> RADIAN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+    public static final UomUnit<Angle> RADIAN =
+            UomUnit.unchecked(BaseUnits.ONE
                     .alternate("rad")
                     .named("rad", "radian"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> STERADIAN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+    public static final UomUnit<SolidAngle> STERADIAN =
+            UomUnit.unchecked(BaseUnits.ONE
                     .alternate("sr")
                     .named("sr", "steradian"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> HERTZ =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Frequency> HERTZ =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Hz")
                     .named("Hz", "hertz"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> BECQUEREL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Radioactivity> BECQUEREL =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Bq")
                     .named("Bq", "becquerel"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> NEWTON =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+    public static final UomUnit<Force> NEWTON =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
                     .named("N", "newton"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> PASCAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+    public static final UomUnit<Pressure> PASCAL =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
                     .named("Pa", "pascal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> JOULE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+    public static final UomUnit<Energy> JOULE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
                     .named("J", "joule"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> WATT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
+    public static final UomUnit<Power> WATT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
                     .named("W", "watt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> COULOMB =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<ElectricCharge> COULOMB =
+            UomUnit.unchecked(BaseUnits.AMPERE
+                    .multiply(BaseUnits.SECOND)
                     .named("C", "coulomb"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> VOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
+    public static final UomUnit<ElectricPotential> VOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(3))
                     .named("V", "volt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> FARAD =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricCapacitance> FARAD =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(4))
-                    .divide(org.tinygears.uom.core.BaseUnits.KILOGRAM)
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
+                    .multiply(BaseUnits.SECOND.pow(4))
+                    .divide(BaseUnits.KILOGRAM)
+                    .divide(BaseUnits.METRE.pow(2))
                     .named("F", "farad"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> OHM =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
+    public static final UomUnit<ElectricResistance> OHM =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
                     .named("Ω", "ohm"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> SIEMENS =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricConductance> SIEMENS =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .divide(org.tinygears.uom.core.BaseUnits.KILOGRAM)
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
+                    .multiply(BaseUnits.SECOND.pow(3))
+                    .divide(BaseUnits.KILOGRAM)
+                    .divide(BaseUnits.METRE.pow(2))
                     .named("S", "siemens"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFlux> WEBER =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+    public static final UomUnit<MagneticFlux> WEBER =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(2))
                     .named("Wb", "weber"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFluxDensity> TESLA =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+    public static final UomUnit<MagneticFluxDensity> TESLA =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(2))
                     .named("T", "tesla"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> HENRY =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+    public static final UomUnit<ElectricInductance> HENRY =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
                     .named("H", "henry"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> LUMEN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
-                    .multiply(org.tinygears.uom.core.BaseUnits.ONE.alternate("sr"))
+    public static final UomUnit<LuminousFlux> LUMEN =
+            UomUnit.unchecked(BaseUnits.CANDELA
+                    .multiply(BaseUnits.ONE.alternate("sr"))
                     .named("lm", "lumen"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> LUX =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
-                    .multiply(org.tinygears.uom.core.BaseUnits.ONE.alternate("sr"))
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
+    public static final UomUnit<Illuminance> LUX =
+            UomUnit.unchecked(BaseUnits.CANDELA
+                    .multiply(BaseUnits.ONE.alternate("sr"))
+                    .divide(BaseUnits.METRE.pow(2))
                     .named("lx", "lux"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> KATAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<CatalyticActivity> KATAL =
+            UomUnit.unchecked(BaseUnits.MOLE
+                    .divide(BaseUnits.SECOND)
                     .named("kat", "katal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> GRAY =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<RadiationDoseAbsorbed> GRAY =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
                     .alternate("Gy")
                     .named("Gy", "gray"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> SIEVERT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<RadiationDoseEffective> SIEVERT =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
                     .alternate("Sv")
                     .named("Sv", "sievert"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> DEGREE_CELSIUS =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.ONE, org.tinygears.uom.core.Factor.of(5463L, 20L)))
+    public static final UomUnit<Temperature> DEGREE_CELSIUS =
+            UomUnit.unchecked(BaseUnits.KELVIN
+                    .transform(Converters.affine(Factor.ONE, Factor.of(5463L, 20L)))
                     .named("°C", "degree Celsius"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> SQUARE_METRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Area> SQUARE_METRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
                     .named("m²", "square metre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> CUBIC_METRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Volume> CUBIC_METRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(3)
                     .named("m³", "cubic metre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> GRAM =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> GRAM =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("g", "gram"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> MINUTE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(60L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> MINUTE =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO))
                     .named("min", "minute"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> HOUR =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(3600L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> HOUR =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(3600L, 1L), Factor.ZERO))
                     .named("h", "hour"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> DAY =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(86400L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> DAY =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(86400L, 1L), Factor.ZERO))
                     .named("d", "day"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> HECTARE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Area> HECTARE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(10000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(10000L, 1L), Factor.ZERO))
                     .named("ha", "hectare"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> LITRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Volume> LITRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(3)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("L", "litre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> TONNE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> TONNE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("t", "tonne"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> ELECTRONVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("801088317"), new java.math.BigInteger("5000000000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> ELECTRONVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(new BigInteger("801088317"), new BigInteger("5000000000000000000000000000"), 0, 1), Factor.ZERO))
                     .named("eV", "electronvolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> DALTON =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("8302695333"), new java.math.BigInteger("5000000000000000000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> DALTON =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(new BigInteger("8302695333"), new BigInteger("5000000000000000000000000000000000000"), 0, 1), Factor.ZERO))
                     .named("Da", "dalton"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> ASTRONOMICAL_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(149597870700L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> ASTRONOMICAL_UNIT =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(149597870700L, 1L), Factor.ZERO))
                     .named("au", "astronomical unit"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> DEGREE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+    public static final UomUnit<Angle> DEGREE =
+            UomUnit.unchecked(BaseUnits.ONE
                     .alternate("rad")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("1"), new java.math.BigInteger("180"), 1, 1), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(new BigInteger("1"), new BigInteger("180"), 1, 1), Factor.ZERO))
                     .named("deg", "degree"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> ARCMINUTE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+    public static final UomUnit<Angle> ARCMINUTE =
+            UomUnit.unchecked(BaseUnits.ONE
                     .alternate("rad")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("1"), new java.math.BigInteger("10800"), 1, 1), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(new BigInteger("1"), new BigInteger("10800"), 1, 1), Factor.ZERO))
                     .named("arcmin", "arcminute"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> ARCSECOND =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+    public static final UomUnit<Angle> ARCSECOND =
+            UomUnit.unchecked(BaseUnits.ONE
                     .alternate("rad")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("1"), new java.math.BigInteger("648000"), 1, 1), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(new BigInteger("1"), new BigInteger("648000"), 1, 1), Factor.ZERO))
                     .named("arcsec", "arcsecond"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> KILOMETRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> KILOMETRE =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("km", "kilometre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> CENTIMETRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 100L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> CENTIMETRE =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(1L, 100L), Factor.ZERO))
                     .named("cm", "centimetre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> MILLIMETRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> MILLIMETRE =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mm", "millimetre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> MICROMETRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> MICROMETRE =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µm", "micrometre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> NANOMETRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> NANOMETRE =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nm", "nanometre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> PICOMETRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> PICOMETRE =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(1L, 1000000000000L), Factor.ZERO))
                     .named("pm", "picometre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> MILLIGRAM =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> MILLIGRAM =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("mg", "milligram"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> MICROGRAM =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> MICROGRAM =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("µg", "microgram"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> MILLISECOND =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> MILLISECOND =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("ms", "millisecond"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> MICROSECOND =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> MICROSECOND =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µs", "microsecond"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> NANOSECOND =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> NANOSECOND =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("ns", "nanosecond"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> PICOSECOND =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> PICOSECOND =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(1L, 1000000000000L), Factor.ZERO))
                     .named("ps", "picosecond"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> MILLIAMPERE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricCurrent> MILLIAMPERE =
+            UomUnit.unchecked(BaseUnits.AMPERE
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mA", "milliampere"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> MICROAMPERE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricCurrent> MICROAMPERE =
+            UomUnit.unchecked(BaseUnits.AMPERE
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µA", "microampere"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> MILLIKELVIN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Temperature> MILLIKELVIN =
+            UomUnit.unchecked(BaseUnits.KELVIN
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mK", "millikelvin"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> MICROKELVIN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Temperature> MICROKELVIN =
+            UomUnit.unchecked(BaseUnits.KELVIN
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µK", "microkelvin"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> NANOKELVIN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Temperature> NANOKELVIN =
+            UomUnit.unchecked(BaseUnits.KELVIN
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nK", "nanokelvin"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> MILLICANDELA =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<LuminousIntensity> MILLICANDELA =
+            UomUnit.unchecked(BaseUnits.CANDELA
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mcd", "millicandela"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> KILOCANDELA =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<LuminousIntensity> KILOCANDELA =
+            UomUnit.unchecked(BaseUnits.CANDELA
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kcd", "kilocandela"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> MILLIMOLE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<AmountOfSubstance> MILLIMOLE =
+            UomUnit.unchecked(BaseUnits.MOLE
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mmol", "millimole"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> MILLIKATAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<CatalyticActivity> MILLIKATAL =
+            UomUnit.unchecked(BaseUnits.MOLE
+                    .divide(BaseUnits.SECOND)
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mkat", "millikatal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> MICROKATAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<CatalyticActivity> MICROKATAL =
+            UomUnit.unchecked(BaseUnits.MOLE
+                    .divide(BaseUnits.SECOND)
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µkat", "microkatal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> NANOKATAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<CatalyticActivity> NANOKATAL =
+            UomUnit.unchecked(BaseUnits.MOLE
+                    .divide(BaseUnits.SECOND)
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nkat", "nanokatal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> KILOKATAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.MOLE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<CatalyticActivity> KILOKATAL =
+            UomUnit.unchecked(BaseUnits.MOLE
+                    .divide(BaseUnits.SECOND)
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kkat", "kilokatal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> KILOHERTZ =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Frequency> KILOHERTZ =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Hz")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kHz", "kilohertz"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> MEGAHERTZ =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Frequency> MEGAHERTZ =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Hz")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("MHz", "megahertz"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> GIGAHERTZ =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Frequency> GIGAHERTZ =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Hz")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("GHz", "gigahertz"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> TERAHERTZ =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Frequency> TERAHERTZ =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Hz")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1000000000000L, 1L), Factor.ZERO))
                     .named("THz", "terahertz"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> KILONEWTON =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Force> KILONEWTON =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kN", "kilonewton"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> MILLINEWTON =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Force> MILLINEWTON =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mN", "millinewton"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> HECTOPASCAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(100L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Pressure> HECTOPASCAL =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(100L, 1L), Factor.ZERO))
                     .named("hPa", "hectopascal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> KILOPASCAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Pressure> KILOPASCAL =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kPa", "kilopascal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> MEGAPASCAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Pressure> MEGAPASCAL =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("MPa", "megapascal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> GIGAPASCAL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Pressure> GIGAPASCAL =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.METRE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("GPa", "gigapascal"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> KILOJOULE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> KILOJOULE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kJ", "kilojoule"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> MEGAJOULE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> MEGAJOULE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("MJ", "megajoule"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> GIGAJOULE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> GIGAJOULE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("GJ", "gigajoule"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> MILLIJOULE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> MILLIJOULE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mJ", "millijoule"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> KILOWATT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Power> KILOWATT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kW", "kilowatt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> MEGAWATT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Power> MEGAWATT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("MW", "megawatt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> GIGAWATT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Power> GIGAWATT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("GW", "gigawatt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> MILLIWATT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Power> MILLIWATT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mW", "milliwatt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> MILLICOULOMB =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricCharge> MILLICOULOMB =
+            UomUnit.unchecked(BaseUnits.AMPERE
+                    .multiply(BaseUnits.SECOND)
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mC", "millicoulomb"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> MICROCOULOMB =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricCharge> MICROCOULOMB =
+            UomUnit.unchecked(BaseUnits.AMPERE
+                    .multiply(BaseUnits.SECOND)
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µC", "microcoulomb"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> KILOVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricPotential> KILOVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kV", "kilovolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> MILLIVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricPotential> MILLIVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mV", "millivolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> MICROVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricPotential> MICROVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µV", "microvolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> MILLIFARAD =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricCapacitance> MILLIFARAD =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(4))
-                    .divide(org.tinygears.uom.core.BaseUnits.KILOGRAM)
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .multiply(BaseUnits.SECOND.pow(4))
+                    .divide(BaseUnits.KILOGRAM)
+                    .divide(BaseUnits.METRE.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mF", "millifarad"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> MICROFARAD =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricCapacitance> MICROFARAD =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(4))
-                    .divide(org.tinygears.uom.core.BaseUnits.KILOGRAM)
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .multiply(BaseUnits.SECOND.pow(4))
+                    .divide(BaseUnits.KILOGRAM)
+                    .divide(BaseUnits.METRE.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µF", "microfarad"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> NANOFARAD =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricCapacitance> NANOFARAD =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(4))
-                    .divide(org.tinygears.uom.core.BaseUnits.KILOGRAM)
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .multiply(BaseUnits.SECOND.pow(4))
+                    .divide(BaseUnits.KILOGRAM)
+                    .divide(BaseUnits.METRE.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nF", "nanofarad"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> PICOFARAD =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricCapacitance> PICOFARAD =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(4))
-                    .divide(org.tinygears.uom.core.BaseUnits.KILOGRAM)
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .multiply(BaseUnits.SECOND.pow(4))
+                    .divide(BaseUnits.KILOGRAM)
+                    .divide(BaseUnits.METRE.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000000000000L), Factor.ZERO))
                     .named("pF", "picofarad"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> KILOOHM =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricResistance> KILOOHM =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kΩ", "kiloohm"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> MEGAOHM =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricResistance> MEGAOHM =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("MΩ", "megaohm"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> MILLISIEMENS =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.AMPERE
+    public static final UomUnit<ElectricConductance> MILLISIEMENS =
+            UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
-                    .multiply(org.tinygears.uom.core.BaseUnits.SECOND.pow(3))
-                    .divide(org.tinygears.uom.core.BaseUnits.KILOGRAM)
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .multiply(BaseUnits.SECOND.pow(3))
+                    .divide(BaseUnits.KILOGRAM)
+                    .divide(BaseUnits.METRE.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mS", "millisiemens"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFlux> MILLIWEBER =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<MagneticFlux> MILLIWEBER =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mWb", "milliweber"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFluxDensity> MILLITESLA =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<MagneticFluxDensity> MILLITESLA =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mT", "millitesla"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFluxDensity> MICROTESLA =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<MagneticFluxDensity> MICROTESLA =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µT", "microtesla"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFluxDensity> NANOTESLA =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<MagneticFluxDensity> NANOTESLA =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .divide(BaseUnits.AMPERE)
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nT", "nanotesla"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> MILLIHENRY =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricInductance> MILLIHENRY =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mH", "millihenry"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> MICROHENRY =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricInductance> MICROHENRY =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µH", "microhenry"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> NANOHENRY =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.AMPERE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<ElectricInductance> NANOHENRY =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.AMPERE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nH", "nanohenry"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> KILOELECTRONVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("801088317"), new java.math.BigInteger("5000000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> KILOELECTRONVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(new BigInteger("801088317"), new BigInteger("5000000000000000000000000"), 0, 1), Factor.ZERO))
                     .named("keV", "kiloelectronvolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> MEGAELECTRONVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("801088317"), new java.math.BigInteger("5000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> MEGAELECTRONVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(new BigInteger("801088317"), new BigInteger("5000000000000000000000"), 0, 1), Factor.ZERO))
                     .named("MeV", "megaelectronvolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> GIGAELECTRONVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(801088317L, 5000000000000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> GIGAELECTRONVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(801088317L, 5000000000000000000L), Factor.ZERO))
                     .named("GeV", "gigaelectronvolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> TERAELECTRONVOLT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(801088317L, 5000000000000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Energy> TERAELECTRONVOLT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .multiply(BaseUnits.METRE.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(801088317L, 5000000000000000L), Factor.ZERO))
                     .named("TeV", "teraelectronvolt"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> MILLILITRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Volume> MILLILITRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(3)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("mL", "millilitre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> CENTILITRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Volume> CENTILITRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(3)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 100000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 100000L), Factor.ZERO))
                     .named("cL", "centilitre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> DECILITRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Volume> DECILITRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(3)
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 10000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO))
                     .named("dL", "decilitre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> KILOBECQUEREL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Radioactivity> KILOBECQUEREL =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Bq")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kBq", "kilobecquerel"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> MEGABECQUEREL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Radioactivity> MEGABECQUEREL =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Bq")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("MBq", "megabecquerel"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> GIGABECQUEREL =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<Radioactivity> GIGABECQUEREL =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Bq")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("GBq", "gigabecquerel"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> MILLIGRAY =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<RadiationDoseAbsorbed> MILLIGRAY =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
                     .alternate("Gy")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mGy", "milligray"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> MILLISIEVERT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<RadiationDoseEffective> MILLISIEVERT =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
                     .alternate("Sv")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mSv", "millisievert"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> MICROSIEVERT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<RadiationDoseEffective> MICROSIEVERT =
+            UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2))
+                    .divide(BaseUnits.SECOND.pow(2))
                     .alternate("Sv")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µSv", "microsievert"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> MILLIRADIAN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+    public static final UomUnit<Angle> MILLIRADIAN =
+            UomUnit.unchecked(BaseUnits.ONE
                     .alternate("rad")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mrad", "milliradian"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> KILOLUX =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
-                    .multiply(org.tinygears.uom.core.BaseUnits.ONE.alternate("sr"))
-                    .divide(org.tinygears.uom.core.BaseUnits.METRE.pow(2))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Illuminance> KILOLUX =
+            UomUnit.unchecked(BaseUnits.CANDELA
+                    .multiply(BaseUnits.ONE.alternate("sr"))
+                    .divide(BaseUnits.METRE.pow(2))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("klx", "kilolux"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> MILLILUMEN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
-                    .multiply(org.tinygears.uom.core.BaseUnits.ONE.alternate("sr"))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<LuminousFlux> MILLILUMEN =
+            UomUnit.unchecked(BaseUnits.CANDELA
+                    .multiply(BaseUnits.ONE.alternate("sr"))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mlm", "millilumen"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> KILOLUMEN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA
-                    .multiply(org.tinygears.uom.core.BaseUnits.ONE.alternate("sr"))
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<LuminousFlux> KILOLUMEN =
+            UomUnit.unchecked(BaseUnits.CANDELA
+                    .multiply(BaseUnits.ONE.alternate("sr"))
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("klm", "kilolumen"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> MILLISTERADIAN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
+    public static final UomUnit<SolidAngle> MILLISTERADIAN =
+            UomUnit.unchecked(BaseUnits.ONE
                     .alternate("sr")
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1L, 1000L), org.tinygears.uom.core.Factor.ZERO))
+                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("msr", "millisteradian"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> KILODALTON =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("8302695333"), new java.math.BigInteger("5000000000000000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> KILODALTON =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(new BigInteger("8302695333"), new BigInteger("5000000000000000000000000000000000"), 0, 1), Factor.ZERO))
                     .named("kDa", "kilodalton"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> MEGADALTON =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(new java.math.BigInteger("8302695333"), new java.math.BigInteger("5000000000000000000000000000000"), 0, 1), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> MEGADALTON =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(new BigInteger("8302695333"), new BigInteger("5000000000000000000000000000000"), 0, 1), Factor.ZERO))
                     .named("MDa", "megadalton"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> KILOTONNE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> KILOTONNE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("kt", "kilotonne"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> MEGATONNE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> MEGATONNE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("Mt", "megatonne"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> GIGATONNE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000000000000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> GIGATONNE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(1000000000000L, 1L), Factor.ZERO))
                     .named("Gt", "gigatonne"));
 
-    public static final java.util.List<org.tinygears.uom.core.UomUnit<?>> UNITS =
-            java.util.List.<org.tinygears.uom.core.UomUnit<?>>of(
+    public static final List<UomUnit<?>> UNITS =
+            List.<UomUnit<?>>of(
                     METRE,
                     KILOGRAM,
                     SECOND,
@@ -933,8 +1008,8 @@ public final class SI {
                     MEGATONNE,
                     GIGATONNE);
 
-    public static final java.util.Set<String> PREFIXABLE =
-            java.util.Set.of(
+    public static final Set<String> PREFIXABLE =
+            Set.of(
                     "A",
                     "Bq",
                     "C",
@@ -968,42 +1043,42 @@ public final class SI {
                     "t",
                     "Ω");
 
-    public static final java.util.Map<Class<?>, org.tinygears.uom.core.UomUnit<?>> PREFERRED =
-            java.util.Map.<Class<?>, org.tinygears.uom.core.UomUnit<?>>ofEntries(
-                    java.util.Map.entry(javax.measure.quantity.Acceleration.class, org.tinygears.uom.quantity.AccelerationFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.AmountOfSubstance.class, org.tinygears.uom.quantity.AmountOfSubstanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Angle.class, org.tinygears.uom.quantity.AngleFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Area.class, org.tinygears.uom.quantity.AreaFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.CatalyticActivity.class, org.tinygears.uom.quantity.CatalyticActivityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Dimensionless.class, org.tinygears.uom.quantity.DimensionlessFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricCapacitance.class, org.tinygears.uom.quantity.ElectricCapacitanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricCharge.class, org.tinygears.uom.quantity.ElectricChargeFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricConductance.class, org.tinygears.uom.quantity.ElectricConductanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricCurrent.class, org.tinygears.uom.quantity.ElectricCurrentFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricInductance.class, org.tinygears.uom.quantity.ElectricInductanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricPotential.class, org.tinygears.uom.quantity.ElectricPotentialFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricResistance.class, org.tinygears.uom.quantity.ElectricResistanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Energy.class, org.tinygears.uom.quantity.EnergyFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Force.class, org.tinygears.uom.quantity.ForceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Frequency.class, org.tinygears.uom.quantity.FrequencyFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Illuminance.class, org.tinygears.uom.quantity.IlluminanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Length.class, org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.LuminousFlux.class, org.tinygears.uom.quantity.LuminousFluxFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.LuminousIntensity.class, org.tinygears.uom.quantity.LuminousIntensityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.MagneticFlux.class, org.tinygears.uom.quantity.MagneticFluxFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.MagneticFluxDensity.class, org.tinygears.uom.quantity.MagneticFluxDensityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Mass.class, org.tinygears.uom.quantity.MassFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Power.class, org.tinygears.uom.quantity.PowerFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Pressure.class, org.tinygears.uom.quantity.PressureFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.RadiationDoseAbsorbed.class, org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.RadiationDoseEffective.class, org.tinygears.uom.quantity.RadiationDoseEffectiveFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Radioactivity.class, org.tinygears.uom.quantity.RadioactivityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.SolidAngle.class, org.tinygears.uom.quantity.SolidAngleFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Speed.class, org.tinygears.uom.quantity.SpeedFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Temperature.class, org.tinygears.uom.quantity.TemperatureFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Time.class, org.tinygears.uom.quantity.TimeFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Volume.class, org.tinygears.uom.quantity.VolumeFactory.SYSTEM_UNIT));
+    public static final Map<Class<?>, UomUnit<?>> PREFERRED =
+            Map.<Class<?>, UomUnit<?>>ofEntries(
+                    Map.entry(Acceleration.class, AccelerationFactory.SYSTEM_UNIT),
+                    Map.entry(AmountOfSubstance.class, AmountOfSubstanceFactory.SYSTEM_UNIT),
+                    Map.entry(Angle.class, AngleFactory.SYSTEM_UNIT),
+                    Map.entry(Area.class, AreaFactory.SYSTEM_UNIT),
+                    Map.entry(CatalyticActivity.class, CatalyticActivityFactory.SYSTEM_UNIT),
+                    Map.entry(Dimensionless.class, DimensionlessFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricCapacitance.class, ElectricCapacitanceFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricCharge.class, ElectricChargeFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricConductance.class, ElectricConductanceFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricCurrent.class, ElectricCurrentFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricInductance.class, ElectricInductanceFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricPotential.class, ElectricPotentialFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricResistance.class, ElectricResistanceFactory.SYSTEM_UNIT),
+                    Map.entry(Energy.class, EnergyFactory.SYSTEM_UNIT),
+                    Map.entry(Force.class, ForceFactory.SYSTEM_UNIT),
+                    Map.entry(Frequency.class, FrequencyFactory.SYSTEM_UNIT),
+                    Map.entry(Illuminance.class, IlluminanceFactory.SYSTEM_UNIT),
+                    Map.entry(Length.class, LengthFactory.SYSTEM_UNIT),
+                    Map.entry(LuminousFlux.class, LuminousFluxFactory.SYSTEM_UNIT),
+                    Map.entry(LuminousIntensity.class, LuminousIntensityFactory.SYSTEM_UNIT),
+                    Map.entry(MagneticFlux.class, MagneticFluxFactory.SYSTEM_UNIT),
+                    Map.entry(MagneticFluxDensity.class, MagneticFluxDensityFactory.SYSTEM_UNIT),
+                    Map.entry(Mass.class, MassFactory.SYSTEM_UNIT),
+                    Map.entry(Power.class, PowerFactory.SYSTEM_UNIT),
+                    Map.entry(Pressure.class, PressureFactory.SYSTEM_UNIT),
+                    Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbedFactory.SYSTEM_UNIT),
+                    Map.entry(RadiationDoseEffective.class, RadiationDoseEffectiveFactory.SYSTEM_UNIT),
+                    Map.entry(Radioactivity.class, RadioactivityFactory.SYSTEM_UNIT),
+                    Map.entry(SolidAngle.class, SolidAngleFactory.SYSTEM_UNIT),
+                    Map.entry(Speed.class, SpeedFactory.SYSTEM_UNIT),
+                    Map.entry(Temperature.class, TemperatureFactory.SYSTEM_UNIT),
+                    Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
+                    Map.entry(Volume.class, VolumeFactory.SYSTEM_UNIT));
 
-    public static final org.tinygears.uom.systems.UomSystemOfUnits SYSTEM =
-            new org.tinygears.uom.systems.UomSystemOfUnits("SI", UNITS, PREFERRED, PREFIXABLE);
+    public static final UomSystemOfUnits SYSTEM =
+            new UomSystemOfUnits("SI", UNITS, PREFERRED, PREFIXABLE);
 }

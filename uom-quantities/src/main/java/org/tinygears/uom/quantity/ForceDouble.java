@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ForceDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Force, Force>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class ForceDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Force, Force>
         implements Force {
 
-    ForceDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> unit,
-            javax.measure.Quantity.Scale scale) {
+    ForceDouble(double value, UomUnit<javax.measure.quantity.Force> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Force create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Force create(double value, UomUnit<javax.measure.quantity.Force> unit,
+            Quantity.Scale scale) {
         return new ForceDouble(value, unit, scale);
     }
 
     @Override
-    protected Force createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Force createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Force> unit, Quantity.Scale scale, MathContext mc) {
         return new ForceDecimal(value, unit, scale, mc);
     }
 

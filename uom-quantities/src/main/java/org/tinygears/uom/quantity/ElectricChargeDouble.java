@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ElectricChargeDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.ElectricCharge, ElectricCharge>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class ElectricChargeDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.ElectricCharge, ElectricCharge>
         implements ElectricCharge {
 
-    ElectricChargeDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> unit,
-            javax.measure.Quantity.Scale scale) {
+    ElectricChargeDouble(double value, UomUnit<javax.measure.quantity.ElectricCharge> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected ElectricCharge create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected ElectricCharge create(double value, UomUnit<javax.measure.quantity.ElectricCharge> unit,
+            Quantity.Scale scale) {
         return new ElectricChargeDouble(value, unit, scale);
     }
 
     @Override
-    protected ElectricCharge createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected ElectricCharge createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.ElectricCharge> unit, Quantity.Scale scale, MathContext mc) {
         return new ElectricChargeDecimal(value, unit, scale, mc);
     }
 

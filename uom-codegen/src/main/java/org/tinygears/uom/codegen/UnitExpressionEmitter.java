@@ -14,7 +14,7 @@ import org.tinygears.uom.core.parse.Definitions;
 
 /** Writes Java expressions that evaluate to units equal to given ones. */
 public final class UnitExpressionEmitter {
-    private static final String BASE_UNITS = "org.tinygears.uom.core.BaseUnits.";
+    private static final String BASE_UNITS = "org.tinygears.uom.core.BaseUnits";
     private static final Map<String, String> BASE_ATOMS = Map.of("m", "METRE", "kg", "KILOGRAM", "s", "SECOND",
             "A", "AMPERE", "K", "KELVIN", "mol", "MOLE", "cd", "CANDELA");
     private static final int MAX_DEPTH = 32;
@@ -22,19 +22,21 @@ public final class UnitExpressionEmitter {
     private UnitExpressionEmitter() {
     }
 
-    public static String emit(UomUnit<?> unit, Definitions definitions) {
-        return emit(unit, definitions, 0);
+    /** {@code imports} gives the names of the classes the expression uses. */
+    public static String emit(UomUnit<?> unit, Definitions definitions, Imports imports) {
+        return emit(unit, definitions, imports, 0);
     }
 
     /** Like {@link #emit} but for any unit: its system unit transformed by its exact converter. */
-    public static String emitUnit(UomUnit<?> unit, Definitions definitions) {
-        String system = emit(unit.getSystemUnit(), definitions);
+    public static String emitUnit(UomUnit<?> unit, Definitions definitions, Imports imports) {
+        String system = emit(unit.getSystemUnit(), definitions, imports);
         UomConverter c = unit.toSystemConverter();
-        return c.equals(Converters.IDENTITY) ? system : system + ".transform(org.tinygears.uom.core.Converters.affine("
-                + FactorEmitter.emit(c.factor()) + ", " + FactorEmitter.emit(c.offset()) + "))";
+        return c.equals(Converters.IDENTITY) ? system : system + ".transform("
+                + imports.name("org.tinygears.uom.core.Converters") + ".affine("
+                + FactorEmitter.emit(c.factor(), imports) + ", " + FactorEmitter.emit(c.offset(), imports) + "))";
     }
 
-    private static String emit(UomUnit<?> unit, Definitions definitions, int depth) {
+    private static String emit(UomUnit<?> unit, Definitions definitions, Imports imports, int depth) {
         if (!unit.toSystemConverter().equals(Converters.IDENTITY)) {
             throw new GenerationException("unit must be an unscaled system unit");
         }
@@ -43,17 +45,17 @@ public final class UnitExpressionEmitter {
         StringBuilder out = new StringBuilder();
         for (Map.Entry<UnitAtom, Integer> e : atoms) {
             if (e.getValue() > 0) {
-                String term = power(atom(e.getKey().symbol(), definitions, depth), e.getValue());
+                String term = power(atom(e.getKey().symbol(), definitions, imports, depth), e.getValue());
                 out.append(out.isEmpty() ? term : ".multiply(" + term + ")");
             }
         }
         if (out.isEmpty()) {
-            out.append(BASE_UNITS).append("ONE");
+            out.append(imports.name(BASE_UNITS)).append(".ONE");
         }
         for (Map.Entry<UnitAtom, Integer> e : atoms) {
             if (e.getValue() < 0) {
-                out.append(".divide(").append(power(atom(e.getKey().symbol(), definitions, depth), -e.getValue()))
-                        .append(')');
+                String term = power(atom(e.getKey().symbol(), definitions, imports, depth), -e.getValue());
+                out.append(".divide(").append(term).append(')');
             }
         }
         return out.toString();
@@ -63,10 +65,10 @@ public final class UnitExpressionEmitter {
         return n == 1 ? term : term + ".pow(" + n + ")";
     }
 
-    private static String atom(String symbol, Definitions definitions, int depth) {
+    private static String atom(String symbol, Definitions definitions, Imports imports, int depth) {
         String base = BASE_ATOMS.get(symbol);
         if (base != null) {
-            return BASE_UNITS + base;
+            return imports.name(BASE_UNITS) + "." + base;
         }
         Definition d = definitions.definitions().stream()
                 .filter(x -> x.symbol().equals(symbol) && x.alternateOf() != null).findFirst()
@@ -74,7 +76,7 @@ public final class UnitExpressionEmitter {
         if (depth >= MAX_DEPTH) {
             throw new GenerationException("alternate unit definitions nest too deeply at '" + symbol + "'");
         }
-        return emit(d.alternateOf(), definitions, depth + 1) + ".alternate(" + literal(symbol) + ")";
+        return emit(d.alternateOf(), definitions, imports, depth + 1) + ".alternate(" + literal(symbol) + ")";
     }
 
     /** A Java string literal for {@code s}. */

@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Energy} of this implementation. */
 public interface Energy extends javax.measure.quantity.Energy,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Energy>> {
+        Comparable<Quantity<javax.measure.quantity.Energy>> {
 
     @Override
-    Energy add(javax.measure.Quantity<javax.measure.quantity.Energy> addend);
+    Energy add(Quantity<javax.measure.quantity.Energy> addend);
 
     @Override
-    Energy subtract(javax.measure.Quantity<javax.measure.quantity.Energy> subtrahend);
+    Energy subtract(Quantity<javax.measure.quantity.Energy> subtrahend);
 
     @Override
-    Energy to(javax.measure.Unit<javax.measure.quantity.Energy> unit);
+    Energy to(Unit<javax.measure.quantity.Energy> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Energy to(javax.measure.spi.SystemOfUnits system);
+    Energy to(SystemOfUnits system);
 
     @Override
     Energy negate();
@@ -36,31 +42,31 @@ public interface Energy extends javax.measure.quantity.Energy,
     Energy toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Energy toDecimal(java.math.MathContext mc);
+    Energy toDecimal(MathContext mc);
 
-    static Energy of(double value, javax.measure.Unit<javax.measure.quantity.Energy> unit) {
+    static Energy of(double value, Unit<javax.measure.quantity.Energy> unit) {
         return EnergyFactory.INSTANCE.of(value, unit);
     }
 
-    static Energy of(double value, javax.measure.Unit<javax.measure.quantity.Energy> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Energy of(double value, Unit<javax.measure.quantity.Energy> unit,
+            Quantity.Scale scale) {
         return EnergyFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Energy of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Energy> unit) {
+    static Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit) {
         return EnergyFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Energy of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Energy> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit,
+            Quantity.Scale scale) {
         return EnergyFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Energy of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Energy> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit,
+            Quantity.Scale scale, MathContext mc) {
         return EnergyFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

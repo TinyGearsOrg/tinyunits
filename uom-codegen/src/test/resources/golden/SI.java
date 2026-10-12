@@ -3,47 +3,59 @@
 
 package org.tinygears.uom.systems;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Time;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.Converters;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.quantity.LengthFactory;
+import org.tinygears.uom.quantity.TimeFactory;
+
 /** The SI units; generated from {@code data/si.units} and {@code data/quantity-types.txt}. */
 public final class SI {
 
     private SI() {
     }
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> METRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
+    public static final UomUnit<Length> METRE =
+            UomUnit.unchecked(BaseUnits.METRE
                     .named("m", "metre"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> SECOND =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
+    public static final UomUnit<Time> SECOND =
+            UomUnit.unchecked(BaseUnits.SECOND
                     .named("s", "second"));
 
-    public static final org.tinygears.uom.core.UomUnit<?> KELVIN =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
+    public static final UomUnit<?> KELVIN =
+            UomUnit.unchecked(BaseUnits.KELVIN
                     .named("K", "kelvin"));
 
-    public static final org.tinygears.uom.core.UomUnit<?> HERTZ =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.ONE
-                    .divide(org.tinygears.uom.core.BaseUnits.SECOND)
+    public static final UomUnit<?> HERTZ =
+            UomUnit.unchecked(BaseUnits.ONE
+                    .divide(BaseUnits.SECOND)
                     .alternate("Hz")
                     .named("Hz", "hertz"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> MINUTE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.SECOND
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(60L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Time> MINUTE =
+            UomUnit.unchecked(BaseUnits.SECOND
+                    .transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO))
                     .named("min", "minute"));
 
-    public static final org.tinygears.uom.core.UomUnit<?> DEGREE_CELSIUS =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KELVIN
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.ONE, org.tinygears.uom.core.Factor.of(5463L, 20L)))
+    public static final UomUnit<?> DEGREE_CELSIUS =
+            UomUnit.unchecked(BaseUnits.KELVIN
+                    .transform(Converters.affine(Factor.ONE, Factor.of(5463L, 20L)))
                     .named("°C", "degree Celsius"));
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> KILOMETRE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(1000L, 1L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Length> KILOMETRE =
+            UomUnit.unchecked(BaseUnits.METRE
+                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("km", "kilometre"));
 
-    public static final java.util.List<org.tinygears.uom.core.UomUnit<?>> UNITS =
-            java.util.List.<org.tinygears.uom.core.UomUnit<?>>of(
+    public static final List<UomUnit<?>> UNITS =
+            List.<UomUnit<?>>of(
                     METRE,
                     SECOND,
                     KELVIN,
@@ -52,15 +64,15 @@ public final class SI {
                     DEGREE_CELSIUS,
                     KILOMETRE);
 
-    public static final java.util.Set<String> PREFIXABLE =
-            java.util.Set.of(
+    public static final Set<String> PREFIXABLE =
+            Set.of(
                     "m");
 
-    public static final java.util.Map<Class<?>, org.tinygears.uom.core.UomUnit<?>> PREFERRED =
-            java.util.Map.<Class<?>, org.tinygears.uom.core.UomUnit<?>>ofEntries(
-                    java.util.Map.entry(javax.measure.quantity.Length.class, org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Time.class, org.tinygears.uom.quantity.TimeFactory.SYSTEM_UNIT));
+    public static final Map<Class<?>, UomUnit<?>> PREFERRED =
+            Map.<Class<?>, UomUnit<?>>ofEntries(
+                    Map.entry(Length.class, LengthFactory.SYSTEM_UNIT),
+                    Map.entry(Time.class, TimeFactory.SYSTEM_UNIT));
 
-    public static final org.tinygears.uom.systems.UomSystemOfUnits SYSTEM =
-            new org.tinygears.uom.systems.UomSystemOfUnits("SI", UNITS, PREFERRED, PREFIXABLE);
+    public static final UomSystemOfUnits SYSTEM =
+            new UomSystemOfUnits("SI", UNITS, PREFERRED, PREFIXABLE);
 }

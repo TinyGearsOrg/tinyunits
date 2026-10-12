@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class DimensionlessDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Dimensionless, Dimensionless>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class DimensionlessDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Dimensionless, Dimensionless>
         implements Dimensionless {
 
-    DimensionlessDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Dimensionless> unit,
-            javax.measure.Quantity.Scale scale) {
+    DimensionlessDouble(double value, UomUnit<javax.measure.quantity.Dimensionless> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Dimensionless create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Dimensionless> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Dimensionless create(double value, UomUnit<javax.measure.quantity.Dimensionless> unit,
+            Quantity.Scale scale) {
         return new DimensionlessDouble(value, unit, scale);
     }
 
     @Override
-    protected Dimensionless createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Dimensionless> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Dimensionless createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Dimensionless> unit, Quantity.Scale scale, MathContext mc) {
         return new DimensionlessDecimal(value, unit, scale, mc);
     }
 

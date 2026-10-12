@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Area} of this implementation. */
 public interface Area extends javax.measure.quantity.Area,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Area>> {
+        Comparable<Quantity<javax.measure.quantity.Area>> {
 
     @Override
-    Area add(javax.measure.Quantity<javax.measure.quantity.Area> addend);
+    Area add(Quantity<javax.measure.quantity.Area> addend);
 
     @Override
-    Area subtract(javax.measure.Quantity<javax.measure.quantity.Area> subtrahend);
+    Area subtract(Quantity<javax.measure.quantity.Area> subtrahend);
 
     @Override
-    Area to(javax.measure.Unit<javax.measure.quantity.Area> unit);
+    Area to(Unit<javax.measure.quantity.Area> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Area to(javax.measure.spi.SystemOfUnits system);
+    Area to(SystemOfUnits system);
 
     @Override
     Area negate();
@@ -36,31 +42,31 @@ public interface Area extends javax.measure.quantity.Area,
     Area toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Area toDecimal(java.math.MathContext mc);
+    Area toDecimal(MathContext mc);
 
-    static Area of(double value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
+    static Area of(double value, Unit<javax.measure.quantity.Area> unit) {
         return AreaFactory.INSTANCE.of(value, unit);
     }
 
-    static Area of(double value, javax.measure.Unit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Area of(double value, Unit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale) {
         return AreaFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
+    static Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit) {
         return AreaFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale) {
         return AreaFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale, MathContext mc) {
         return AreaFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

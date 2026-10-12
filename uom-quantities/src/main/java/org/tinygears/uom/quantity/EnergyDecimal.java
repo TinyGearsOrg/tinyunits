@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class EnergyDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Energy, Energy>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class EnergyDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Energy, Energy>
         implements Energy {
 
-    EnergyDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    EnergyDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Energy> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Energy create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Energy create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Energy> unit, Quantity.Scale scale, MathContext mc) {
         return new EnergyDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Energy createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Energy createDouble(double value,
+            UomUnit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         return new EnergyDouble(value, unit, scale);
     }
 

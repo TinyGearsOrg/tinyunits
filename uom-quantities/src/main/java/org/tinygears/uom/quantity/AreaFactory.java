@@ -3,55 +3,65 @@
 
 package org.tinygears.uom.quantity;
 
-/** Creates {@link Area} quantities. */
-public final class AreaFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Area> {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.util.Objects;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> SYSTEM_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE.pow(2).named("m²", "square metre"));
+/** Creates {@link Area} quantities. */
+public final class AreaFactory
+        implements QuantityFactory<javax.measure.quantity.Area> {
+
+    public static final UomUnit<javax.measure.quantity.Area> SYSTEM_UNIT =
+            UomUnit.unchecked(BaseUnits.METRE.pow(2).named("m²", "square metre"));
 
     public static final AreaFactory INSTANCE = new AreaFactory();
 
     private AreaFactory() {
     }
 
-    public Area of(double value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public Area of(double value, Unit<javax.measure.quantity.Area> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    public Area of(double value, javax.measure.Unit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale) {
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> u) {
+    public Area of(double value, Unit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale) {
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Area> u) {
             return new AreaDouble(value, u, scale);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale) {
-        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    public Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale) {
+        return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    public Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> u) {
+    public Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale, MathContext mc) {
+        Objects.requireNonNull(value, "value");
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Area> u) {
             return new AreaDecimal(value, u, scale, mc);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
-    public Area create(Number value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
-        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public Area create(Number value, Unit<javax.measure.quantity.Area> unit) {
+        return create(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /**
@@ -59,20 +69,20 @@ public final class AreaFactory implements javax.measure.spi.QuantityFactory<java
      * not rounded; all others a double one.
      */
     @Override
-    public Area create(Number value, javax.measure.Unit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (value instanceof java.math.BigDecimal d) {
+    public Area create(Number value, Unit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale) {
+        Objects.requireNonNull(value, "value");
+        if (value instanceof BigDecimal d) {
             return of(d, unit, scale);
         }
-        if (value instanceof java.math.BigInteger i) {
-            return of(new java.math.BigDecimal(i), unit, scale);
+        if (value instanceof BigInteger i) {
+            return of(new BigDecimal(i), unit, scale);
         }
         return of(value.doubleValue(), unit, scale);
     }
 
     @Override
-    public javax.measure.Unit<javax.measure.quantity.Area> getSystemUnit() {
+    public Unit<javax.measure.quantity.Area> getSystemUnit() {
         return SYSTEM_UNIT;
     }
 }

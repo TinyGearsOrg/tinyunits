@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Power} of this implementation. */
 public interface Power extends javax.measure.quantity.Power,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Power>> {
+        Comparable<Quantity<javax.measure.quantity.Power>> {
 
     @Override
-    Power add(javax.measure.Quantity<javax.measure.quantity.Power> addend);
+    Power add(Quantity<javax.measure.quantity.Power> addend);
 
     @Override
-    Power subtract(javax.measure.Quantity<javax.measure.quantity.Power> subtrahend);
+    Power subtract(Quantity<javax.measure.quantity.Power> subtrahend);
 
     @Override
-    Power to(javax.measure.Unit<javax.measure.quantity.Power> unit);
+    Power to(Unit<javax.measure.quantity.Power> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Power to(javax.measure.spi.SystemOfUnits system);
+    Power to(SystemOfUnits system);
 
     @Override
     Power negate();
@@ -36,31 +42,31 @@ public interface Power extends javax.measure.quantity.Power,
     Power toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Power toDecimal(java.math.MathContext mc);
+    Power toDecimal(MathContext mc);
 
-    static Power of(double value, javax.measure.Unit<javax.measure.quantity.Power> unit) {
+    static Power of(double value, Unit<javax.measure.quantity.Power> unit) {
         return PowerFactory.INSTANCE.of(value, unit);
     }
 
-    static Power of(double value, javax.measure.Unit<javax.measure.quantity.Power> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Power of(double value, Unit<javax.measure.quantity.Power> unit,
+            Quantity.Scale scale) {
         return PowerFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit) {
+    static Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit) {
         return PowerFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit,
+            Quantity.Scale scale) {
         return PowerFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit,
+            Quantity.Scale scale, MathContext mc) {
         return PowerFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

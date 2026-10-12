@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Dimensionless} of this implementation. */
 public interface Dimensionless extends javax.measure.quantity.Dimensionless,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Dimensionless>> {
+        Comparable<Quantity<javax.measure.quantity.Dimensionless>> {
 
     @Override
-    Dimensionless add(javax.measure.Quantity<javax.measure.quantity.Dimensionless> addend);
+    Dimensionless add(Quantity<javax.measure.quantity.Dimensionless> addend);
 
     @Override
-    Dimensionless subtract(javax.measure.Quantity<javax.measure.quantity.Dimensionless> subtrahend);
+    Dimensionless subtract(Quantity<javax.measure.quantity.Dimensionless> subtrahend);
 
     @Override
-    Dimensionless to(javax.measure.Unit<javax.measure.quantity.Dimensionless> unit);
+    Dimensionless to(Unit<javax.measure.quantity.Dimensionless> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Dimensionless to(javax.measure.spi.SystemOfUnits system);
+    Dimensionless to(SystemOfUnits system);
 
     @Override
     Dimensionless negate();
@@ -36,31 +42,31 @@ public interface Dimensionless extends javax.measure.quantity.Dimensionless,
     Dimensionless toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Dimensionless toDecimal(java.math.MathContext mc);
+    Dimensionless toDecimal(MathContext mc);
 
-    static Dimensionless of(double value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit) {
+    static Dimensionless of(double value, Unit<javax.measure.quantity.Dimensionless> unit) {
         return DimensionlessFactory.INSTANCE.of(value, unit);
     }
 
-    static Dimensionless of(double value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Dimensionless of(double value, Unit<javax.measure.quantity.Dimensionless> unit,
+            Quantity.Scale scale) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit) {
+    static Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit) {
         return DimensionlessFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit,
+            Quantity.Scale scale) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit,
+            Quantity.Scale scale, MathContext mc) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

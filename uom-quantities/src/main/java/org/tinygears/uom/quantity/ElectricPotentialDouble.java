@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ElectricPotentialDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.ElectricPotential, ElectricPotential>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class ElectricPotentialDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.ElectricPotential, ElectricPotential>
         implements ElectricPotential {
 
-    ElectricPotentialDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale) {
+    ElectricPotentialDouble(double value, UomUnit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected ElectricPotential create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected ElectricPotential create(double value, UomUnit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale) {
         return new ElectricPotentialDouble(value, unit, scale);
     }
 
     @Override
-    protected ElectricPotential createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected ElectricPotential createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.ElectricPotential> unit, Quantity.Scale scale, MathContext mc) {
         return new ElectricPotentialDecimal(value, unit, scale, mc);
     }
 

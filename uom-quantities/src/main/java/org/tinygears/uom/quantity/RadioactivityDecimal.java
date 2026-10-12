@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class RadioactivityDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Radioactivity, Radioactivity>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class RadioactivityDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Radioactivity, Radioactivity>
         implements Radioactivity {
 
-    RadioactivityDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    RadioactivityDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Radioactivity> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Radioactivity create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Radioactivity create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale, MathContext mc) {
         return new RadioactivityDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Radioactivity createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Radioactivity createDouble(double value,
+            UomUnit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale) {
         return new RadioactivityDouble(value, unit, scale);
     }
 

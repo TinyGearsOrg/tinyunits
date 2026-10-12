@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.MagneticFlux} of this implementation. */
 public interface MagneticFlux extends javax.measure.quantity.MagneticFlux,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.MagneticFlux>> {
+        Comparable<Quantity<javax.measure.quantity.MagneticFlux>> {
 
     @Override
-    MagneticFlux add(javax.measure.Quantity<javax.measure.quantity.MagneticFlux> addend);
+    MagneticFlux add(Quantity<javax.measure.quantity.MagneticFlux> addend);
 
     @Override
-    MagneticFlux subtract(javax.measure.Quantity<javax.measure.quantity.MagneticFlux> subtrahend);
+    MagneticFlux subtract(Quantity<javax.measure.quantity.MagneticFlux> subtrahend);
 
     @Override
-    MagneticFlux to(javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit);
+    MagneticFlux to(Unit<javax.measure.quantity.MagneticFlux> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    MagneticFlux to(javax.measure.spi.SystemOfUnits system);
+    MagneticFlux to(SystemOfUnits system);
 
     @Override
     MagneticFlux negate();
@@ -36,31 +42,31 @@ public interface MagneticFlux extends javax.measure.quantity.MagneticFlux,
     MagneticFlux toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    MagneticFlux toDecimal(java.math.MathContext mc);
+    MagneticFlux toDecimal(MathContext mc);
 
-    static MagneticFlux of(double value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit) {
+    static MagneticFlux of(double value, Unit<javax.measure.quantity.MagneticFlux> unit) {
         return MagneticFluxFactory.INSTANCE.of(value, unit);
     }
 
-    static MagneticFlux of(double value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
-            javax.measure.Quantity.Scale scale) {
+    static MagneticFlux of(double value, Unit<javax.measure.quantity.MagneticFlux> unit,
+            Quantity.Scale scale) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit) {
+    static MagneticFlux of(BigDecimal value, Unit<javax.measure.quantity.MagneticFlux> unit) {
         return MagneticFluxFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
-            javax.measure.Quantity.Scale scale) {
+    static MagneticFlux of(BigDecimal value, Unit<javax.measure.quantity.MagneticFlux> unit,
+            Quantity.Scale scale) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static MagneticFlux of(BigDecimal value, Unit<javax.measure.quantity.MagneticFlux> unit,
+            Quantity.Scale scale, MathContext mc) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

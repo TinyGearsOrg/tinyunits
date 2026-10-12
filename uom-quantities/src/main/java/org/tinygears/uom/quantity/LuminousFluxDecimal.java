@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class LuminousFluxDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.LuminousFlux, LuminousFlux>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class LuminousFluxDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.LuminousFlux, LuminousFlux>
         implements LuminousFlux {
 
-    LuminousFluxDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    LuminousFluxDecimal(BigDecimal value, UomUnit<javax.measure.quantity.LuminousFlux> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected LuminousFlux create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected LuminousFlux create(BigDecimal value,
+            UomUnit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale, MathContext mc) {
         return new LuminousFluxDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected LuminousFlux createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected LuminousFlux createDouble(double value,
+            UomUnit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale) {
         return new LuminousFluxDouble(value, unit, scale);
     }
 

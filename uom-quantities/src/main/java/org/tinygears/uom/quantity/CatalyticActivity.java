@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.CatalyticActivity} of this implementation. */
 public interface CatalyticActivity extends javax.measure.quantity.CatalyticActivity,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.CatalyticActivity>> {
+        Comparable<Quantity<javax.measure.quantity.CatalyticActivity>> {
 
     @Override
-    CatalyticActivity add(javax.measure.Quantity<javax.measure.quantity.CatalyticActivity> addend);
+    CatalyticActivity add(Quantity<javax.measure.quantity.CatalyticActivity> addend);
 
     @Override
-    CatalyticActivity subtract(javax.measure.Quantity<javax.measure.quantity.CatalyticActivity> subtrahend);
+    CatalyticActivity subtract(Quantity<javax.measure.quantity.CatalyticActivity> subtrahend);
 
     @Override
-    CatalyticActivity to(javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit);
+    CatalyticActivity to(Unit<javax.measure.quantity.CatalyticActivity> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    CatalyticActivity to(javax.measure.spi.SystemOfUnits system);
+    CatalyticActivity to(SystemOfUnits system);
 
     @Override
     CatalyticActivity negate();
@@ -36,31 +42,31 @@ public interface CatalyticActivity extends javax.measure.quantity.CatalyticActiv
     CatalyticActivity toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    CatalyticActivity toDecimal(java.math.MathContext mc);
+    CatalyticActivity toDecimal(MathContext mc);
 
-    static CatalyticActivity of(double value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit) {
+    static CatalyticActivity of(double value, Unit<javax.measure.quantity.CatalyticActivity> unit) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit);
     }
 
-    static CatalyticActivity of(double value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
-            javax.measure.Quantity.Scale scale) {
+    static CatalyticActivity of(double value, Unit<javax.measure.quantity.CatalyticActivity> unit,
+            Quantity.Scale scale) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit) {
+    static CatalyticActivity of(BigDecimal value, Unit<javax.measure.quantity.CatalyticActivity> unit) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
-            javax.measure.Quantity.Scale scale) {
+    static CatalyticActivity of(BigDecimal value, Unit<javax.measure.quantity.CatalyticActivity> unit,
+            Quantity.Scale scale) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static CatalyticActivity of(BigDecimal value, Unit<javax.measure.quantity.CatalyticActivity> unit,
+            Quantity.Scale scale, MathContext mc) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

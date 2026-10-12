@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.RadiationDoseAbsorbed} of this implementation. */
 public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationDoseAbsorbed,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.RadiationDoseAbsorbed>> {
+        Comparable<Quantity<javax.measure.quantity.RadiationDoseAbsorbed>> {
 
     @Override
-    RadiationDoseAbsorbed add(javax.measure.Quantity<javax.measure.quantity.RadiationDoseAbsorbed> addend);
+    RadiationDoseAbsorbed add(Quantity<javax.measure.quantity.RadiationDoseAbsorbed> addend);
 
     @Override
-    RadiationDoseAbsorbed subtract(javax.measure.Quantity<javax.measure.quantity.RadiationDoseAbsorbed> subtrahend);
+    RadiationDoseAbsorbed subtract(Quantity<javax.measure.quantity.RadiationDoseAbsorbed> subtrahend);
 
     @Override
-    RadiationDoseAbsorbed to(javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit);
+    RadiationDoseAbsorbed to(Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    RadiationDoseAbsorbed to(javax.measure.spi.SystemOfUnits system);
+    RadiationDoseAbsorbed to(SystemOfUnits system);
 
     @Override
     RadiationDoseAbsorbed negate();
@@ -36,31 +42,31 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
     RadiationDoseAbsorbed toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    RadiationDoseAbsorbed toDecimal(java.math.MathContext mc);
+    RadiationDoseAbsorbed toDecimal(MathContext mc);
 
-    static RadiationDoseAbsorbed of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
+    static RadiationDoseAbsorbed of(double value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit);
     }
 
-    static RadiationDoseAbsorbed of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale) {
+    static RadiationDoseAbsorbed of(double value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
+    static RadiationDoseAbsorbed of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale) {
+    static RadiationDoseAbsorbed of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static RadiationDoseAbsorbed of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale, MathContext mc) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

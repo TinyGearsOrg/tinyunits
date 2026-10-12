@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class MagneticFluxDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.MagneticFlux, MagneticFlux>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class MagneticFluxDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.MagneticFlux, MagneticFlux>
         implements MagneticFlux {
 
-    MagneticFluxDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFlux> unit,
-            javax.measure.Quantity.Scale scale) {
+    MagneticFluxDouble(double value, UomUnit<javax.measure.quantity.MagneticFlux> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected MagneticFlux create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFlux> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected MagneticFlux create(double value, UomUnit<javax.measure.quantity.MagneticFlux> unit,
+            Quantity.Scale scale) {
         return new MagneticFluxDouble(value, unit, scale);
     }
 
     @Override
-    protected MagneticFlux createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFlux> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected MagneticFlux createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.MagneticFlux> unit, Quantity.Scale scale, MathContext mc) {
         return new MagneticFluxDecimal(value, unit, scale, mc);
     }
 

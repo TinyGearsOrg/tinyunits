@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.ElectricPotential} of this implementation. */
 public interface ElectricPotential extends javax.measure.quantity.ElectricPotential,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricPotential>> {
+        Comparable<Quantity<javax.measure.quantity.ElectricPotential>> {
 
     @Override
-    ElectricPotential add(javax.measure.Quantity<javax.measure.quantity.ElectricPotential> addend);
+    ElectricPotential add(Quantity<javax.measure.quantity.ElectricPotential> addend);
 
     @Override
-    ElectricPotential subtract(javax.measure.Quantity<javax.measure.quantity.ElectricPotential> subtrahend);
+    ElectricPotential subtract(Quantity<javax.measure.quantity.ElectricPotential> subtrahend);
 
     @Override
-    ElectricPotential to(javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit);
+    ElectricPotential to(Unit<javax.measure.quantity.ElectricPotential> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    ElectricPotential to(javax.measure.spi.SystemOfUnits system);
+    ElectricPotential to(SystemOfUnits system);
 
     @Override
     ElectricPotential negate();
@@ -36,31 +42,31 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
     ElectricPotential toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    ElectricPotential toDecimal(java.math.MathContext mc);
+    ElectricPotential toDecimal(MathContext mc);
 
-    static ElectricPotential of(double value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
+    static ElectricPotential of(double value, Unit<javax.measure.quantity.ElectricPotential> unit) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit);
     }
 
-    static ElectricPotential of(double value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricPotential of(double value, Unit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
+    static ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale, MathContext mc) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

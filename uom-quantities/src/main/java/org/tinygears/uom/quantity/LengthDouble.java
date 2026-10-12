@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class LengthDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Length, Length>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class LengthDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Length, Length>
         implements Length {
 
-    LengthDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> unit,
-            javax.measure.Quantity.Scale scale) {
+    LengthDouble(double value, UomUnit<javax.measure.quantity.Length> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Length create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Length create(double value, UomUnit<javax.measure.quantity.Length> unit,
+            Quantity.Scale scale) {
         return new LengthDouble(value, unit, scale);
     }
 
     @Override
-    protected Length createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Length createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Length> unit, Quantity.Scale scale, MathContext mc) {
         return new LengthDecimal(value, unit, scale, mc);
     }
 

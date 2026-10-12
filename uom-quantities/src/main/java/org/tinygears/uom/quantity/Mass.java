@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Mass} of this implementation. */
 public interface Mass extends javax.measure.quantity.Mass,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Mass>> {
+        Comparable<Quantity<javax.measure.quantity.Mass>> {
 
     @Override
-    Mass add(javax.measure.Quantity<javax.measure.quantity.Mass> addend);
+    Mass add(Quantity<javax.measure.quantity.Mass> addend);
 
     @Override
-    Mass subtract(javax.measure.Quantity<javax.measure.quantity.Mass> subtrahend);
+    Mass subtract(Quantity<javax.measure.quantity.Mass> subtrahend);
 
     @Override
-    Mass to(javax.measure.Unit<javax.measure.quantity.Mass> unit);
+    Mass to(Unit<javax.measure.quantity.Mass> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Mass to(javax.measure.spi.SystemOfUnits system);
+    Mass to(SystemOfUnits system);
 
     @Override
     Mass negate();
@@ -36,31 +42,31 @@ public interface Mass extends javax.measure.quantity.Mass,
     Mass toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Mass toDecimal(java.math.MathContext mc);
+    Mass toDecimal(MathContext mc);
 
-    static Mass of(double value, javax.measure.Unit<javax.measure.quantity.Mass> unit) {
+    static Mass of(double value, Unit<javax.measure.quantity.Mass> unit) {
         return MassFactory.INSTANCE.of(value, unit);
     }
 
-    static Mass of(double value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Mass of(double value, Unit<javax.measure.quantity.Mass> unit,
+            Quantity.Scale scale) {
         return MassFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit) {
+    static Mass of(BigDecimal value, Unit<javax.measure.quantity.Mass> unit) {
         return MassFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Mass of(BigDecimal value, Unit<javax.measure.quantity.Mass> unit,
+            Quantity.Scale scale) {
         return MassFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Mass of(BigDecimal value, Unit<javax.measure.quantity.Mass> unit,
+            Quantity.Scale scale, MathContext mc) {
         return MassFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

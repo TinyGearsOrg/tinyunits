@@ -3,55 +3,65 @@
 
 package org.tinygears.uom.quantity;
 
-/** Creates {@link RadiationDoseAbsorbed} quantities. */
-public final class RadiationDoseAbsorbedFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.RadiationDoseAbsorbed> {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.util.Objects;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> SYSTEM_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.METRE.pow(2).divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2)).alternate("Gy").named("Gy", "gray"));
+/** Creates {@link RadiationDoseAbsorbed} quantities. */
+public final class RadiationDoseAbsorbedFactory
+        implements QuantityFactory<javax.measure.quantity.RadiationDoseAbsorbed> {
+
+    public static final UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> SYSTEM_UNIT =
+            UomUnit.unchecked(BaseUnits.METRE.pow(2).divide(BaseUnits.SECOND.pow(2)).alternate("Gy").named("Gy", "gray"));
 
     public static final RadiationDoseAbsorbedFactory INSTANCE = new RadiationDoseAbsorbedFactory();
 
     private RadiationDoseAbsorbedFactory() {
     }
 
-    public RadiationDoseAbsorbed of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public RadiationDoseAbsorbed of(double value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    public RadiationDoseAbsorbed of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale) {
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> u) {
+    public RadiationDoseAbsorbed of(double value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale) {
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> u) {
             return new RadiationDoseAbsorbedDouble(value, u, scale);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public RadiationDoseAbsorbed of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale) {
-        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    public RadiationDoseAbsorbed of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale) {
+        return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    public RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> u) {
+    public RadiationDoseAbsorbed of(BigDecimal value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale, MathContext mc) {
+        Objects.requireNonNull(value, "value");
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> u) {
             return new RadiationDoseAbsorbedDecimal(value, u, scale, mc);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
-    public RadiationDoseAbsorbed create(Number value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
-        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public RadiationDoseAbsorbed create(Number value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
+        return create(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /**
@@ -59,20 +69,20 @@ public final class RadiationDoseAbsorbedFactory implements javax.measure.spi.Qua
      * not rounded; all others a double one.
      */
     @Override
-    public RadiationDoseAbsorbed create(Number value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (value instanceof java.math.BigDecimal d) {
+    public RadiationDoseAbsorbed create(Number value, Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale) {
+        Objects.requireNonNull(value, "value");
+        if (value instanceof BigDecimal d) {
             return of(d, unit, scale);
         }
-        if (value instanceof java.math.BigInteger i) {
-            return of(new java.math.BigDecimal(i), unit, scale);
+        if (value instanceof BigInteger i) {
+            return of(new BigDecimal(i), unit, scale);
         }
         return of(value.doubleValue(), unit, scale);
     }
 
     @Override
-    public javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> getSystemUnit() {
+    public Unit<javax.measure.quantity.RadiationDoseAbsorbed> getSystemUnit() {
         return SYSTEM_UNIT;
     }
 }

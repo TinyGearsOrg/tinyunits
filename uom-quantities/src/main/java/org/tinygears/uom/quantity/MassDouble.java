@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class MassDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Mass, Mass>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class MassDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Mass, Mass>
         implements Mass {
 
-    MassDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> unit,
-            javax.measure.Quantity.Scale scale) {
+    MassDouble(double value, UomUnit<javax.measure.quantity.Mass> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Mass create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Mass create(double value, UomUnit<javax.measure.quantity.Mass> unit,
+            Quantity.Scale scale) {
         return new MassDouble(value, unit, scale);
     }
 
     @Override
-    protected Mass createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Mass createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Mass> unit, Quantity.Scale scale, MathContext mc) {
         return new MassDecimal(value, unit, scale, mc);
     }
 

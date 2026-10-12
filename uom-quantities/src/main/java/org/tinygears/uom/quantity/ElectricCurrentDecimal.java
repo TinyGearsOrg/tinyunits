@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ElectricCurrentDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.ElectricCurrent, ElectricCurrent>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class ElectricCurrentDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.ElectricCurrent, ElectricCurrent>
         implements ElectricCurrent {
 
-    ElectricCurrentDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    ElectricCurrentDecimal(BigDecimal value, UomUnit<javax.measure.quantity.ElectricCurrent> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected ElectricCurrent create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected ElectricCurrent create(BigDecimal value,
+            UomUnit<javax.measure.quantity.ElectricCurrent> unit, Quantity.Scale scale, MathContext mc) {
         return new ElectricCurrentDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected ElectricCurrent createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected ElectricCurrent createDouble(double value,
+            UomUnit<javax.measure.quantity.ElectricCurrent> unit, Quantity.Scale scale) {
         return new ElectricCurrentDouble(value, unit, scale);
     }
 

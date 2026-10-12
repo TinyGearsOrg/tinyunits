@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.SolidAngle} of this implementation. */
 public interface SolidAngle extends javax.measure.quantity.SolidAngle,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.SolidAngle>> {
+        Comparable<Quantity<javax.measure.quantity.SolidAngle>> {
 
     @Override
-    SolidAngle add(javax.measure.Quantity<javax.measure.quantity.SolidAngle> addend);
+    SolidAngle add(Quantity<javax.measure.quantity.SolidAngle> addend);
 
     @Override
-    SolidAngle subtract(javax.measure.Quantity<javax.measure.quantity.SolidAngle> subtrahend);
+    SolidAngle subtract(Quantity<javax.measure.quantity.SolidAngle> subtrahend);
 
     @Override
-    SolidAngle to(javax.measure.Unit<javax.measure.quantity.SolidAngle> unit);
+    SolidAngle to(Unit<javax.measure.quantity.SolidAngle> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    SolidAngle to(javax.measure.spi.SystemOfUnits system);
+    SolidAngle to(SystemOfUnits system);
 
     @Override
     SolidAngle negate();
@@ -36,31 +42,31 @@ public interface SolidAngle extends javax.measure.quantity.SolidAngle,
     SolidAngle toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    SolidAngle toDecimal(java.math.MathContext mc);
+    SolidAngle toDecimal(MathContext mc);
 
-    static SolidAngle of(double value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit) {
+    static SolidAngle of(double value, Unit<javax.measure.quantity.SolidAngle> unit) {
         return SolidAngleFactory.INSTANCE.of(value, unit);
     }
 
-    static SolidAngle of(double value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
-            javax.measure.Quantity.Scale scale) {
+    static SolidAngle of(double value, Unit<javax.measure.quantity.SolidAngle> unit,
+            Quantity.Scale scale) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit) {
+    static SolidAngle of(BigDecimal value, Unit<javax.measure.quantity.SolidAngle> unit) {
         return SolidAngleFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
-            javax.measure.Quantity.Scale scale) {
+    static SolidAngle of(BigDecimal value, Unit<javax.measure.quantity.SolidAngle> unit,
+            Quantity.Scale scale) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static SolidAngle of(BigDecimal value, Unit<javax.measure.quantity.SolidAngle> unit,
+            Quantity.Scale scale, MathContext mc) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class AreaDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.Area, Area>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class AreaDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.Area, Area>
         implements Area {
 
-    AreaDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale) {
+    AreaDouble(double value, UomUnit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Area create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Area create(double value, UomUnit<javax.measure.quantity.Area> unit,
+            Quantity.Scale scale) {
         return new AreaDouble(value, unit, scale);
     }
 
     @Override
-    protected Area createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Area createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.Area> unit, Quantity.Scale scale, MathContext mc) {
         return new AreaDecimal(value, unit, scale, mc);
     }
 

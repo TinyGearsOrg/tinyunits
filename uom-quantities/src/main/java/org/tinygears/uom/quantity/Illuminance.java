@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Illuminance} of this implementation. */
 public interface Illuminance extends javax.measure.quantity.Illuminance,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Illuminance>> {
+        Comparable<Quantity<javax.measure.quantity.Illuminance>> {
 
     @Override
-    Illuminance add(javax.measure.Quantity<javax.measure.quantity.Illuminance> addend);
+    Illuminance add(Quantity<javax.measure.quantity.Illuminance> addend);
 
     @Override
-    Illuminance subtract(javax.measure.Quantity<javax.measure.quantity.Illuminance> subtrahend);
+    Illuminance subtract(Quantity<javax.measure.quantity.Illuminance> subtrahend);
 
     @Override
-    Illuminance to(javax.measure.Unit<javax.measure.quantity.Illuminance> unit);
+    Illuminance to(Unit<javax.measure.quantity.Illuminance> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Illuminance to(javax.measure.spi.SystemOfUnits system);
+    Illuminance to(SystemOfUnits system);
 
     @Override
     Illuminance negate();
@@ -36,31 +42,31 @@ public interface Illuminance extends javax.measure.quantity.Illuminance,
     Illuminance toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Illuminance toDecimal(java.math.MathContext mc);
+    Illuminance toDecimal(MathContext mc);
 
-    static Illuminance of(double value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit) {
+    static Illuminance of(double value, Unit<javax.measure.quantity.Illuminance> unit) {
         return IlluminanceFactory.INSTANCE.of(value, unit);
     }
 
-    static Illuminance of(double value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Illuminance of(double value, Unit<javax.measure.quantity.Illuminance> unit,
+            Quantity.Scale scale) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit) {
+    static Illuminance of(BigDecimal value, Unit<javax.measure.quantity.Illuminance> unit) {
         return IlluminanceFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Illuminance of(BigDecimal value, Unit<javax.measure.quantity.Illuminance> unit,
+            Quantity.Scale scale) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Illuminance of(BigDecimal value, Unit<javax.measure.quantity.Illuminance> unit,
+            Quantity.Scale scale, MathContext mc) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

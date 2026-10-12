@@ -3,19 +3,90 @@
 
 package org.tinygears.uom.systems;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.measure.quantity.Acceleration;
+import javax.measure.quantity.AmountOfSubstance;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Area;
+import javax.measure.quantity.CatalyticActivity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.ElectricCapacitance;
+import javax.measure.quantity.ElectricCharge;
+import javax.measure.quantity.ElectricConductance;
+import javax.measure.quantity.ElectricCurrent;
+import javax.measure.quantity.ElectricInductance;
+import javax.measure.quantity.ElectricPotential;
+import javax.measure.quantity.ElectricResistance;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Force;
+import javax.measure.quantity.Frequency;
+import javax.measure.quantity.Illuminance;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.LuminousFlux;
+import javax.measure.quantity.LuminousIntensity;
+import javax.measure.quantity.MagneticFlux;
+import javax.measure.quantity.MagneticFluxDensity;
+import javax.measure.quantity.Mass;
+import javax.measure.quantity.Power;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.RadiationDoseAbsorbed;
+import javax.measure.quantity.RadiationDoseEffective;
+import javax.measure.quantity.Radioactivity;
+import javax.measure.quantity.SolidAngle;
+import javax.measure.quantity.Speed;
+import javax.measure.quantity.Temperature;
+import javax.measure.quantity.Time;
+import javax.measure.quantity.Volume;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.Converters;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.quantity.AccelerationFactory;
+import org.tinygears.uom.quantity.AmountOfSubstanceFactory;
+import org.tinygears.uom.quantity.AngleFactory;
+import org.tinygears.uom.quantity.AreaFactory;
+import org.tinygears.uom.quantity.CatalyticActivityFactory;
+import org.tinygears.uom.quantity.DimensionlessFactory;
+import org.tinygears.uom.quantity.ElectricCapacitanceFactory;
+import org.tinygears.uom.quantity.ElectricChargeFactory;
+import org.tinygears.uom.quantity.ElectricConductanceFactory;
+import org.tinygears.uom.quantity.ElectricCurrentFactory;
+import org.tinygears.uom.quantity.ElectricInductanceFactory;
+import org.tinygears.uom.quantity.ElectricPotentialFactory;
+import org.tinygears.uom.quantity.ElectricResistanceFactory;
+import org.tinygears.uom.quantity.ForceFactory;
+import org.tinygears.uom.quantity.FrequencyFactory;
+import org.tinygears.uom.quantity.IlluminanceFactory;
+import org.tinygears.uom.quantity.LuminousFluxFactory;
+import org.tinygears.uom.quantity.LuminousIntensityFactory;
+import org.tinygears.uom.quantity.MagneticFluxDensityFactory;
+import org.tinygears.uom.quantity.MagneticFluxFactory;
+import org.tinygears.uom.quantity.PowerFactory;
+import org.tinygears.uom.quantity.PressureFactory;
+import org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory;
+import org.tinygears.uom.quantity.RadiationDoseEffectiveFactory;
+import org.tinygears.uom.quantity.RadioactivityFactory;
+import org.tinygears.uom.quantity.SolidAngleFactory;
+import org.tinygears.uom.quantity.SpeedFactory;
+import org.tinygears.uom.quantity.TemperatureFactory;
+import org.tinygears.uom.quantity.TimeFactory;
+import org.tinygears.uom.quantity.VolumeFactory;
+
 /** The Kid units; generated from {@code data/kid.units}, {@code data/par.units}, {@code data/si.units} and {@code data/quantity-types.txt}. */
 public final class Kid {
 
     private Kid() {
     }
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> STONE =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM
-                    .transform(org.tinygears.uom.core.Converters.affine(org.tinygears.uom.core.Factor.of(317514659L, 50000000L), org.tinygears.uom.core.Factor.ZERO))
+    public static final UomUnit<Mass> STONE =
+            UomUnit.unchecked(BaseUnits.KILOGRAM
+                    .transform(Converters.affine(Factor.of(317514659L, 50000000L), Factor.ZERO))
                     .named("st", "stone"));
 
-    public static final java.util.List<org.tinygears.uom.core.UomUnit<?>> UNITS =
-            java.util.List.<org.tinygears.uom.core.UomUnit<?>>of(
+    public static final List<UomUnit<?>> UNITS =
+            List.<UomUnit<?>>of(
                     STONE,
                     Par.FOOT,
                     Par.KILOFOOT,
@@ -25,50 +96,50 @@ public final class Kid {
                     SI.GRAM,
                     SI.JOULE);
 
-    public static final java.util.Set<String> PREFIXABLE =
-            java.util.Set.of(
+    public static final Set<String> PREFIXABLE =
+            Set.of(
                     "J",
                     "ft",
                     "g",
                     "m",
                     "s");
 
-    public static final java.util.Map<Class<?>, org.tinygears.uom.core.UomUnit<?>> PREFERRED =
-            java.util.Map.<Class<?>, org.tinygears.uom.core.UomUnit<?>>ofEntries(
-                    java.util.Map.entry(javax.measure.quantity.Acceleration.class, org.tinygears.uom.quantity.AccelerationFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.AmountOfSubstance.class, org.tinygears.uom.quantity.AmountOfSubstanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Angle.class, org.tinygears.uom.quantity.AngleFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Area.class, org.tinygears.uom.quantity.AreaFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.CatalyticActivity.class, org.tinygears.uom.quantity.CatalyticActivityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Dimensionless.class, org.tinygears.uom.quantity.DimensionlessFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricCapacitance.class, org.tinygears.uom.quantity.ElectricCapacitanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricCharge.class, org.tinygears.uom.quantity.ElectricChargeFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricConductance.class, org.tinygears.uom.quantity.ElectricConductanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricCurrent.class, org.tinygears.uom.quantity.ElectricCurrentFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricInductance.class, org.tinygears.uom.quantity.ElectricInductanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricPotential.class, org.tinygears.uom.quantity.ElectricPotentialFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.ElectricResistance.class, org.tinygears.uom.quantity.ElectricResistanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Energy.class, SI.JOULE),
-                    java.util.Map.entry(javax.measure.quantity.Force.class, org.tinygears.uom.quantity.ForceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Frequency.class, org.tinygears.uom.quantity.FrequencyFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Illuminance.class, org.tinygears.uom.quantity.IlluminanceFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Length.class, Par.FOOT),
-                    java.util.Map.entry(javax.measure.quantity.LuminousFlux.class, org.tinygears.uom.quantity.LuminousFluxFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.LuminousIntensity.class, org.tinygears.uom.quantity.LuminousIntensityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.MagneticFlux.class, org.tinygears.uom.quantity.MagneticFluxFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.MagneticFluxDensity.class, org.tinygears.uom.quantity.MagneticFluxDensityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Mass.class, STONE),
-                    java.util.Map.entry(javax.measure.quantity.Power.class, org.tinygears.uom.quantity.PowerFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Pressure.class, org.tinygears.uom.quantity.PressureFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.RadiationDoseAbsorbed.class, org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.RadiationDoseEffective.class, org.tinygears.uom.quantity.RadiationDoseEffectiveFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Radioactivity.class, org.tinygears.uom.quantity.RadioactivityFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.SolidAngle.class, org.tinygears.uom.quantity.SolidAngleFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Speed.class, org.tinygears.uom.quantity.SpeedFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Temperature.class, org.tinygears.uom.quantity.TemperatureFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Time.class, org.tinygears.uom.quantity.TimeFactory.SYSTEM_UNIT),
-                    java.util.Map.entry(javax.measure.quantity.Volume.class, org.tinygears.uom.quantity.VolumeFactory.SYSTEM_UNIT));
+    public static final Map<Class<?>, UomUnit<?>> PREFERRED =
+            Map.<Class<?>, UomUnit<?>>ofEntries(
+                    Map.entry(Acceleration.class, AccelerationFactory.SYSTEM_UNIT),
+                    Map.entry(AmountOfSubstance.class, AmountOfSubstanceFactory.SYSTEM_UNIT),
+                    Map.entry(Angle.class, AngleFactory.SYSTEM_UNIT),
+                    Map.entry(Area.class, AreaFactory.SYSTEM_UNIT),
+                    Map.entry(CatalyticActivity.class, CatalyticActivityFactory.SYSTEM_UNIT),
+                    Map.entry(Dimensionless.class, DimensionlessFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricCapacitance.class, ElectricCapacitanceFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricCharge.class, ElectricChargeFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricConductance.class, ElectricConductanceFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricCurrent.class, ElectricCurrentFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricInductance.class, ElectricInductanceFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricPotential.class, ElectricPotentialFactory.SYSTEM_UNIT),
+                    Map.entry(ElectricResistance.class, ElectricResistanceFactory.SYSTEM_UNIT),
+                    Map.entry(Energy.class, SI.JOULE),
+                    Map.entry(Force.class, ForceFactory.SYSTEM_UNIT),
+                    Map.entry(Frequency.class, FrequencyFactory.SYSTEM_UNIT),
+                    Map.entry(Illuminance.class, IlluminanceFactory.SYSTEM_UNIT),
+                    Map.entry(Length.class, Par.FOOT),
+                    Map.entry(LuminousFlux.class, LuminousFluxFactory.SYSTEM_UNIT),
+                    Map.entry(LuminousIntensity.class, LuminousIntensityFactory.SYSTEM_UNIT),
+                    Map.entry(MagneticFlux.class, MagneticFluxFactory.SYSTEM_UNIT),
+                    Map.entry(MagneticFluxDensity.class, MagneticFluxDensityFactory.SYSTEM_UNIT),
+                    Map.entry(Mass.class, STONE),
+                    Map.entry(Power.class, PowerFactory.SYSTEM_UNIT),
+                    Map.entry(Pressure.class, PressureFactory.SYSTEM_UNIT),
+                    Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbedFactory.SYSTEM_UNIT),
+                    Map.entry(RadiationDoseEffective.class, RadiationDoseEffectiveFactory.SYSTEM_UNIT),
+                    Map.entry(Radioactivity.class, RadioactivityFactory.SYSTEM_UNIT),
+                    Map.entry(SolidAngle.class, SolidAngleFactory.SYSTEM_UNIT),
+                    Map.entry(Speed.class, SpeedFactory.SYSTEM_UNIT),
+                    Map.entry(Temperature.class, TemperatureFactory.SYSTEM_UNIT),
+                    Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
+                    Map.entry(Volume.class, VolumeFactory.SYSTEM_UNIT));
 
-    public static final org.tinygears.uom.systems.UomSystemOfUnits SYSTEM =
-            new org.tinygears.uom.systems.UomSystemOfUnits("Kid", UNITS, PREFERRED, PREFIXABLE);
+    public static final UomSystemOfUnits SYSTEM =
+            new UomSystemOfUnits("Kid", UNITS, PREFERRED, PREFIXABLE);
 }

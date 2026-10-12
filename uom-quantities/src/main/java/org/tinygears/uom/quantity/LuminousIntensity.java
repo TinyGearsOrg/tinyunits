@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.LuminousIntensity} of this implementation. */
 public interface LuminousIntensity extends javax.measure.quantity.LuminousIntensity,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.LuminousIntensity>> {
+        Comparable<Quantity<javax.measure.quantity.LuminousIntensity>> {
 
     @Override
-    LuminousIntensity add(javax.measure.Quantity<javax.measure.quantity.LuminousIntensity> addend);
+    LuminousIntensity add(Quantity<javax.measure.quantity.LuminousIntensity> addend);
 
     @Override
-    LuminousIntensity subtract(javax.measure.Quantity<javax.measure.quantity.LuminousIntensity> subtrahend);
+    LuminousIntensity subtract(Quantity<javax.measure.quantity.LuminousIntensity> subtrahend);
 
     @Override
-    LuminousIntensity to(javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit);
+    LuminousIntensity to(Unit<javax.measure.quantity.LuminousIntensity> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    LuminousIntensity to(javax.measure.spi.SystemOfUnits system);
+    LuminousIntensity to(SystemOfUnits system);
 
     @Override
     LuminousIntensity negate();
@@ -36,31 +42,31 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
     LuminousIntensity toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    LuminousIntensity toDecimal(java.math.MathContext mc);
+    LuminousIntensity toDecimal(MathContext mc);
 
-    static LuminousIntensity of(double value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
+    static LuminousIntensity of(double value, Unit<javax.measure.quantity.LuminousIntensity> unit) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit);
     }
 
-    static LuminousIntensity of(double value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
-            javax.measure.Quantity.Scale scale) {
+    static LuminousIntensity of(double value, Unit<javax.measure.quantity.LuminousIntensity> unit,
+            Quantity.Scale scale) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
+    static LuminousIntensity of(BigDecimal value, Unit<javax.measure.quantity.LuminousIntensity> unit) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
-            javax.measure.Quantity.Scale scale) {
+    static LuminousIntensity of(BigDecimal value, Unit<javax.measure.quantity.LuminousIntensity> unit,
+            Quantity.Scale scale) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static LuminousIntensity of(BigDecimal value, Unit<javax.measure.quantity.LuminousIntensity> unit,
+            Quantity.Scale scale, MathContext mc) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class PressureDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Pressure, Pressure>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class PressureDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Pressure, Pressure>
         implements Pressure {
 
-    PressureDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    PressureDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Pressure> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Pressure create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Pressure create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale, MathContext mc) {
         return new PressureDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Pressure createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Pressure createDouble(double value,
+            UomUnit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         return new PressureDouble(value, unit, scale);
     }
 

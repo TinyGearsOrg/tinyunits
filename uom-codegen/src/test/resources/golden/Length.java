@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Length} of this implementation. */
 public interface Length extends javax.measure.quantity.Length,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Length>> {
+        Comparable<Quantity<javax.measure.quantity.Length>> {
 
     @Override
-    Length add(javax.measure.Quantity<javax.measure.quantity.Length> addend);
+    Length add(Quantity<javax.measure.quantity.Length> addend);
 
     @Override
-    Length subtract(javax.measure.Quantity<javax.measure.quantity.Length> subtrahend);
+    Length subtract(Quantity<javax.measure.quantity.Length> subtrahend);
 
     @Override
-    Length to(javax.measure.Unit<javax.measure.quantity.Length> unit);
+    Length to(Unit<javax.measure.quantity.Length> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Length to(javax.measure.spi.SystemOfUnits system);
+    Length to(SystemOfUnits system);
 
     @Override
     Length negate();
@@ -36,31 +42,31 @@ public interface Length extends javax.measure.quantity.Length,
     Length toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Length toDecimal(java.math.MathContext mc);
+    Length toDecimal(MathContext mc);
 
-    static Length of(double value, javax.measure.Unit<javax.measure.quantity.Length> unit) {
+    static Length of(double value, Unit<javax.measure.quantity.Length> unit) {
         return LengthFactory.INSTANCE.of(value, unit);
     }
 
-    static Length of(double value, javax.measure.Unit<javax.measure.quantity.Length> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Length of(double value, Unit<javax.measure.quantity.Length> unit,
+            Quantity.Scale scale) {
         return LengthFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit) {
+    static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit) {
         return LengthFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit,
+            Quantity.Scale scale) {
         return LengthFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit,
+            Quantity.Scale scale, MathContext mc) {
         return LengthFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

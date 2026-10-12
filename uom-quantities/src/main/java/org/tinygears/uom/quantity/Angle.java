@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Angle} of this implementation. */
 public interface Angle extends javax.measure.quantity.Angle,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Angle>> {
+        Comparable<Quantity<javax.measure.quantity.Angle>> {
 
     @Override
-    Angle add(javax.measure.Quantity<javax.measure.quantity.Angle> addend);
+    Angle add(Quantity<javax.measure.quantity.Angle> addend);
 
     @Override
-    Angle subtract(javax.measure.Quantity<javax.measure.quantity.Angle> subtrahend);
+    Angle subtract(Quantity<javax.measure.quantity.Angle> subtrahend);
 
     @Override
-    Angle to(javax.measure.Unit<javax.measure.quantity.Angle> unit);
+    Angle to(Unit<javax.measure.quantity.Angle> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Angle to(javax.measure.spi.SystemOfUnits system);
+    Angle to(SystemOfUnits system);
 
     @Override
     Angle negate();
@@ -36,31 +42,31 @@ public interface Angle extends javax.measure.quantity.Angle,
     Angle toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Angle toDecimal(java.math.MathContext mc);
+    Angle toDecimal(MathContext mc);
 
-    static Angle of(double value, javax.measure.Unit<javax.measure.quantity.Angle> unit) {
+    static Angle of(double value, Unit<javax.measure.quantity.Angle> unit) {
         return AngleFactory.INSTANCE.of(value, unit);
     }
 
-    static Angle of(double value, javax.measure.Unit<javax.measure.quantity.Angle> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Angle of(double value, Unit<javax.measure.quantity.Angle> unit,
+            Quantity.Scale scale) {
         return AngleFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Angle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Angle> unit) {
+    static Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit) {
         return AngleFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Angle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Angle> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit,
+            Quantity.Scale scale) {
         return AngleFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Angle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Angle> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit,
+            Quantity.Scale scale, MathContext mc) {
         return AngleFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

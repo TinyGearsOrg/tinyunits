@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Speed} of this implementation. */
 public interface Speed extends javax.measure.quantity.Speed,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Speed>> {
+        Comparable<Quantity<javax.measure.quantity.Speed>> {
 
     @Override
-    Speed add(javax.measure.Quantity<javax.measure.quantity.Speed> addend);
+    Speed add(Quantity<javax.measure.quantity.Speed> addend);
 
     @Override
-    Speed subtract(javax.measure.Quantity<javax.measure.quantity.Speed> subtrahend);
+    Speed subtract(Quantity<javax.measure.quantity.Speed> subtrahend);
 
     @Override
-    Speed to(javax.measure.Unit<javax.measure.quantity.Speed> unit);
+    Speed to(Unit<javax.measure.quantity.Speed> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Speed to(javax.measure.spi.SystemOfUnits system);
+    Speed to(SystemOfUnits system);
 
     @Override
     Speed negate();
@@ -36,31 +42,31 @@ public interface Speed extends javax.measure.quantity.Speed,
     Speed toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Speed toDecimal(java.math.MathContext mc);
+    Speed toDecimal(MathContext mc);
 
-    static Speed of(double value, javax.measure.Unit<javax.measure.quantity.Speed> unit) {
+    static Speed of(double value, Unit<javax.measure.quantity.Speed> unit) {
         return SpeedFactory.INSTANCE.of(value, unit);
     }
 
-    static Speed of(double value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Speed of(double value, Unit<javax.measure.quantity.Speed> unit,
+            Quantity.Scale scale) {
         return SpeedFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit) {
+    static Speed of(BigDecimal value, Unit<javax.measure.quantity.Speed> unit) {
         return SpeedFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Speed of(BigDecimal value, Unit<javax.measure.quantity.Speed> unit,
+            Quantity.Scale scale) {
         return SpeedFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Speed of(BigDecimal value, Unit<javax.measure.quantity.Speed> unit,
+            Quantity.Scale scale, MathContext mc) {
         return SpeedFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

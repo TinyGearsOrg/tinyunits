@@ -3,55 +3,65 @@
 
 package org.tinygears.uom.quantity;
 
-/** Creates {@link LuminousIntensity} quantities. */
-public final class LuminousIntensityFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.LuminousIntensity> {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.util.Objects;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> SYSTEM_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.CANDELA.named("cd", "candela"));
+/** Creates {@link LuminousIntensity} quantities. */
+public final class LuminousIntensityFactory
+        implements QuantityFactory<javax.measure.quantity.LuminousIntensity> {
+
+    public static final UomUnit<javax.measure.quantity.LuminousIntensity> SYSTEM_UNIT =
+            UomUnit.unchecked(BaseUnits.CANDELA.named("cd", "candela"));
 
     public static final LuminousIntensityFactory INSTANCE = new LuminousIntensityFactory();
 
     private LuminousIntensityFactory() {
     }
 
-    public LuminousIntensity of(double value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public LuminousIntensity of(double value, Unit<javax.measure.quantity.LuminousIntensity> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    public LuminousIntensity of(double value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
-            javax.measure.Quantity.Scale scale) {
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> u) {
+    public LuminousIntensity of(double value, Unit<javax.measure.quantity.LuminousIntensity> unit,
+            Quantity.Scale scale) {
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.LuminousIntensity> u) {
             return new LuminousIntensityDouble(value, u, scale);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public LuminousIntensity of(BigDecimal value, Unit<javax.measure.quantity.LuminousIntensity> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
-            javax.measure.Quantity.Scale scale) {
-        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    public LuminousIntensity of(BigDecimal value, Unit<javax.measure.quantity.LuminousIntensity> unit,
+            Quantity.Scale scale) {
+        return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    public LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> u) {
+    public LuminousIntensity of(BigDecimal value, Unit<javax.measure.quantity.LuminousIntensity> unit,
+            Quantity.Scale scale, MathContext mc) {
+        Objects.requireNonNull(value, "value");
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.LuminousIntensity> u) {
             return new LuminousIntensityDecimal(value, u, scale, mc);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
-    public LuminousIntensity create(Number value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
-        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public LuminousIntensity create(Number value, Unit<javax.measure.quantity.LuminousIntensity> unit) {
+        return create(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /**
@@ -59,20 +69,20 @@ public final class LuminousIntensityFactory implements javax.measure.spi.Quantit
      * not rounded; all others a double one.
      */
     @Override
-    public LuminousIntensity create(Number value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
-            javax.measure.Quantity.Scale scale) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (value instanceof java.math.BigDecimal d) {
+    public LuminousIntensity create(Number value, Unit<javax.measure.quantity.LuminousIntensity> unit,
+            Quantity.Scale scale) {
+        Objects.requireNonNull(value, "value");
+        if (value instanceof BigDecimal d) {
             return of(d, unit, scale);
         }
-        if (value instanceof java.math.BigInteger i) {
-            return of(new java.math.BigDecimal(i), unit, scale);
+        if (value instanceof BigInteger i) {
+            return of(new BigDecimal(i), unit, scale);
         }
         return of(value.doubleValue(), unit, scale);
     }
 
     @Override
-    public javax.measure.Unit<javax.measure.quantity.LuminousIntensity> getSystemUnit() {
+    public Unit<javax.measure.quantity.LuminousIntensity> getSystemUnit() {
         return SYSTEM_UNIT;
     }
 }

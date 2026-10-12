@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class ElectricCapacitanceDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.ElectricCapacitance, ElectricCapacitance>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class ElectricCapacitanceDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.ElectricCapacitance, ElectricCapacitance>
         implements ElectricCapacitance {
 
-    ElectricCapacitanceDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> unit,
-            javax.measure.Quantity.Scale scale) {
+    ElectricCapacitanceDouble(double value, UomUnit<javax.measure.quantity.ElectricCapacitance> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected ElectricCapacitance create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected ElectricCapacitance create(double value, UomUnit<javax.measure.quantity.ElectricCapacitance> unit,
+            Quantity.Scale scale) {
         return new ElectricCapacitanceDouble(value, unit, scale);
     }
 
     @Override
-    protected ElectricCapacitance createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected ElectricCapacitance createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.ElectricCapacitance> unit, Quantity.Scale scale, MathContext mc) {
         return new ElectricCapacitanceDecimal(value, unit, scale, mc);
     }
 

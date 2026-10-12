@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class RadiationDoseEffectiveDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+final class RadiationDoseEffectiveDouble
+        extends AbstractDoubleQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
         implements RadiationDoseEffective {
 
-    RadiationDoseEffectiveDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> unit,
-            javax.measure.Quantity.Scale scale) {
+    RadiationDoseEffectiveDouble(double value, UomUnit<javax.measure.quantity.RadiationDoseEffective> unit,
+            Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected RadiationDoseEffective create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected RadiationDoseEffective create(double value, UomUnit<javax.measure.quantity.RadiationDoseEffective> unit,
+            Quantity.Scale scale) {
         return new RadiationDoseEffectiveDouble(value, unit, scale);
     }
 
     @Override
-    protected RadiationDoseEffective createDecimal(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected RadiationDoseEffective createDecimal(BigDecimal value,
+            UomUnit<javax.measure.quantity.RadiationDoseEffective> unit, Quantity.Scale scale, MathContext mc) {
         return new RadiationDoseEffectiveDecimal(value, unit, scale, mc);
     }
 

@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.Radioactivity} of this implementation. */
 public interface Radioactivity extends javax.measure.quantity.Radioactivity,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.Radioactivity>> {
+        Comparable<Quantity<javax.measure.quantity.Radioactivity>> {
 
     @Override
-    Radioactivity add(javax.measure.Quantity<javax.measure.quantity.Radioactivity> addend);
+    Radioactivity add(Quantity<javax.measure.quantity.Radioactivity> addend);
 
     @Override
-    Radioactivity subtract(javax.measure.Quantity<javax.measure.quantity.Radioactivity> subtrahend);
+    Radioactivity subtract(Quantity<javax.measure.quantity.Radioactivity> subtrahend);
 
     @Override
-    Radioactivity to(javax.measure.Unit<javax.measure.quantity.Radioactivity> unit);
+    Radioactivity to(Unit<javax.measure.quantity.Radioactivity> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    Radioactivity to(javax.measure.spi.SystemOfUnits system);
+    Radioactivity to(SystemOfUnits system);
 
     @Override
     Radioactivity negate();
@@ -36,31 +42,31 @@ public interface Radioactivity extends javax.measure.quantity.Radioactivity,
     Radioactivity toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    Radioactivity toDecimal(java.math.MathContext mc);
+    Radioactivity toDecimal(MathContext mc);
 
-    static Radioactivity of(double value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit) {
+    static Radioactivity of(double value, Unit<javax.measure.quantity.Radioactivity> unit) {
         return RadioactivityFactory.INSTANCE.of(value, unit);
     }
 
-    static Radioactivity of(double value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Radioactivity of(double value, Unit<javax.measure.quantity.Radioactivity> unit,
+            Quantity.Scale scale) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit) {
+    static Radioactivity of(BigDecimal value, Unit<javax.measure.quantity.Radioactivity> unit) {
         return RadioactivityFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
-            javax.measure.Quantity.Scale scale) {
+    static Radioactivity of(BigDecimal value, Unit<javax.measure.quantity.Radioactivity> unit,
+            Quantity.Scale scale) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static Radioactivity of(BigDecimal value, Unit<javax.measure.quantity.Radioactivity> unit,
+            Quantity.Scale scale, MathContext mc) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

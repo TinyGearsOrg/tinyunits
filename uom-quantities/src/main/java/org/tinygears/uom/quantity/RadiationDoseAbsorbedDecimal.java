@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class RadiationDoseAbsorbedDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.RadiationDoseAbsorbed, RadiationDoseAbsorbed>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class RadiationDoseAbsorbedDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.RadiationDoseAbsorbed, RadiationDoseAbsorbed>
         implements RadiationDoseAbsorbed {
 
-    RadiationDoseAbsorbedDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    RadiationDoseAbsorbedDecimal(BigDecimal value, UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected RadiationDoseAbsorbed create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected RadiationDoseAbsorbed create(BigDecimal value,
+            UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> unit, Quantity.Scale scale, MathContext mc) {
         return new RadiationDoseAbsorbedDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected RadiationDoseAbsorbed createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected RadiationDoseAbsorbed createDouble(double value,
+            UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> unit, Quantity.Scale scale) {
         return new RadiationDoseAbsorbedDouble(value, unit, scale);
     }
 

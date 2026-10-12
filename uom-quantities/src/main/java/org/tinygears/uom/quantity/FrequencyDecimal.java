@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class FrequencyDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.Frequency, Frequency>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class FrequencyDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.Frequency, Frequency>
         implements Frequency {
 
-    FrequencyDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    FrequencyDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Frequency> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected Frequency create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected Frequency create(BigDecimal value,
+            UomUnit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale, MathContext mc) {
         return new FrequencyDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected Frequency createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected Frequency createDouble(double value,
+            UomUnit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         return new FrequencyDouble(value, unit, scale);
     }
 

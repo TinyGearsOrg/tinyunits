@@ -7,27 +7,28 @@ import org.tinygears.uom.core.Factor;
 
 /** Writes a Java expression that evaluates to a factor equal to a given one, without double literals. */
 public final class FactorEmitter {
-    private static final String FACTOR = "org.tinygears.uom.core.Factor.";
-
     private FactorEmitter() {
     }
 
-    public static String emit(Factor factor) {
+    /** {@code imports} gives the names of the classes the expression uses. */
+    public static String emit(Factor factor, Imports imports) {
+        String factorClass = imports.name("org.tinygears.uom.core.Factor");
         if (factor.equals(Factor.ZERO)) {
-            return FACTOR + "ZERO";
+            return factorClass + ".ZERO";
         }
         if (factor.equals(Factor.ONE)) {
-            return FACTOR + "ONE";
+            return factorClass + ".ONE";
         }
         if (factor.equals(Factor.PI)) {
-            return FACTOR + "PI";
+            return factorClass + ".PI";
         }
         BigInteger n = factor.numerator();
         BigInteger d = factor.denominator();
         if (factor.isExact() && n.bitLength() < Long.SIZE && d.bitLength() < Long.SIZE) {
-            return FACTOR + "of(" + n + "L, " + d + "L)";
+            return factorClass + ".of(" + n + "L, " + d + "L)";
         }
-        return FACTOR + "of(new java.math.BigInteger(\"" + n + "\"), new java.math.BigInteger(\"" + d + "\"), "
+        String big = imports.name("java.math.BigInteger");
+        return factorClass + ".of(new " + big + "(\"" + n + "\"), new " + big + "(\"" + d + "\"), "
                 + factor.piExponent() + ", " + factor.rootIndex() + ")";
     }
 }

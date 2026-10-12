@@ -3,24 +3,30 @@
 
 package org.tinygears.uom.quantity;
 
-final class RadiationDoseEffectiveDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+final class RadiationDoseEffectiveDecimal
+        extends AbstractDecimalQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
         implements RadiationDoseEffective {
 
-    RadiationDoseEffectiveDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    RadiationDoseEffectiveDecimal(BigDecimal value, UomUnit<javax.measure.quantity.RadiationDoseEffective> unit,
+            Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
     @Override
-    protected RadiationDoseEffective create(java.math.BigDecimal value,
-            org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> unit, javax.measure.Quantity.Scale scale,
-            java.math.MathContext mc) {
+    protected RadiationDoseEffective create(BigDecimal value,
+            UomUnit<javax.measure.quantity.RadiationDoseEffective> unit, Quantity.Scale scale, MathContext mc) {
         return new RadiationDoseEffectiveDecimal(value, unit, scale, mc);
     }
 
     @Override
-    protected RadiationDoseEffective createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> unit,
-            javax.measure.Quantity.Scale scale) {
+    protected RadiationDoseEffective createDouble(double value,
+            UomUnit<javax.measure.quantity.RadiationDoseEffective> unit, Quantity.Scale scale) {
         return new RadiationDoseEffectiveDouble(value, unit, scale);
     }
 

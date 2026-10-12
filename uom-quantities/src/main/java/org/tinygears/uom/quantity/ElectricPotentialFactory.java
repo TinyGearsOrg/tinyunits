@@ -3,55 +3,65 @@
 
 package org.tinygears.uom.quantity;
 
-/** Creates {@link ElectricPotential} quantities. */
-public final class ElectricPotentialFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricPotential> {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.util.Objects;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> SYSTEM_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM.multiply(org.tinygears.uom.core.BaseUnits.METRE.pow(2)).divide(org.tinygears.uom.core.BaseUnits.AMPERE).divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(3)).named("V", "volt"));
+/** Creates {@link ElectricPotential} quantities. */
+public final class ElectricPotentialFactory
+        implements QuantityFactory<javax.measure.quantity.ElectricPotential> {
+
+    public static final UomUnit<javax.measure.quantity.ElectricPotential> SYSTEM_UNIT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3)).named("V", "volt"));
 
     public static final ElectricPotentialFactory INSTANCE = new ElectricPotentialFactory();
 
     private ElectricPotentialFactory() {
     }
 
-    public ElectricPotential of(double value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public ElectricPotential of(double value, Unit<javax.measure.quantity.ElectricPotential> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    public ElectricPotential of(double value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale) {
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> u) {
+    public ElectricPotential of(double value, Unit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale) {
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricPotential> u) {
             return new ElectricPotentialDouble(value, u, scale);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale) {
-        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    public ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale) {
+        return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    public ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> u) {
+    public ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale, MathContext mc) {
+        Objects.requireNonNull(value, "value");
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricPotential> u) {
             return new ElectricPotentialDecimal(value, u, scale, mc);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
-    public ElectricPotential create(Number value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
-        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public ElectricPotential create(Number value, Unit<javax.measure.quantity.ElectricPotential> unit) {
+        return create(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /**
@@ -59,20 +69,20 @@ public final class ElectricPotentialFactory implements javax.measure.spi.Quantit
      * not rounded; all others a double one.
      */
     @Override
-    public ElectricPotential create(Number value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
-            javax.measure.Quantity.Scale scale) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (value instanceof java.math.BigDecimal d) {
+    public ElectricPotential create(Number value, Unit<javax.measure.quantity.ElectricPotential> unit,
+            Quantity.Scale scale) {
+        Objects.requireNonNull(value, "value");
+        if (value instanceof BigDecimal d) {
             return of(d, unit, scale);
         }
-        if (value instanceof java.math.BigInteger i) {
-            return of(new java.math.BigDecimal(i), unit, scale);
+        if (value instanceof BigInteger i) {
+            return of(new BigDecimal(i), unit, scale);
         }
         return of(value.doubleValue(), unit, scale);
     }
 
     @Override
-    public javax.measure.Unit<javax.measure.quantity.ElectricPotential> getSystemUnit() {
+    public Unit<javax.measure.quantity.ElectricPotential> getSystemUnit() {
         return SYSTEM_UNIT;
     }
 }

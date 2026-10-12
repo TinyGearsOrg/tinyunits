@@ -3,55 +3,65 @@
 
 package org.tinygears.uom.quantity;
 
-/** Creates {@link Force} quantities. */
-public final class ForceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Force> {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.util.Objects;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
-    public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> SYSTEM_UNIT =
-            org.tinygears.uom.core.UomUnit.unchecked(org.tinygears.uom.core.BaseUnits.KILOGRAM.multiply(org.tinygears.uom.core.BaseUnits.METRE).divide(org.tinygears.uom.core.BaseUnits.SECOND.pow(2)).named("N", "newton"));
+/** Creates {@link Force} quantities. */
+public final class ForceFactory
+        implements QuantityFactory<javax.measure.quantity.Force> {
+
+    public static final UomUnit<javax.measure.quantity.Force> SYSTEM_UNIT =
+            UomUnit.unchecked(BaseUnits.KILOGRAM.multiply(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2)).named("N", "newton"));
 
     public static final ForceFactory INSTANCE = new ForceFactory();
 
     private ForceFactory() {
     }
 
-    public Force of(double value, javax.measure.Unit<javax.measure.quantity.Force> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public Force of(double value, Unit<javax.measure.quantity.Force> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    public Force of(double value, javax.measure.Unit<javax.measure.quantity.Force> unit,
-            javax.measure.Quantity.Scale scale) {
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> u) {
+    public Force of(double value, Unit<javax.measure.quantity.Force> unit,
+            Quantity.Scale scale) {
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Force> u) {
             return new ForceDouble(value, u, scale);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public Force of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Force> unit) {
-        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public Force of(BigDecimal value, Unit<javax.measure.quantity.Force> unit) {
+        return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    public Force of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Force> unit,
-            javax.measure.Quantity.Scale scale) {
-        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    public Force of(BigDecimal value, Unit<javax.measure.quantity.Force> unit,
+            Quantity.Scale scale) {
+        return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    public Force of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Force> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (java.util.Objects.requireNonNull(unit, "unit")
-                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> u) {
+    public Force of(BigDecimal value, Unit<javax.measure.quantity.Force> unit,
+            Quantity.Scale scale, MathContext mc) {
+        Objects.requireNonNull(value, "value");
+        if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Force> u) {
             return new ForceDecimal(value, u, scale, mc);
         }
-        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
+        throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
-    public Force create(Number value, javax.measure.Unit<javax.measure.quantity.Force> unit) {
-        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    public Force create(Number value, Unit<javax.measure.quantity.Force> unit) {
+        return create(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
     /**
@@ -59,20 +69,20 @@ public final class ForceFactory implements javax.measure.spi.QuantityFactory<jav
      * not rounded; all others a double one.
      */
     @Override
-    public Force create(Number value, javax.measure.Unit<javax.measure.quantity.Force> unit,
-            javax.measure.Quantity.Scale scale) {
-        java.util.Objects.requireNonNull(value, "value");
-        if (value instanceof java.math.BigDecimal d) {
+    public Force create(Number value, Unit<javax.measure.quantity.Force> unit,
+            Quantity.Scale scale) {
+        Objects.requireNonNull(value, "value");
+        if (value instanceof BigDecimal d) {
             return of(d, unit, scale);
         }
-        if (value instanceof java.math.BigInteger i) {
-            return of(new java.math.BigDecimal(i), unit, scale);
+        if (value instanceof BigInteger i) {
+            return of(new BigDecimal(i), unit, scale);
         }
         return of(value.doubleValue(), unit, scale);
     }
 
     @Override
-    public javax.measure.Unit<javax.measure.quantity.Force> getSystemUnit() {
+    public Unit<javax.measure.quantity.Force> getSystemUnit() {
         return SYSTEM_UNIT;
     }
 }

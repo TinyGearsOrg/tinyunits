@@ -3,25 +3,31 @@
 
 package org.tinygears.uom.quantity;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
+
 /** A {@link javax.measure.quantity.ElectricCapacitance} of this implementation. */
 public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapacitance,
-        Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricCapacitance>> {
+        Comparable<Quantity<javax.measure.quantity.ElectricCapacitance>> {
 
     @Override
-    ElectricCapacitance add(javax.measure.Quantity<javax.measure.quantity.ElectricCapacitance> addend);
+    ElectricCapacitance add(Quantity<javax.measure.quantity.ElectricCapacitance> addend);
 
     @Override
-    ElectricCapacitance subtract(javax.measure.Quantity<javax.measure.quantity.ElectricCapacitance> subtrahend);
+    ElectricCapacitance subtract(Quantity<javax.measure.quantity.ElectricCapacitance> subtrahend);
 
     @Override
-    ElectricCapacitance to(javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit);
+    ElectricCapacitance to(Unit<javax.measure.quantity.ElectricCapacitance> unit);
 
     /**
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
      */
-    ElectricCapacitance to(javax.measure.spi.SystemOfUnits system);
+    ElectricCapacitance to(SystemOfUnits system);
 
     @Override
     ElectricCapacitance negate();
@@ -36,31 +42,31 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
     ElectricCapacitance toDouble();
 
     /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
-    ElectricCapacitance toDecimal(java.math.MathContext mc);
+    ElectricCapacitance toDecimal(MathContext mc);
 
-    static ElectricCapacitance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit) {
+    static ElectricCapacitance of(double value, Unit<javax.measure.quantity.ElectricCapacitance> unit) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit);
     }
 
-    static ElectricCapacitance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricCapacitance of(double value, Unit<javax.measure.quantity.ElectricCapacitance> unit,
+            Quantity.Scale scale) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit) {
+    static ElectricCapacitance of(BigDecimal value, Unit<javax.measure.quantity.ElectricCapacitance> unit) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit);
     }
 
     /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
-    static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
-            javax.measure.Quantity.Scale scale) {
+    static ElectricCapacitance of(BigDecimal value, Unit<javax.measure.quantity.ElectricCapacitance> unit,
+            Quantity.Scale scale) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale);
     }
 
     /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
-    static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
-            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+    static ElectricCapacitance of(BigDecimal value, Unit<javax.measure.quantity.ElectricCapacitance> unit,
+            Quantity.Scale scale, MathContext mc) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }
