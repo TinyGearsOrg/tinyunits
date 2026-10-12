@@ -3,6 +3,7 @@
 package org.tinygears.uom.systems;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParsePosition;
 import java.util.Arrays;
@@ -47,10 +48,13 @@ public final class UomUnitFormat implements UnitFormat {
 
     /**
      * The first of these texts that parses back to an equal unit: the label, the symbol, the symbol of an equal
-     * unit of the systems, an exact formula such as {@code 1|1000·m/s}.
+     * unit of the systems, an exact formula such as {@code 1|1000·m/s}. An offset unit with factor {@code f} and
+     * offset {@code o} formats as the formula of {@code f} shifted by {@code o/f}, an exact decimal or fraction:
+     * {@code K + 5}, {@code 7|9·K - 1|3}, {@code 3|2·m/s + 0.5}.
      *
-     * @throws IllegalArgumentException when none does: a unit with an offset, a negative factor, a factor with a
-     *     root or a formula too long to parse has no faithful form (offset units get one in milestone 6)
+     * @throws IllegalArgumentException when none does: a unit with a negative factor, a factor with a root, an
+     *     irrational shift {@code o/f} (with a power of pi or a root) or a formula too long to parse has no
+     *     faithful form
      */
     @Override
     public String format(Unit<?> unit) {
@@ -73,8 +77,10 @@ public final class UomUnitFormat implements UnitFormat {
         }
         Factor f = u.toSystemConverter().factor();
         Factor offset = u.toSystemConverter().offset();
-        if (offset.isZero() && f.signum() > 0 && f.rootIndex() == 1) {
-            String formula = formula(f, u.getSystemUnit().getSymbol());
+        Factor shift = shiftOf(f, offset);
+        if (f.signum() > 0 && f.rootIndex() == 1 && shift != null && shift.rootIndex() == 1
+                && shift.piExponent() == 0) {
+            String formula = formula(f, u.getSystemUnit().getSymbol()) + shift(shift);
             if (parsesTo(formula, unit)) {
                 return formula;
             }
@@ -106,6 +112,30 @@ public final class UomUnitFormat implements UnitFormat {
             sb.append(k == 1 ? "pi" : "pi^" + k).append('·');
         }
         return sb.append(systemLabel).toString();
+    }
+
+    /** {@code o/f}, or null when it exceeds the factor size limit (its text would be too long anyway). */
+    private static Factor shiftOf(Factor f, Factor offset) {
+        try {
+            return offset.divide(f);
+        } catch (ArithmeticException e) {
+            return null;
+        }
+    }
+
+    /** {@code " + s"} or {@code " - s"} for a rational shift: a plain decimal if it terminates, else {@code a|b}. */
+    private static String shift(Factor s) {
+        if (s.isZero()) {
+            return "";
+        }
+        BigInteger n = s.numerator().abs();
+        BigInteger d = s.denominator();
+        String sign = s.signum() < 0 ? " - " : " + ";
+        try {
+            return sign + new BigDecimal(n).divide(new BigDecimal(d)).toPlainString();
+        } catch (ArithmeticException e) {
+            return sign + n + "|" + d;
+        }
     }
 
     @Override

@@ -125,8 +125,11 @@ class QuantityFormatTest {
         assertEquals(SI.METRE.multiply(2), q.getUnit());
         assertEquals("1.0 2·m", format.format(q));
         assertEquals(q, format.parse(format.format(q)));
+        Quantity<?> shifted = UntypedDoubleQuantity.of(1, BaseUnits.KELVIN.shift(5));
+        assertEquals("1.0 K + 5", format.format(shifted));
+        assertEquals(BaseUnits.KELVIN.shift(5), format.parse("1.0 K + 5").getUnit());
         assertThrows(IllegalArgumentException.class,
-                () -> format.format(UntypedDoubleQuantity.of(1, BaseUnits.KELVIN.shift(5))));
+                () -> format.format(UntypedDoubleQuantity.of(1, BaseUnits.KELVIN.multiply(-1))));
     }
 
     @Test

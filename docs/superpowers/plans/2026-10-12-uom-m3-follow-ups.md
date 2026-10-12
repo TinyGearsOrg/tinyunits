@@ -87,7 +87,9 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
 - `FormulaEvaluator.MAX_LENGTH` is not exposed; the verification parse in `format` refuses over-long formulas instead.
 - Offset-unit and root-index-factor units can not be formatted faithfully (`format` throws `IllegalArgumentException`); a
   faithful form for derived offset units is milestone 6 work. The message names `unit.toString()` (the system label), so
-  `DEGREE_CELSIUS.multiply(2)` reads "unit can not be formatted: K" plus factor and offset.
+  `DEGREE_CELSIUS.multiply(2)` reads "unit can not be formatted: K" plus factor and offset. Closed for offset units by
+  milestone 6 (Task 4): `DEGREE_CELSIUS.multiply(2)` formats as `2·K + 136.575`; negative and root factors, irrational
+  shifts and over-long formulas are still refused with that message.
 - The foreign-unit refusal message gives no reason; the `UomQuantityFormat` Javadoc does not mention foreign units; no test
   covers that branch. The factor in the message is unabbreviated for huge factors.
 - The over-long-formula test checks only the message prefix.

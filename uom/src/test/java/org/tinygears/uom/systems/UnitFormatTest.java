@@ -250,11 +250,11 @@ class UnitFormatTest {
 
     @Test
     void unitsWithoutFaithfulFormAreRefused() {
+        assertFormats("K + 5", BaseUnits.KELVIN.shift(5));
+        assertFormats("2·K + 136.575", SI.DEGREE_CELSIUS.multiply(2));
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> format.format(BaseUnits.KELVIN.shift(5)));
-        assertEquals("unit can not be formatted: K (factor 1, offset 5)", e.getMessage());
-        e = assertThrows(IllegalArgumentException.class, () -> format.format(SI.DEGREE_CELSIUS.multiply(2)));
-        assertEquals("unit can not be formatted: K (factor 2, offset 5463/20)", e.getMessage());
+                () -> format.format(SI.DEGREE_CELSIUS.multiply(-2)));
+        assertEquals("unit can not be formatted: K (factor -2, offset 5463/20)", e.getMessage());
         e = assertThrows(IllegalArgumentException.class,
                 () -> format.format(SI.METRE.multiply(BigInteger.TWO.pow(60_000))));
         assertTrue(e.getMessage().startsWith("unit can not be formatted: m (factor "), e.getMessage().substring(0, 40));
@@ -294,7 +294,7 @@ class UnitFormatTest {
                 branch = "symbol";
             } else if (SI.UNITS.contains(unit)) {
                 branch = "catalog";
-            } else if (!unit.toSystemConverter().offset().isZero() || unit.toSystemConverter().factor().signum() < 0) {
+            } else if (unit.toSystemConverter().factor().signum() < 0) {
                 branch = "refused";
                 IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> format.format(unit));
                 assertTrue(e.getMessage().startsWith("unit can not be formatted: " + unit + " (factor "));
@@ -393,7 +393,9 @@ class UnitFormatTest {
         }
         assertEquals(List.of(), bad);
         assertTrue(units.size() > 20_000, "units: " + units.size());
-        assertTrue(refused >= prefixes.length && roundTrips > 15_000, "refused " + refused + ", round trips " + roundTrips);
+        // Prefixed offset units (m°C) format as shifted formulas, so nothing is refused.
+        assertEquals(0, refused);
+        assertEquals(units.size(), roundTrips);
     }
 
     @Test
