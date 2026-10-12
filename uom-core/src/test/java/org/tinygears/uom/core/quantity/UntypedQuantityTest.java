@@ -130,6 +130,15 @@ class UntypedQuantityTest {
         assertSame(length, length.asType(Length.class));
     }
 
+    interface Unsupported extends Quantity<Unsupported> {
+    }
+
+    @Test
+    void asTypeWithoutFactoryIsUnsupported() {
+        assertThrows(UnsupportedOperationException.class,
+                () -> q(10, METRE).divide(q(2, SECOND)).asType(Unsupported.class));
+    }
+
     @Test
     void asTypeNull() {
         assertThrows(NullPointerException.class, () -> q(1, METRE).asType(null));

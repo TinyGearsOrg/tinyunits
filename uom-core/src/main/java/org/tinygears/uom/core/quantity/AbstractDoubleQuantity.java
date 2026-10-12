@@ -7,6 +7,7 @@ import java.util.function.DoubleBinaryOperator;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
+import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
@@ -149,15 +150,22 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     /**
      * Returns this quantity if it already is a {@code type}, otherwise one created by the provider's factory; a
-     * unit that does not measure {@code type} gives {@link ClassCastException}.
+     * unit that does not measure {@code type} gives {@link ClassCastException}, a type the provider has no
+     * factory for gives {@link UnsupportedOperationException}.
      */
     @Override
     public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
         if (type.isInstance(this)) {
             return type.cast(this);
         }
+        QuantityFactory<T> factory;
+        try {
+            factory = ServiceProvider.current().getQuantityFactory(type);
+        } catch (IllegalArgumentException e) {
+            throw new UnsupportedOperationException("no quantity factory for " + type.getName(), e);
+        }
         Unit<T> typed = unit.asType(type);
-        return ServiceProvider.current().getQuantityFactory(type).create(value, typed, scale);
+        return factory.create(value, typed, scale);
     }
 
     private static Quantity<?> untyped(double value, UomUnit<?> unit) {
