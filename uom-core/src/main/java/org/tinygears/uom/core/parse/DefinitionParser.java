@@ -8,13 +8,17 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.measure.MeasurementException;
+import javax.measure.MetricPrefix;
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
@@ -24,6 +28,8 @@ public final class DefinitionParser {
     private static final Pattern TYPE = Pattern.compile("[A-Z][A-Za-z0-9]*");
     private static final String DELIMITERS = "*/·()^|=#[]!~@,";
     private static final String BASE_LETTERS = "LMTIΘNJK";
+    private static final Map<String, MetricPrefix> PREFIXES = Arrays.stream(MetricPrefix.values())
+            .collect(Collectors.toUnmodifiableMap(MetricPrefix::getSymbol, p -> p));
     private static final UomUnit<?>[] BASES = {BaseUnits.METRE, BaseUnits.KILOGRAM, BaseUnits.SECOND,
         BaseUnits.AMPERE, BaseUnits.KELVIN, BaseUnits.MOLE, BaseUnits.CANDELA, BaseUnits.KELVIN};
 
@@ -36,6 +42,7 @@ public final class DefinitionParser {
     private final Map<String, UomUnit<?>> units = new HashMap<>();
     private final List<Definition> definitions = new ArrayList<>();
     private final List<Preferred> preferred = new ArrayList<>();
+    private final List<Prefixed> prefixed = new ArrayList<>();
     private final List<String> stack = new ArrayList<>();
     private final Set<String> done = new HashSet<>();
 
@@ -55,7 +62,7 @@ public final class DefinitionParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new Definitions(p.definitions, p.preferred);
+        return new Definitions(p.definitions, p.preferred, p.prefixed);
     }
 
     private void file(String source, Reader reader) throws IOException {
@@ -106,8 +113,34 @@ public final class DefinitionParser {
                 }
                 preferred.add(new Preferred(w[1], w[2], src, ln));
             }
+            case "@prefixed" -> prefixed(src, ln, w);
             default -> throw new DefinitionException(src, ln, "unknown directive '" + w[0] + "'", null);
         }
+    }
+
+    private void prefixed(String src, int ln, String[] w) {
+        if (w.length < 3) {
+            throw new DefinitionException(src, ln, "expected '@prefixed unit prefix...'", null);
+        }
+        Definition base = definitions.stream().filter(d -> d.symbol().equals(w[1])).findFirst().orElseThrow(
+                () -> new DefinitionException(src, ln, "unknown unit '" + w[1] + "'", null));
+        if (!base.unit().toSystemConverter().isLinear()) {
+            throw new DefinitionException(src, ln, "unit '" + w[1] + "' can not be prefixed", null);
+        }
+        List<String> symbols = List.of(w).subList(2, w.length);
+        for (String p : symbols) {
+            MetricPrefix prefix = PREFIXES.get(p);
+            if (prefix == null) {
+                throw new DefinitionException(src, ln, "unknown metric prefix '" + p + "'", null);
+            }
+            String symbol = p + base.symbol();
+            checkSymbol(src, ln, symbol);
+            String name = prefix.getName().toLowerCase(Locale.ROOT) + base.name();
+            UomUnit<?> unit = base.unit().prefix(prefix).named(symbol, name);
+            units.put(symbol, unit);
+            definitions.add(new Definition(symbol, name, unit, null, base.explicitType(), src, ln));
+        }
+        prefixed.add(new Prefixed(base.symbol(), symbols, src, ln));
     }
 
     private void include(String src, int ln, String name) {

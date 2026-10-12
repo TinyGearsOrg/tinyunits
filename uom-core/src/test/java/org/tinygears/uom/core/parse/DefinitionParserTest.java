@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.measure.MetricPrefix;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
@@ -245,7 +246,7 @@ class DefinitionParserTest {
         assertEquals(plain, parse(HAPPY.replace("\n", "\r\n")));
         assertEquals(plain, parse(HAPPY.replace("\n", "\r")));
         assertEquals(plain, parse(HAPPY.replace(" ", "\t")));
-        assertEquals(new Definitions(List.of(), List.of()), parse(""));
+        assertEquals(new Definitions(List.of(), List.of(), List.of()), parse(""));
         assertEquals(List.of("m"), symbols(parse("  \n\t\nm !L\n   \n")));
         Definitions u = parse(BASE + "Ω:ohm m\nµ:micro 1|1000000\nx Ω µ\n");
         assertEquals(METRE.divide(1000000), find(u, "x").unit());
@@ -257,6 +258,9 @@ class DefinitionParserTest {
         Definitions d = parse(HAPPY);
         assertThrows(UnsupportedOperationException.class, () -> d.definitions().clear());
         assertThrows(UnsupportedOperationException.class, () -> d.preferred().clear());
+        Definitions p = parse(BASE + "@prefixed m k\n");
+        assertThrows(UnsupportedOperationException.class, () -> p.prefixed().clear());
+        assertThrows(UnsupportedOperationException.class, () -> p.prefixed().get(0).prefixSymbols().clear());
     }
 
     @Test
@@ -280,6 +284,93 @@ class DefinitionParserTest {
                 () -> AffineFunction.parse("(x + 1")).getMessage());
         assertEquals("function nested too deeply", assertThrows(FormulaException.class,
                 () -> AffineFunction.parse("(".repeat(101) + "x" + ")".repeat(101))).getMessage());
+    }
+
+    private static final String PREFIX_BASE = BASE + "g:gram 1|1000 kg\nHz:hertz ~ 1/s [Frequency]\n"
+            + "Bq:becquerel ~ 1/s [Radioactivity]\n°C:degree_celsius K = x + 273.15\n";
+
+    @Test
+    void prefixedDirective() {
+        Definitions d = parse(PREFIX_BASE + "@prefixed m k c µ # metric\nx km/s\n");
+        assertEquals(List.of("m", "kg", "s", "K", "g", "Hz", "Bq", "°C", "km", "cm", "µm", "x"), symbols(d));
+        assertEquals(List.of(new Prefixed("m", List.of("k", "c", "µ"), "test.units", 9)), d.prefixed());
+        MetricPrefix[] prefixes = {MetricPrefix.KILO, MetricPrefix.CENTI, MetricPrefix.MICRO};
+        String[] names = {"kilometre", "centimetre", "micrometre"};
+        String[] syms = {"km", "cm", "µm"};
+        for (int i = 0; i < 3; i++) {
+            Definition def = find(d, syms[i]);
+            assertEquals(names[i], def.name());
+            assertEquals(METRE.prefix(prefixes[i]), def.unit());
+            assertEquals(syms[i], def.unit().getSymbol());
+            assertEquals(names[i], def.unit().getName());
+            assertNull(def.alternateOf());
+            assertNull(def.explicitType());
+            assertEquals("test.units", def.source());
+            assertEquals(9, def.line());
+        }
+        assertEquals(METRE.prefix(MetricPrefix.KILO).divide(SECOND), find(d, "x").unit());
+        assertEquals("megagram", find(parse(PREFIX_BASE + "@prefixed g M\n"), "Mg").name());
+    }
+
+    @Test
+    void prefixedAlternateUnitsKeepTheirAtom() {
+        Definitions d = parse(PREFIX_BASE + "@prefixed Hz k M\n@prefixed Bq k\n");
+        Definition khz = find(d, "kHz");
+        assertNotEquals(khz.unit(), find(d, "kBq").unit());
+        assertEquals("Frequency", khz.explicitType());
+        assertEquals("Radioactivity", find(d, "kBq").explicitType());
+        assertEquals(find(d, "Hz").unit().prefix(MetricPrefix.KILO), khz.unit());
+        assertEquals(find(d, "Hz").unit().prefix(MetricPrefix.MEGA), find(d, "MHz").unit());
+        assertEquals("kilohertz", khz.name());
+        assertNull(khz.alternateOf());
+        assertEquals(List.of(new Prefixed("Hz", List.of("k", "M"), "test.units", 9),
+                new Prefixed("Bq", List.of("k"), "test.units", 10)), d.prefixed());
+    }
+
+    @Test
+    void prefixedErrors() {
+        fails(PREFIX_BASE + "@prefixed zz k\n", "test.units:9: unknown unit 'zz'");
+        fails(PREFIX_BASE + "@prefixed m x\n", "test.units:9: unknown metric prefix 'x'");
+        fails(PREFIX_BASE + "@prefixed m Ki\n", "test.units:9: unknown metric prefix 'Ki'");
+        fails(PREFIX_BASE + "@prefixed m\n", "test.units:9: expected '@prefixed unit prefix...'");
+        fails(PREFIX_BASE + "@prefixed # nothing\n", "test.units:9: expected '@prefixed unit prefix...'");
+        fails(PREFIX_BASE + "@prefixed °C k\n", "test.units:9: unit '°C' can not be prefixed");
+        fails(PREFIX_BASE + "@prefixed m k k\n", "test.units:9: duplicate symbol 'km'");
+        fails(PREFIX_BASE + "km 1000 m\n@prefixed m k\n", "test.units:10: duplicate symbol 'km'");
+        fails(PREFIX_BASE + "@prefixed m k\nkm 1000 m\n", "test.units:10: duplicate symbol 'km'");
+        fails("@prefixed m k\nm:metre !L\n", "test.units:1: unknown unit 'm'");
+    }
+
+    @Test
+    void prefixedInIncludedFile() {
+        Definitions d = parse("@include a\n@prefixed s m\ntop km\n", Map.of("a", BASE + "@prefixed m k\n"));
+        assertEquals(List.of("m", "kg", "s", "K", "km", "ms", "top"), symbols(d));
+        assertEquals(List.of(new Prefixed("m", List.of("k"), "a", 5), new Prefixed("s", List.of("m"), "test.units", 2)),
+                d.prefixed());
+        assertEquals("a", find(d, "km").source());
+        assertEquals(5, find(d, "km").line());
+        fails("@include a\n", Map.of("a", BASE + "@prefixed m q x\n"), "a:5: unknown metric prefix 'x'");
+    }
+
+    @Test
+    void prefixedRobustness() {
+        String text = PREFIX_BASE + "@prefixed m k µ\n";
+        Definitions plain = parse(text);
+        assertEquals(plain, parse("\uFEFF" + text));
+        assertEquals(plain, parse(text.replace("\n", "\r\n")));
+        assertEquals(plain, parse(text.replace(" ", "\t")));
+        assertEquals(plain, parse(text.replace("@prefixed m k µ", "  @prefixed   m  k µ  # comment")));
+        assertEquals(plain, parse(text.replace("@prefixed m k µ", "@prefixed m k µ# tight")));
+        assertEquals(List.of("m", "km"), symbols(parse("\uFEFFm:metre !L\r\n@prefixed\tm\tk\r\n")));
+    }
+
+    @Test
+    void microSignIsTheMetricPrefixSymbol() {
+        assertEquals(0xB5, MetricPrefix.MICRO.getSymbol().codePointAt(0));
+        Definitions d = parse(BASE + "@prefixed m µ\n");
+        assertEquals(0xB5, d.prefixed().get(0).prefixSymbols().get(0).codePointAt(0));
+        assertEquals("µm", find(d, "µm").symbol());
+        fails(BASE + "@prefixed m μ\n", "test.units:5: unknown metric prefix 'μ'");
     }
 
     @Test
