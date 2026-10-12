@@ -5,6 +5,8 @@ package org.tinygears.uom.quantity;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -59,12 +61,19 @@ class GeneratedQuantitiesTest {
         assertEquals(METRE, m.getUnit());
     }
 
-    // The generic parameter Quantity<javax Length> rejects other quantity types at compile time.
+    // The parameter Quantity<javax Length> rejects other quantity types at compile time.
     @Test
     void typesDoNotMix() throws Exception {
-        var add = Length.class.getMethod("add", Quantity.class);
-        assertEquals(Length.class, add.getReturnType());
-        assertEquals(Quantity.class, add.getParameterTypes()[0]);
+        assertAddTakes(Length.class, javax.measure.quantity.Length.class);
+        assertAddTakes(Mass.class, javax.measure.quantity.Mass.class);
+    }
+
+    private static void assertAddTakes(Class<?> typed, Class<?> javaxType) throws Exception {
+        var add = typed.getMethod("add", Quantity.class);
+        assertEquals(typed, add.getReturnType());
+        var param = assertInstanceOf(java.lang.reflect.ParameterizedType.class, add.getGenericParameterTypes()[0]);
+        assertEquals(Quantity.class, param.getRawType());
+        assertArrayEquals(new Object[] {javaxType}, param.getActualTypeArguments());
     }
 
     @Test
@@ -166,11 +175,56 @@ class GeneratedQuantitiesTest {
         }
     }
 
-    // Factories and the registry load independently; Length.of as first access must not need the registry.
+    // Fresh loaders, so the first touch of a generated class really is the one under test.
     @Test
-    void staticInitOrder() {
-        Length.of(1, METRE);
-        assertNotNull(LengthFactory.SYSTEM_UNIT);
-        assertNotNull(LengthFactory.INSTANCE);
+    void staticInitOrder() throws Exception {
+        URL[] urls = {codeSource(Length.class), codeSource(org.tinygears.uom.core.quantity.AbstractDoubleQuantity.class),
+            codeSource(Unit.class)};
+        try (Loader l = new Loader(urls)) {
+            assertNull(l.loaded("org.tinygears.uom.quantity.QuantityTypes"));
+            assertNull(l.loaded("org.tinygears.uom.quantity.Length"));
+            initOrderCheck(l, "QuantityTypes", "Length");
+        }
+        try (Loader l = new Loader(urls)) {
+            initOrderCheck(l, "Length", "QuantityTypes");
+        }
+    }
+
+    private static URL codeSource(Class<?> c) {
+        return c.getProtectionDomain().getCodeSource().getLocation();
+    }
+
+    private static final class Loader extends URLClassLoader {
+        Loader(URL[] urls) {
+            super(urls, ClassLoader.getPlatformClassLoader());
+        }
+
+        Class<?> loaded(String name) {
+            return findLoadedClass(name);
+        }
+    }
+
+    private static void initOrderCheck(ClassLoader l, String first, String second) throws Exception {
+        touch(l, first);
+        touch(l, second);
+        String pkg = "org.tinygears.uom.quantity.";
+        Class<?> factory = Class.forName(pkg + "LengthFactory", true, l);
+        assertNotNull(factory.getField("SYSTEM_UNIT").get(null));
+        assertNotNull(factory.getField("INSTANCE").get(null));
+        Class<?> types = Class.forName(pkg + "QuantityTypes", true, l);
+        assertEquals(10, ((java.util.Set<?>) types.getMethod("types").invoke(null)).size());
+    }
+
+    private static void touch(ClassLoader l, String simple) throws Exception {
+        String pkg = "org.tinygears.uom.quantity.";
+        Class<?> c = Class.forName(pkg + simple, true, l);
+        if (simple.equals("Length")) {
+            Class<?> unitClass = Class.forName("javax.measure.Unit", true, l);
+            Object unit = Class.forName(pkg + "LengthFactory", true, l).getField("SYSTEM_UNIT").get(null);
+            assertNotNull(c.getMethod("of", double.class, unitClass).invoke(null, 1.5, unit));
+        } else {
+            Class<?> lt = Class.forName("javax.measure.quantity.Length", true, l);
+            assertNotNull(c.getMethod("factory", Class.class).invoke(null, lt));
+        }
     }
 }
