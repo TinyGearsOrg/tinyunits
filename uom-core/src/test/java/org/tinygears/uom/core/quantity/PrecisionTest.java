@@ -80,6 +80,8 @@ class PrecisionTest {
         assertEquals(new BigDecimal("3.4028235E38"), Precision.toDecimal(Float.MAX_VALUE));
         BigDecimal b = new BigDecimal("1.50");
         assertSame(b, Precision.toDecimal(b));
+        assertEquals("scale out of range: 100001", assertThrows(ArithmeticException.class,
+                () -> Precision.toDecimal(BigDecimal.ONE.scaleByPowerOfTen(-100_001))).getMessage());
         assertThrows(ArithmeticException.class, () -> Precision.toDecimal(Double.NaN));
         assertThrows(ArithmeticException.class, () -> Precision.toDecimal(Double.POSITIVE_INFINITY));
         assertThrows(ArithmeticException.class, () -> Precision.toDecimal(Double.NEGATIVE_INFINITY));

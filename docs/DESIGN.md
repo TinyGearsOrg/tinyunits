@@ -145,10 +145,11 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     `1 m / 3` never throws. Division by zero throws `ArithmeticException`.
   - **Scalar conversion (D8).** A `double` or `Float` scalar becomes the decimal the user wrote
     (`BigDecimal.valueOf(double)`); `NaN` and infinity throw `ArithmeticException`.
-  - **Bounds (D9).** The scale of a decimal value is limited to `|scale| <= 100_000` at construction
-    (`ArithmeticException`); products and quotients whose scale passes the bound throw, zeros included. Zero offsets are
-    skipped, so a result may have a different scale than before (`toString` and `scale()` only). Exact conversions do not
-    align far-apart scales (`AffineConverter`), so absurd scales stay fast.
+  - **Bounds (D9).** The scale of a decimal value is limited to `|scale| <= 100_000` at construction and for every
+    `BigDecimal` operand value or scalar (`ArithmeticException`, before any arithmetic); products and quotients whose
+    scale passes the bound throw, zeros included. Zero offsets are skipped, so a result may have a different scale
+    than before (`toString` and `scale()` only). Exact conversions do not align far-apart scales (`AffineConverter`),
+    so absurd scales stay fast.
   - **Explicit conversions (D10).** `toDouble()` throws `ArithmeticException` for a value outside the `double` range;
     `toDecimal(mc)` rounds to `mc`, on both implementations. `asType` keeps the receiver's `MathContext` and never changes
     the value.

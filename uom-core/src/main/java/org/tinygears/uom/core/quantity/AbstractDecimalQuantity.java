@@ -16,7 +16,8 @@ import org.tinygears.uom.core.UomUnit;
 
 /**
  * Base class of the generated {@link BigDecimal} quantities; {@code R} is the typed interface returned by
- * conversions. The {@link MathContext} rounds computed results and is not part of equality. Immutable.
+ * conversions. The {@link MathContext} rounds computed results and is not part of equality. A {@link BigDecimal}
+ * operand value or scalar whose scale exceeds ±100000 throws {@link ArithmeticException}. Immutable.
  */
 public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
         implements Quantity<Q>, Comparable<Quantity<Q>> {

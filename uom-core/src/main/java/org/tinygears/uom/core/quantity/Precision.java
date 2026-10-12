@@ -42,9 +42,10 @@ final class Precision {
         return d;
     }
 
+    /** {@code n} as a BigDecimal; a BigDecimal beyond the scale bound throws, so it never reaches the arithmetic. */
     static BigDecimal toDecimal(Number n) {
         if (n instanceof BigDecimal b) {
-            return b;
+            return checked(b);
         }
         if (n instanceof BigInteger i) {
             return new BigDecimal(i);

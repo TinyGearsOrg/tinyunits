@@ -23,6 +23,7 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
@@ -413,6 +414,84 @@ class AbstractDecimalQuantityArithmeticTest {
         assertTrue(q("1000000", METRE, MathContext.DECIMAL32).isEquivalentTo(q("999999", METRE)));
         assertTrue(q("999999", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1000000", METRE)));
         assertFalse(q("999999", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1000001", METRE)));
+    }
+
+    private static final List<BigDecimal> OUT_OF_SCALE =
+            List.of(new BigDecimal("1e-20000000"), new BigDecimal("1e+20000000"));
+
+    /** {@code e} throws the scale-bound ArithmeticException for {@code v} within a second. */
+    private static void assertScaleOutOfRange(BigDecimal v, Executable e) {
+        ArithmeticException x = assertTimeoutPreemptively(Duration.ofSeconds(1),
+                () -> assertThrows(ArithmeticException.class, e));
+        assertEquals("scale out of range: " + v.scale(), x.getMessage());
+    }
+
+    @Test
+    void scalarMultiplyOutsideTheScaleBoundThrowsPromptly() {
+        for (BigDecimal v : OUT_OF_SCALE) {
+            assertScaleOutOfRange(v, () -> q("1", CELSIUS).multiply(v));
+            assertScaleOutOfRange(v, () -> q("1", METRE).multiply(v));
+        }
+    }
+
+    @Test
+    void scalarDivideOutsideTheScaleBoundThrowsPromptly() {
+        for (BigDecimal v : OUT_OF_SCALE) {
+            assertScaleOutOfRange(v, () -> q("1", CELSIUS).divide(v));
+            assertScaleOutOfRange(v, () -> q("1", METRE).divide(v));
+        }
+    }
+
+    @Test
+    void foreignAddendOutsideTheScaleBoundThrowsPromptly() {
+        for (BigDecimal v : OUT_OF_SCALE) {
+            assertScaleOutOfRange(v, () -> q("1", METRE).add(new Foreign<>(v, METRE)));
+            assertScaleOutOfRange(v, () -> q("1", CELSIUS).subtract(new Foreign<>(v, KELVIN)));
+        }
+    }
+
+    @Test
+    void foreignComparandOutsideTheScaleBoundThrowsPromptly() {
+        for (BigDecimal v : OUT_OF_SCALE) {
+            assertScaleOutOfRange(v, () -> q("1", CELSIUS).compareTo(new Foreign<>(v, KELVIN)));
+            assertScaleOutOfRange(v, () -> q("1", METRE).isEquivalentTo(new Foreign<>(v, METRE)));
+        }
+    }
+
+    @Test
+    void foreignFactorOutsideTheScaleBoundThrowsPromptly() {
+        for (BigDecimal v : OUT_OF_SCALE) {
+            assertScaleOutOfRange(v, () -> q("1", CELSIUS).multiply(new Foreign<>(v, KELVIN)));
+            assertScaleOutOfRange(v, () -> q("1", CELSIUS).divide(new Foreign<>(v, KELVIN)));
+        }
+    }
+
+    @Test
+    void operandsAtTheScaleBoundStillWork() {
+        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+            assertDecimal("2E-100000", METRE, q("2", METRE).multiply(new BigDecimal("1e-100000")));
+            assertDecimal("2E+100000", METRE, q("2", METRE).multiply(new BigDecimal("1e+100000")));
+            assertDecimal("2E-100000", METRE, q("2", METRE).divide(new BigDecimal("1e+100000")));
+            assertDecimal("2E+99999", METRE, q("2", METRE).divide(new BigDecimal("1e-99999")));
+            assertEquals(1, q("1", METRE).compareTo(new Foreign<>(new BigDecimal("1e-100000"), METRE)));
+            assertEquals(-1, q("1", METRE).compareTo(new Foreign<>(new BigDecimal("1e+100000"), METRE)));
+        });
+    }
+
+    @Test
+    void doubleQuantityTakesOperandsOutsideTheScaleBoundPromptly() {
+        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+            BigDecimal tiny = OUT_OF_SCALE.get(0);
+            BigDecimal huge = OUT_OF_SCALE.get(1);
+            assertEquals(0.0, d(1, METRE).multiply(tiny).getValue());
+            assertEquals(1.0, d(1, METRE).add(new Foreign<>(tiny, METRE)).getValue());
+            assertEquals(1, d(1, METRE).compareTo(new Foreign<>(tiny, METRE)));
+            assertThrows(ArithmeticException.class, () -> d(1, METRE).multiply(huge));
+            assertThrows(ArithmeticException.class, () -> d(1, METRE).divide(huge));
+            assertThrows(ArithmeticException.class, () -> d(1, METRE).add(new Foreign<>(huge, METRE)));
+            assertThrows(ArithmeticException.class, () -> d(1, METRE).compareTo(new Foreign<>(huge, METRE)));
+            assertThrows(ArithmeticException.class, () -> d(1, METRE).isEquivalentTo(new Foreign<>(huge, METRE)));
+        });
     }
 
     /** Add, subtract, compareTo and scalars against an exact rational reference of the literal rule, correctly rounded. */
