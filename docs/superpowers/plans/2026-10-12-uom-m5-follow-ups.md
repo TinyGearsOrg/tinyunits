@@ -3,7 +3,7 @@
 Findings from the per-task reviews of milestone 5 (other unit systems and `quantity.to(system)`) that were triaged as
 follow-up work, not merge blockers. Milestone 5 state: seven systems (`SI` 128, `USCustomary` 35, `Imperial` 42, `CGS` 16,
 `ESU` 22, `EMU` 29, `Gaussian` 26 distinct units), 33 quantity types (133 generated quantity files), TCK 113 of 113 tests
-passing, 869 tests in `mvn -q -B clean verify` (core 430, codegen 138, quantities 29, systems 158, tck 113, examples 1).
+passing, 870 tests in `mvn -q -B clean verify` (core 430, codegen 139, quantities 29, systems 158, tck 113, examples 1).
 "D1" to "D8" refer to the decisions of `2026-10-12-uom-m5-systems.md`; "M6" refers to the milestones in `docs/DESIGN.md`
 section 7.
 

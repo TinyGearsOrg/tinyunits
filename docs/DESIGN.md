@@ -320,8 +320,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
 5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`. Done: `USCustomary`, `Imperial`, `CGS`,
    `ESU`, `EMU`, `Gaussian` catalogs (35, 42, 16, 22, 29, 26 distinct units, with `SI` 128), the directives `@system`,
-   `@extends`, `@member`, `to(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 869 tests in
-   `mvn -q -B clean verify` (core 430, codegen 138, quantities 29, systems 158, tck 113, examples 1). Follow-ups:
+   `@extends`, `@member`, `to(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 870 tests in
+   `mvn -q -B clean verify` (core 430, codegen 139, quantities 29, systems 158, tck 113, examples 1). Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m5-follow-ups.md`.
 6. Locale-aware formatting (and a faithful form for derived offset units), serialization, JPMS
    polish, documentation, Maven Central release.

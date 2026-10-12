@@ -60,6 +60,8 @@ public final class Generate {
         Path systemsOut = Path.of(args[i + 2]);
         try {
             Output out = generate(dataDir);
+            refuseHandWritten(out.quantities(), quantitiesOut);
+            refuseHandWritten(out.systems(), systemsOut);
             if (check) {
                 List<String> problems = new ArrayList<>(differences(out.quantities(), quantitiesOut));
                 problems.addAll(differences(out.systems(), systemsOut));
@@ -136,6 +138,16 @@ public final class Generate {
             problems.add("stale: " + p);
         }
         return problems;
+    }
+
+    /** A target that exists and is not generated-looking is hand-written and must not be overwritten. */
+    private static void refuseHandWritten(Map<String, String> files, Path outDir) throws IOException {
+        for (String name : files.keySet()) {
+            Path p = outDir.resolve(name);
+            if (Files.isRegularFile(p) && !isGenerated(p)) {
+                throw new GenerationException(p.toString(), 0, "refusing to overwrite a hand-written file");
+            }
+        }
     }
 
     private static void write(Map<String, String> files, Path outDir) throws IOException {
