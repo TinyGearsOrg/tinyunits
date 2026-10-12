@@ -83,7 +83,19 @@ public final class Factor {
         if (n.bitLength() > MAX_BITS || d.bitLength() > MAX_BITS) {
             throw new ArithmeticException("factor too large");
         }
-        for (int p = 2; p <= r; p++) {
+        // Trial division over r's prime factors in long arithmetic: O(sqrt(r)), no int overflow.
+        long rest = r;
+        for (long f = 2; f <= rest; f++) {
+            if (f * f > rest) {
+                f = rest;
+            }
+            if (rest % f != 0) {
+                continue;
+            }
+            while (rest % f == 0) {
+                rest /= f;
+            }
+            int p = (int) f;
             while (r % p == 0 && k % p == 0) {
                 BigInteger a = exactRoot(n.abs(), p);
                 BigInteger b = exactRoot(d, p);
@@ -101,6 +113,12 @@ public final class Factor {
 
     /** Integer p-th root of x >= 0, or null if x is not a perfect p-th power. */
     private static BigInteger exactRoot(BigInteger x, int p) {
+        if (x.compareTo(BigInteger.ONE) <= 0) {
+            return x;
+        }
+        if (x.bitLength() <= p) {
+            return null;
+        }
         BigInteger y = BigInteger.ONE.shiftLeft(x.bitLength() / p + 1);
         BigInteger pm1 = BigInteger.valueOf(p - 1);
         BigInteger bp = BigInteger.valueOf(p);

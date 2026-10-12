@@ -183,4 +183,82 @@ class FactorTest {
         assertThrows(ArithmeticException.class,
                 () -> Factor.of(BigInteger.ONE.shiftLeft(70_000), BigInteger.ONE, 0, 1));
     }
+
+    @Test
+    void hugeRootIndexReducesQuicklyWithoutOverflow() {
+        BigInteger one = BigInteger.ONE;
+        BigInteger three = BigInteger.valueOf(3);
+        Factor f = assertTimeoutPreemptively(Duration.ofSeconds(2),
+                () -> Factor.of(three, one, 1, Integer.MAX_VALUE));
+        assertEquals(Integer.MAX_VALUE, f.rootIndex());
+        assertEquals(1, f.piExponent());
+        assertEquals(ONE, Factor.of(one, one, 0, Integer.MAX_VALUE));
+        assertEquals(PI, Factor.of(one, one, Integer.MAX_VALUE, Integer.MAX_VALUE));
+        Factor g = assertTimeoutPreemptively(Duration.ofSeconds(2), () -> Factor.of(three, one, 0, 1 << 30));
+        assertEquals(1 << 30, g.rootIndex());
+        Factor h = assertTimeoutPreemptively(Duration.ofSeconds(2),
+                () -> Factor.of(BigInteger.valueOf(4), one, 0, 2_147_483_646));
+        assertEquals(1_073_741_823, h.rootIndex());
+        assertEquals(BigInteger.TWO, h.numerator());
+    }
+
+    @Test
+    void rootIndexReductionMatchesReference() {
+        java.util.Random rnd = new java.util.Random(42);
+        for (int i = 0; i < 2000; i++) {
+            BigInteger n = BigInteger.valueOf(rnd.nextInt(2000) - 1000);
+            BigInteger d = BigInteger.valueOf(rnd.nextInt(50) + 1);
+            int k = rnd.nextInt(61) - 30;
+            int r = rnd.nextInt(5000) + 1;
+            if (rnd.nextBoolean()) {
+                r = (rnd.nextInt(12) + 1) * (rnd.nextInt(12) + 1) * (rnd.nextInt(12) + 1);
+                n = BigInteger.valueOf(rnd.nextInt(6) + 1).pow(rnd.nextInt(8) + 1)
+                        .multiply(BigInteger.valueOf(rnd.nextBoolean() ? -1 : 1));
+                k = r * (rnd.nextInt(3) - 1);
+            }
+            Factor f = Factor.of(n, d, k, r);
+            BigInteger g = n.gcd(d);
+            if (n.signum() == 0) {
+                assertEquals(ZERO, f);
+                continue;
+            }
+            BigInteger[] ref = referenceReduce(n.divide(g).multiply(BigInteger.valueOf(d.signum())),
+                    d.divide(g), k, r);
+            assertEquals(ref[0], f.numerator());
+            assertEquals(ref[1], f.denominator());
+            assertEquals(ref[2].intValue(), f.piExponent());
+            assertEquals(ref[3].intValue(), f.rootIndex());
+        }
+    }
+
+    private static BigInteger[] referenceReduce(BigInteger n, BigInteger d, int k, int r) {
+        for (int p = 2; p <= r; p++) {
+            while (r % p == 0 && k % p == 0) {
+                BigInteger a = refRoot(n.abs(), p);
+                BigInteger b = refRoot(d, p);
+                if (a == null || b == null) {
+                    break;
+                }
+                n = n.signum() < 0 ? a.negate() : a;
+                d = b;
+                k /= p;
+                r /= p;
+            }
+        }
+        return new BigInteger[] {n, d, BigInteger.valueOf(k), BigInteger.valueOf(r)};
+    }
+
+    private static BigInteger refRoot(BigInteger x, int p) {
+        BigInteger y = BigInteger.ONE.shiftLeft(x.bitLength() / p + 1);
+        BigInteger pm1 = BigInteger.valueOf(p - 1);
+        BigInteger bp = BigInteger.valueOf(p);
+        while (true) {
+            BigInteger t = y.multiply(pm1).add(x.divide(y.pow(p - 1))).divide(bp);
+            if (t.compareTo(y) >= 0) {
+                break;
+            }
+            y = t;
+        }
+        return y.pow(p).equals(x) ? y : null;
+    }
 }
