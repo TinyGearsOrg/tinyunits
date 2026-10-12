@@ -4,8 +4,26 @@ Findings from the per-task reviews of milestone 2 that were triaged as follow-up
 points that were parked. Items marked "M3" belong to milestone 3 (catalogs, provider), "M4" to milestone 4 (`BigDecimal`);
 unmarked items are later or opportunistic.
 
+## Decisions needed before milestone 3
+
+- `asType` refuses quantity types whose system unit is an alternate unit: `Time.of(2, s).inverse().asType(Frequency.class)`
+  and `Frequency.of(2, Hz).multiply(Time.of(3, s)).asType(Dimensionless.class)` throw `ClassCastException` although the
+  dimensions match (milestone 1 compares atom-structured system units so that Frequency and Radioactivity stay distinct,
+  F21). Milestone 3 hits it with `rad`/`sr` (Angle, SolidAngle). Needs an OWNER ruling before the provider and TCK work.
+  Directions: accept when dimensions are equal and the target's system unit has no alternate atom; or accept when the
+  source unit has no alternate atoms, so a plain `s^-1` may become Frequency or Radioactivity.
+- `asType` and the factory lookup assume `ServiceProvider.current()` is ours: with another provider on the class path (for
+  example Indriya) every narrowing throws `ClassCastException`. Resolve our provider explicitly in milestone 3 (filter
+  `ServiceProvider.available()` or a registration hook in `uom-core`).
+- One conflicting alternate-unit registration breaks the registry for the life of the class loader:
+  `BaseUnits.ONE.alternate("Hz")` before first use makes `QuantityTypes` fail with `ExceptionInInitializerError` and then
+  `NoClassDefFoundError` (the root cause only appears in the first error's cause). Build the registry lazily per type or
+  register catalog alternates eagerly in core; at minimum document the failure.
+
 ## Design points and notes
 
+- Surprising but literal: offset-unit arithmetic follows the Javadoc rule literally (`2 degC - 1 degC` = -272.15 degC,
+  `20 degC - 0 degC` = -253.15 degC). The owner should confirm decision D5 before the TCK work.
 - Tolerance of `isEquivalentTo` is relative only: asymmetric near zero for offset units (`0.001 degC` vs `273.151 K`) and
   against infinity (`inf m` vs `1e308 km`); the `isEquivalentTo` Javadoc states the offset case only. Decide in M4 whether an absolute floor is wanted.
 - Untyped result units print unnormalized symbols (`(2 m)/(4 m)` is `0.5 m/m`, `24.0 m^2·m`, `2.5 (m/s)/s`); a trailing
@@ -13,8 +31,8 @@ unmarked items are later or opportunistic.
 - `inverse()` labels the unit `s^-1` where the system label is `1/s`.
 - The generated factory's foreign-unit message uses the unit's `toString`; `uom-core` uses the class name. Align them (the
   test Proxy units must otherwise answer `toString`).
-- An unlabelled shifted unit (`KELVIN.shift(273.15)`) has a null symbol but prints with the system label: `100 degC`
-  prints "100.0 K". Fix with the M3 SI catalog or a label rule in the milestone 1 unit code.
+- An unlabelled shifted or scaled unit (`KELVIN.shift(273.15)`, `METRE.multiply(1000)`) has a null symbol but prints with
+  the system label: `100 degC` prints "100.0 K", and a negated `0 km` built as `METRE.multiply(1000)` prints `0.0 m`. Fix with the M3 SI catalog or a label rule in the milestone 1 unit code.
   `AbstractDoubleQuantityTest.toStringFormats` only checks `startsWith("1.5 ")`, so it passes with the wrong label; assert
   the full text once the label is fixed.
 - TCK: the `Quantity` Javadoc example "2 degC + 1 degC = 274.15 degC" contradicts its own rule (276.15 degC); we follow the
@@ -27,6 +45,10 @@ unmarked items are later or opportunistic.
 
 ## Core (`uom-core`)
 
+- `AbstractDoubleQuantity.doubleValue()` is public but no interface exposes it: drop it or wait for `toDouble()` in
+  milestone 4.
+- `-0.0` ordering differs by unit: `0 m` compareTo `-0 m` is 1, `0 degC` compareTo `-0 degC` is 0 (`isEquivalentTo` is
+  true for both). Add a one-line note to the `compareTo` Javadoc.
 - Two `toSystem` overloads with different reach (rename the static helper `systemValue`); `fromSystem` allocates an
   inverse converter per call.
 - Javadoc: `add`, `multiply` and `divide` do not mention the `NullPointerException` on null; null operands give JDK helpful messages
