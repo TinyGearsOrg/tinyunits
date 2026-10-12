@@ -43,7 +43,7 @@ import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 class SourceEmitterTest {
     private static final String PACKAGE = "org.tinygears.uom.quantity.";
     private static final List<QuantityTypeSpec> SPECS = QuantityTypesParser.parse("types.txt",
-            new StringReader("Length m\nSpeed m / s\n"), UnitExpressionEmitterTest.DEFS);
+            new StringReader("Length m\nSpeed m / s => m/s:metre_per_second\n"), UnitExpressionEmitterTest.DEFS);
     private static final QuantityTypeSpec LENGTH = SPECS.get(0);
     private static final QuantityTypeSpec SPEED = SPECS.get(1);
 

@@ -19,7 +19,7 @@ public final class SpeedFactory
         implements QuantityFactory<javax.measure.quantity.Speed> {
 
     public static final UomUnit<javax.measure.quantity.Speed> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.METRE.divide(BaseUnits.SECOND));
+            UomUnit.unchecked(BaseUnits.METRE.divide(BaseUnits.SECOND).named("m/s", "metre per second"));
 
     public static final SpeedFactory INSTANCE = new SpeedFactory();
 

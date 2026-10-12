@@ -19,7 +19,7 @@ public final class AccelerationFactory
         implements QuantityFactory<javax.measure.quantity.Acceleration> {
 
     public static final UomUnit<javax.measure.quantity.Acceleration> SYSTEM_UNIT =
-            UomUnit.unchecked(BaseUnits.METRE.divide(BaseUnits.SECOND.pow(2)));
+            UomUnit.unchecked(BaseUnits.METRE.divide(BaseUnits.SECOND.pow(2)).named("m/s^2", "metre per second squared"));
 
     public static final AccelerationFactory INSTANCE = new AccelerationFactory();
 

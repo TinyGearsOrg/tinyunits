@@ -60,6 +60,39 @@ class QuantityTypesParserTest {
     }
 
     @Test
+    void explicitSymbolAndName() {
+        List<QuantityTypeSpec> l = parse("Speed m / s => m/s:metre_per_second # c\nDimensionless 1 => 1:one\n"
+                + "Length m => m:metre\nAcceleration m / s^2 =>m/s^2:metre_per_second_squared\n");
+        assertEquals("m / s", l.get(0).formula());
+        assertEquals("m/s", l.get(0).systemSymbol());
+        assertEquals("metre per second", l.get(0).systemName());
+        assertEquals("1", l.get(1).systemSymbol());
+        assertEquals("one", l.get(1).systemName());
+        assertEquals("m", l.get(2).systemSymbol());
+        assertEquals("metre", l.get(2).systemName());
+        assertEquals("m/s^2", l.get(3).systemSymbol());
+        assertEquals("metre per second squared", l.get(3).systemName());
+    }
+
+    @Test
+    void explicitSymbolAndNameErrors() {
+        fails("Speed m / s => m/s", "types.txt:1: expected 'symbol:name' after '=>', got 'm/s'");
+        fails("Speed m / s => m/s:", "types.txt:1: expected 'symbol:name' after '=>', got 'm/s:'");
+        fails("Speed m / s => :metre_per_second",
+                "types.txt:1: expected 'symbol:name' after '=>', got ':metre_per_second'");
+        fails("Speed m / s =>", "types.txt:1: expected 'symbol:name' after '=>', got ''");
+        fails("Speed m / s => m/s:a:b", "types.txt:1: extra ':' in 'm/s:a:b' after '=>'");
+        fails("Speed m / s => m /s:metre_per_second",
+                "types.txt:1: whitespace in 'm /s:metre_per_second' after '=>'");
+        fails("Length m => m:meter", "types.txt:1: explicit name for an already named unit 'm'");
+        fails("Length m => metre:metre", "types.txt:1: explicit name for an already named unit 'm'");
+        fails("Speed m / s => m:metre_per_second", "types.txt:1: duplicate symbol 'm'");
+        fails("Speed m / s => v:velocity\nAcceleration m / s^2 => v:acceleration",
+                "types.txt:2: duplicate symbol 'v'");
+        fails("Speed => m/s:metre_per_second", "types.txt:1: missing system unit");
+    }
+
+    @Test
     void invalidName() {
         fails("length m", "types.txt:1: invalid quantity type name 'length'");
     }

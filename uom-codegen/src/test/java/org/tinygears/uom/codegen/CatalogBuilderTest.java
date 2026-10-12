@@ -155,6 +155,15 @@ class CatalogBuilderTest {
     }
 
     @Test
+    void namedSpeedSystemUnitNeedsItsSymbolAndName() {
+        Definitions d = defs(BASE + "v:metre_per_second m / s\n");
+        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt",
+                new StringReader(TYPES + "Speed m / s => m/s:metre_per_second\n"), d);
+        fails(() -> CatalogBuilder.build(d, types), 19, "unit 'v' (metre per second) is the system unit of Speed,"
+                + " which types.txt:10 defines as 'm/s' (metre per second)");
+    }
+
+    @Test
     void ambiguousType() {
         Definitions d = defs(BASE);
         List<QuantityTypeSpec> types = new ArrayList<>(types(d));

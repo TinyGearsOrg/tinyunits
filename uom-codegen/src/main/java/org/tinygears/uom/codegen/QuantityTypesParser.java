@@ -21,7 +21,7 @@ import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.FormulaEvaluator;
 import org.tinygears.uom.core.parse.FormulaException;
 
-/** Parses {@code data/quantity-types.txt}: one {@code Name formula [# comment]} per line. */
+/** Parses {@code data/quantity-types.txt}: one {@code Name formula [=> symbol:name] [# comment]} per line. */
 public final class QuantityTypesParser {
     private static final Pattern NAME = Pattern.compile("[A-Z][A-Za-z0-9]*");
 
@@ -35,6 +35,7 @@ public final class QuantityTypesParser {
         }
         List<QuantityTypeSpec> result = new ArrayList<>();
         Set<String> seen = new HashSet<>();
+        Set<String> explicitSymbols = new HashSet<>();
         try (BufferedReader in = new BufferedReader(reader)) {
             String text;
             int ln = 0;
@@ -54,6 +55,12 @@ public final class QuantityTypesParser {
                 }
                 String name = content.substring(0, ws);
                 String formula = content.substring(ws).strip();
+                String explicit = null;
+                int arrow = formula.indexOf("=>");
+                if (arrow >= 0) {
+                    explicit = formula.substring(arrow + 2).strip();
+                    formula = formula.substring(0, arrow).strip();
+                }
                 if (!NAME.matcher(name).matches()) {
                     throw new GenerationException(source, ln, "invalid quantity type name '" + name + "'");
                 }
@@ -81,13 +88,41 @@ public final class QuantityTypesParser {
                     throw new GenerationException(source, ln, "system unit must be an unscaled unit");
                 }
                 Definition def = bySymbol.get(formula);
-                result.add(new QuantityTypeSpec(name, formula, unit, def == null ? null : def.symbol(),
-                        def == null ? null : def.name(), source, ln));
+                String symbol = def == null ? null : def.symbol();
+                String unitName = def == null ? null : def.name();
+                if (explicit != null) {
+                    String[] parts = explicit(explicit, source, ln);
+                    if (def != null && !(parts[0].equals(symbol) && parts[1].equals(unitName))) {
+                        throw new GenerationException(source, ln, "explicit name for an already named unit '"
+                                + symbol + "'");
+                    }
+                    if (def == null && (bySymbol.containsKey(parts[0]) || !explicitSymbols.add(parts[0]))) {
+                        throw new GenerationException(source, ln, "duplicate symbol '" + parts[0] + "'");
+                    }
+                    symbol = parts[0];
+                    unitName = parts[1];
+                }
+                result.add(new QuantityTypeSpec(name, formula, unit, symbol, unitName, source, ln));
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return List.copyOf(result);
+    }
+
+    /** Symbol and name of {@code symbol:name}; an underscore in the name stands for a space. */
+    private static String[] explicit(String text, String source, int ln) {
+        if (text.chars().anyMatch(Character::isWhitespace)) {
+            throw new GenerationException(source, ln, "whitespace in '" + text + "' after '=>'");
+        }
+        String[] parts = text.split(":", -1);
+        if (parts.length > 2) {
+            throw new GenerationException(source, ln, "extra ':' in '" + text + "' after '=>'");
+        }
+        if (parts.length < 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
+            throw new GenerationException(source, ln, "expected 'symbol:name' after '=>', got '" + text + "'");
+        }
+        return new String[] {parts[0], parts[1].replace('_', ' ')};
     }
 
     private static boolean isQuantity(String name) {

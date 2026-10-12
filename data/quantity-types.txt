@@ -1,13 +1,16 @@
 # Quantity types generated into uom (org.tinygears.uom.quantity).
 # Format: one "Name formula" per line; Name is a javax.measure.quantity interface.
 # The formula is the unscaled system unit, in units defined by si.units.
+# An optional "=> symbol:name" after the formula names a system unit that is not a single
+# definition; '_' in the name stands for a space, neither part has whitespace or ':'.
+# A unit that is already a definition keeps its own symbol and name.
 # Text after '#' is a comment; blank lines are ignored.
-Acceleration m / s^2
+Acceleration m / s^2 => m/s^2:metre_per_second_squared
 AmountOfSubstance mol
 Angle rad
 Area m²
 CatalyticActivity kat
-Dimensionless 1
+Dimensionless 1 => 1:one
 ElectricCapacitance F
 ElectricCharge C
 ElectricConductance S
@@ -31,7 +34,7 @@ RadiationDoseAbsorbed Gy
 RadiationDoseEffective Sv
 Radioactivity Bq
 SolidAngle sr
-Speed m / s
+Speed m / s => m/s:metre_per_second
 Temperature K
 Time s
 Volume m³
