@@ -23,7 +23,7 @@ dynamic proxies in the picture.
 
 | ID | Requirement |
 |----|-------------|
-| F1 | Implement the JSR-385 API (`javax.measure`): `Quantity`, `Unit`, `UnitConverter`, `Dimension`, `SystemOfUnits`, service provider. The exact version is pinned in the design (target: latest stable 2.x; to be verified). |
+| F1 | Implement the JSR-385 API (`javax.measure`): `Quantity`, `Unit`, `UnitConverter`, `Dimension`, `SystemOfUnits`, service provider. Target version: `javax.measure:unit-api` 2.2 (latest, May 2023; 15 methods on `Quantity`, 25 on `Unit`). Older versions are not supported. |
 | F2 | Own implementation of the units side: no dependency on Indriya or any other JSR-385 implementation at runtime. |
 | F3 | Typed quantity classes generated at compile time by an annotation processor from annotated interfaces. No proxies, no runtime reflection for quantity creation. |
 | F4 | Generated quantities implement the standard quantity interfaces (`javax.measure.quantity.Length`, ...) where one exists, and the user's own interface otherwise. A typed quantity is accepted anywhere `Quantity<Q>` is. |
@@ -66,7 +66,7 @@ dynamic proxies in the picture.
 
 | ID | Requirement |
 |----|-------------|
-| N1 | **Conformance:** pass the JSR-385 compatibility tests (TCK) for the implemented API, if a usable TCK exists for the chosen version. Otherwise write an equivalent contract test suite. |
+| N1 | **Conformance:** pass the JSR-385 compatibility tests (`tech.units:unit-tck` 2.2) for the implemented API. If the TCK cannot be run against a non-Indriya implementation, write an equivalent contract test suite. |
 | N2 | **Correctness:** unit conversions use exact definitions where the definition is exact (inch = 0.0254 m, c = 299 792 458 m/s). Factors are expressed as exact rationals or `BigDecimal` in the catalog source and rounded once for `double`. |
 | N3 | **Performance:** `double` quantity operations allocate at most the result object; no reflection, boxing or map lookups on the hot path. Converters between two units are cached or precomputed. |
 | N4 | **Compile-time safety:** adding quantities of different types, or passing a unit of the wrong quantity to a typed factory, is a compile error wherever the standard API allows it. Where the API forces a looser parameter type (`Quantity<Length>` rather than `Length`), return types stay typed. |
@@ -87,15 +87,15 @@ dynamic proxies in the picture.
 
 ## 6. Open questions
 
-1. **JSR-385 version and TCK.** Which unit-api version, and is a TCK available to run against?
-   Verify before the design is fixed.
+1. ~~**JSR-385 version and TCK.**~~ Resolved: unit-api 2.2, TCK `unit-tck` 2.2 exists. Still to
+   verify in a spike: whether the TCK runs against an implementation other than Indriya.
 2. **Custom quantity dimensions.** For a user-defined quantity type, how does the dimension get
    declared and checked (annotation attributes, a registered `Dimension` constant, or derived
    from the system unit)?
 3. **Precision promotion.** When a `double` quantity is combined with a `BigDecimal` one, which
    precision wins, and is mixing allowed at all?
-4. **Equality.** Should `equals` mean same value and unit, or equal physical quantity? The
-   standard offers `isEquivalentTo`; the current sketch uses value-and-unit equality.
+4. ~~**Equality.**~~ Resolved: `equals` is value and unit; `isEquivalentTo` (in the API since
+   2.1) means the same physical quantity.
 5. **Catalog authoring.** Hand-written Java constants, or a data file (in the style of GNU
    units) from which the catalogs are generated at build time? Hundreds of units favour a data
    file.
@@ -108,6 +108,8 @@ dynamic proxies in the picture.
 - **Scope.** Own implementation of the whole unit API plus two precisions plus four unit
   systems is a large project. Mitigation: staged milestones (core and double first, then
   BigDecimal, then catalogs) with each stage releasable.
+- **TCK portability.** The TCK's POM references Indriya and TestNG; it may assume the reference
+  implementation. Mitigation: spike early; fall back to our own contract tests (N1).
 - **API friction.** The standard fixes parameter types such as `Quantity<Length>`, so
   generated types cannot be stricter than the standard on inputs.
 - **Generated code volume.** Two precisions per quantity type multiplies generated classes.
