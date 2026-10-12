@@ -198,7 +198,7 @@ class CatalogBuilderTest {
 
     // base.units is BASE as a catalog; parent.units and child.units exercise @extends, @member and @prefixed.
     private static final Map<String, String> SAMPLE = Map.of(
-            "base.units", BASE + "@system Base\n",
+            "base.units", BASE + "@system Base\n@preferred Time min\n",
             "parent.units", """
                     @system Parent
                     @include base.units
@@ -222,6 +222,22 @@ class CatalogBuilderTest {
                     @system Orphan
                     @include parent.units
                     @member yd
+                    """,
+            "second.units", """
+                    @system Second
+                    @include base.units
+                    mi:mile 1609.344 m
+                    @preferred Length mi
+                    """,
+            "twins.units", """
+                    @system Twins
+                    @extends parent.units
+                    @extends second.units
+                    """,
+            "member.units", """
+                    @system Mem
+                    @include parent.units
+                    @member ft
                     """);
 
     private static Definitions sample(String file) {
@@ -274,8 +290,28 @@ class CatalogBuilderTest {
         Map<String, String> child = c.get("child.units").preferred();
         assertEquals("Base.KILOGRAM", child.get("Mass"));
         assertEquals("Parent.FOOT", child.get("Length"));
-        assertEquals(FACTORY.formatted("Time"), child.get("Time"));
+        assertEquals(FACTORY.formatted("Energy"), child.get("Energy"));
+        // Without @extends the first catalog's preferred units apply; the child inherits them through its parent.
+        assertEquals("Base.MINUTE", c.get("parent.units").preferred().get("Time"));
+        assertEquals("Base.MINUTE", child.get("Time"));
         assertEquals(FACTORY.formatted("Mass"), c.get("parent.units").preferred().get("Mass"));
+    }
+
+    @Test
+    void firstExtendedSystemWinsThePreferredUnit() {
+        Map<String, CatalogBuilder.Catalog> c = sampleCatalogs("base.units", "parent.units", "second.units",
+                "twins.units");
+        assertEquals("Second.MILE", c.get("second.units").preferred().get("Length"));
+        assertEquals("Parent.FOOT", c.get("twins.units").preferred().get("Length"));
+        assertEquals("Second.MILE", c.get("twins.units").units().get("mi"));
+    }
+
+    @Test
+    void preferredLineOfAnIncludedFileIsIgnoredForAMember() {
+        CatalogBuilder.Catalog mem = sampleCatalogs("base.units", "parent.units", "member.units").get("member.units");
+        assertEquals("Parent.FOOT", mem.units().get("ft"));
+        assertEquals(FACTORY.formatted("Length"), mem.preferred().get("Length"));
+        assertEquals("Base.MINUTE", mem.preferred().get("Time"));
     }
 
     @Test
