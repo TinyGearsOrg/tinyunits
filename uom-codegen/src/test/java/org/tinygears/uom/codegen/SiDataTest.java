@@ -126,7 +126,7 @@ class SiDataTest {
     @Test
     void untypedDefinitionsMatchExactlyOneType() {
         for (Definition d : defs.definitions()) {
-            if (d.explicitType() == null && !isPrefixed(d)) {
+            if (d.explicitType() == null) {
                 assertEquals(1, matching(d.unit()).size(), d.symbol());
             }
         }
@@ -178,6 +178,20 @@ class SiDataTest {
         assertScaled("dL", "L", Factor.of(1, 10));
         assertScaled("keV", "eV", Factor.ofLong(1000));
         assertScaled("mSv", "Sv", Factor.of(1, 1000));
+    }
+
+    @Test
+    void prefixedSymbolsArePinned() {
+        List<String> expected = List.of(
+                "GBq", "GHz", "GJ", "GPa", "GW", "GeV", "MBq", "MHz", "MJ", "MPa", "MW", "MeV", "MΩ", "THz", "TeV",
+                "cL", "cm", "dL", "hPa", "kBq", "kHz", "kJ", "kN", "kPa", "kV", "kW", "keV", "klx", "km", "kΩ", "mA",
+                "mC", "mF", "mGy", "mH", "mJ", "mL", "mN", "mS", "mSv", "mT", "mV", "mW", "mWb", "mg", "mm", "mmol",
+                "mrad", "ms", "nF", "nH", "nT", "nm", "ns", "pF", "pm", "ps", "µA", "µC", "µF", "µH", "µSv", "µT",
+                "µV", "µg", "µm", "µs");
+        List<String> actual = defs.definitions().stream().filter(SiDataTest::isPrefixed).map(Definition::symbol)
+                .sorted().toList();
+        assertEquals(67, expected.size());
+        assertEquals(expected, actual);
     }
 
     @Test
