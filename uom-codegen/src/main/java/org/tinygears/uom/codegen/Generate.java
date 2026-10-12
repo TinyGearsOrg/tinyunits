@@ -99,6 +99,7 @@ public final class Generate {
         for (QuantityTypeSpec s : specs) {
             files.put(s.name() + ".java", SourceEmitter.typedInterface(s));
             files.put(s.name() + "Double.java", SourceEmitter.doubleImplementation(s));
+            files.put(s.name() + "Decimal.java", SourceEmitter.decimalImplementation(s));
             files.put(s.name() + "Factory.java", SourceEmitter.factory(s, definitions));
         }
         files.put("QuantityTypes.java", SourceEmitter.registry(specs));

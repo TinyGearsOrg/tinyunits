@@ -25,6 +25,12 @@ public interface SolidAngle extends javax.measure.quantity.SolidAngle,
     @Override
     SolidAngle divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    SolidAngle toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    SolidAngle toDecimal(java.math.MathContext mc);
+
     static SolidAngle of(double value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit) {
         return SolidAngleFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface SolidAngle extends javax.measure.quantity.SolidAngle,
     static SolidAngle of(double value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
             javax.measure.Quantity.Scale scale) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit) {
+        return SolidAngleFactory.INSTANCE.of(value, unit);
+    }
+
+    static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
+            javax.measure.Quantity.Scale scale) {
+        return SolidAngleFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return SolidAngleFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

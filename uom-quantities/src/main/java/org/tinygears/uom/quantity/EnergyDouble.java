@@ -16,4 +16,11 @@ final class EnergyDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQ
             javax.measure.Quantity.Scale scale) {
         return new EnergyDouble(value, unit, scale);
     }
+
+    @Override
+    protected Energy createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new EnergyDecimal(value, unit, scale, mc);
+    }
 }

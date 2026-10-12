@@ -25,6 +25,12 @@ public interface Length extends javax.measure.quantity.Length,
     @Override
     Length divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Length toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Length toDecimal(java.math.MathContext mc);
+
     static Length of(double value, javax.measure.Unit<javax.measure.quantity.Length> unit) {
         return LengthFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Length extends javax.measure.quantity.Length,
     static Length of(double value, javax.measure.Unit<javax.measure.quantity.Length> unit,
             javax.measure.Quantity.Scale scale) {
         return LengthFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit) {
+        return LengthFactory.INSTANCE.of(value, unit);
+    }
+
+    static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
+            javax.measure.Quantity.Scale scale) {
+        return LengthFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return LengthFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

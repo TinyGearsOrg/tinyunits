@@ -25,6 +25,12 @@ public interface Force extends javax.measure.quantity.Force,
     @Override
     Force divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Force toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Force toDecimal(java.math.MathContext mc);
+
     static Force of(double value, javax.measure.Unit<javax.measure.quantity.Force> unit) {
         return ForceFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Force extends javax.measure.quantity.Force,
     static Force of(double value, javax.measure.Unit<javax.measure.quantity.Force> unit,
             javax.measure.Quantity.Scale scale) {
         return ForceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Force of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Force> unit) {
+        return ForceFactory.INSTANCE.of(value, unit);
+    }
+
+    static Force of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Force> unit,
+            javax.measure.Quantity.Scale scale) {
+        return ForceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Force of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Force> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return ForceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

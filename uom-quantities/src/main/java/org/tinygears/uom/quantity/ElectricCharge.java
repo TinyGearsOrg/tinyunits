@@ -25,6 +25,12 @@ public interface ElectricCharge extends javax.measure.quantity.ElectricCharge,
     @Override
     ElectricCharge divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    ElectricCharge toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    ElectricCharge toDecimal(java.math.MathContext mc);
+
     static ElectricCharge of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCharge> unit) {
         return ElectricChargeFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface ElectricCharge extends javax.measure.quantity.ElectricCharge,
     static ElectricCharge of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCharge> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricChargeFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricCharge of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCharge> unit) {
+        return ElectricChargeFactory.INSTANCE.of(value, unit);
+    }
+
+    static ElectricCharge of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCharge> unit,
+            javax.measure.Quantity.Scale scale) {
+        return ElectricChargeFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricCharge of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCharge> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return ElectricChargeFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

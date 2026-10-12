@@ -16,4 +16,11 @@ final class RadioactivityDouble extends org.tinygears.uom.core.quantity.Abstract
             javax.measure.Quantity.Scale scale) {
         return new RadioactivityDouble(value, unit, scale);
     }
+
+    @Override
+    protected Radioactivity createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new RadioactivityDecimal(value, unit, scale, mc);
+    }
 }

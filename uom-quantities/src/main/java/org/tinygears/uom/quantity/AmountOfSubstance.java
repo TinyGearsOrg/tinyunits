@@ -25,6 +25,12 @@ public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubsta
     @Override
     AmountOfSubstance divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    AmountOfSubstance toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    AmountOfSubstance toDecimal(java.math.MathContext mc);
+
     static AmountOfSubstance of(double value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubsta
     static AmountOfSubstance of(double value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
             javax.measure.Quantity.Scale scale) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit) {
+        return AmountOfSubstanceFactory.INSTANCE.of(value, unit);
+    }
+
+    static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
+            javax.measure.Quantity.Scale scale) {
+        return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

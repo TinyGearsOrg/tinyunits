@@ -25,6 +25,12 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
     @Override
     LuminousIntensity divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    LuminousIntensity toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    LuminousIntensity toDecimal(java.math.MathContext mc);
+
     static LuminousIntensity of(double value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
     static LuminousIntensity of(double value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
             javax.measure.Quantity.Scale scale) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
+        return LuminousIntensityFactory.INSTANCE.of(value, unit);
+    }
+
+    static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
+            javax.measure.Quantity.Scale scale) {
+        return LuminousIntensityFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return LuminousIntensityFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

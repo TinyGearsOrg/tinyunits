@@ -25,6 +25,12 @@ public interface Acceleration extends javax.measure.quantity.Acceleration,
     @Override
     Acceleration divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Acceleration toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Acceleration toDecimal(java.math.MathContext mc);
+
     static Acceleration of(double value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit) {
         return AccelerationFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Acceleration extends javax.measure.quantity.Acceleration,
     static Acceleration of(double value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit,
             javax.measure.Quantity.Scale scale) {
         return AccelerationFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Acceleration of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit) {
+        return AccelerationFactory.INSTANCE.of(value, unit);
+    }
+
+    static Acceleration of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit,
+            javax.measure.Quantity.Scale scale) {
+        return AccelerationFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Acceleration of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return AccelerationFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

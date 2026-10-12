@@ -25,6 +25,12 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
     @Override
     RadiationDoseAbsorbed divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    RadiationDoseAbsorbed toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    RadiationDoseAbsorbed toDecimal(java.math.MathContext mc);
+
     static RadiationDoseAbsorbed of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
     static RadiationDoseAbsorbed of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
             javax.measure.Quantity.Scale scale) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
+        return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit);
+    }
+
+    static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            javax.measure.Quantity.Scale scale) {
+        return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

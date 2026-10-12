@@ -25,6 +25,12 @@ public interface Radioactivity extends javax.measure.quantity.Radioactivity,
     @Override
     Radioactivity divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Radioactivity toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Radioactivity toDecimal(java.math.MathContext mc);
+
     static Radioactivity of(double value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit) {
         return RadioactivityFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Radioactivity extends javax.measure.quantity.Radioactivity,
     static Radioactivity of(double value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
             javax.measure.Quantity.Scale scale) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit) {
+        return RadioactivityFactory.INSTANCE.of(value, unit);
+    }
+
+    static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
+            javax.measure.Quantity.Scale scale) {
+        return RadioactivityFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return RadioactivityFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

@@ -25,6 +25,12 @@ public interface Illuminance extends javax.measure.quantity.Illuminance,
     @Override
     Illuminance divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Illuminance toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Illuminance toDecimal(java.math.MathContext mc);
+
     static Illuminance of(double value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit) {
         return IlluminanceFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Illuminance extends javax.measure.quantity.Illuminance,
     static Illuminance of(double value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
             javax.measure.Quantity.Scale scale) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit) {
+        return IlluminanceFactory.INSTANCE.of(value, unit);
+    }
+
+    static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
+            javax.measure.Quantity.Scale scale) {
+        return IlluminanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return IlluminanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

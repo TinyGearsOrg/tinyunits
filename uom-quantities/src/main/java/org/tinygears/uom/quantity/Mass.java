@@ -25,6 +25,12 @@ public interface Mass extends javax.measure.quantity.Mass,
     @Override
     Mass divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Mass toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Mass toDecimal(java.math.MathContext mc);
+
     static Mass of(double value, javax.measure.Unit<javax.measure.quantity.Mass> unit) {
         return MassFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Mass extends javax.measure.quantity.Mass,
     static Mass of(double value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
             javax.measure.Quantity.Scale scale) {
         return MassFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit) {
+        return MassFactory.INSTANCE.of(value, unit);
+    }
+
+    static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
+            javax.measure.Quantity.Scale scale) {
+        return MassFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return MassFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

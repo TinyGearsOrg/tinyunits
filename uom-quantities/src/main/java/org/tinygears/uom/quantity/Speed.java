@@ -25,6 +25,12 @@ public interface Speed extends javax.measure.quantity.Speed,
     @Override
     Speed divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Speed toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Speed toDecimal(java.math.MathContext mc);
+
     static Speed of(double value, javax.measure.Unit<javax.measure.quantity.Speed> unit) {
         return SpeedFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Speed extends javax.measure.quantity.Speed,
     static Speed of(double value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
             javax.measure.Quantity.Scale scale) {
         return SpeedFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit) {
+        return SpeedFactory.INSTANCE.of(value, unit);
+    }
+
+    static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
+            javax.measure.Quantity.Scale scale) {
+        return SpeedFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return SpeedFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

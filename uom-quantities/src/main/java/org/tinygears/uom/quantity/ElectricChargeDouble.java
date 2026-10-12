@@ -16,4 +16,11 @@ final class ElectricChargeDouble extends org.tinygears.uom.core.quantity.Abstrac
             javax.measure.Quantity.Scale scale) {
         return new ElectricChargeDouble(value, unit, scale);
     }
+
+    @Override
+    protected ElectricCharge createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new ElectricChargeDecimal(value, unit, scale, mc);
+    }
 }

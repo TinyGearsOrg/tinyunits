@@ -16,4 +16,11 @@ final class LuminousIntensityDouble extends org.tinygears.uom.core.quantity.Abst
             javax.measure.Quantity.Scale scale) {
         return new LuminousIntensityDouble(value, unit, scale);
     }
+
+    @Override
+    protected LuminousIntensity createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new LuminousIntensityDecimal(value, unit, scale, mc);
+    }
 }

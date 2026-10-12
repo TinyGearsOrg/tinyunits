@@ -25,6 +25,12 @@ public interface Temperature extends javax.measure.quantity.Temperature,
     @Override
     Temperature divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Temperature toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Temperature toDecimal(java.math.MathContext mc);
+
     static Temperature of(double value, javax.measure.Unit<javax.measure.quantity.Temperature> unit) {
         return TemperatureFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Temperature extends javax.measure.quantity.Temperature,
     static Temperature of(double value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
             javax.measure.Quantity.Scale scale) {
         return TemperatureFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit) {
+        return TemperatureFactory.INSTANCE.of(value, unit);
+    }
+
+    static Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
+            javax.measure.Quantity.Scale scale) {
+        return TemperatureFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return TemperatureFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

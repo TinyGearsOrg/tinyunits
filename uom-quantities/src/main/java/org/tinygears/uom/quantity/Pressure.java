@@ -25,6 +25,12 @@ public interface Pressure extends javax.measure.quantity.Pressure,
     @Override
     Pressure divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Pressure toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Pressure toDecimal(java.math.MathContext mc);
+
     static Pressure of(double value, javax.measure.Unit<javax.measure.quantity.Pressure> unit) {
         return PressureFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Pressure extends javax.measure.quantity.Pressure,
     static Pressure of(double value, javax.measure.Unit<javax.measure.quantity.Pressure> unit,
             javax.measure.Quantity.Scale scale) {
         return PressureFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Pressure of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Pressure> unit) {
+        return PressureFactory.INSTANCE.of(value, unit);
+    }
+
+    static Pressure of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Pressure> unit,
+            javax.measure.Quantity.Scale scale) {
+        return PressureFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Pressure of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Pressure> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return PressureFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

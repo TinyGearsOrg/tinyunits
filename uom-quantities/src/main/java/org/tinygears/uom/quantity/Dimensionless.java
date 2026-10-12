@@ -25,6 +25,12 @@ public interface Dimensionless extends javax.measure.quantity.Dimensionless,
     @Override
     Dimensionless divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Dimensionless toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Dimensionless toDecimal(java.math.MathContext mc);
+
     static Dimensionless of(double value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit) {
         return DimensionlessFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Dimensionless extends javax.measure.quantity.Dimensionless,
     static Dimensionless of(double value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
             javax.measure.Quantity.Scale scale) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit) {
+        return DimensionlessFactory.INSTANCE.of(value, unit);
+    }
+
+    static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
+            javax.measure.Quantity.Scale scale) {
+        return DimensionlessFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return DimensionlessFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

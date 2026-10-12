@@ -25,6 +25,12 @@ public interface RadiationDoseEffective extends javax.measure.quantity.Radiation
     @Override
     RadiationDoseEffective divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    RadiationDoseEffective toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    RadiationDoseEffective toDecimal(java.math.MathContext mc);
+
     static RadiationDoseEffective of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface RadiationDoseEffective extends javax.measure.quantity.Radiation
     static RadiationDoseEffective of(double value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
             javax.measure.Quantity.Scale scale) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit) {
+        return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit);
+    }
+
+    static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
+            javax.measure.Quantity.Scale scale) {
+        return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

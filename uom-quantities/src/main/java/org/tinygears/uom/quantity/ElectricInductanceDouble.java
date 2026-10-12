@@ -16,4 +16,11 @@ final class ElectricInductanceDouble extends org.tinygears.uom.core.quantity.Abs
             javax.measure.Quantity.Scale scale) {
         return new ElectricInductanceDouble(value, unit, scale);
     }
+
+    @Override
+    protected ElectricInductance createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new ElectricInductanceDecimal(value, unit, scale, mc);
+    }
 }

@@ -25,6 +25,12 @@ public interface CatalyticActivity extends javax.measure.quantity.CatalyticActiv
     @Override
     CatalyticActivity divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    CatalyticActivity toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    CatalyticActivity toDecimal(java.math.MathContext mc);
+
     static CatalyticActivity of(double value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface CatalyticActivity extends javax.measure.quantity.CatalyticActiv
     static CatalyticActivity of(double value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
             javax.measure.Quantity.Scale scale) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit) {
+        return CatalyticActivityFactory.INSTANCE.of(value, unit);
+    }
+
+    static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
+            javax.measure.Quantity.Scale scale) {
+        return CatalyticActivityFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return CatalyticActivityFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

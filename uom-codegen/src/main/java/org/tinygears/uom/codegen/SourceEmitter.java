@@ -39,6 +39,12 @@ public final class SourceEmitter {
                 @Override
                 $T divide(Number divisor);
 
+                /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+                $T toDouble();
+
+                /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+                $T toDecimal(java.math.MathContext mc);
+
                 static $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
                     return $TFactory.INSTANCE.of(value, unit);
                 }
@@ -46,6 +52,20 @@ public final class SourceEmitter {
                 static $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     return $TFactory.INSTANCE.of(value, unit, scale);
+                }
+
+                static $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
+                    return $TFactory.INSTANCE.of(value, unit);
+                }
+
+                static $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
+                        javax.measure.Quantity.Scale scale) {
+                    return $TFactory.INSTANCE.of(value, unit, scale);
+                }
+
+                static $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
+                        javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+                    return $TFactory.INSTANCE.of(value, unit, scale, mc);
                 }
             }
             """;
@@ -61,6 +81,37 @@ public final class SourceEmitter {
 
                 @Override
                 protected $T create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
+                        javax.measure.Quantity.Scale scale) {
+                    return new $TDouble(value, unit, scale);
+                }
+
+                @Override
+                protected $T createDecimal(java.math.BigDecimal value,
+                        org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale,
+                        java.math.MathContext mc) {
+                    return new $TDecimal(value, unit, scale, mc);
+                }
+            }
+            """;
+
+    private static final String DECIMAL = """
+            final class $TDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.$T, $T>
+                    implements $T {
+
+                $TDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
+                        javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+                    super(value, unit, scale, mc);
+                }
+
+                @Override
+                protected $T create(java.math.BigDecimal value,
+                        org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale,
+                        java.math.MathContext mc) {
+                    return new $TDecimal(value, unit, scale, mc);
+                }
+
+                @Override
+                protected $T createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     return new $TDouble(value, unit, scale);
                 }
@@ -92,15 +143,43 @@ public final class SourceEmitter {
                     throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
                 }
 
-                @Override
-                public $T create(Number value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
-                    return of(java.util.Objects.requireNonNull(value, "value").doubleValue(), unit);
+                /** A decimal quantity with context {@code DECIMAL128}. */
+                public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
+                    return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+                }
+
+                /** A decimal quantity with context {@code DECIMAL128}. */
+                public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
+                        javax.measure.Quantity.Scale scale) {
+                    return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+                }
+
+                public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
+                        javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+                    if (java.util.Objects.requireNonNull(unit, "unit")
+                            instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> u) {
+                        return new $TDecimal(value, u, scale, mc);
+                    }
+                    throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
                 }
 
                 @Override
+                public $T create(Number value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
+                    return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+                }
+
+                /** {@code BigDecimal} and {@code BigInteger} values give a decimal quantity, all others a double one. */
+                @Override
                 public $T create(Number value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
-                    return of(java.util.Objects.requireNonNull(value, "value").doubleValue(), unit, scale);
+                    java.util.Objects.requireNonNull(value, "value");
+                    if (value instanceof java.math.BigDecimal d) {
+                        return of(d, unit, scale);
+                    }
+                    if (value instanceof java.math.BigInteger i) {
+                        return of(new java.math.BigDecimal(i), unit, scale);
+                    }
+                    return of(value.doubleValue(), unit, scale);
                 }
 
                 @Override
@@ -141,6 +220,10 @@ public final class SourceEmitter {
 
     public static String doubleImplementation(QuantityTypeSpec spec) {
         return HEADER + IMPLEMENTATION.replace("$T", spec.name());
+    }
+
+    public static String decimalImplementation(QuantityTypeSpec spec) {
+        return HEADER + DECIMAL.replace("$T", spec.name());
     }
 
     public static String factory(QuantityTypeSpec spec, Definitions definitions) {

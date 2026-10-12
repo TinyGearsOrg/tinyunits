@@ -16,4 +16,11 @@ final class IlluminanceDouble extends org.tinygears.uom.core.quantity.AbstractDo
             javax.measure.Quantity.Scale scale) {
         return new IlluminanceDouble(value, unit, scale);
     }
+
+    @Override
+    protected Illuminance createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new IlluminanceDecimal(value, unit, scale, mc);
+    }
 }

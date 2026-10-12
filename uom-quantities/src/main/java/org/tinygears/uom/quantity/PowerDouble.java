@@ -16,4 +16,11 @@ final class PowerDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQu
             javax.measure.Quantity.Scale scale) {
         return new PowerDouble(value, unit, scale);
     }
+
+    @Override
+    protected Power createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new PowerDecimal(value, unit, scale, mc);
+    }
 }

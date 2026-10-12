@@ -27,15 +27,43 @@ public final class AccelerationFactory implements javax.measure.spi.QuantityFact
         throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    @Override
-    public Acceleration create(Number value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit) {
-        return of(java.util.Objects.requireNonNull(value, "value").doubleValue(), unit);
+    /** A decimal quantity with context {@code DECIMAL128}. */
+    public Acceleration of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit) {
+        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    }
+
+    /** A decimal quantity with context {@code DECIMAL128}. */
+    public Acceleration of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit,
+            javax.measure.Quantity.Scale scale) {
+        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    }
+
+    public Acceleration of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        if (java.util.Objects.requireNonNull(unit, "unit")
+                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Acceleration> u) {
+            return new AccelerationDecimal(value, u, scale, mc);
+        }
+        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
+    public Acceleration create(Number value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit) {
+        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    }
+
+    /** {@code BigDecimal} and {@code BigInteger} values give a decimal quantity, all others a double one. */
+    @Override
     public Acceleration create(Number value, javax.measure.Unit<javax.measure.quantity.Acceleration> unit,
             javax.measure.Quantity.Scale scale) {
-        return of(java.util.Objects.requireNonNull(value, "value").doubleValue(), unit, scale);
+        java.util.Objects.requireNonNull(value, "value");
+        if (value instanceof java.math.BigDecimal d) {
+            return of(d, unit, scale);
+        }
+        if (value instanceof java.math.BigInteger i) {
+            return of(new java.math.BigDecimal(i), unit, scale);
+        }
+        return of(value.doubleValue(), unit, scale);
     }
 
     @Override

@@ -25,6 +25,12 @@ public interface Power extends javax.measure.quantity.Power,
     @Override
     Power divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Power toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Power toDecimal(java.math.MathContext mc);
+
     static Power of(double value, javax.measure.Unit<javax.measure.quantity.Power> unit) {
         return PowerFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Power extends javax.measure.quantity.Power,
     static Power of(double value, javax.measure.Unit<javax.measure.quantity.Power> unit,
             javax.measure.Quantity.Scale scale) {
         return PowerFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit) {
+        return PowerFactory.INSTANCE.of(value, unit);
+    }
+
+    static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit,
+            javax.measure.Quantity.Scale scale) {
+        return PowerFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return PowerFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

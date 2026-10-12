@@ -16,4 +16,11 @@ final class ElectricResistanceDouble extends org.tinygears.uom.core.quantity.Abs
             javax.measure.Quantity.Scale scale) {
         return new ElectricResistanceDouble(value, unit, scale);
     }
+
+    @Override
+    protected ElectricResistance createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new ElectricResistanceDecimal(value, unit, scale, mc);
+    }
 }

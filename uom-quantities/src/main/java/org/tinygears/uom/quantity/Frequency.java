@@ -25,6 +25,12 @@ public interface Frequency extends javax.measure.quantity.Frequency,
     @Override
     Frequency divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Frequency toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Frequency toDecimal(java.math.MathContext mc);
+
     static Frequency of(double value, javax.measure.Unit<javax.measure.quantity.Frequency> unit) {
         return FrequencyFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Frequency extends javax.measure.quantity.Frequency,
     static Frequency of(double value, javax.measure.Unit<javax.measure.quantity.Frequency> unit,
             javax.measure.Quantity.Scale scale) {
         return FrequencyFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Frequency of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Frequency> unit) {
+        return FrequencyFactory.INSTANCE.of(value, unit);
+    }
+
+    static Frequency of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Frequency> unit,
+            javax.measure.Quantity.Scale scale) {
+        return FrequencyFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Frequency of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Frequency> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return FrequencyFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

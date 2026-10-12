@@ -101,7 +101,7 @@ class GeneratedSourcesUpToDateTest {
     @Test
     void generatedFilesCarryTheHeader() {
         Generate.Output out = Generate.generate(DATA);
-        assertEquals(100, out.quantities().size());
+        assertEquals(133, out.quantities().size());
         out.quantities().forEach((name, text) -> assertTrue(text.startsWith(HEADER), name));
         assertEquals(Set.of("SI.java"), out.systems().keySet());
         assertTrue(out.systems().get("SI.java").startsWith(CATALOG_HEADER));

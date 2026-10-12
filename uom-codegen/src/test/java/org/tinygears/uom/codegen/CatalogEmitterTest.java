@@ -111,6 +111,7 @@ class CatalogEmitterTest {
             String q = "org.tinygears.uom.quantity." + s.name();
             sources.put(q, SourceEmitter.typedInterface(s));
             sources.put(q + "Double", SourceEmitter.doubleImplementation(s));
+            sources.put(q + "Decimal", SourceEmitter.decimalImplementation(s));
             sources.put(q + "Factory", SourceEmitter.factory(s, DEFS));
         }
         sources.put("org.tinygears.uom.systems.UomSystemOfUnits", SYSTEM_STAND_IN);

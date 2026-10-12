@@ -16,4 +16,11 @@ final class AngleDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQu
             javax.measure.Quantity.Scale scale) {
         return new AngleDouble(value, unit, scale);
     }
+
+    @Override
+    protected Angle createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new AngleDecimal(value, unit, scale, mc);
+    }
 }

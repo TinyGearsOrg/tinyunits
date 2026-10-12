@@ -27,15 +27,43 @@ public final class TemperatureFactory implements javax.measure.spi.QuantityFacto
         throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    @Override
-    public Temperature create(Number value, javax.measure.Unit<javax.measure.quantity.Temperature> unit) {
-        return of(java.util.Objects.requireNonNull(value, "value").doubleValue(), unit);
+    /** A decimal quantity with context {@code DECIMAL128}. */
+    public Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit) {
+        return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    }
+
+    /** A decimal quantity with context {@code DECIMAL128}. */
+    public Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
+            javax.measure.Quantity.Scale scale) {
+        return of(value, unit, scale, java.math.MathContext.DECIMAL128);
+    }
+
+    public Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        if (java.util.Objects.requireNonNull(unit, "unit")
+                instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> u) {
+            return new TemperatureDecimal(value, u, scale, mc);
+        }
+        throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
     }
 
     @Override
+    public Temperature create(Number value, javax.measure.Unit<javax.measure.quantity.Temperature> unit) {
+        return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
+    }
+
+    /** {@code BigDecimal} and {@code BigInteger} values give a decimal quantity, all others a double one. */
+    @Override
     public Temperature create(Number value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
             javax.measure.Quantity.Scale scale) {
-        return of(java.util.Objects.requireNonNull(value, "value").doubleValue(), unit, scale);
+        java.util.Objects.requireNonNull(value, "value");
+        if (value instanceof java.math.BigDecimal d) {
+            return of(d, unit, scale);
+        }
+        if (value instanceof java.math.BigInteger i) {
+            return of(new java.math.BigDecimal(i), unit, scale);
+        }
+        return of(value.doubleValue(), unit, scale);
     }
 
     @Override

@@ -25,6 +25,12 @@ public interface ElectricCurrent extends javax.measure.quantity.ElectricCurrent,
     @Override
     ElectricCurrent divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    ElectricCurrent toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    ElectricCurrent toDecimal(java.math.MathContext mc);
+
     static ElectricCurrent of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit) {
         return ElectricCurrentFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface ElectricCurrent extends javax.measure.quantity.ElectricCurrent,
     static ElectricCurrent of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricCurrentFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricCurrent of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit) {
+        return ElectricCurrentFactory.INSTANCE.of(value, unit);
+    }
+
+    static ElectricCurrent of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit,
+            javax.measure.Quantity.Scale scale) {
+        return ElectricCurrentFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricCurrent of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return ElectricCurrentFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

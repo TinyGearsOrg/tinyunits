@@ -16,4 +16,11 @@ final class RadiationDoseEffectiveDouble extends org.tinygears.uom.core.quantity
             javax.measure.Quantity.Scale scale) {
         return new RadiationDoseEffectiveDouble(value, unit, scale);
     }
+
+    @Override
+    protected RadiationDoseEffective createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new RadiationDoseEffectiveDecimal(value, unit, scale, mc);
+    }
 }

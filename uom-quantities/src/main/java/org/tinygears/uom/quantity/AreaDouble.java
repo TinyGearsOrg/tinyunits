@@ -16,4 +16,11 @@ final class AreaDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQua
             javax.measure.Quantity.Scale scale) {
         return new AreaDouble(value, unit, scale);
     }
+
+    @Override
+    protected Area createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new AreaDecimal(value, unit, scale, mc);
+    }
 }

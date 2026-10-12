@@ -16,4 +16,11 @@ final class LengthDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQ
             javax.measure.Quantity.Scale scale) {
         return new LengthDouble(value, unit, scale);
     }
+
+    @Override
+    protected Length createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new LengthDecimal(value, unit, scale, mc);
+    }
 }

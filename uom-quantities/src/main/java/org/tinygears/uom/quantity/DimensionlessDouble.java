@@ -16,4 +16,11 @@ final class DimensionlessDouble extends org.tinygears.uom.core.quantity.Abstract
             javax.measure.Quantity.Scale scale) {
         return new DimensionlessDouble(value, unit, scale);
     }
+
+    @Override
+    protected Dimensionless createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Dimensionless> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new DimensionlessDecimal(value, unit, scale, mc);
+    }
 }

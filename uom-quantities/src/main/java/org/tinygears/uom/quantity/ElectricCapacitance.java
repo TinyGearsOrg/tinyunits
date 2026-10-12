@@ -25,6 +25,12 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
     @Override
     ElectricCapacitance divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    ElectricCapacitance toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    ElectricCapacitance toDecimal(java.math.MathContext mc);
+
     static ElectricCapacitance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
     static ElectricCapacitance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit) {
+        return ElectricCapacitanceFactory.INSTANCE.of(value, unit);
+    }
+
+    static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
+            javax.measure.Quantity.Scale scale) {
+        return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

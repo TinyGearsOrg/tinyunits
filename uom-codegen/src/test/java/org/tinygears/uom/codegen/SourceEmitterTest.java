@@ -4,11 +4,17 @@ package org.tinygears.uom.codegen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -17,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,6 +34,7 @@ import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UnitAtom;
 import org.tinygears.uom.core.UomDimension;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 class SourceEmitterTest {
     private static final String PACKAGE = "org.tinygears.uom.quantity.";
@@ -44,6 +52,7 @@ class SourceEmitterTest {
         for (QuantityTypeSpec s : SPECS) {
             m.put(s.name(), SourceEmitter.typedInterface(s));
             m.put(s.name() + "Double", SourceEmitter.doubleImplementation(s));
+            m.put(s.name() + "Decimal", SourceEmitter.decimalImplementation(s));
             m.put(s.name() + "Factory", SourceEmitter.factory(s, UnitExpressionEmitterTest.DEFS));
         }
         m.put("QuantityTypes", SourceEmitter.registry(SPECS));
@@ -57,7 +66,7 @@ class SourceEmitterTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"Length", "LengthDouble", "LengthFactory", "SpeedFactory", "QuantityTypes"})
+    @ValueSource(strings = {"Length", "LengthDouble", "LengthDecimal", "LengthFactory", "SpeedFactory", "QuantityTypes"})
     void matchesGolden(String name) throws Exception {
         assertEquals(golden(name), sources().get(name));
     }
@@ -80,6 +89,41 @@ class SourceEmitterTest {
     }
 
     @Test
+    void decimalDeclarations() {
+        String decimal = SourceEmitter.decimalImplementation(LENGTH);
+        assertTrue(decimal.contains("""
+                final class LengthDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<\
+                javax.measure.quantity.Length, Length>
+                        implements Length {
+                """), decimal);
+        assertTrue(decimal.contains("protected Length create(java.math.BigDecimal value,"), decimal);
+        assertTrue(decimal.contains("return new LengthDecimal(value, unit, scale, mc);"), decimal);
+        assertTrue(decimal.contains("protected Length createDouble(double value,"), decimal);
+        assertTrue(decimal.contains("return new LengthDouble(value, unit, scale);"), decimal);
+        assertTrue(SourceEmitter.doubleImplementation(LENGTH)
+                .contains("return new LengthDecimal(value, unit, scale, mc);"));
+        String iface = SourceEmitter.typedInterface(LENGTH);
+        for (String declaration : List.of("Length toDouble();", "Length toDecimal(java.math.MathContext mc);",
+                "static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit) {",
+                "static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,\n"
+                        + "            javax.measure.Quantity.Scale scale) {",
+                "static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,\n"
+                        + "            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {")) {
+            assertTrue(iface.contains(declaration), declaration);
+        }
+        String factory = SourceEmitter.factory(LENGTH, UnitExpressionEmitterTest.DEFS);
+        assertTrue(factory.contains("""
+                        if (value instanceof java.math.BigDecimal d) {
+                            return of(d, unit, scale);
+                        }
+                        if (value instanceof java.math.BigInteger i) {
+                            return of(new java.math.BigDecimal(i), unit, scale);
+                        }
+                        return of(value.doubleValue(), unit, scale);
+                """), factory);
+    }
+
+    @Test
     void factoryReportsSpecPosition() {
         UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
         QuantityTypeSpec bad = new QuantityTypeSpec("Length", "x", x, null, null, "types.txt", 7);
@@ -95,6 +139,7 @@ class SourceEmitterTest {
         sources().forEach((name, text) -> byClass.put(PACKAGE + name, text));
         byClass.put(PACKAGE + "Speed", SourceEmitter.typedInterface(SPEED));
         byClass.put(PACKAGE + "SpeedDouble", SourceEmitter.doubleImplementation(SPEED));
+        byClass.put(PACKAGE + "SpeedDecimal", SourceEmitter.decimalImplementation(SPEED));
         try (URLClassLoader loader = InMemoryCompiler.compile(byClass, tmp)) {
             Class<?> types = loader.loadClass(PACKAGE + "QuantityTypes");
             assertEquals(Set.of(javax.measure.quantity.Length.class, javax.measure.quantity.Speed.class),
@@ -106,6 +151,57 @@ class SourceEmitterTest {
                     .invoke(null, 1.5, BaseUnits.METRE);
             assertEquals(1.5, ((Quantity<?>) length).getValue());
             assertEquals(Quantity.Scale.ABSOLUTE, ((Quantity<?>) length).getScale());
+            decimalsRun(loader);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void decimalsRun(ClassLoader loader) throws Exception {
+        Class<?> iface = loader.loadClass(PACKAGE + "Length");
+        Object d = iface.getMethod("of", BigDecimal.class, Unit.class)
+                .invoke(null, new BigDecimal("1.50"), BaseUnits.METRE);
+        assertEquals(PACKAGE + "LengthDecimal", d.getClass().getName());
+        assertEquals(new BigDecimal("1.50"), ((Quantity<?>) d).getValue());
+        assertEquals(MathContext.DECIMAL128, ((AbstractDecimalQuantity<?, ?>) d).mathContext());
+        Object r = iface.getMethod("of", BigDecimal.class, Unit.class, Quantity.Scale.class, MathContext.class)
+                .invoke(null, new BigDecimal("2"), BaseUnits.METRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL32);
+        assertEquals(Quantity.Scale.RELATIVE, ((Quantity<?>) r).getScale());
+        assertEquals(MathContext.DECIMAL32, ((AbstractDecimalQuantity<?, ?>) r).mathContext());
+        Object s = iface.getMethod("of", BigDecimal.class, Unit.class, Quantity.Scale.class)
+                .invoke(null, new BigDecimal("3"), BaseUnits.METRE, Quantity.Scale.RELATIVE);
+        assertEquals(MathContext.DECIMAL128, ((AbstractDecimalQuantity<?, ?>) s).mathContext());
+
+        Object dbl = iface.getMethod("toDouble").invoke(d);
+        assertTrue(iface.isInstance(dbl));
+        assertEquals(1.5, ((Quantity<?>) dbl).getValue());
+        Object back = iface.getMethod("toDecimal", MathContext.class).invoke(
+                iface.getMethod("of", double.class, Unit.class).invoke(null, 1.25, BaseUnits.METRE), new MathContext(2));
+        assertTrue(iface.isInstance(back));
+        assertEquals(new BigDecimal("1.3"), ((Quantity<?>) back).getValue());
+        assertEquals(new MathContext(2), ((AbstractDecimalQuantity<?, ?>) back).mathContext());
+        // a double operand gives the double class of the typed interface
+        Object mixed = ((Quantity<javax.measure.quantity.Length>) d).add(
+                (Quantity<javax.measure.quantity.Length>) dbl);
+        assertEquals(PACKAGE + "LengthDouble", mixed.getClass().getName());
+        assertEquals(3.0, ((Quantity<?>) mixed).getValue());
+
+        Object factory = loader.loadClass(PACKAGE + "LengthFactory").getField("INSTANCE").get(null);
+        java.lang.reflect.Method create = factory.getClass().getMethod("create", Number.class, Unit.class);
+        Quantity<?> fromDecimal = (Quantity<?>) create.invoke(factory, new BigDecimal("2.5"), BaseUnits.METRE);
+        assertEquals(new BigDecimal("2.5"), fromDecimal.getValue());
+        Quantity<?> fromInteger = (Quantity<?>) create.invoke(factory, BigInteger.TEN, BaseUnits.METRE);
+        assertEquals(BigDecimal.TEN, fromInteger.getValue());
+        assertEquals(MathContext.DECIMAL128, ((AbstractDecimalQuantity<?, ?>) fromInteger).mathContext());
+        assertEquals(3.0, ((Quantity<?>) create.invoke(factory, 3, BaseUnits.METRE)).getValue());
+        assertEquals(3.0, ((Quantity<?>) create.invoke(factory, 3L, BaseUnits.METRE)).getValue());
+
+        Unit<?> foreign = (Unit<?>) Proxy.newProxyInstance(Unit.class.getClassLoader(), new Class<?>[] {Unit.class},
+                (proxy, method, args) -> "foreign");
+        java.lang.reflect.Method of = factory.getClass().getMethod("of", BigDecimal.class, Unit.class);
+        InvocationTargetException e = assertThrows(InvocationTargetException.class,
+                () -> of.invoke(factory, BigDecimal.ONE, foreign));
+        assertInstanceOf(UnconvertibleException.class, e.getCause());
+        e = assertThrows(InvocationTargetException.class, () -> of.invoke(factory, null, BaseUnits.METRE));
+        assertInstanceOf(NullPointerException.class, e.getCause());
     }
 }

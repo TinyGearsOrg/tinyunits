@@ -25,6 +25,12 @@ public interface Area extends javax.measure.quantity.Area,
     @Override
     Area divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Area toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Area toDecimal(java.math.MathContext mc);
+
     static Area of(double value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
         return AreaFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Area extends javax.measure.quantity.Area,
     static Area of(double value, javax.measure.Unit<javax.measure.quantity.Area> unit,
             javax.measure.Quantity.Scale scale) {
         return AreaFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
+        return AreaFactory.INSTANCE.of(value, unit);
+    }
+
+    static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
+            javax.measure.Quantity.Scale scale) {
+        return AreaFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return AreaFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

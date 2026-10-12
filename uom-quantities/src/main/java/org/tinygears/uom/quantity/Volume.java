@@ -25,6 +25,12 @@ public interface Volume extends javax.measure.quantity.Volume,
     @Override
     Volume divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Volume toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Volume toDecimal(java.math.MathContext mc);
+
     static Volume of(double value, javax.measure.Unit<javax.measure.quantity.Volume> unit) {
         return VolumeFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Volume extends javax.measure.quantity.Volume,
     static Volume of(double value, javax.measure.Unit<javax.measure.quantity.Volume> unit,
             javax.measure.Quantity.Scale scale) {
         return VolumeFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Volume of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Volume> unit) {
+        return VolumeFactory.INSTANCE.of(value, unit);
+    }
+
+    static Volume of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Volume> unit,
+            javax.measure.Quantity.Scale scale) {
+        return VolumeFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Volume of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Volume> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return VolumeFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

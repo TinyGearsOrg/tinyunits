@@ -16,4 +16,11 @@ final class FrequencyDouble extends org.tinygears.uom.core.quantity.AbstractDoub
             javax.measure.Quantity.Scale scale) {
         return new FrequencyDouble(value, unit, scale);
     }
+
+    @Override
+    protected Frequency createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new FrequencyDecimal(value, unit, scale, mc);
+    }
 }

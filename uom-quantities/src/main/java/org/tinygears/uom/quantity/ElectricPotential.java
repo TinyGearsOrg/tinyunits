@@ -25,6 +25,12 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
     @Override
     ElectricPotential divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    ElectricPotential toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    ElectricPotential toDecimal(java.math.MathContext mc);
+
     static ElectricPotential of(double value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
     static ElectricPotential of(double value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
+        return ElectricPotentialFactory.INSTANCE.of(value, unit);
+    }
+
+    static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
+            javax.measure.Quantity.Scale scale) {
+        return ElectricPotentialFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return ElectricPotentialFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

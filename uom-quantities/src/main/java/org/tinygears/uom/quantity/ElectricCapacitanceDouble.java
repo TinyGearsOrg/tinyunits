@@ -16,4 +16,11 @@ final class ElectricCapacitanceDouble extends org.tinygears.uom.core.quantity.Ab
             javax.measure.Quantity.Scale scale) {
         return new ElectricCapacitanceDouble(value, unit, scale);
     }
+
+    @Override
+    protected ElectricCapacitance createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new ElectricCapacitanceDecimal(value, unit, scale, mc);
+    }
 }

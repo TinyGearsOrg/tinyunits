@@ -16,4 +16,11 @@ final class TimeDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQua
             javax.measure.Quantity.Scale scale) {
         return new TimeDouble(value, unit, scale);
     }
+
+    @Override
+    protected Time createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new TimeDecimal(value, unit, scale, mc);
+    }
 }

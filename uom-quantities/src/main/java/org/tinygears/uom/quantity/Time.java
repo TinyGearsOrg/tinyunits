@@ -25,6 +25,12 @@ public interface Time extends javax.measure.quantity.Time,
     @Override
     Time divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Time toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Time toDecimal(java.math.MathContext mc);
+
     static Time of(double value, javax.measure.Unit<javax.measure.quantity.Time> unit) {
         return TimeFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Time extends javax.measure.quantity.Time,
     static Time of(double value, javax.measure.Unit<javax.measure.quantity.Time> unit,
             javax.measure.Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit) {
+        return TimeFactory.INSTANCE.of(value, unit);
+    }
+
+    static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit,
+            javax.measure.Quantity.Scale scale) {
+        return TimeFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return TimeFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

@@ -25,6 +25,12 @@ public interface ElectricConductance extends javax.measure.quantity.ElectricCond
     @Override
     ElectricConductance divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    ElectricConductance toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    ElectricConductance toDecimal(java.math.MathContext mc);
+
     static ElectricConductance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit) {
         return ElectricConductanceFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface ElectricConductance extends javax.measure.quantity.ElectricCond
     static ElectricConductance of(double value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricConductanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricConductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit) {
+        return ElectricConductanceFactory.INSTANCE.of(value, unit);
+    }
+
+    static ElectricConductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
+            javax.measure.Quantity.Scale scale) {
+        return ElectricConductanceFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static ElectricConductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricConductance> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return ElectricConductanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

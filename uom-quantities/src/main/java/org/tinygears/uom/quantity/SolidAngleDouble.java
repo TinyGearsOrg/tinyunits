@@ -16,4 +16,11 @@ final class SolidAngleDouble extends org.tinygears.uom.core.quantity.AbstractDou
             javax.measure.Quantity.Scale scale) {
         return new SolidAngleDouble(value, unit, scale);
     }
+
+    @Override
+    protected SolidAngle createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new SolidAngleDecimal(value, unit, scale, mc);
+    }
 }

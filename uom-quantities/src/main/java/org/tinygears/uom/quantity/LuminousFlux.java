@@ -25,6 +25,12 @@ public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
     @Override
     LuminousFlux divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    LuminousFlux toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    LuminousFlux toDecimal(java.math.MathContext mc);
+
     static LuminousFlux of(double value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit) {
         return LuminousFluxFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
     static LuminousFlux of(double value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
             javax.measure.Quantity.Scale scale) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit) {
+        return LuminousFluxFactory.INSTANCE.of(value, unit);
+    }
+
+    static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
+            javax.measure.Quantity.Scale scale) {
+        return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return LuminousFluxFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

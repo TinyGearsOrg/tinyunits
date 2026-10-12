@@ -25,6 +25,12 @@ public interface Angle extends javax.measure.quantity.Angle,
     @Override
     Angle divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Angle toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Angle toDecimal(java.math.MathContext mc);
+
     static Angle of(double value, javax.measure.Unit<javax.measure.quantity.Angle> unit) {
         return AngleFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Angle extends javax.measure.quantity.Angle,
     static Angle of(double value, javax.measure.Unit<javax.measure.quantity.Angle> unit,
             javax.measure.Quantity.Scale scale) {
         return AngleFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Angle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Angle> unit) {
+        return AngleFactory.INSTANCE.of(value, unit);
+    }
+
+    static Angle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Angle> unit,
+            javax.measure.Quantity.Scale scale) {
+        return AngleFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Angle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Angle> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return AngleFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

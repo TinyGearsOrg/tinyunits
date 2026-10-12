@@ -16,4 +16,11 @@ final class PressureDouble extends org.tinygears.uom.core.quantity.AbstractDoubl
             javax.measure.Quantity.Scale scale) {
         return new PressureDouble(value, unit, scale);
     }
+
+    @Override
+    protected Pressure createDecimal(java.math.BigDecimal value,
+            org.tinygears.uom.core.UomUnit<javax.measure.quantity.Pressure> unit, javax.measure.Quantity.Scale scale,
+            java.math.MathContext mc) {
+        return new PressureDecimal(value, unit, scale, mc);
+    }
 }

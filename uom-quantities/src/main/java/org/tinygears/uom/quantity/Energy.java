@@ -25,6 +25,12 @@ public interface Energy extends javax.measure.quantity.Energy,
     @Override
     Energy divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    Energy toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    Energy toDecimal(java.math.MathContext mc);
+
     static Energy of(double value, javax.measure.Unit<javax.measure.quantity.Energy> unit) {
         return EnergyFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface Energy extends javax.measure.quantity.Energy,
     static Energy of(double value, javax.measure.Unit<javax.measure.quantity.Energy> unit,
             javax.measure.Quantity.Scale scale) {
         return EnergyFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Energy of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Energy> unit) {
+        return EnergyFactory.INSTANCE.of(value, unit);
+    }
+
+    static Energy of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Energy> unit,
+            javax.measure.Quantity.Scale scale) {
+        return EnergyFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static Energy of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Energy> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return EnergyFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }

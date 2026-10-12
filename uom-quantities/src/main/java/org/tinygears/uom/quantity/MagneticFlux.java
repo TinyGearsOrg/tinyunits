@@ -25,6 +25,12 @@ public interface MagneticFlux extends javax.measure.quantity.MagneticFlux,
     @Override
     MagneticFlux divide(Number divisor);
 
+    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    MagneticFlux toDouble();
+
+    /** The same quantity as a decimal rounded to {@code mc}, which becomes its context. */
+    MagneticFlux toDecimal(java.math.MathContext mc);
+
     static MagneticFlux of(double value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit) {
         return MagneticFluxFactory.INSTANCE.of(value, unit);
     }
@@ -32,5 +38,19 @@ public interface MagneticFlux extends javax.measure.quantity.MagneticFlux,
     static MagneticFlux of(double value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
             javax.measure.Quantity.Scale scale) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit) {
+        return MagneticFluxFactory.INSTANCE.of(value, unit);
+    }
+
+    static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
+            javax.measure.Quantity.Scale scale) {
+        return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
+    }
+
+    static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
+            javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+        return MagneticFluxFactory.INSTANCE.of(value, unit, scale, mc);
     }
 }
