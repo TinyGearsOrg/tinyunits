@@ -199,7 +199,24 @@ public final class Factor {
     }
 
     public double doubleValue() {
-        return decimalValue(new MathContext(25)).doubleValue();
+        if (isExact()) {
+            // Quotient of >= 56 bits with a sticky low bit: never a binary midpoint, so one exact rounding.
+            BigInteger n = num.abs();
+            int shift = Math.max(0, 56 + den.bitLength() - n.bitLength());
+            BigInteger[] qr = n.shiftLeft(shift).divideAndRemainder(den);
+            BigInteger q = qr[1].signum() == 0 ? qr[0] : qr[0].setBit(0);
+            double d = new BigDecimal(q).divide(new BigDecimal(BigInteger.ONE.shiftLeft(shift))).doubleValue();
+            return signum() < 0 ? -d : d;
+        }
+        // An irrational value is never a midpoint: widen until a +-2 ulp bracket rounds to one double.
+        for (int p = 25; ; p *= 2) {
+            BigDecimal x = decimalValue(new MathContext(p));
+            BigDecimal err = x.ulp().multiply(BigDecimal.TWO);
+            double lo = x.subtract(err).doubleValue();
+            if (lo == x.add(err).doubleValue()) {
+                return lo;
+            }
+        }
     }
 
     public BigDecimal decimalValue(MathContext mc) {

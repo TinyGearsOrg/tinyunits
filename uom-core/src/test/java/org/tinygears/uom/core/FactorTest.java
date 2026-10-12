@@ -11,6 +11,7 @@ import static org.tinygears.uom.core.Factor.of;
 import static org.tinygears.uom.core.Factor.ofLong;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import org.junit.jupiter.api.Test;
 
@@ -60,6 +61,14 @@ class FactorTest {
         assertEquals(new BigDecimal("1.41421356237309504880168872421"), sqrt2.decimalValue(new MathContext(30)));
         assertThrows(ArithmeticException.class, () -> sqrt2.add(ONE));
         assertThrows(ArithmeticException.class, () -> ofLong(-4).root(2));
+    }
+
+    @Test
+    void doubleValueRoundsOnce() {
+        assertEquals(9.007199254740994E15, decimal("9007199254740993.0000000001").doubleValue());
+        assertEquals(-9.007199254740994E15, decimal("-9007199254740993.0000000001").doubleValue());
+        assertEquals(1.0 / 3.0, of(1, 3).doubleValue());
+        assertEquals(Double.MIN_VALUE, of(BigInteger.ONE, BigInteger.TWO.pow(1074)).doubleValue());
     }
 
     @Test
