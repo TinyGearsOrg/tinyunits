@@ -40,15 +40,18 @@ public interface Dimensionless extends javax.measure.quantity.Dimensionless,
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit) {
         return DimensionlessFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
             javax.measure.Quantity.Scale scale) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Dimensionless of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Dimensionless> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale, mc);

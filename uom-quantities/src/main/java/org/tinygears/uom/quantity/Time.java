@@ -40,15 +40,18 @@ public interface Time extends javax.measure.quantity.Time,
         return TimeFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit) {
         return TimeFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit,
             javax.measure.Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Time of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Time> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return TimeFactory.INSTANCE.of(value, unit, scale, mc);

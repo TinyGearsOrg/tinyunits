@@ -40,15 +40,18 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
             javax.measure.Quantity.Scale scale) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static LuminousIntensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale, mc);

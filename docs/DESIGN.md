@@ -142,7 +142,9 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
   - **Single rounding (D6a).** `add`, `subtract` and the scalar operations on offset units are one affine function of the
     operand, rounded once to the result context, never converting each operand first.
   - **Division (D7).** Rounds to the receiver's context; an unlimited context uses `DECIMAL128` for the division only, so
-    `1 m / 3` never throws. Division by zero throws `ArithmeticException`.
+    `1 m / 3` never throws. Division by zero throws `ArithmeticException`. Generally, `UNLIMITED` keeps a result exact
+    where it terminates; non-terminating quotients and irrational conversions fall back to `DECIMAL128` with
+    `HALF_EVEN`, whatever the context's rounding mode.
   - **Scalar conversion (D8).** A `double` or `Float` scalar becomes the decimal the user wrote
     (`BigDecimal.valueOf(double)`); `NaN` and infinity throw `ArithmeticException`.
   - **Bounds (D9).** The scale of a decimal value is limited to `|scale| <= 100_000` at construction and for every

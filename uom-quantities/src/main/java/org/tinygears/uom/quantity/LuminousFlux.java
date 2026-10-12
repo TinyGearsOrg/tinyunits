@@ -40,15 +40,18 @@ public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit) {
         return LuminousFluxFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
             javax.measure.Quantity.Scale scale) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static LuminousFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.LuminousFlux> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale, mc);

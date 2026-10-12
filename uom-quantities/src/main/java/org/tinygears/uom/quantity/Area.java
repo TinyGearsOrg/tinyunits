@@ -40,15 +40,18 @@ public interface Area extends javax.measure.quantity.Area,
         return AreaFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit) {
         return AreaFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
             javax.measure.Quantity.Scale scale) {
         return AreaFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Area of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Area> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return AreaFactory.INSTANCE.of(value, unit, scale, mc);

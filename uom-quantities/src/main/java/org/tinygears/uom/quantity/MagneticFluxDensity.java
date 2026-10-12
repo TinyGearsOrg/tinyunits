@@ -40,15 +40,18 @@ public interface MagneticFluxDensity extends javax.measure.quantity.MagneticFlux
         return MagneticFluxDensityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static MagneticFluxDensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity> unit) {
         return MagneticFluxDensityFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static MagneticFluxDensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity> unit,
             javax.measure.Quantity.Scale scale) {
         return MagneticFluxDensityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static MagneticFluxDensity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return MagneticFluxDensityFactory.INSTANCE.of(value, unit, scale, mc);

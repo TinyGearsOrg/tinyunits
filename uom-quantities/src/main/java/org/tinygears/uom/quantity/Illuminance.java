@@ -40,15 +40,18 @@ public interface Illuminance extends javax.measure.quantity.Illuminance,
         return IlluminanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit) {
         return IlluminanceFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
             javax.measure.Quantity.Scale scale) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Illuminance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Illuminance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale, mc);

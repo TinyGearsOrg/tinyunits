@@ -40,15 +40,18 @@ public interface ElectricInductance extends javax.measure.quantity.ElectricInduc
         return ElectricInductanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricInductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricInductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static ElectricInductance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit, scale, mc);

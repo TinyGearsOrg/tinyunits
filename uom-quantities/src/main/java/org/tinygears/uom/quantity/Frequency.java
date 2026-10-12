@@ -40,15 +40,18 @@ public interface Frequency extends javax.measure.quantity.Frequency,
         return FrequencyFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Frequency of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Frequency> unit) {
         return FrequencyFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Frequency of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Frequency> unit,
             javax.measure.Quantity.Scale scale) {
         return FrequencyFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Frequency of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Frequency> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return FrequencyFactory.INSTANCE.of(value, unit, scale, mc);

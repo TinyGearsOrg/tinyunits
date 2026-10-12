@@ -99,6 +99,9 @@ class AbstractDecimalQuantityTest {
     void toRoundsToTheContext() {
         UomUnit<Length> third = METRE.divide(3);
         assertEquals(new BigDecimal("0.333"), q("1", third, new MathContext(3)).to(METRE).getValue());
+        TestLengthDecimalImpl unrounded = q("1.23456789", METRE, MathContext.DECIMAL32);
+        assertEquals(new BigDecimal("1.23456789"), unrounded.getValue());
+        assertEquals(new BigDecimal("1.234568"), unrounded.to(METRE).getValue());
     }
 
     @Test

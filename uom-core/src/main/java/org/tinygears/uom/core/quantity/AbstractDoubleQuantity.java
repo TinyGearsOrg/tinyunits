@@ -78,7 +78,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     /**
      * Converts {@code that} into this unit and compares within the relative {@link #EQUIVALENCE_TOLERANCE}, which
      * is asymmetric near zero for offset units. NaN is equivalent to nothing; incompatible dimensions give false
-     * (compareTo throws).
+     * (compareTo throws). A decimal operand outside the double range throws {@link ArithmeticException}.
      */
     @Override
     public boolean isEquivalentTo(Quantity<Q> that) {
@@ -97,7 +97,10 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return Math.abs(a - b) <= EQUIVALENCE_TOLERANCE * Math.max(Math.abs(a), Math.abs(b));
     }
 
-    /** Compares the system-unit values with {@link Double#compare}; not consistent with equals. */
+    /**
+     * Compares the system-unit values with {@link Double#compare}; not consistent with equals. A decimal operand
+     * outside the double range throws {@link ArithmeticException}.
+     */
     @Override
     public int compareTo(Quantity<Q> that) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());

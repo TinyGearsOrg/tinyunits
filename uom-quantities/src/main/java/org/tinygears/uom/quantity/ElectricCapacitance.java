@@ -40,15 +40,18 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static ElectricCapacitance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return ElectricCapacitanceFactory.INSTANCE.of(value, unit, scale, mc);

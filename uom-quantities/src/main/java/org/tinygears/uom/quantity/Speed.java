@@ -40,15 +40,18 @@ public interface Speed extends javax.measure.quantity.Speed,
         return SpeedFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit) {
         return SpeedFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
             javax.measure.Quantity.Scale scale) {
         return SpeedFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Speed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Speed> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return SpeedFactory.INSTANCE.of(value, unit, scale, mc);

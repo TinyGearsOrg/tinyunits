@@ -40,15 +40,18 @@ public interface ElectricCurrent extends javax.measure.quantity.ElectricCurrent,
         return ElectricCurrentFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricCurrent of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit) {
         return ElectricCurrentFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricCurrent of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricCurrentFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static ElectricCurrent of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricCurrent> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return ElectricCurrentFactory.INSTANCE.of(value, unit, scale, mc);

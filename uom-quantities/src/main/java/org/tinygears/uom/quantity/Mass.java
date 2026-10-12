@@ -40,15 +40,18 @@ public interface Mass extends javax.measure.quantity.Mass,
         return MassFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit) {
         return MassFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
             javax.measure.Quantity.Scale scale) {
         return MassFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Mass of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Mass> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return MassFactory.INSTANCE.of(value, unit, scale, mc);

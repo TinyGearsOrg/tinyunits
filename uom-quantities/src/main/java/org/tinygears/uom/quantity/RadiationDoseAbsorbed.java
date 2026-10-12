@@ -40,15 +40,18 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
             javax.measure.Quantity.Scale scale) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static RadiationDoseAbsorbed of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale, mc);

@@ -40,15 +40,18 @@ public interface Temperature extends javax.measure.quantity.Temperature,
         return TemperatureFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit) {
         return TemperatureFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
             javax.measure.Quantity.Scale scale) {
         return TemperatureFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Temperature of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Temperature> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return TemperatureFactory.INSTANCE.of(value, unit, scale, mc);

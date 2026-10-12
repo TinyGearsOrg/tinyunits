@@ -40,15 +40,18 @@ public interface Length extends javax.measure.quantity.Length,
         return LengthFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit) {
         return LengthFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
             javax.measure.Quantity.Scale scale) {
         return LengthFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return LengthFactory.INSTANCE.of(value, unit, scale, mc);

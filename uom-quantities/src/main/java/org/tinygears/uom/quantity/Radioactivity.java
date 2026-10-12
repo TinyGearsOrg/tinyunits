@@ -40,15 +40,18 @@ public interface Radioactivity extends javax.measure.quantity.Radioactivity,
         return RadioactivityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit) {
         return RadioactivityFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
             javax.measure.Quantity.Scale scale) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Radioactivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Radioactivity> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale, mc);

@@ -40,15 +40,18 @@ public interface Volume extends javax.measure.quantity.Volume,
         return VolumeFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Volume of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Volume> unit) {
         return VolumeFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Volume of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Volume> unit,
             javax.measure.Quantity.Scale scale) {
         return VolumeFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Volume of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Volume> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return VolumeFactory.INSTANCE.of(value, unit, scale, mc);

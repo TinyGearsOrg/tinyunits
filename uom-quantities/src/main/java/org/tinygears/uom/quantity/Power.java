@@ -40,15 +40,18 @@ public interface Power extends javax.measure.quantity.Power,
         return PowerFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit) {
         return PowerFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit,
             javax.measure.Quantity.Scale scale) {
         return PowerFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static Power of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Power> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return PowerFactory.INSTANCE.of(value, unit, scale, mc);

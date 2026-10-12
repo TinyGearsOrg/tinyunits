@@ -40,15 +40,18 @@ public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubsta
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
             javax.measure.Quantity.Scale scale) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static AmountOfSubstance of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return AmountOfSubstanceFactory.INSTANCE.of(value, unit, scale, mc);

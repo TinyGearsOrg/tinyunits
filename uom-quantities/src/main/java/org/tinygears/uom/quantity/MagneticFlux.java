@@ -40,15 +40,18 @@ public interface MagneticFlux extends javax.measure.quantity.MagneticFlux,
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit) {
         return MagneticFluxFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
             javax.measure.Quantity.Scale scale) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static MagneticFlux of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.MagneticFlux> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale, mc);

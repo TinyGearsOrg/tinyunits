@@ -40,15 +40,18 @@ public interface RadiationDoseEffective extends javax.measure.quantity.Radiation
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
             javax.measure.Quantity.Scale scale) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static RadiationDoseEffective of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return RadiationDoseEffectiveFactory.INSTANCE.of(value, unit, scale, mc);

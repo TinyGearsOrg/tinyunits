@@ -40,15 +40,18 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
             javax.measure.Quantity.Scale scale) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static ElectricPotential of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale, mc);

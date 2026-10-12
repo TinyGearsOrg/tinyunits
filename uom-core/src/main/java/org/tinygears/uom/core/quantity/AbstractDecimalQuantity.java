@@ -16,8 +16,11 @@ import org.tinygears.uom.core.UomUnit;
 
 /**
  * Base class of the generated {@link BigDecimal} quantities; {@code R} is the typed interface returned by
- * conversions. The {@link MathContext} rounds computed results and is not part of equality. A {@link BigDecimal}
- * operand value or scalar whose scale exceeds ±100000 throws {@link ArithmeticException}. Immutable.
+ * conversions. The {@link MathContext} rounds every computed result and is not part of equality; creation and
+ * {@link #negate()} keep the value as given. {@link MathContext#UNLIMITED} keeps results exact where they terminate;
+ * non-terminating quotients and irrational conversions fall back to {@code DECIMAL128} with {@code HALF_EVEN},
+ * whatever the rounding mode. A {@link BigDecimal} operand value or scalar whose scale exceeds ±100000 throws
+ * {@link ArithmeticException}. Immutable.
  */
 public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
         implements Quantity<Q>, Comparable<Quantity<Q>> {
@@ -62,7 +65,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /**
-     * Converts exactly where the conversion is exact, otherwise rounds to {@link #mathContext()}. Throws
+     * Converts and rounds the result to {@link #mathContext()}, even for the identity conversion
+     * ({@code 1.23456789 m} with {@code DECIMAL32} to metres gives {@code 1.234568 m}). Throws
      * {@link ArithmeticException} if the result's scale exceeds the bound of ±100000 (conversion or rounding can
      * push a value past it).
      */
@@ -130,7 +134,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     /**
      * Compares the exact system-unit values (a consistent total preorder), or with {@link Double#compare} against a
      * {@code double} operand; not consistent with equals. Exact for units with exact factors; irrational factors
-     * are evaluated with guard digits, best effort.
+     * are evaluated with guard digits, best effort. Against a {@code double} operand, a value of this quantity
+     * outside the double range throws {@link ArithmeticException}.
      */
     @Override
     public int compareTo(Quantity<Q> that) {
@@ -156,7 +161,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     /**
      * Converts {@code that} into this unit and compares within the relative tolerance {@code 10^(1-p)}, {@code p}
      * the lowest non-zero precision of both contexts (34 if unlimited); against a {@code double} operand the
-     * {@code double} rule applies. At precision 1 the tolerance is 10^0 (degenerate by design). Incompatible
+     * {@code double} rule applies, and a value of this quantity outside the double range throws
+     * {@link ArithmeticException}. At precision 1 the tolerance is 10^0 (degenerate by design). Incompatible
      * dimensions give false (compareTo throws).
      */
     @Override

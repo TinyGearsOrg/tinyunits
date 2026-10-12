@@ -40,15 +40,18 @@ public interface CatalyticActivity extends javax.measure.quantity.CatalyticActiv
         return CatalyticActivityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
             javax.measure.Quantity.Scale scale) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static CatalyticActivity of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return CatalyticActivityFactory.INSTANCE.of(value, unit, scale, mc);

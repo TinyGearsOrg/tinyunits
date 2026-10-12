@@ -27,18 +27,18 @@ public final class LengthFactory implements javax.measure.spi.QuantityFactory<ja
         throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}. */
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     public Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit) {
         return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}. */
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     public Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
             javax.measure.Quantity.Scale scale) {
         return of(value, unit, scale, java.math.MathContext.DECIMAL128);
     }
 
-    /** A decimal quantity with context {@code mc}. */
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     public Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         java.util.Objects.requireNonNull(value, "value");
@@ -54,7 +54,10 @@ public final class LengthFactory implements javax.measure.spi.QuantityFactory<ja
         return create(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
     }
 
-    /** {@code BigDecimal} and {@code BigInteger} values give a decimal quantity, all others a double one. */
+    /**
+     * {@code BigDecimal} and {@code BigInteger} values give a decimal quantity with context {@code DECIMAL128},
+     * not rounded; all others a double one.
+     */
     @Override
     public Length create(Number value, javax.measure.Unit<javax.measure.quantity.Length> unit,
             javax.measure.Quantity.Scale scale) {

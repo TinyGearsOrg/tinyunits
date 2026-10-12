@@ -40,15 +40,18 @@ public interface SolidAngle extends javax.measure.quantity.SolidAngle,
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit) {
         return SolidAngleFactory.INSTANCE.of(value, unit);
     }
 
+    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
     static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
             javax.measure.Quantity.Scale scale) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
     }
 
+    /** A decimal quantity with context {@code mc}; the value is kept as given, not rounded. */
     static SolidAngle of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.SolidAngle> unit,
             javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale, mc);
