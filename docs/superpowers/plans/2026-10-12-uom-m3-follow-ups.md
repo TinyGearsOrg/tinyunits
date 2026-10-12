@@ -90,6 +90,11 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
   covers that branch. The factor in the message is unabbreviated for huge factors.
 - The over-long-formula test checks only the message prefix.
 - Whitespace-shaped symbols are emitted verbatim (cosmetic); the evaluator guard wraps all `RuntimeException`s.
+- Any metric prefix applies at run time to a prefixable unit, so in an SI-only format `ft`, `at`,
+  `ct` and `dt` parse as femto-, atto-, centi- and decitonne. Exact symbols win in a multi-system
+  format, but consider restricting `t` to the prefixes listed in its `@prefixed` line.
+- `UomServiceProvider.toString()` could return the provider name so that `ServiceProvider.of(name)`
+  finds it (unit-api 2.2 falls back to `toString()` without `@Named`).
 
 ## Generator and data (`uom-codegen`, `data/`)
 
