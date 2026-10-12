@@ -26,7 +26,7 @@ dynamic proxies in the picture.
 | F1 | Implement the JSR-385 API (`javax.measure`): `Quantity`, `Unit`, `UnitConverter`, `Dimension`, `SystemOfUnits`, service provider. Target version: `javax.measure:unit-api` 2.2 (latest, May 2023; 15 methods on `Quantity`, 25 on `Unit`). Older versions are not supported. |
 | F2 | Own implementation of the units side: no dependency on Indriya or any other JSR-385 implementation at runtime. |
 | F3 | Typed quantity classes generated at compile time by an annotation processor from annotated interfaces. No proxies, no runtime reflection for quantity creation. |
-| F4 | Generated quantities implement the standard quantity interfaces (`javax.measure.quantity.Length`, ...) where one exists, and the user's own interface otherwise. A typed quantity is accepted anywhere `Quantity<Q>` is. |
+| F4 | Generated quantities implement the standard quantity interfaces (`javax.measure.quantity.Length`, ...) for the built-in set of quantity types (those in unit-api, plus any further types the catalogs need). A typed quantity is accepted anywhere `Quantity<Q>` is. |
 | F5 | Two numeric precisions from the first release: `double` and `BigDecimal`. Both are generated for every quantity type. Mixing precisions in one operation has a single, documented promotion rule. |
 | F6 | Unit catalogs: SI (all prefixes, plus accepted non-SI units such as minute, hour, litre, tonne, electronvolt), Imperial / US customary (US and imperial gallons distinguished, international vs US survey foot distinguished), CGS mechanical, and CGS electromagnetic (ESU, EMU, Gaussian). |
 | F7 | CGS electromagnetic units are conversion conventions: a statcoulomb is a unit of `ElectricCharge` with a numeric factor to the coulomb. They are not modelled as separate dimension sets (see the open questions). |
@@ -36,11 +36,11 @@ dynamic proxies in the picture.
 | F11 | Compatibility checking: combining incompatible units fails with a clear unchecked exception naming both units. |
 | F12 | Quantities and units are immutable, thread-safe and `Serializable`. |
 | F13 | A `module-info.java` (JPMS) for every published module. |
-| F14 | Users can define their own quantity types and units with the same annotation and generator as the built-in ones. |
+| F14 | ~~User-defined quantity types~~ Moved out of scope for 1.0 (see below). |
 | F15 | **Unit definitions live in text data files**, which are the single source of truth for the catalogs (F6). The file syntax is a design decision. The original uom `.units` format (GNU units style: `symbol:name formula`, `@include`, `!` base units, `~` alternate units, `a|b` fractions, affine functions) is a starting point, not a constraint. The syntax must express: symbol and name, a formula over other units, exact rational and decimal factors, offsets and affine functions, base units, alternate units, includes, comments, and (F16) an optional explicit quantity type. |
 | F16 | **Typed catalog constants are generated from the data files** (e.g. `Unit<Length> INCH`, `Unit<Energy> JOULE`). The quantity type of a unit is inferred from its dimension, and may be stated explicitly in the definition where the dimension is ambiguous (e.g. energy and torque; hertz and becquerel; gray and sievert). An ambiguous definition with no explicit type is a build error. |
 | F17 | **The same definitions drive the unit parser (F9)**, so a symbol such as `"ft"` resolves to the same unit in code and in text. Whether definitions are processed at build time, at run time, or both is a design decision. |
-| F18 | **Users can supply their own `.units` files** (extending or including the built-in ones), processed by the same generator (F14). |
+| F18 | **Users can supply their own `.units` files** (extending or including the built-in ones), processed by the same generator. They can define units of the built-in quantity types only. |
 | F19 | **Definition errors are build errors with file and line:** unknown unit, duplicate symbol, circular definition, dimension mismatch, unparsable formula. |
 | F20 | **Quantity equality.** `isEquivalentTo` follows the standard: same numerical value after conversion to the same unit, ignoring rounding errors (2 km is equivalent to 2000 m; 2 °C is equivalent to 275.15 K, not to 2 K). `equals` and `hashCode` are strict and mutually consistent: same implementation type, same unit and same value (`Double.compare` semantics for double, `compareTo == 0` with equal scale handling to be fixed in the design for BigDecimal). The tolerance used by `isEquivalentTo` is a design decision (open). `equals` is deliberately not `isEquivalentTo`, because a tolerance cannot satisfy the `equals` contract. |
 | F21 | **Unit equality.** `Unit.equals` follows the examples in the standard: `getSystemUnit().equals(...)` must identify a quantity type, and alternate units differ from the unit they are derived from (`RADIAN.equals(ONE)` is false although they are compatible). Equality is structural over the system-unit decomposition and the converter, not over symbol or name. `isEquivalentTo` on units means the converter between them is the identity. |
@@ -49,6 +49,9 @@ dynamic proxies in the picture.
 
 ### Explicitly out of scope for 1.0
 
+- User-defined quantity types. The quantity types are the built-in set. The annotation
+  processor is build machinery for generating that set; whether it is published as a
+  user-facing artifact is a design decision. Users can still add units (F18).
 - Typed quantity products and quotients (`Length / Time` returning `Speed`, `Length * Length`
   returning `Area`). JSR-385 `multiply` and `divide` return `Quantity<?>`; narrowing is by
   `asType(Class)`. Declared relations can be added in a later release.
@@ -81,7 +84,7 @@ dynamic proxies in the picture.
 | N4 | **Compile-time safety:** adding quantities of different types, or passing a unit of the wrong quantity to a typed factory, is a compile error wherever the standard API allows it. Where the API forces a looser parameter type (`Quantity<Length>` rather than `Length`), return types stay typed. |
 | N5 | **Diagnostics:** the processor reports misuse as compile errors attached to the offending element (wrong shape of annotated type, duplicate names, unknown dimension). |
 | N6 | **Testing:** unit tests per module, a processor test that compiles sample inputs and asserts on diagnostics and generated behaviour, and a property-style round-trip test over every catalog unit (convert to the system unit and back within tolerance). |
-| N7 | **Documentation:** README with a five-minute example, a guide for defining custom quantities, and a table of catalog units with their systems. |
+| N7 | **Documentation:** README with a five-minute example, a guide for adding custom units, and a table of catalog units with their systems. |
 | N8 | **Release:** versioned releases on Maven Central as `org.tinygears:uom-*`, semantic versioning, a public API definition (what is stable) in the docs. |
 
 ## 5. Proposed module layout (for discussion, to be settled in the design)
@@ -98,9 +101,8 @@ dynamic proxies in the picture.
 
 1. ~~**JSR-385 version and TCK.**~~ Resolved: unit-api 2.2, TCK `unit-tck` 2.2 exists. Still to
    verify in a spike: whether the TCK runs against an implementation other than Indriya.
-2. **Custom quantity dimensions.** For a user-defined quantity type, how does the dimension get
-   declared and checked (annotation attributes, a registered `Dimension` constant, or derived
-   from the system unit)?
+2. ~~**Custom quantity dimensions.**~~ Deferred: user-defined quantity types are out of scope
+   for 1.0. Open for a later release: how a custom type declares and checks its dimension.
 3. ~~**Precision promotion.**~~ Resolved, see F23.
 4. ~~**Equality.**~~ Resolved, see F20 to F22. The standard defines `isEquivalentTo` for
    quantities and units but says nothing about `Quantity.equals`.
