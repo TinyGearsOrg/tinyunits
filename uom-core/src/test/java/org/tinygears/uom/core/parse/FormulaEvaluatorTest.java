@@ -240,8 +240,8 @@ class FormulaEvaluatorTest {
     void shiftAppliesToTheWholeExpression() throws Exception {
         assertEquals(METRE.divide(SECOND).shift(2), eval("m/s+2"));
         assertEquals(METRE.multiply(KILOGRAM).shift(2), eval("m kg+2"));
-        assertEquals(METRE.pow(2).shift(-1), eval("m^2-1"));
-        assertEquals(METRE.pow(-2).shift(-1), eval("m^-2-1"));
+        assertEquals(METRE.pow(2).shift(-1), eval("m^2 - 1"));
+        assertEquals(METRE.pow(-2).shift(-1), eval("m^-2 -1"));
         assertEquals(METRE.shift(1), eval("(m)+1"));
         assertEquals(METRE.multiply(2).shift(1), eval("2 m+1"));
     }
@@ -276,7 +276,14 @@ class FormulaEvaluatorTest {
         fails("m+(1)", "shift must be a number", 3);
         fails("m+1+2", "shift is only allowed at the end of a formula", 2);
         fails("m+1 / s", "shift is only allowed at the end of a formula", 2);
-        fails("m+1 s", "shift is only allowed at the end of a formula", 2);
+        fails("m+1 s", "unexpected 's' after the shift", 5);
+        fails("m+1.", "unexpected '.' after the shift", 4);
+        fails("m+1e", "unexpected 'e' after the shift", 4);
+        fails("m+3.e2", "unexpected '.' after the shift", 4);
+        fails("m+1m", "unexpected 'm' after the shift", 4);
+        fails("K - 1.5x", "unexpected 'x' after the shift", 8);
+        fails("m+1^2", "shift is only allowed at the end of a formula", 2);
+        fails("m+1(s)", "shift is only allowed at the end of a formula", 2);
         fails("m+1)", "shift is only allowed at the end of a formula", 2);
         fails("(m+1)", "shift is only allowed at the end of a formula", 3);
         fails("(m+1)/s", "shift is only allowed at the end of a formula", 3);
@@ -293,13 +300,17 @@ class FormulaEvaluatorTest {
 
     @Test
     void lookupNeverSeesSigns() throws FormulaException {
-        for (String f : new String[] {"m+1", "m-1", "m kg-1", "(m / s)^2+1"}) {
+        for (String f : new String[] {"m+1", "m - 1", "m kg -1", "(m / s)^2+1"}) {
             FormulaEvaluator.evaluate(f, name -> {
                 assertTrue(name.indexOf('+') < 0 && name.indexOf('-') < 0, name);
                 return UNITS.get(name);
             });
         }
-        fails("m-s", "shift must be a number", 3);
+        fails("m-s", "shift must be a number (use '·' or a space to multiply)", 2);
+        fails("km-h", "shift must be a number (use '·' or a space to multiply)", 3);
+        fails("kg-m", "shift must be a number (use '·' or a space to multiply)", 3);
+        fails("m - s", "shift must be a number", 5);
+        fails("m+s", "shift must be a number", 3);
         fails("e+5", "unknown unit 'e'", 1);
     }
 
@@ -315,7 +326,7 @@ class FormulaEvaluatorTest {
         try {
             List<Future<UomUnit<?>>> results = new ArrayList<>();
             for (int i = 0; i < 2000; i++) {
-                String f = i % 2 == 0 ? "K+" + i + "|3" : "km-" + i;
+                String f = i % 2 == 0 ? "K+" + i + "|3" : "km - " + i;
                 results.add(pool.submit(() -> eval(f)));
             }
             for (int i = 0; i < 2000; i++) {
@@ -326,5 +337,32 @@ class FormulaEvaluatorTest {
         } finally {
             pool.shutdownNow();
         }
+    }
+
+    @Test
+    void gluedMinusIntegerIsAmbiguous() {
+        String hint = "' for a negative exponent or '";
+        fails("s-1", "ambiguous 's-1': write 's^-1" + hint + "s - 1' for a shift", 2);
+        fails("m s-1", "ambiguous 's-1': write 's^-1" + hint + "s - 1' for a shift", 4);
+        fails("kg m-3", "ambiguous 'm-3': write 'm^-3" + hint + "m - 3' for a shift", 5);
+        fails("1/s-1", "ambiguous 's-1': write 's^-1" + hint + "s - 1' for a shift", 4);
+        fails("°C-10", "ambiguous '°C-10': write '°C^-10" + hint + "°C - 10' for a shift", 3);
+        fails("m s-1 kg", "ambiguous 's-1': write 's^-1" + hint + "s - 1' for a shift", 4);
+        fails("m^2-1", "ambiguous 'm^2-1': write 'm^2 - 1' for a shift", 4);
+        fails("(m/s)-1", "ambiguous '(m/s)-1': write '(m/s) - 1' for a shift", 6);
+        fails("2 m-1.", "ambiguous 'm-1': write 'm^-1" + hint + "m - 1' for a shift", 4);
+    }
+
+    @Test
+    void spacedOrNonIntegerMinusShiftsAreValid() throws Exception {
+        for (String f : new String[] {"K - 5", "K -5", "K- 5", "K\t-\t5"}) {
+            assertEquals(KELVIN.shift(-5), eval(f), f);
+        }
+        assertEquals(KELVIN.shift(5), eval("K+5"));
+        assertEquals(KELVIN.shift(-273.15), eval("K-273.15"));
+        assertEquals(KELVIN.transform(Converters.shift(Factor.of(-1, 3))), eval("K-1|3"));
+        assertEquals(KELVIN.shift(-100), eval("K-1e2"));
+        assertEquals(SECOND.inverse().shift(-1), eval("1/s - 1"));
+        assertEquals(SECOND.inverse(), eval("s^-1"));
     }
 }

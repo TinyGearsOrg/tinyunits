@@ -3,6 +3,7 @@
 package org.tinygears.uom.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import javax.measure.MeasurementException;
 import javax.measure.MetricPrefix;
 import javax.measure.Unit;
@@ -25,6 +27,8 @@ import org.tinygears.uom.core.parse.FormulaException;
 class ShiftGrammarRegressionTest {
     private static final UomUnitFormat FORMAT = UomUnitFormat.standard();
     private static final Function<String, UomUnit<?>> LOOKUP = FORMAT::lookup;
+    /** {@code s-1}: a minus glued on both sides to an integer, not an exponent sign. */
+    private static final Pattern GLUED_MINUS_INTEGER = Pattern.compile("(?<![\\s^]|\\d[eE])-\\d+(?![\\d.|eE])");
 
     /** A parse result: the unit with its symbol and name, or the error message, column and cause type. */
     record Outcome(UomUnit<?> unit, String symbol, String name, String message, int column, Class<?> cause) {
@@ -112,7 +116,7 @@ class ShiftGrammarRegressionTest {
                     try {
                         texts.add(FORMAT.format(op.apply(u)));
                     } catch (IllegalArgumentException | MeasurementException e) {
-                        // no faithful form yet (offset units: Task 4), or an offset unit raised to a power
+                        // no faithful form, or an offset unit raised to a power
                     }
                 }
             }
@@ -133,11 +137,12 @@ class ShiftGrammarRegressionTest {
         String[] operators = {" ", " ", " ", "*", "/", "·", " / ", " * ", "", "\t"};
         String[] junk = {")", "(", "^", "|", "#", ".", "foo", "x", "e", "^x", "^ -", "=", "²"};
         String[] signed = {"+", "-", "+1", "-1", " + 273.15", " - 459.67", "+1|3", "-x", "a-b", "e+5", "2e+", "+-1",
-            "++", "-(", "+ 1e-3"};
+            "++", "-(", "+ 1e-3", "-3", "s-1", "m-h"};
         Random random = new Random(20261012);
         int signedCount = 0;
         int nowValid = 0;
         int changed = 0;
+        int ambiguous = 0;
         for (int i = 0; i < 50_000; i++) {
             StringBuilder f = new StringBuilder();
             boolean free = false;
@@ -189,13 +194,18 @@ class ShiftGrammarRegressionTest {
             if (old.unit() != null) {
                 assertEquals(old, now, formula);
             }
-            nowValid += now.unit() != null ? 1 : 0;
+            if (now.unit() != null) {
+                nowValid++;
+                assertFalse(GLUED_MINUS_INTEGER.matcher(formula).find(), formula);
+            }
+            ambiguous += now.message() != null && now.message().startsWith("ambiguous '") ? 1 : 0;
             if (!old.equals(now)) {
                 changed++;
                 // before, the sign was swallowed into an unknown symbol
                 assertTrue(old.message().matches("unknown unit '.*[+-].*'"), formula + ": " + old.message());
             }
         }
-        assertTrue(signedCount > 5000 && nowValid > 0 && changed > 0, signedCount + " " + nowValid + " " + changed);
+        assertTrue(signedCount > 5000 && nowValid > 0 && changed > 0 && ambiguous > 0,
+                signedCount + " " + nowValid + " " + changed + " " + ambiguous);
     }
 }

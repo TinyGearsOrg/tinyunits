@@ -11,10 +11,13 @@ import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 
 /**
- * Evaluates unit formulas such as {@code kg m / s^2} with a recursive-descent parser. A formula may end in a shift
- * {@code +n} or {@code -n} ({@code n} a decimal literal or {@code a|b}, spaces allowed around the sign) that applies
- * to the whole expression: {@code K+273.15} is {@code K.shift(273.15)}, so a value {@code v} in it is
- * {@code v + 273.15} K.
+ * Evaluates unit formulas such as {@code kg m / s^2} with a recursive-descent parser.
+ *
+ * <p>A formula may end in a shift {@code +n} or {@code -n} ({@code n} a decimal literal or {@code a|b}, spaces
+ * allowed around the sign) that applies to the whole expression: {@code K + 273.15} is {@code K.shift(273.15)}, so
+ * a value {@code v} in it is {@code v + 273.15} K. The shift is top level only, never inside parentheses. A
+ * {@code -} glued on both sides to a plain integer ({@code s-1}, {@code m^2-1}) is an error, since it reads as a
+ * negative exponent in other notations: write {@code s^-1} or {@code s - 1}.
  */
 public final class FormulaEvaluator {
     private static final int MAX_LENGTH = 10_000;
@@ -176,21 +179,54 @@ public final class FormulaEvaluator {
     private UomUnit<?> shift(UomUnit<?> unit) throws FormulaException {
         char sign = s.charAt(pos);
         int col = pos + 1;
+        boolean glued = sign == '-' && !Character.isWhitespace(s.charAt(pos - 1)) && pos + 1 < s.length()
+                && !Character.isWhitespace(s.charAt(pos + 1));
         pos++;
         skipSpace();
         if (pos >= s.length()) {
             throw error("expected a number after '" + sign + "'");
         }
         if (!isDigit(s.charAt(pos))) {
+            if (glued && Character.isLetter(s.charAt(pos))) {
+                throw new FormulaException("shift must be a number (use '·' or a space to multiply)", col);
+            }
             throw error("shift must be a number");
         }
+        int start = pos;
         Factor n = literal(pos + 1);
+        String digits = s.substring(start, pos);
+        if (glued && digits.chars().allMatch(c -> isDigit((char) c))) {
+            throw new FormulaException(ambiguous(col - 1, digits), col);
+        }
         Factor offset = sign == '-' ? n.negate() : n;
         skipSpace();
         if (pos < s.length()) {
-            throw new FormulaException(SHIFT_END, col);
+            char c = s.charAt(pos);
+            if ("*/·^()+-".indexOf(c) >= 0) {
+                throw new FormulaException(SHIFT_END, col);
+            }
+            throw error("unexpected '" + c + "' after the shift");
         }
         return guard(col, () -> unit.transform(Converters.shift(offset)));
+    }
+
+    /** Hints at {@code x^-n} when a symbol precedes the sign, else at a spaced shift. */
+    private String ambiguous(int sign, String n) {
+        int from = sign;
+        while (from > 0 && !Character.isWhitespace(s.charAt(from - 1))) {
+            from--;
+        }
+        int symbol = sign;
+        while (symbol > from && DELIMITERS.indexOf(s.charAt(symbol - 1)) < 0) {
+            symbol--;
+        }
+        String tail = s.substring(symbol, sign);
+        if (!tail.isEmpty() && !isDigit(tail.charAt(0))) {
+            return "ambiguous '" + tail + "-" + n + "': write '" + tail + "^-" + n
+                    + "' for a negative exponent or '" + tail + " - " + n + "' for a shift";
+        }
+        String run = s.substring(from, sign);
+        return "ambiguous '" + run + "-" + n + "': write '" + run + " - " + n + "' for a shift";
     }
 
     private UomUnit<?> number(int col) throws FormulaException {
