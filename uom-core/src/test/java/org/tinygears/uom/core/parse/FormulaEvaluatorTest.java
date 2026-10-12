@@ -106,4 +106,26 @@ class FormulaEvaluatorTest {
         fails("(".repeat(101) + "m" + ")".repeat(101), "formula nested too deeply", 101);
         fails("m ".repeat(5001), "formula too long", 1);
     }
+
+    @Test
+    void whitespaceInsideParentheses() throws Exception {
+        assertEquals(METRE, eval("( m )"));
+        assertEquals(METRE.divide(SECOND).pow(2), eval("( m / s )^2"));
+        assertEquals(METRE.multiply(KILOGRAM), eval("(  m  )  kg"));
+    }
+
+    @Test
+    void lookupNeverSeesEmptySymbol() {
+        java.util.List<String> seen = new java.util.ArrayList<>();
+        for (String f : new String[] {"m / )", "( )", "(", "( ", "m / ( )"}) {
+            assertThrows(FormulaException.class, () -> FormulaEvaluator.evaluate(f, n -> {
+                seen.add(n);
+                return UNITS.get(n);
+            }));
+        }
+        assertTrue(!seen.contains(""));
+        fails("m / )", "unexpected ')'", 5);
+        fails("( )", "unexpected ')'", 3);
+        fails("(", "unexpected end of formula", 2);
+    }
 }

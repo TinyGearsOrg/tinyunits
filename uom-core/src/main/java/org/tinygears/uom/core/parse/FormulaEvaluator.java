@@ -107,6 +107,7 @@ public final class FormulaEvaluator {
                 throw error("formula nested too deeply");
             }
             pos++;
+            skipSpace();
             UomUnit<?> inner = expr(depth + 1);
             if (pos >= s.length()) {
                 throw error("missing ')'");
@@ -123,6 +124,9 @@ public final class FormulaEvaluator {
         int start = pos;
         while (pos < s.length() && !Character.isWhitespace(s.charAt(pos)) && DELIMITERS.indexOf(s.charAt(pos)) < 0) {
             pos++;
+        }
+        if (pos == start) {
+            throw error("unexpected '" + c + "'");
         }
         String name = s.substring(start, pos);
         if (name.equals("pi")) {
