@@ -3,13 +3,21 @@
 package org.tinygears.uom.codegen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import javax.measure.MetricPrefix;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,8 +47,20 @@ class UnitExpressionEmitterTest {
             """;
     static final Definitions DEFS = DefinitionParser.parse("test.units", new StringReader(BASE), null);
 
+    private static final Pattern DOUBLE_LITERAL = Pattern.compile("\\d+\\.\\d+|\\b\\d+[dDfF]\\b");
+
     @TempDir
     Path tmp;
+
+    static Definitions siDefinitions() throws IOException {
+        try (Reader in = Files.newBufferedReader(Path.of("../data/si.units"), StandardCharsets.UTF_8)) {
+            return DefinitionParser.parse("si.units", in, null);
+        }
+    }
+
+    static UomUnit<?> si(Definitions defs, String symbol) {
+        return defs.definitions().stream().filter(d -> d.symbol().equals(symbol)).findFirst().orElseThrow().unit();
+    }
 
     static UomUnit<?> evaluate(String formula) throws Exception {
         return FormulaEvaluator.evaluate(formula, s -> DEFS.definitions().stream()
@@ -113,5 +133,35 @@ class UnitExpressionEmitterTest {
                 List.of());
         GenerationException e = assertThrows(GenerationException.class, () -> UnitExpressionEmitter.emit(x, cyclic));
         assertEquals("alternate unit definitions nest too deeply at 'x'", e.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"min", "L", "deg", "au", "eV", "Da", "°C", "kHz", "µm", "N", "1"})
+    void emitsScaledUnits(String symbol) throws Exception {
+        Definitions si = siDefinitions();
+        UomUnit<?> unit = switch (symbol) {
+            case "kHz" -> si(si, "Hz").prefix(MetricPrefix.KILO);
+            case "µm" -> si(si, "m").prefix(MetricPrefix.MICRO);
+            case "1" -> BaseUnits.ONE;
+            default -> si(si, symbol);
+        };
+        String text = UnitExpressionEmitter.emitUnit(unit, si);
+        assertEquals(unit, run(text));
+        assertEquals(!unit.toSystemConverter().equals(Converters.IDENTITY), text.contains(".transform("), text);
+        String unquoted = text.replaceAll("\"[^\"]*\"", "\"\"");
+        assertFalse(DOUBLE_LITERAL.matcher(unquoted).find(), text);
+    }
+
+    @Test
+    void emitUnitNamed() throws Exception {
+        Definitions si = siDefinitions();
+        UomUnit<?> unit = si(si, "min");
+        String text = UnitExpressionEmitter.emitUnit(unit, si);
+        assertTrue(text.endsWith(".transform(org.tinygears.uom.core.Converters.affine("
+                + "org.tinygears.uom.core.Factor.of(60L, 1L), org.tinygears.uom.core.Factor.ZERO))"), text);
+        UomUnit<?> result = run(text + ".named(\"min\", \"minute\")");
+        assertEquals(unit, result);
+        assertEquals("min", result.getSymbol());
+        assertEquals("minute", result.getName());
     }
 }
