@@ -164,6 +164,60 @@ class GeneratedDecimalQuantitiesTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void conversionsKeepScaleAndContext() throws Exception {
+        forAllTypes((type, f, u, typed) -> {
+            MathContext mc = MathContext.DECIMAL32;
+            Quantity<?> dec = ofDecimal(f, ONE_HALF, u, Scale.RELATIVE, mc);
+            Quantity<?> dbl = (Quantity<?>) typed.getMethod("toDouble").invoke(dec);
+            assertDouble(dbl);
+            assertEquals(Scale.RELATIVE, dbl.getScale());
+            assertEquals(Scale.RELATIVE, ((Quantity<?>) typed.getMethod("toDouble").invoke(dbl)).getScale());
+            Quantity<?> back = (Quantity<?>) typed.getMethod("toDecimal", MathContext.class).invoke(dbl, mc);
+            assertEquals(Scale.RELATIVE, back.getScale());
+            assertEquals(mc, mc(back));
+            Quantity<?> dec2 = (Quantity<?>) typed.getMethod("toDecimal", MathContext.class).invoke(dec, mc);
+            assertEquals(Scale.RELATIVE, dec2.getScale());
+            assertEquals(mc, mc(dec2));
+            Quantity<?> neg = (Quantity<?>) typed.getMethod("negate").invoke(dec);
+            assertEquals(Scale.RELATIVE, neg.getScale());
+            assertEquals(mc, mc(neg));
+            Quantity<?> to = (Quantity<?>) typed.getMethod("to", Unit.class).invoke(dec, u.multiply(1000));
+            assertDecimal(to);
+            assertEquals(Scale.RELATIVE, to.getScale());
+            assertEquals(mc, mc(to));
+        });
+    }
+
+    @Test
+    void toDecimalRoundsOnceToTheContext() throws Exception {
+        BigDecimal exact = new BigDecimal("1.2345678");
+        BigDecimal rounded = new BigDecimal("1.234568");
+        forAllTypes((type, f, u, typed) -> {
+            for (Quantity<?> src : new Quantity<?>[] {ofDecimal(f, exact, u, Scale.ABSOLUTE, MathContext.DECIMAL128),
+                create(f, 1.2345678, u)}) {
+                Quantity<?> q = (Quantity<?>) typed.getMethod("toDecimal", MathContext.class)
+                        .invoke(src, MathContext.DECIMAL32);
+                assertDecimal(q);
+                assertEquals(rounded, q.getValue());
+                assertEquals(MathContext.DECIMAL32, mc(q));
+            }
+        });
+    }
+
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void compareToDoubleInAnotherUnit() throws Exception {
+        forAllTypes((type, f, u, typed) -> {
+            Unit big = u.multiply(1000);
+            Comparable<Quantity> one = (Comparable) ofDecimal(f, BigDecimal.ONE, big);
+            assertEquals(0, one.compareTo(create(f, 1000.0, u)));
+            assertEquals(1, one.compareTo(create(f, 999.0, u)));
+            assertEquals(-1, one.compareTo(create(f, 1001.0, u)));
+        });
+    }
+
+    @Test
     void foreignUnitAndNullsAreRejected() throws Exception {
         forAllTypes((type, f, u, typed) -> {
             Unit<?> foreign = GeneratedQuantitiesTest.foreignUnit();
@@ -208,6 +262,7 @@ class GeneratedDecimalQuantitiesTest {
             assertTrue(dec.isEquivalentTo((Quantity) dbl));
             assertTrue(dbl.isEquivalentTo((Quantity) dec));
             assertEquals(dec, create(f, new BigDecimal("1.50"), u));
+            assertNotEquals(dec, create(f, ONE_HALF, u, Scale.RELATIVE));
         });
     }
 
