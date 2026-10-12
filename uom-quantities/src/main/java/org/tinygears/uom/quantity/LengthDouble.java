@@ -23,4 +23,9 @@ final class LengthDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQ
             java.math.MathContext mc) {
         return new LengthDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Length> quantityType() {
+        return javax.measure.quantity.Length.class;
+    }
 }

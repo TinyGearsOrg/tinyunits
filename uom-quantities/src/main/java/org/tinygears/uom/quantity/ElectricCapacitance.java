@@ -16,6 +16,13 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
     @Override
     ElectricCapacitance to(javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    ElectricCapacitance to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     ElectricCapacitance negate();
 

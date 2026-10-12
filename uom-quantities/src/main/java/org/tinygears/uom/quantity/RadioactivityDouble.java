@@ -23,4 +23,9 @@ final class RadioactivityDouble extends org.tinygears.uom.core.quantity.Abstract
             java.math.MathContext mc) {
         return new RadioactivityDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Radioactivity> quantityType() {
+        return javax.measure.quantity.Radioactivity.class;
+    }
 }

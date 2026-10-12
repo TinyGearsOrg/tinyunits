@@ -23,4 +23,9 @@ final class TimeDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQua
             java.math.MathContext mc) {
         return new TimeDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Time> quantityType() {
+        return javax.measure.quantity.Time.class;
+    }
 }

@@ -23,4 +23,9 @@ final class AngleDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQu
             java.math.MathContext mc) {
         return new AngleDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Angle> quantityType() {
+        return javax.measure.quantity.Angle.class;
+    }
 }

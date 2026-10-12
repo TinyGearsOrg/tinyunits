@@ -30,6 +30,13 @@ public final class SourceEmitter {
                 @Override
                 $T to(javax.measure.Unit<javax.measure.quantity.$T> unit);
 
+                /**
+                 * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+                 * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+                 * type), a foreign unit UnconvertibleException.
+                 */
+                $T to(javax.measure.spi.SystemOfUnits system);
+
                 @Override
                 $T negate();
 
@@ -94,6 +101,11 @@ public final class SourceEmitter {
                         java.math.MathContext mc) {
                     return new $TDecimal(value, unit, scale, mc);
                 }
+
+                @Override
+                protected Class<javax.measure.quantity.$T> quantityType() {
+                    return javax.measure.quantity.$T.class;
+                }
             }
             """;
 
@@ -117,6 +129,11 @@ public final class SourceEmitter {
                 protected $T createDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     return new $TDouble(value, unit, scale);
+                }
+
+                @Override
+                protected Class<javax.measure.quantity.$T> quantityType() {
+                    return javax.measure.quantity.$T.class;
                 }
             }
             """;

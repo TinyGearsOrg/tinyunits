@@ -16,6 +16,13 @@ public interface ElectricCharge extends javax.measure.quantity.ElectricCharge,
     @Override
     ElectricCharge to(javax.measure.Unit<javax.measure.quantity.ElectricCharge> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    ElectricCharge to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     ElectricCharge negate();
 

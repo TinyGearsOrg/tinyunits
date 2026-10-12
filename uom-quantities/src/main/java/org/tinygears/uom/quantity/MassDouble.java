@@ -23,4 +23,9 @@ final class MassDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQua
             java.math.MathContext mc) {
         return new MassDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Mass> quantityType() {
+        return javax.measure.quantity.Mass.class;
+    }
 }

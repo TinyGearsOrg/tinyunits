@@ -16,6 +16,13 @@ public interface Length extends javax.measure.quantity.Length,
     @Override
     Length to(javax.measure.Unit<javax.measure.quantity.Length> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    Length to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     Length negate();
 

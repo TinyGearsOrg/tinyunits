@@ -23,4 +23,9 @@ final class RadiationDoseEffectiveDouble extends org.tinygears.uom.core.quantity
             java.math.MathContext mc) {
         return new RadiationDoseEffectiveDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.RadiationDoseEffective> quantityType() {
+        return javax.measure.quantity.RadiationDoseEffective.class;
+    }
 }

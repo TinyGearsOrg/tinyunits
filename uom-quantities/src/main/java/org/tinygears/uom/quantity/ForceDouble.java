@@ -23,4 +23,9 @@ final class ForceDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQu
             java.math.MathContext mc) {
         return new ForceDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Force> quantityType() {
+        return javax.measure.quantity.Force.class;
+    }
 }

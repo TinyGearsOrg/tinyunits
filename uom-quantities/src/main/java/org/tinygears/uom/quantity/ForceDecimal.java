@@ -23,4 +23,9 @@ final class ForceDecimal extends org.tinygears.uom.core.quantity.AbstractDecimal
             javax.measure.Quantity.Scale scale) {
         return new ForceDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Force> quantityType() {
+        return javax.measure.quantity.Force.class;
+    }
 }

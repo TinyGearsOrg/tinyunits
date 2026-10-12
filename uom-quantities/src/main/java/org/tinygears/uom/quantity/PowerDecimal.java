@@ -23,4 +23,9 @@ final class PowerDecimal extends org.tinygears.uom.core.quantity.AbstractDecimal
             javax.measure.Quantity.Scale scale) {
         return new PowerDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Power> quantityType() {
+        return javax.measure.quantity.Power.class;
+    }
 }

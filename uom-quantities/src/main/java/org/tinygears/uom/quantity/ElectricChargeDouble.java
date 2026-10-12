@@ -23,4 +23,9 @@ final class ElectricChargeDouble extends org.tinygears.uom.core.quantity.Abstrac
             java.math.MathContext mc) {
         return new ElectricChargeDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.ElectricCharge> quantityType() {
+        return javax.measure.quantity.ElectricCharge.class;
+    }
 }

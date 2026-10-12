@@ -23,4 +23,9 @@ final class AmountOfSubstanceDecimal extends org.tinygears.uom.core.quantity.Abs
             javax.measure.Quantity.Scale scale) {
         return new AmountOfSubstanceDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.AmountOfSubstance> quantityType() {
+        return javax.measure.quantity.AmountOfSubstance.class;
+    }
 }

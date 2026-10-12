@@ -20,6 +20,11 @@ class TestLengthDecimalImpl extends AbstractDecimalQuantity<Length, TestLength> 
     }
 
     @Override
+    protected Class<Length> quantityType() {
+        return Length.class;
+    }
+
+    @Override
     protected TestLength create(BigDecimal value, UomUnit<Length> unit, Quantity.Scale scale, MathContext mc) {
         return new TestLengthDecimalImpl(value, unit, scale, mc);
     }

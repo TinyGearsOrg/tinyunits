@@ -20,6 +20,11 @@ public final class UntypedDecimalQuantity extends AbstractDecimalQuantity<Untype
     }
 
     @Override
+    protected Class<Untyped> quantityType() {
+        return Untyped.class;
+    }
+
+    @Override
     protected Untyped create(BigDecimal value, UomUnit<Untyped> unit, Quantity.Scale scale, MathContext mc) {
         return new UntypedDecimalQuantity(value, unit, scale, mc);
     }

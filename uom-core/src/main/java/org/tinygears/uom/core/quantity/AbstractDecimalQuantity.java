@@ -10,6 +10,7 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
+import javax.measure.spi.SystemOfUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
@@ -44,6 +45,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     /** Creates the {@code double} quantity of the same typed interface. */
     protected abstract R createDouble(double value, UomUnit<Q> unit, Quantity.Scale scale);
 
+    /** The standard quantity type of this class, looked up by {@link #to(SystemOfUnits)}; {@link Untyped} if none. */
+    protected abstract Class<Q> quantityType();
+
     @Override
     public final BigDecimal getValue() {
         return value;
@@ -74,6 +78,23 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     public R to(Unit<Q> unit) {
         UomUnit<Q> target = uomUnit(unit);
         return create(this.unit.getConverterTo(target).convert(value, mathContext), target, scale, mathContext);
+    }
+
+    /**
+     * Converts to the unit {@code system} gives for {@link #quantityType()} as {@link #to(Unit)} does, so scale
+     * and context are kept; a foreign unit or one of another dimension throws {@link UnconvertibleException}. A
+     * system without a unit for the type ({@code getUnit} returns null) throws {@link UnsupportedOperationException},
+     * and so does every {@link Untyped} quantity, which no system of this library maps; those systems have a unit
+     * for each of the 33 standard types.
+     */
+    public R to(SystemOfUnits system) {
+        Objects.requireNonNull(system, "system");
+        Unit<Q> target = system.getUnit(quantityType());
+        if (target == null) {
+            throw new UnsupportedOperationException("system " + system.getName() + " has no unit for type "
+                    + quantityType().getSimpleName());
+        }
+        return to(target);
     }
 
     /** Returns a quantity whose value is {@code -getValue()}, in this unit, scale and context. */

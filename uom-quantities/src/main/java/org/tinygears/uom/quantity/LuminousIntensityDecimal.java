@@ -23,4 +23,9 @@ final class LuminousIntensityDecimal extends org.tinygears.uom.core.quantity.Abs
             javax.measure.Quantity.Scale scale) {
         return new LuminousIntensityDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.LuminousIntensity> quantityType() {
+        return javax.measure.quantity.LuminousIntensity.class;
+    }
 }

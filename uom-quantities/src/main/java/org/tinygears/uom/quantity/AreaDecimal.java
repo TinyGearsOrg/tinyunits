@@ -23,4 +23,9 @@ final class AreaDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQ
             javax.measure.Quantity.Scale scale) {
         return new AreaDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Area> quantityType() {
+        return javax.measure.quantity.Area.class;
+    }
 }

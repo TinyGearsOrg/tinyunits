@@ -23,4 +23,9 @@ final class EnergyDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQ
             java.math.MathContext mc) {
         return new EnergyDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Energy> quantityType() {
+        return javax.measure.quantity.Energy.class;
+    }
 }

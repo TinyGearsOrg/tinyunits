@@ -16,6 +16,13 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
     @Override
     ElectricPotential to(javax.measure.Unit<javax.measure.quantity.ElectricPotential> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    ElectricPotential to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     ElectricPotential negate();
 

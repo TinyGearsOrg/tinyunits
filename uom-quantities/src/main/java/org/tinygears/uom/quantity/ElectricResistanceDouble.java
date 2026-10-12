@@ -23,4 +23,9 @@ final class ElectricResistanceDouble extends org.tinygears.uom.core.quantity.Abs
             java.math.MathContext mc) {
         return new ElectricResistanceDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.ElectricResistance> quantityType() {
+        return javax.measure.quantity.ElectricResistance.class;
+    }
 }

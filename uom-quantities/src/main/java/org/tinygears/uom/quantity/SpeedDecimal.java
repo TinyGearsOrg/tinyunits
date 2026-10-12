@@ -23,4 +23,9 @@ final class SpeedDecimal extends org.tinygears.uom.core.quantity.AbstractDecimal
             javax.measure.Quantity.Scale scale) {
         return new SpeedDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Speed> quantityType() {
+        return javax.measure.quantity.Speed.class;
+    }
 }

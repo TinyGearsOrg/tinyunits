@@ -23,4 +23,9 @@ final class AreaDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQua
             java.math.MathContext mc) {
         return new AreaDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Area> quantityType() {
+        return javax.measure.quantity.Area.class;
+    }
 }

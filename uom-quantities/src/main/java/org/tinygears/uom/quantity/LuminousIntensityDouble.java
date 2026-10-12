@@ -23,4 +23,9 @@ final class LuminousIntensityDouble extends org.tinygears.uom.core.quantity.Abst
             java.math.MathContext mc) {
         return new LuminousIntensityDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.LuminousIntensity> quantityType() {
+        return javax.measure.quantity.LuminousIntensity.class;
+    }
 }

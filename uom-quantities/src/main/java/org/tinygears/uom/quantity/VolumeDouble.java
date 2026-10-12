@@ -23,4 +23,9 @@ final class VolumeDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQ
             java.math.MathContext mc) {
         return new VolumeDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Volume> quantityType() {
+        return javax.measure.quantity.Volume.class;
+    }
 }

@@ -23,4 +23,9 @@ final class RadiationDoseAbsorbedDecimal extends org.tinygears.uom.core.quantity
             javax.measure.Quantity.Scale scale) {
         return new RadiationDoseAbsorbedDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.RadiationDoseAbsorbed> quantityType() {
+        return javax.measure.quantity.RadiationDoseAbsorbed.class;
+    }
 }

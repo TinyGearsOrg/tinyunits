@@ -23,4 +23,9 @@ final class TemperatureDouble extends org.tinygears.uom.core.quantity.AbstractDo
             java.math.MathContext mc) {
         return new TemperatureDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Temperature> quantityType() {
+        return javax.measure.quantity.Temperature.class;
+    }
 }

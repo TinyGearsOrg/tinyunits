@@ -23,4 +23,9 @@ final class LengthDecimal extends org.tinygears.uom.core.quantity.AbstractDecima
             javax.measure.Quantity.Scale scale) {
         return new LengthDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Length> quantityType() {
+        return javax.measure.quantity.Length.class;
+    }
 }

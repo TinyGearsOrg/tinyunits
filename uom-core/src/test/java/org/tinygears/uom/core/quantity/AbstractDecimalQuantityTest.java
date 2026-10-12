@@ -115,7 +115,7 @@ class AbstractDecimalQuantityTest {
         TestLengthDecimalImpl one = q("1", METRE);
         UnconvertibleException e = assertThrows(UnconvertibleException.class, () -> one.to(foreignUnit()));
         assertEquals("foreign unit implementation: ", e.getMessage().substring(0, 29));
-        assertThrows(NullPointerException.class, () -> one.to(null));
+        assertThrows(NullPointerException.class, () -> one.to((Unit<Length>) null));
         UomUnit<Length> second = UomUnit.unchecked(BaseUnits.SECOND);
         assertThrows(UnconvertibleException.class, () -> one.to(second));
     }

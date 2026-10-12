@@ -39,6 +39,11 @@ class TestSpeedDecimalImpl extends AbstractDecimalQuantity<Speed, TestSpeed> imp
     }
 
     @Override
+    protected Class<Speed> quantityType() {
+        return Speed.class;
+    }
+
+    @Override
     protected TestSpeed create(BigDecimal value, UomUnit<Speed> unit, Quantity.Scale scale, MathContext mc) {
         return new TestSpeedDecimalImpl(value, unit, scale, mc);
     }

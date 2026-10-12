@@ -16,6 +16,13 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
     @Override
     RadiationDoseAbsorbed to(javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    RadiationDoseAbsorbed to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     RadiationDoseAbsorbed negate();
 

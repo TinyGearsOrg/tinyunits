@@ -23,4 +23,9 @@ final class DimensionlessDecimal extends org.tinygears.uom.core.quantity.Abstrac
             javax.measure.Quantity.Scale scale) {
         return new DimensionlessDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Dimensionless> quantityType() {
+        return javax.measure.quantity.Dimensionless.class;
+    }
 }

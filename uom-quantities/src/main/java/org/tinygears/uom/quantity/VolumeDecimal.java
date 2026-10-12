@@ -23,4 +23,9 @@ final class VolumeDecimal extends org.tinygears.uom.core.quantity.AbstractDecima
             javax.measure.Quantity.Scale scale) {
         return new VolumeDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Volume> quantityType() {
+        return javax.measure.quantity.Volume.class;
+    }
 }

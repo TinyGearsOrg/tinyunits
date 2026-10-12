@@ -16,6 +16,13 @@ public interface ElectricResistance extends javax.measure.quantity.ElectricResis
     @Override
     ElectricResistance to(javax.measure.Unit<javax.measure.quantity.ElectricResistance> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    ElectricResistance to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     ElectricResistance negate();
 

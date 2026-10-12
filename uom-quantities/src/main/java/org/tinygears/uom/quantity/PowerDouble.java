@@ -23,4 +23,9 @@ final class PowerDouble extends org.tinygears.uom.core.quantity.AbstractDoubleQu
             java.math.MathContext mc) {
         return new PowerDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Power> quantityType() {
+        return javax.measure.quantity.Power.class;
+    }
 }

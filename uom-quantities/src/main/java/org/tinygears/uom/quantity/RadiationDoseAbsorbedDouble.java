@@ -23,4 +23,9 @@ final class RadiationDoseAbsorbedDouble extends org.tinygears.uom.core.quantity.
             java.math.MathContext mc) {
         return new RadiationDoseAbsorbedDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.RadiationDoseAbsorbed> quantityType() {
+        return javax.measure.quantity.RadiationDoseAbsorbed.class;
+    }
 }

@@ -23,4 +23,9 @@ final class DimensionlessDouble extends org.tinygears.uom.core.quantity.Abstract
             java.math.MathContext mc) {
         return new DimensionlessDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Dimensionless> quantityType() {
+        return javax.measure.quantity.Dimensionless.class;
+    }
 }

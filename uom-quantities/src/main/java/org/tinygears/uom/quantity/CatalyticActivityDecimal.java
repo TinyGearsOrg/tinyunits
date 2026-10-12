@@ -23,4 +23,9 @@ final class CatalyticActivityDecimal extends org.tinygears.uom.core.quantity.Abs
             javax.measure.Quantity.Scale scale) {
         return new CatalyticActivityDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.CatalyticActivity> quantityType() {
+        return javax.measure.quantity.CatalyticActivity.class;
+    }
 }

@@ -64,7 +64,7 @@ class AbstractDoubleQuantityTest {
     void toForeignUnitFails() {
         TestLengthImpl one = q(1, METRE);
         assertThrows(UnconvertibleException.class, () -> one.to(foreignUnit()));
-        assertThrows(NullPointerException.class, () -> one.to(null));
+        assertThrows(NullPointerException.class, () -> one.to((Unit<Length>) null));
     }
 
     @Test

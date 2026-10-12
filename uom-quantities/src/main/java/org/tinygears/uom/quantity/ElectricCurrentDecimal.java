@@ -23,4 +23,9 @@ final class ElectricCurrentDecimal extends org.tinygears.uom.core.quantity.Abstr
             javax.measure.Quantity.Scale scale) {
         return new ElectricCurrentDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.ElectricCurrent> quantityType() {
+        return javax.measure.quantity.ElectricCurrent.class;
+    }
 }

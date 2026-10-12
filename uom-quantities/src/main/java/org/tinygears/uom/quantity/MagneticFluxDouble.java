@@ -23,4 +23,9 @@ final class MagneticFluxDouble extends org.tinygears.uom.core.quantity.AbstractD
             java.math.MathContext mc) {
         return new MagneticFluxDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.MagneticFlux> quantityType() {
+        return javax.measure.quantity.MagneticFlux.class;
+    }
 }

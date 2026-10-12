@@ -23,4 +23,9 @@ final class ElectricPotentialDecimal extends org.tinygears.uom.core.quantity.Abs
             javax.measure.Quantity.Scale scale) {
         return new ElectricPotentialDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.ElectricPotential> quantityType() {
+        return javax.measure.quantity.ElectricPotential.class;
+    }
 }

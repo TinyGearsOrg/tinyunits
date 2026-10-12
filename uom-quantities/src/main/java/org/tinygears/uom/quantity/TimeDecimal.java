@@ -23,4 +23,9 @@ final class TimeDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQ
             javax.measure.Quantity.Scale scale) {
         return new TimeDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Time> quantityType() {
+        return javax.measure.quantity.Time.class;
+    }
 }

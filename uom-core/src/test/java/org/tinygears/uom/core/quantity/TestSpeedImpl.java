@@ -36,6 +36,11 @@ class TestSpeedImpl extends AbstractDoubleQuantity<Speed, TestSpeed> implements 
     }
 
     @Override
+    protected Class<Speed> quantityType() {
+        return Speed.class;
+    }
+
+    @Override
     protected TestSpeed create(double value, UomUnit<Speed> unit, Quantity.Scale scale) {
         return new TestSpeedImpl(value, unit, scale);
     }

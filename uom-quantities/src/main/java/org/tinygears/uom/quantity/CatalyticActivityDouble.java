@@ -23,4 +23,9 @@ final class CatalyticActivityDouble extends org.tinygears.uom.core.quantity.Abst
             java.math.MathContext mc) {
         return new CatalyticActivityDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.CatalyticActivity> quantityType() {
+        return javax.measure.quantity.CatalyticActivity.class;
+    }
 }

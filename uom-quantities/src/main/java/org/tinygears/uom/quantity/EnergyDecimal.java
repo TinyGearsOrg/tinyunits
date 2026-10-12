@@ -23,4 +23,9 @@ final class EnergyDecimal extends org.tinygears.uom.core.quantity.AbstractDecima
             javax.measure.Quantity.Scale scale) {
         return new EnergyDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Energy> quantityType() {
+        return javax.measure.quantity.Energy.class;
+    }
 }

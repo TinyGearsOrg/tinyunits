@@ -23,4 +23,9 @@ final class AmountOfSubstanceDouble extends org.tinygears.uom.core.quantity.Abst
             java.math.MathContext mc) {
         return new AmountOfSubstanceDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.AmountOfSubstance> quantityType() {
+        return javax.measure.quantity.AmountOfSubstance.class;
+    }
 }

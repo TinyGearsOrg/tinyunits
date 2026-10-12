@@ -23,4 +23,9 @@ final class AccelerationDecimal extends org.tinygears.uom.core.quantity.Abstract
             javax.measure.Quantity.Scale scale) {
         return new AccelerationDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Acceleration> quantityType() {
+        return javax.measure.quantity.Acceleration.class;
+    }
 }

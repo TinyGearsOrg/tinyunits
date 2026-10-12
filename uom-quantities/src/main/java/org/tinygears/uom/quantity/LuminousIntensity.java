@@ -16,6 +16,13 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
     @Override
     LuminousIntensity to(javax.measure.Unit<javax.measure.quantity.LuminousIntensity> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    LuminousIntensity to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     LuminousIntensity negate();
 

@@ -16,6 +16,13 @@ public interface CatalyticActivity extends javax.measure.quantity.CatalyticActiv
     @Override
     CatalyticActivity to(javax.measure.Unit<javax.measure.quantity.CatalyticActivity> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    CatalyticActivity to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     CatalyticActivity negate();
 

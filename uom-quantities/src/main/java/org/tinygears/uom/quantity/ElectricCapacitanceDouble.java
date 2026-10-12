@@ -23,4 +23,9 @@ final class ElectricCapacitanceDouble extends org.tinygears.uom.core.quantity.Ab
             java.math.MathContext mc) {
         return new ElectricCapacitanceDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.ElectricCapacitance> quantityType() {
+        return javax.measure.quantity.ElectricCapacitance.class;
+    }
 }

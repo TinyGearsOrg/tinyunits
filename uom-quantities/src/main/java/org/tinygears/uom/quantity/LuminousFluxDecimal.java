@@ -23,4 +23,9 @@ final class LuminousFluxDecimal extends org.tinygears.uom.core.quantity.Abstract
             javax.measure.Quantity.Scale scale) {
         return new LuminousFluxDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.LuminousFlux> quantityType() {
+        return javax.measure.quantity.LuminousFlux.class;
+    }
 }

@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
+import javax.measure.spi.SystemOfUnits;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -102,8 +103,17 @@ class SourceEmitterTest {
         assertTrue(decimal.contains("return new LengthDouble(value, unit, scale);"), decimal);
         assertTrue(SourceEmitter.doubleImplementation(LENGTH)
                 .contains("return new LengthDecimal(value, unit, scale, mc);"));
+        String hook = """
+                    @Override
+                    protected Class<javax.measure.quantity.Length> quantityType() {
+                        return javax.measure.quantity.Length.class;
+                    }
+                """;
+        assertTrue(decimal.contains(hook), decimal);
+        assertTrue(SourceEmitter.doubleImplementation(LENGTH).contains(hook));
         String iface = SourceEmitter.typedInterface(LENGTH);
-        for (String declaration : List.of("Length toDouble();", "Length toDecimal(java.math.MathContext mc);",
+        for (String declaration : List.of("Length toDouble();", "Length to(javax.measure.spi.SystemOfUnits system);",
+                "Length toDecimal(java.math.MathContext mc);",
                 "static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit) {",
                 "static Length of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.Length> unit,\n"
                         + "            javax.measure.Quantity.Scale scale) {",
@@ -170,6 +180,20 @@ class SourceEmitterTest {
         Object s = iface.getMethod("of", BigDecimal.class, Unit.class, Quantity.Scale.class)
                 .invoke(null, new BigDecimal("3"), BaseUnits.METRE, Quantity.Scale.RELATIVE);
         assertEquals(MathContext.DECIMAL128, ((AbstractDecimalQuantity<?, ?>) s).mathContext());
+
+        // to(system) on the typed interface keeps scale and context
+        SystemOfUnits km = (SystemOfUnits) Proxy.newProxyInstance(SourceEmitterTest.class.getClassLoader(),
+                new Class<?>[] {SystemOfUnits.class},
+                (p, m, a) -> a != null && a[0] == javax.measure.quantity.Length.class
+                        ? BaseUnits.METRE.multiply(1000) : null);
+        java.lang.reflect.Method toSystem = iface.getMethod("to", SystemOfUnits.class);
+        assertEquals(iface, toSystem.getReturnType());
+        Object inKm = toSystem.invoke(r, km);
+        assertEquals(new BigDecimal("0.002"), ((Quantity<?>) inKm).getValue());
+        assertEquals(Quantity.Scale.RELATIVE, ((Quantity<?>) inKm).getScale());
+        assertEquals(MathContext.DECIMAL32, ((AbstractDecimalQuantity<?, ?>) inKm).mathContext());
+        assertEquals(2e-3, ((Quantity<?>) toSystem.invoke(iface.getMethod("of", double.class, Unit.class)
+                .invoke(null, 2.0, BaseUnits.METRE), km)).getValue());
 
         Object dbl = iface.getMethod("toDouble").invoke(d);
         assertTrue(iface.isInstance(dbl));

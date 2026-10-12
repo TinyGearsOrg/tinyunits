@@ -23,4 +23,9 @@ final class ElectricInductanceDouble extends org.tinygears.uom.core.quantity.Abs
             java.math.MathContext mc) {
         return new ElectricInductanceDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.ElectricInductance> quantityType() {
+        return javax.measure.quantity.ElectricInductance.class;
+    }
 }

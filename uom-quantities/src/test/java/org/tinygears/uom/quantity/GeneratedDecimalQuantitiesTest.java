@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -14,6 +15,7 @@ import javax.measure.Quantity.Scale;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
+import javax.measure.spi.SystemOfUnits;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
@@ -186,6 +188,37 @@ class GeneratedDecimalQuantitiesTest {
             assertDecimal(to);
             assertEquals(Scale.RELATIVE, to.getScale());
             assertEquals(mc, mc(to));
+        });
+    }
+
+    /** A system named Test that has {@code unit} for {@code type} only. */
+    private static SystemOfUnits system(Class<?> type, Unit<?> unit) {
+        return (SystemOfUnits) Proxy.newProxyInstance(GeneratedDecimalQuantitiesTest.class.getClassLoader(),
+                new Class<?>[] {SystemOfUnits.class}, (p, m, a) -> switch (m.getName()) {
+                    case "getName" -> "Test";
+                    case "getUnit" -> a[0] == type ? unit : null;
+                    default -> throw new UnsupportedOperationException(m.getName());
+                });
+    }
+
+    @Test
+    void toSystemForAllTypes() throws Exception {
+        Length km = Length.of(1, GeneratedQuantitiesTest.METRE)
+                .to(system(javax.measure.quantity.Length.class, GeneratedQuantitiesTest.KILOMETRE));
+        assertEquals(1e-3, km.getValue());
+        forAllTypes((type, f, u, typed) -> {
+            SystemOfUnits sys = system(type, u);
+            Method to = typed.getMethod("to", SystemOfUnits.class);
+            assertEquals(typed, to.getReturnType());
+            Quantity<?> dbl = create(f, 1.0, u);
+            assertEquals(dbl, to.invoke(dbl, sys));
+            Quantity<?> dec = ofDecimal(f, BigDecimal.ONE, u);
+            assertEquals(dec, to.invoke(dec, sys));
+            Quantity<?> rel = ofDecimal(f, ONE_HALF, u, Scale.RELATIVE, MathContext.DECIMAL32);
+            Quantity<?> r = (Quantity<?>) to.invoke(rel, sys);
+            assertTrue(typed.isInstance(r));
+            assertEquals(rel, r);
+            assertEquals(MathContext.DECIMAL32, mc(r));
         });
     }
 

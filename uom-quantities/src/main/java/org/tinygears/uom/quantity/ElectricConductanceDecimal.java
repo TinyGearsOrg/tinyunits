@@ -23,4 +23,9 @@ final class ElectricConductanceDecimal extends org.tinygears.uom.core.quantity.A
             javax.measure.Quantity.Scale scale) {
         return new ElectricConductanceDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.ElectricConductance> quantityType() {
+        return javax.measure.quantity.ElectricConductance.class;
+    }
 }

@@ -23,4 +23,9 @@ final class MassDecimal extends org.tinygears.uom.core.quantity.AbstractDecimalQ
             javax.measure.Quantity.Scale scale) {
         return new MassDouble(value, unit, scale);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Mass> quantityType() {
+        return javax.measure.quantity.Mass.class;
+    }
 }

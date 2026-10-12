@@ -16,6 +16,13 @@ public interface ElectricInductance extends javax.measure.quantity.ElectricInduc
     @Override
     ElectricInductance to(javax.measure.Unit<javax.measure.quantity.ElectricInductance> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    ElectricInductance to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     ElectricInductance negate();
 

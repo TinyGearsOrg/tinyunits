@@ -19,6 +19,11 @@ public final class UntypedDoubleQuantity extends AbstractDoubleQuantity<Untyped,
     }
 
     @Override
+    protected Class<Untyped> quantityType() {
+        return Untyped.class;
+    }
+
+    @Override
     protected Untyped create(double value, UomUnit<Untyped> unit, Quantity.Scale scale) {
         return new UntypedDoubleQuantity(value, unit, scale);
     }

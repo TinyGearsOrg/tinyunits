@@ -16,6 +16,13 @@ public interface Angle extends javax.measure.quantity.Angle,
     @Override
     Angle to(javax.measure.Unit<javax.measure.quantity.Angle> unit);
 
+    /**
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
+     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
+     * type), a foreign unit UnconvertibleException.
+     */
+    Angle to(javax.measure.spi.SystemOfUnits system);
+
     @Override
     Angle negate();
 

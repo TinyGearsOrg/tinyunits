@@ -20,6 +20,11 @@ class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implemen
     }
 
     @Override
+    protected Class<Length> quantityType() {
+        return Length.class;
+    }
+
+    @Override
     protected TestLength create(double value, UomUnit<Length> unit, Quantity.Scale scale) {
         return new TestLengthImpl(value, unit, scale);
     }

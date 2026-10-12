@@ -23,4 +23,9 @@ final class IlluminanceDouble extends org.tinygears.uom.core.quantity.AbstractDo
             java.math.MathContext mc) {
         return new IlluminanceDecimal(value, unit, scale, mc);
     }
+
+    @Override
+    protected Class<javax.measure.quantity.Illuminance> quantityType() {
+        return javax.measure.quantity.Illuminance.class;
+    }
 }
