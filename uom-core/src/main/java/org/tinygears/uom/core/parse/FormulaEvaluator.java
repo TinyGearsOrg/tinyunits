@@ -41,8 +41,9 @@ public final class FormulaEvaluator {
         return result;
     }
 
+    /** {@code *} and {@code /}: equal precedence, left-associative, looser than juxtaposition. */
     private UomUnit<?> expr(int depth) throws FormulaException {
-        UomUnit<?> left = term(depth);
+        UomUnit<?> left = product(depth);
         while (true) {
             skipSpace();
             if (pos >= s.length() || s.charAt(pos) == ')') {
@@ -50,17 +51,26 @@ public final class FormulaEvaluator {
             }
             char c = s.charAt(pos);
             int col = pos + 1;
-            if (c == '*' || c == '/') {
-                pos++;
-                skipSpace();
-                UomUnit<?> right = term(depth);
-                UomUnit<?> l = left;
-                left = c == '*' ? guard(col, () -> l.multiply(right)) : guard(col, () -> l.divide(right));
-            } else {
-                UomUnit<?> right = term(depth);
-                UomUnit<?> l = left;
-                left = guard(col, () -> l.multiply(right));
+            pos++;
+            skipSpace();
+            UomUnit<?> right = product(depth);
+            UomUnit<?> l = left;
+            left = c == '*' ? guard(col, () -> l.multiply(right)) : guard(col, () -> l.divide(right));
+        }
+    }
+
+    /** Juxtaposed terms, so {@code J / kg K} is {@code J / (kg K)}. */
+    private UomUnit<?> product(int depth) throws FormulaException {
+        UomUnit<?> left = term(depth);
+        while (true) {
+            skipSpace();
+            if (pos >= s.length() || ")*/".indexOf(s.charAt(pos)) >= 0) {
+                return left;
             }
+            int col = pos + 1;
+            UomUnit<?> right = term(depth);
+            UomUnit<?> l = left;
+            left = guard(col, () -> l.multiply(right));
         }
     }
 

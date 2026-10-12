@@ -63,7 +63,18 @@ class FormulaEvaluatorTest {
         assertEquals(METRE.pow(2).multiply(KILOGRAM), eval("m^2 kg"));
         assertEquals(METRE.pow(2).multiply(KILOGRAM), eval("m ^ 2 kg"));
         assertEquals(METRE.multiply(SECOND), eval("m(s)"));
-        assertEquals(METRE.divide(SECOND).multiply(SECOND), eval("m / s s"));
+    }
+
+    @Test
+    void juxtapositionBindsTighterThanDivision() throws Exception {
+        assertEquals(METRE.divide(SECOND.multiply(SECOND)), eval("m / s s"));
+        assertEquals(METRE.divide(KILOGRAM.multiply(SECOND)), eval("m / kg s"));
+        assertEquals(METRE.divide(KILOGRAM.multiply(SECOND)), eval("m / kg(s)"));
+        assertEquals(METRE.divide(SECOND).multiply(KILOGRAM), eval("m / s * kg"));
+        assertEquals(METRE.divide(SECOND).divide(KILOGRAM), eval("m / s / kg"));
+        assertEquals(METRE.multiply(SECOND.multiply(KILOGRAM)), eval("m * s kg"));
+        assertEquals(METRE.divide(SECOND.multiply(SECOND)).multiply(KILOGRAM), eval("m / s^2 * kg"));
+        assertEquals(METRE.multiply(2).divide(SECOND.multiply(4)), eval("2 m / 4 s"));
     }
 
     @Test

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KELVIN;
+import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.ONE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
@@ -97,6 +98,12 @@ class DefinitionParserTest {
         assertEquals("m", m.unit().getSymbol());
         assertEquals("metre", m.unit().getName());
         assertEquals(METRE, m.unit());
+    }
+
+    @Test
+    void juxtapositionGroupsTheDenominator() {
+        Definitions d = parse(BASE + "N kg m / s^2\nJ:joule N m\nx J / kg K\n");
+        assertEquals(find(d, "J").unit().divide(KILOGRAM.multiply(KELVIN)), find(d, "x").unit());
     }
 
     @Test
