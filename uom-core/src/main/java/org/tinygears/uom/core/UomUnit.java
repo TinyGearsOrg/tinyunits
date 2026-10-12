@@ -233,7 +233,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
     public UomUnit<Q> prefix(Prefix prefix) {
         Factor f = Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent());
         UomUnit<Q> u = transform(Converters.scale(f));
-        return symbol == null ? u : u.named(prefix.getSymbol() + symbol, null);
+        // A prefix on a compound symbol would bind to its first atom only.
+        return symbol == null || !symbol.equals(group(symbol, "·/^")) ? u : u.named(prefix.getSymbol() + symbol, null);
     }
 
     @Override
@@ -257,7 +258,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
         Factor f = quotient
                 ? toSystem.factor().divide(that.toSystem.factor())
                 : toSystem.factor().multiply(that.toSystem.factor());
-        String s = symbol == null || that.symbol == null ? null : symbol + (quotient ? "/" : "·") + that.symbol;
+        String s = symbol == null || that.symbol == null ? null
+                : group(symbol, "/") + (quotient ? "/" + group(that.symbol, "·/") : "·" + group(that.symbol, "/"));
         return of(m, Converters.scale(f), s, null);
     }
 
@@ -278,7 +280,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
         Factor f = toSystem.factor().pow(n);
         Map<UnitAtom, Integer> m = new LinkedHashMap<>();
         atoms.forEach((a, e) -> m.put(a, Math.multiplyExact(e, n)));
-        return of(m, Converters.scale(f), symbol == null ? null : symbol + "^" + n, null);
+        return of(m, Converters.scale(f), symbol == null ? null : group(symbol, "·/^") + "^" + n, null);
     }
 
     @Override
@@ -298,6 +300,11 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q> {
             m.put(a, Math.divideExact(e, n));
         });
         return of(m, Converters.scale(toSystem.factor().root(n)), null, null);
+    }
+
+    /** Parenthesizes {@code s} if it contains any of {@code operators}. */
+    private static String group(String s, String operators) {
+        return s.chars().anyMatch(c -> operators.indexOf(c) >= 0) ? "(" + s + ")" : s;
     }
 
     private static UomUnit<?> requireLinear(UomUnit<?> u) {

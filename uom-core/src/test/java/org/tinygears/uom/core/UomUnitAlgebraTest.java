@@ -137,6 +137,19 @@ class UomUnitAlgebraTest {
         assertEquals(METRE.multiply(Factor.of(1, 2).doubleValue()), METRE.scaledBy(Factor.of(1, 2)));
     }
 
+    @Test
+    void groupedLabels() {
+        assertEquals("(m/s)^2", METRE.divide(SECOND).pow(2).getSymbol());
+        assertEquals("m/(m/s)", METRE.divide(METRE.divide(SECOND)).getSymbol());
+        assertNull(METRE.pow(2).prefix(MetricPrefix.KILO).getSymbol());
+        assertEquals("km", METRE.prefix(MetricPrefix.KILO).getSymbol());
+        assertEquals("kg·m/s^2", KILOGRAM.multiply(METRE).divide(SECOND.pow(2)).getSymbol());
+        assertEquals("(m/s)·kg", METRE.divide(SECOND).multiply(KILOGRAM).getSymbol());
+        assertEquals("(m^2)^2", METRE.pow(2).pow(2).getSymbol());
+        assertEquals("(m/s)/(kg·s)", METRE.divide(SECOND).divide(KILOGRAM.multiply(SECOND)).getSymbol());
+        assertEquals("m^2·kg", METRE.pow(2).multiply(KILOGRAM).getSymbol());
+    }
+
     private static <T> T foreign(Class<T> type) {
         return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, (p, m, a) -> null));
     }
