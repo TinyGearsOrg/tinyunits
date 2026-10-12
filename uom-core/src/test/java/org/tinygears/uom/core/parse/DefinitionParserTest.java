@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KELVIN;
 import static org.tinygears.uom.core.BaseUnits.METRE;
@@ -14,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -265,5 +267,11 @@ class DefinitionParserTest {
                 () -> AffineFunction.parse("(x + 1")).getMessage());
         assertEquals("function nested too deeply", assertThrows(FormulaException.class,
                 () -> AffineFunction.parse("(".repeat(101) + "x" + ")".repeat(101))).getMessage());
+    }
+
+    @Test
+    void hugeFactorsAreRejected() {
+        assertTimeoutPreemptively(Duration.ofSeconds(5),
+                () -> fails("x ((10^1000)^1000)^100\n", "test.units:1: factor too large"));
     }
 }

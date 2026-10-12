@@ -10,12 +10,14 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Exact number {@code sign(n) * (|n|/d * pi^k)^(1/r)}, kept in a normal form: gcd-reduced, {@code d > 0},
  * and {@code r} as small as possible (no prime p dividing r leaves the radicand a perfect p-th power).
+ * Operations whose radicand numerator or denominator would exceed 65_536 bits throw {@link ArithmeticException}.
  */
 // ponytail: equality is structural on that normal form; coefficients fold into the radicand
 // (2 * 2^(1/2) is stored as 8^(1/2)), so radicands grow. Split out square-free parts if size matters.
 public final class Factor {
 
     private static final int MAX_EXPONENT = 1000;
+    private static final int MAX_BITS = 65_536;
     private static final Map<Integer, BigDecimal> PI_CACHE = new ConcurrentHashMap<>();
 
     public static final Factor ZERO = new Factor(BigInteger.ZERO, BigInteger.ONE, 0, 1);
@@ -48,6 +50,7 @@ public final class Factor {
 
     public static Factor decimal(String literal) {
         BigDecimal value = new BigDecimal(literal);
+        checkSize(Math.abs((long) value.scale()) * 3);
         return value.scale() >= 0
                 ? of(value.unscaledValue(), BigInteger.TEN.pow(value.scale()))
                 : of(value.unscaledValue().multiply(BigInteger.TEN.pow(-value.scale())), BigInteger.ONE);
@@ -67,6 +70,9 @@ public final class Factor {
         BigInteger g = n.gcd(d);
         n = n.divide(g);
         d = d.divide(g);
+        if (n.bitLength() > MAX_BITS || d.bitLength() > MAX_BITS) {
+            throw new ArithmeticException("factor too large");
+        }
         for (int p = 2; p <= r; p++) {
             while (r % p == 0 && k % p == 0) {
                 BigInteger a = exactRoot(n.abs(), p);
@@ -106,6 +112,8 @@ public final class Factor {
         int a = l / index;
         int b = l / other.index;
         int sign = signum() * other.signum();
+        checkSize((long) num.bitLength() * a + (long) other.num.bitLength() * b);
+        checkSize((long) den.bitLength() * a + (long) other.den.bitLength() * b);
         BigInteger n = num.abs().pow(a).multiply(other.num.abs().pow(b));
         BigInteger d = den.pow(a).multiply(other.den.pow(b));
         int k = Math.addExact(Math.multiplyExact(piExp, a), Math.multiplyExact(other.piExp, b));
@@ -147,6 +155,7 @@ public final class Factor {
         }
         Factor base = n < 0 ? inverse() : this;
         int m = Math.abs(n);
+        checkSize((long) Math.max(base.num.bitLength(), base.den.bitLength()) * m);
         return make(base.num.pow(m), base.den.pow(m), Math.multiplyExact(base.piExp, m), base.index);
     }
 
@@ -168,6 +177,13 @@ public final class Factor {
     private static void checkExponent(int n) {
         if (n > MAX_EXPONENT || n < -MAX_EXPONENT) {
             throw new ArithmeticException("exponent " + n + " exceeds " + MAX_EXPONENT);
+        }
+    }
+
+    /** Rejects an operand estimate before computing it; {@link #make} checks the reduced result exactly. */
+    private static void checkSize(long bits) {
+        if (bits > 2L * MAX_BITS) {
+            throw new ArithmeticException("factor too large");
         }
     }
 

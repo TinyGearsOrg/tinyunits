@@ -3,6 +3,7 @@ package org.tinygears.uom.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.Factor.ONE;
 import static org.tinygears.uom.core.Factor.PI;
@@ -14,6 +15,7 @@ import static org.tinygears.uom.core.Factor.ofLong;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
 class FactorTest {
@@ -87,5 +89,23 @@ class FactorTest {
             PI.decimalValue(new MathContext(p));
         }
         assertTrue(Factor.piCacheSize() <= 16);
+    }
+
+    @Test
+    void sizeIsCapped() {
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            assertThrows(ArithmeticException.class, () -> ofLong(10).pow(1000).pow(1000));
+            Factor big = ofLong(2).pow(1000).pow(65);
+            assertEquals(65_001, big.numerator().bitLength());
+            assertThrows(ArithmeticException.class, () -> ofLong(2).pow(1000).pow(66));
+            assertThrows(ArithmeticException.class, () -> ONE.divide(big).pow(2));
+            assertThrows(ArithmeticException.class, () -> big.root(2).multiply(ofLong(3).root(3)));
+            assertThrows(ArithmeticException.class, () -> of(BigInteger.ONE, BigInteger.TWO.pow(70_000)));
+            assertThrows(ArithmeticException.class, () -> decimal("1e100000000"));
+            assertEquals(1001, ofLong(2).pow(-1000).denominator().bitLength());
+            assertEquals(PI.pow(1000), PI.pow(500).multiply(PI.pow(500)));
+            assertEquals(BigInteger.TEN.pow(1000), ofLong(10).pow(1000).numerator());
+            assertEquals(BigInteger.TEN.pow(19_000), decimal("1e19000").numerator());
+        });
     }
 }

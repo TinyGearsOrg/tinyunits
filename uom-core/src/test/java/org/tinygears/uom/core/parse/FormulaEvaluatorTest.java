@@ -3,6 +3,7 @@ package org.tinygears.uom.core.parse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
@@ -10,6 +11,7 @@ import static org.tinygears.uom.core.BaseUnits.SECOND;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.time.Duration;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.BaseUnits;
@@ -127,5 +129,13 @@ class FormulaEvaluatorTest {
         fails("m / )", "unexpected ')'", 5);
         fails("( )", "unexpected ')'", 3);
         fails("(", "unexpected end of formula", 2);
+    }
+
+    @Test
+    void hugeFactorsAreRejected() {
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            fails("m ((10^1000)^1000)^100", "factor too large", 13);
+            assertEquals(METRE.multiply(new BigDecimal("1e10000")), eval("1e10000 m"));
+        });
     }
 }
