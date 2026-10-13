@@ -107,10 +107,15 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return scale;
     }
 
+    /**
+     * Converts to {@code unit}; an {@code ABSOLUTE} quantity converts through the offsets, a {@code RELATIVE} one (a
+     * difference) by the factor only, and the scale is kept (docs/OFFSET-UNITS.md).
+     */
     @Override
     public R to(Unit<Q> unit) {
         UomUnit<Q> target = uomUnit(unit);
-        return create(this.unit.getConverterTo(target).convert(value), target, scale);
+        UomConverter c = this.unit.getConverterTo(target);
+        return create((scale == Quantity.Scale.RELATIVE ? Deltas.converter(c) : c).convert(value), target, scale);
     }
 
     /**
@@ -156,7 +161,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     /**
      * Converts {@code that} into this unit and compares within the relative {@link #EQUIVALENCE_TOLERANCE}, which
-     * is asymmetric near zero for offset units. NaN is equivalent to nothing; incompatible dimensions give false
+     * is asymmetric near zero for offset units. Two {@code RELATIVE} quantities are compared as differences (factor
+     * only, no offset), otherwise as points. NaN is equivalent to nothing; incompatible dimensions give false
      * (compareTo throws). A decimal operand outside the double range throws {@link ArithmeticException}.
      */
     @Override
@@ -166,7 +172,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
             return false;
         }
         double a = value;
-        double b = thatUnit.getConverterTo(unit).convert(Precision.toDouble(that.getValue()));
+        UomConverter c = thatUnit.getConverterTo(unit);
+        double b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
+                .convert(Precision.toDouble(that.getValue()));
         if (a == b) {
             return true;
         }
@@ -177,8 +185,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     /**
-     * Compares the system-unit values with {@link Double#compare}; not consistent with equals. A decimal operand
-     * outside the double range throws {@link ArithmeticException}.
+     * Compares the system-unit values with {@link Double#compare}, or, if both are {@code RELATIVE}, the system-unit
+     * differences (factor only); not consistent with equals. A decimal operand outside the double range throws
+     * {@link ArithmeticException}.
      */
     @Override
     public int compareTo(Quantity<Q> that) {
@@ -186,12 +195,17 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + thatUnit);
         }
-        return Double.compare(toSystem(value, unit), toSystem(Precision.toDouble(that.getValue()), thatUnit));
+        boolean deltas = Deltas.both(scale, that.getScale());
+        return Double.compare(systemValue(value, unit, deltas),
+                systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas));
     }
 
     /**
      * Adds as if both operands were in the system unit, with the result back in this unit; linear units skip the
-     * system round trip. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
+     * system round trip. If either operand is {@code RELATIVE}, {@code addend} is a difference: it is converted by
+     * the factor only and added to this value in this unit. The result is {@code RELATIVE} only if both operands
+     * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). Throws {@link UnconvertibleException} for a foreign
+     * unit or incompatible dimensions.
      */
     @Override
     public R add(Quantity<Q> addend) {
@@ -211,9 +225,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     /**
-     * Multiplies by {@code multiplicand} as a {@code double}; an offset unit goes through the system unit. A
-     * {@link BigDecimal} or {@link java.math.BigInteger} outside the {@code double} range throws
-     * {@link ArithmeticException}.
+     * Multiplies by {@code multiplicand} as a {@code double}; an offset unit goes through the system unit, unless
+     * this quantity is {@code RELATIVE}, which is scaled as a plain value. A {@link BigDecimal} or
+     * {@link java.math.BigInteger} outside the {@code double} range throws {@link ArithmeticException}.
      */
     @Override
     public R multiply(Number multiplicand) {
@@ -318,7 +332,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     private R scalar(double n, DoubleBinaryOperator op) {
-        double r = unit.toSystemConverter().isLinear()
+        double r = scale == Quantity.Scale.RELATIVE || unit.toSystemConverter().isLinear()
                 ? op.applyAsDouble(value, n)
                 : fromSystem(op.applyAsDouble(toSystem(value, unit), n), unit);
         return create(r, unit, scale);
@@ -328,10 +342,21 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         UomConverter toThisUnit = thatUnit.getConverterTo(unit);
         double b = Precision.toDouble(that.getValue());
-        double r = unit.toSystemConverter().isLinear() && thatUnit.toSystemConverter().isLinear()
-                ? op.applyAsDouble(value, toThisUnit.convert(b))
-                : fromSystem(op.applyAsDouble(toSystem(value, unit), toSystem(b, thatUnit)), unit);
-        return create(r, unit, scale);
+        boolean delta = Deltas.isDelta(scale, that.getScale());
+        double r;
+        if (delta) {
+            r = op.applyAsDouble(value, Deltas.converter(toThisUnit).convert(b));
+        } else if (unit.toSystemConverter().isLinear() && thatUnit.toSystemConverter().isLinear()) {
+            r = op.applyAsDouble(value, toThisUnit.convert(b));
+        } else {
+            r = fromSystem(op.applyAsDouble(toSystem(value, unit), toSystem(b, thatUnit)), unit);
+        }
+        return create(r, unit, Deltas.scale(scale, that.getScale()));
+    }
+
+    private static double systemValue(double value, UomUnit<?> unit, boolean delta) {
+        UomConverter c = unit.toSystemConverter();
+        return (delta ? Deltas.converter(c) : c).convert(value);
     }
 
     private double toSystem(double value, UomUnit<Q> unit) {

@@ -21,6 +21,9 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
 - The catalogs `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU` and `Gaussian`, the `@system`, `@extends` and `@member`
   directives, and `quantity.toSystem(system)`, which converts to the preferred unit of a system.
 - Java serialization of units and quantities through serialization proxies that re-check every invariant.
+- `Quantity.Scale.RELATIVE` quantities are differences: they convert, add, scale and compare without the offset of
+  units such as °C, and a sum or difference is `RELATIVE` only if both operands are
+  ([docs/OFFSET-UNITS.md](docs/OFFSET-UNITS.md)). `ABSOLUTE` quantities keep the literal `Quantity` Javadoc rule.
 - Locale-aware quantity formats (`withLocale`, `withGrouping`), a decimal-preserving parse (`withDecimals`), the
   shift grammar for offset units in formulas (`K + 273.15`) and a faithful text form for unnamed offset units.
 - User `.units` files loaded at run time (`UomSystemOfUnits.load`) and added to a format with `UomUnitFormat.with`

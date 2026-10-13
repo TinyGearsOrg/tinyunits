@@ -205,12 +205,18 @@ class AbstractDecimalQuantityArithmeticTest {
     void scaleIsKept() {
         TestLengthDecimalImpl relative = new TestLengthDecimalImpl(
                 BigDecimal.ONE, KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128);
-        assertSame(Quantity.Scale.RELATIVE, relative.add(q("1", METRE)).getScale());
-        assertSame(Quantity.Scale.RELATIVE, relative.subtract(q("1", METRE)).getScale());
+        TestLengthDecimalImpl delta = new TestLengthDecimalImpl(
+                BigDecimal.ONE, METRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128);
+        assertSame(Quantity.Scale.RELATIVE, relative.add(delta).getScale());
+        assertSame(Quantity.Scale.RELATIVE, relative.subtract(delta).getScale());
         assertSame(Quantity.Scale.RELATIVE, relative.multiply(2).getScale());
         assertSame(Quantity.Scale.RELATIVE, relative.divide(2).getScale());
-        assertSame(Quantity.Scale.RELATIVE, relative.add(d(1, METRE)).getScale());
+        // A sum or difference is a difference only if both operands are, also against a double operand.
+        assertSame(Quantity.Scale.ABSOLUTE, relative.add(q("1", METRE)).getScale());
+        assertSame(Quantity.Scale.ABSOLUTE, relative.subtract(q("1", METRE)).getScale());
+        assertSame(Quantity.Scale.ABSOLUTE, relative.add(d(1, METRE)).getScale());
         assertSame(Quantity.Scale.ABSOLUTE, q("1", METRE).add(relative).getScale());
+        assertSame(Quantity.Scale.ABSOLUTE, q("1", METRE).subtract(delta).getScale());
     }
 
     @Test

@@ -4,32 +4,26 @@ Open items: decisions that need the project owner (1 to 4) and owner-requested f
 
 ## 1. Offset-unit arithmetic (decision D5)
 
-**Status:** undecided. The code follows the unit-api 2.2 `Quantity` Javadoc rule literally: every operation behaves as if
-the operands were converted to the system unit first and the result converted back to the left operand's unit.
+**Status:** decided (option D′) and implemented; documented in [OFFSET-UNITS.md](OFFSET-UNITS.md). `ABSOLUTE` quantities keep
+the literal rule of the unit-api 2.2 `Quantity` Javadoc (`2 degC + 1 degC` is 276.15 degC; the Javadoc's own example says
+274.15, which contradicts its rule). A `RELATIVE` quantity is a difference and takes no offset: `to` and `toSystem` convert
+it by the factor only, `multiply(Number)` and `divide(Number)` scale it, `add` and `subtract` take the right operand as a
+difference if either operand is `RELATIVE` (result `RELATIVE` only if both are), and `compareTo` and `isEquivalentTo`
+between two `RELATIVE` quantities compare differences. This matches Indriya 2.2 where that behaves sensibly (probed:
+the TCK does not test `Scale`). It differs on a difference minus a point, where Indriya 2.2 returned `-545.30 degC`.
 
-**Consequences today:** `2 degC + 1 degC` = 276.15 degC, `2 degC - 1 degC` = -272.15 degC, `20 degC - 0 degC` = -253.15 degC,
-`2 degC * 2` = 277.15 degC. The Javadoc's own example "2 degC + 1 degC = 274.15 degC" contradicts its rule (the rule gives
-276.15 degC). `negate` is a literal `-value` in the same unit.
+**Open points:**
+- `multiply(Quantity)`, `divide(Quantity)` and `inverse()` still take the system-unit values of their operands with offsets,
+  also for a `RELATIVE` operand (a 5 degC difference times 2 m uses 278.15). Decide whether they should use the factor only
+  for `RELATIVE` operands.
+- A point minus a point is not returned as a `RELATIVE` quantity (option B and C, rejected: they differ from the Javadoc
+  and Indriya). The kelvin idiom in OFFSET-UNITS.md gives the difference; a helper could be added if users ask.
+- `double` arithmetic through an offset shows rounding (`20 degC - 0 degC` is -253.14999999999998); `BigDecimal` quantities
+  are exact.
 
-**Options:**
-- **A. Keep the literal rule** (current behavior). Follows the Javadoc text; surprising for users who think in temperature
-  differences.
-- **B. Use `Quantity.Scale` to separate points from intervals.** Adding or subtracting a RELATIVE quantity is a plain delta in
-  the left unit; subtracting two ABSOLUTE quantities gives a RELATIVE one; adding two ABSOLUTE offset quantities is rejected.
-  Closest to what users expect; deviates from the Javadoc rule and needs the scale to be set correctly by callers.
-- **C. Hybrid.** Literal rule everywhere except `subtract(absolute, absolute)`, which returns a RELATIVE quantity.
-
-**Before choosing:** check what the TCK asserts about offset-unit arithmetic (the milestone 1 spike found it mostly checks
-that methods exist), and whether any reference implementation (for example Indriya) treats `Scale` this way.
-
-**Code and docs touched by a change:** `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`combine`, `scalar`), their arithmetic tests, requirement F24,
-DESIGN section 4.
-
-**Where the code keeps today's behaviour:** `AbstractDoubleQuantity.combine` and `scalar`, and the same rule in
-`AbstractDecimalQuantity`. `QuantityContractTest` and `QuantityContractDecimalTest` assert the Javadoc discrepancy (276.15 degC against the Javadoc's 274.15). The TCK passes (113 of 113) with the current rule, so
-the decision no longer blocks milestone 3.
-
-**Needed by:** nothing in milestone 3 any more; decide before 1.0.
+**Where it lives:** `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`to`, `combine`, `scalar`, `compareTo`,
+`isEquivalentTo`) with the package-private `Deltas`; tests `RelativeScaleTest` and the two `*ArithmeticTest` classes; the
+guide is checked by `DocsSnippetsTest`.
 
 ## 2. `asType` and alternate units
 
@@ -74,7 +68,7 @@ higher priority on the class path still breaks it.
 was ambiguous and did not compile. The system overload is renamed `toSystem(SystemOfUnits)`, which also avoids a clash with a
 future `to(...)` overload in unit-api. Done.
 
-**Related, follows decision 1:** `toSystem` of a `Scale.RELATIVE` temperature applies the offset like any other conversion.
+**Related:** `toSystem` of a `Scale.RELATIVE` quantity converts by the factor only (item 1).
 
 ## 5. Emit prefixed catalog units through `prefix(...)`
 
@@ -495,4 +489,4 @@ No version has been released, signed, tagged or uploaded. The release is prepare
 - Decide the CI items of item 31 (SHA pinning of actions, duplicate push and pull-request runs, `cancel-in-progress` on
   `main`, job-level permissions), push the branch and see the workflow green on JDK 21 and 25.
 - Decide the repository rename; the POM's `url`, `scm` and `issueManagement` follow it.
-- Items 1 to 3 above are due before 1.0, not before a 0.x release.
+- Items 2 and 3 above are due before 1.0, not before a 0.x release.

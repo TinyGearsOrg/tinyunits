@@ -126,14 +126,18 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Converts and rounds the result to {@link #mathContext()}, even for the identity conversion
-     * ({@code 1.23456789 m} with {@code DECIMAL32} to metres gives {@code 1.234568 m}). Throws
+     * ({@code 1.23456789 m} with {@code DECIMAL32} to metres gives {@code 1.234568 m}). An {@code ABSOLUTE} quantity
+     * converts through the offsets, a {@code RELATIVE} one (a difference) by the factor only, and the scale is kept
+     * (docs/OFFSET-UNITS.md). Throws
      * {@link ArithmeticException} if the result's scale exceeds the bound of ±100000 (conversion or rounding can
      * push a value past it).
      */
     @Override
     public R to(Unit<Q> unit) {
         UomUnit<Q> target = uomUnit(unit);
-        return create(this.unit.getConverterTo(target).convert(value, mathContext), target, scale, mathContext);
+        UomConverter c = this.unit.getConverterTo(target);
+        return create((scale == Quantity.Scale.RELATIVE ? Deltas.converter(c) : c).convert(value, mathContext),
+                target, scale, mathContext);
     }
 
     /**
@@ -197,9 +201,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Adds as if both operands were in the system unit, with the result back in this unit; linear units skip the
-     * system round trip. Evaluated exactly and rounded once to the lower context of the two (irrational unit
-     * factors with guard digits, best effort); a {@code double} operand gives a {@code double} result. Throws
-     * {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
+     * system round trip. If either operand is {@code RELATIVE}, {@code addend} is a difference: it is converted by
+     * the factor only and added to this value in this unit. The result is {@code RELATIVE} only if both operands
+     * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). Evaluated exactly and rounded once to the lower
+     * context of the two (irrational unit factors with guard digits, best effort); a {@code double} operand gives
+     * a {@code double} result. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
      */
     @Override
     public R add(Quantity<Q> addend) {
@@ -214,7 +220,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Multiplies by {@code multiplicand} as a decimal ({@code double} and {@code Float} as written); an offset unit
-     * goes through the system unit. Evaluated exactly and rounded once to this context.
+     * goes through the system unit, unless this quantity is {@code RELATIVE}, which is scaled as a plain value.
+     * Evaluated exactly and rounded once to this context.
      */
     @Override
     public R multiply(Number multiplicand) {
@@ -231,7 +238,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /**
-     * Compares the exact system-unit values (a consistent total preorder), or with {@link Double#compare} against a
+     * Compares the exact system-unit values (a consistent total preorder; two {@code RELATIVE} quantities as
+     * differences, by the factor only), or with {@link Double#compare} against a
      * {@code double} operand; not consistent with equals. Exact for units with exact factors; irrational factors
      * are evaluated with guard digits, best effort. Against a {@code double} operand, a value of this quantity
      * outside the double range throws {@link ArithmeticException}.
@@ -241,13 +249,13 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         requireCompatible(thatUnit);
         Number n = that.getValue();
+        boolean deltas = Deltas.both(scale, that.getScale());
+        UomConverter ta = deltas ? Deltas.converter(unit.toSystemConverter()) : unit.toSystemConverter();
+        UomConverter tb = deltas ? Deltas.converter(thatUnit.toSystemConverter()) : thatUnit.toSystemConverter();
         if (Precision.kind(n) == Precision.Kind.DOUBLE) {
-            return Double.compare(unit.toSystemConverter().convert(Precision.toDouble(value)),
-                    thatUnit.toSystemConverter().convert(n.doubleValue()));
+            return Double.compare(ta.convert(Precision.toDouble(value)), tb.convert(n.doubleValue()));
         }
         // sign(sys(a) - sys(b)) = sign(fa) * sign(a - (fb/fa) b - (ob - oa)/fa)
-        UomConverter ta = unit.toSystemConverter();
-        UomConverter tb = thatUnit.toSystemConverter();
         BigDecimal b = Precision.toDecimal(n);
         int digits = guardDigits(contextWith(that), b);
         Ratio g = Ratio.of(tb.factor().divide(ta.factor()), digits);
@@ -258,7 +266,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /**
-     * Converts {@code that} into this unit and compares within the relative tolerance {@code 10^(1-p)}, {@code p}
+     * Converts {@code that} into this unit (by the factor only if both are {@code RELATIVE}) and compares within
+     * the relative tolerance {@code 10^(1-p)}, {@code p}
      * the lowest non-zero precision of both contexts (34 if unlimited); against a {@code double} operand the
      * {@code double} rule applies, and a value of this quantity outside the double range throws
      * {@link ArithmeticException}. At precision 1 the tolerance is 10^0 (degenerate by design). Incompatible
@@ -275,7 +284,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
             return toDouble().isEquivalentTo(that);
         }
         MathContext mc = Precision.calculation(contextWith(that));
-        BigDecimal b = thatUnit.getConverterTo(unit).convert(Precision.toDecimal(n), mc);
+        UomConverter c = thatUnit.getConverterTo(unit);
+        BigDecimal b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
+                .convert(Precision.toDecimal(n), mc);
         BigDecimal bound = value.abs().max(b.abs()).scaleByPowerOfTen(1 - mc.getPrecision());
         return value.compareTo(b) == 0 || value.subtract(b).abs().compareTo(bound) <= 0;
     }
@@ -428,7 +439,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         }
         MathContext mc = contextWith(that);
         UomConverter ta = unit.toSystemConverter();
-        UomConverter tb = thatUnit.toSystemConverter();
+        UomConverter tb = Deltas.isDelta(scale, that.getScale()) ? Deltas.converter(thatUnit.toSystemConverter())
+                : thatUnit.toSystemConverter();
         BigDecimal b = Precision.toDecimal(n);
         int digits = guardDigits(mc, b);
         Ratio f = Ratio.of(tb.factor().divide(ta.factor()), digits);
@@ -436,12 +448,14 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         BigDecimal term = plus(b.multiply(f.num).multiply(o.den), o.num.multiply(f.den));
         BigDecimal ad = value.multiply(f.den).multiply(o.den);
         BigDecimal num = plus(ad, subtract ? term.negate() : term);
-        return create(roundOnce(num, f.den.multiply(o.den), mc, f.exact && o.exact), unit, scale, mc);
+        return create(roundOnce(num, f.den.multiply(o.den), mc, f.exact && o.exact), unit,
+                Deltas.scale(scale, that.getScale()), mc);
     }
 
     /** {@code r = a·s + q·(s - 1)} with {@code q = oa/fa} (or {@code 1/s} to divide), as one exact quotient. */
     private R scalar(BigDecimal s, boolean divide) {
-        UomConverter ta = unit.toSystemConverter();
+        UomConverter ta = scale == Quantity.Scale.RELATIVE ? Deltas.converter(unit.toSystemConverter())
+                : unit.toSystemConverter();
         Ratio q = Ratio.of(ta.offset().divide(ta.factor()), guardDigits(mathContext, s));
         BigDecimal aq = plus(value.multiply(q.den), q.num);
         BigDecimal num = divide ? plus(aq, q.num.multiply(s).negate()) : plus(aq.multiply(s), q.num.negate());

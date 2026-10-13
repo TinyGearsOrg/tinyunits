@@ -127,12 +127,16 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
   the operands, scale `ABSOLUTE`. `asType(Class)` returns `this` when the quantity is already
   of that type; otherwise it narrows through
   `ServiceProvider.current().getQuantityFactory(type)` and the unit's `asType`.
-- **Offset units.** Arithmetic follows the `Quantity` Javadoc literally (F24): operands are
+- **Offset units (F24).** Arithmetic on `ABSOLUTE` quantities follows the `Quantity` Javadoc literally: operands are
   taken to the system unit, combined, and the result converted back to the left operand's unit;
   linear units skip the round trip. `negate` is `-getValue()` in the same unit.
-- **Scale (D3).** `Quantity.Scale` is a stored flag, default `ABSOLUTE`; arithmetic never
-  depends on it. `to`, `add`, `subtract`, `negate`, `multiply(Number)` and `divide(Number)`
-  keep the left operand's scale; quantity-by-quantity results and `inverse` are `ABSOLUTE`.
+- **Scale (D3, amended).** `Quantity.Scale` is a stored flag, default `ABSOLUTE`. A `RELATIVE` quantity is a
+  difference and takes no offset: `to` and `toSystem` convert it by the factor only, `multiply(Number)` and
+  `divide(Number)` scale its value, and `compareTo` and `isEquivalentTo` between two `RELATIVE` quantities compare
+  differences. `add` and `subtract` take the right operand as a difference (factor only, added in the left unit) if
+  either operand is `RELATIVE`; the result is `RELATIVE` only if both are, else `ABSOLUTE`. `negate` keeps the scale.
+  Quantity-by-quantity results and `inverse` are `ABSOLUTE` and still apply offsets to their operands. The rules live
+  in the package-private `Deltas` and are documented for users in `docs/OFFSET-UNITS.md`.
 - **Foreign arguments (D8).** A `Quantity` or `Unit` whose unit is not a `UomUnit` is rejected
   with `UnconvertibleException`; `null` gives `NullPointerException`; an incompatible dimension
   gives `UnconvertibleException` (`compareTo`, `add`, ...) or `false` (`isEquivalentTo`).

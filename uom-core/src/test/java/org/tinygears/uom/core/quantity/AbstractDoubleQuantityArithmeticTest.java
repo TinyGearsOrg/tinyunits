@@ -185,12 +185,18 @@ class AbstractDoubleQuantityArithmeticTest {
     @Test
     void scaleIsKeptByArithmetic() {
         TestLengthImpl relative = new TestLengthImpl(2, KILOMETRE, Quantity.Scale.RELATIVE);
-        assertSame(Quantity.Scale.RELATIVE, relative.add(q(1, METRE)).getScale());
-        assertSame(Quantity.Scale.RELATIVE, relative.subtract(q(1, METRE)).getScale());
+        TestLengthImpl delta = new TestLengthImpl(1, METRE, Quantity.Scale.RELATIVE);
+        assertSame(Quantity.Scale.RELATIVE, relative.add(delta).getScale());
+        assertSame(Quantity.Scale.RELATIVE, relative.subtract(delta).getScale());
         assertSame(Quantity.Scale.RELATIVE, relative.negate().getScale());
         assertSame(Quantity.Scale.RELATIVE, relative.multiply(2).getScale());
         assertSame(Quantity.Scale.RELATIVE, relative.divide(2).getScale());
+        // A sum or difference is a difference only if both operands are.
+        assertSame(Quantity.Scale.ABSOLUTE, relative.add(q(1, METRE)).getScale());
+        assertSame(Quantity.Scale.ABSOLUTE, relative.subtract(q(1, METRE)).getScale());
         assertSame(Quantity.Scale.ABSOLUTE, q(1, METRE).add(relative).getScale());
+        assertSame(Quantity.Scale.ABSOLUTE, q(1, METRE).subtract(delta).getScale());
+        assertSame(Quantity.Scale.ABSOLUTE, q(1, METRE).multiply(2).getScale());
     }
 
     /** A Quantity from another implementation that uses a UomUnit. */
