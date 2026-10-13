@@ -30,7 +30,7 @@ public interface ElectricCharge extends javax.measure.quantity.ElectricCharge,
      * @param system the system of units
      * @return the converted quantity
      */
-    ElectricCharge to(SystemOfUnits system);
+    ElectricCharge toSystem(SystemOfUnits system);
 
     @Override
     ElectricCharge negate();

@@ -30,7 +30,7 @@ public interface CatalyticActivity extends javax.measure.quantity.CatalyticActiv
      * @param system the system of units
      * @return the converted quantity
      */
-    CatalyticActivity to(SystemOfUnits system);
+    CatalyticActivity toSystem(SystemOfUnits system);
 
     @Override
     CatalyticActivity negate();

@@ -204,11 +204,11 @@ class GeneratedDecimalQuantitiesTest {
     @Test
     void toSystemForAllTypes() throws Exception {
         Length km = Length.of(1, GeneratedQuantitiesTest.METRE)
-                .to(system(javax.measure.quantity.Length.class, GeneratedQuantitiesTest.KILOMETRE));
+                .toSystem(system(javax.measure.quantity.Length.class, GeneratedQuantitiesTest.KILOMETRE));
         assertEquals(1e-3, km.getValue());
         forAllTypes((type, f, u, typed) -> {
             SystemOfUnits sys = system(type, u);
-            Method to = typed.getMethod("to", SystemOfUnits.class);
+            Method to = typed.getMethod("toSystem", SystemOfUnits.class);
             assertEquals(typed, to.getReturnType());
             Quantity<?> dbl = create(f, 1.0, u);
             assertEquals(dbl, to.invoke(dbl, sys));

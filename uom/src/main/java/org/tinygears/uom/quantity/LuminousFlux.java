@@ -30,7 +30,7 @@ public interface LuminousFlux extends javax.measure.quantity.LuminousFlux,
      * @param system the system of units
      * @return the converted quantity
      */
-    LuminousFlux to(SystemOfUnits system);
+    LuminousFlux toSystem(SystemOfUnits system);
 
     @Override
     LuminousFlux negate();

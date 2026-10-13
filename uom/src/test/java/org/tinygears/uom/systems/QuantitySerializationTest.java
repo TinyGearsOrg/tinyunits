@@ -127,7 +127,7 @@ class QuantitySerializationTest {
         Length km = (Length) read;
         assertEquals(0, new BigDecimal("1500").compareTo((BigDecimal) km.to(SI.METRE).getValue()));
         assertEquals(new BigDecimal("1.50"), km.getValue());
-        assertEquals(SI.METRE, km.to(SI.SYSTEM).getUnit());
+        assertEquals(SI.METRE, km.toSystem(SI.SYSTEM).getUnit());
     }
 
     @Test

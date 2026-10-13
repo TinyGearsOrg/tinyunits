@@ -68,15 +68,13 @@ higher priority on the class path still breaks it. Other items: `docs/superpower
 
 **Needed by:** nothing in milestone 3; decide before 1.0.
 
-## 4. `to(null)` and the name of the system overload
+## 4. Name of the system overload
 
-**Status:** the typed interfaces have `to(Unit)` and `to(SystemOfUnits)` (D5 of milestone 5, F8), so a bare `null` literal in
-`quantity.to(null)` is ambiguous and does not compile; a typed `null` variable is fine. Accepted in milestone 5 because the
-requirement names the method `to(system)`. Options: keep, or rename the system overload (for example `toSystem`).
+**Status:** decided. The typed interfaces had `to(Unit)` and `to(SystemOfUnits)`, so a bare `null` literal in `quantity.to(null)`
+was ambiguous and did not compile. The system overload is renamed `toSystem(SystemOfUnits)`, which also avoids a clash with a
+future `to(...)` overload in unit-api. Done.
 
-**Related, follows decision 1:** `to(system)` of a `Scale.RELATIVE` temperature applies the offset like any other conversion.
-
-**Needed by:** nothing; decide before 1.0.
+**Related, follows decision 1:** `toSystem` of a `Scale.RELATIVE` temperature applies the offset like any other conversion.
 
 ## 5. Emit prefixed catalog units through `prefix(...)`
 

@@ -30,7 +30,7 @@ public interface MagneticFluxDensity extends javax.measure.quantity.MagneticFlux
      * @param system the system of units
      * @return the converted quantity
      */
-    MagneticFluxDensity to(SystemOfUnits system);
+    MagneticFluxDensity toSystem(SystemOfUnits system);
 
     @Override
     MagneticFluxDensity negate();

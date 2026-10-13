@@ -30,7 +30,7 @@ public interface RadiationDoseEffective extends javax.measure.quantity.Radiation
      * @param system the system of units
      * @return the converted quantity
      */
-    RadiationDoseEffective to(SystemOfUnits system);
+    RadiationDoseEffective toSystem(SystemOfUnits system);
 
     @Override
     RadiationDoseEffective negate();

@@ -30,7 +30,7 @@ public interface Illuminance extends javax.measure.quantity.Illuminance,
      * @param system the system of units
      * @return the converted quantity
      */
-    Illuminance to(SystemOfUnits system);
+    Illuminance toSystem(SystemOfUnits system);
 
     @Override
     Illuminance negate();

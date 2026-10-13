@@ -30,7 +30,7 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
      * @param system the system of units
      * @return the converted quantity
      */
-    ElectricPotential to(SystemOfUnits system);
+    ElectricPotential toSystem(SystemOfUnits system);
 
     @Override
     ElectricPotential negate();

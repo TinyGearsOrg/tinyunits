@@ -30,7 +30,7 @@ public interface ElectricCurrent extends javax.measure.quantity.ElectricCurrent,
      * @param system the system of units
      * @return the converted quantity
      */
-    ElectricCurrent to(SystemOfUnits system);
+    ElectricCurrent toSystem(SystemOfUnits system);
 
     @Override
     ElectricCurrent negate();

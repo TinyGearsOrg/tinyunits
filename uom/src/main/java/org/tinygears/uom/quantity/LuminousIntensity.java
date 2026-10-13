@@ -30,7 +30,7 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
      * @param system the system of units
      * @return the converted quantity
      */
-    LuminousIntensity to(SystemOfUnits system);
+    LuminousIntensity toSystem(SystemOfUnits system);
 
     @Override
     LuminousIntensity negate();

@@ -2,7 +2,7 @@
 
 Status: reviewed by the project owner. The design is in `DESIGN.md`. Milestones 1 to 6 are
 implemented on their branches (units core, `double` and `BigDecimal` quantities for all 33 types, the generator, the
-seven catalogs, `quantity.to(system)`, unit and quantity formats with locales and decimal parse, serialization, user
+seven catalogs, `quantity.toSystem(system)`, unit and quantity formats with locales and decimal parse, serialization, user
 `.units` files at run time, the service provider, the TCK passing); milestone 7 prepared the release (POM metadata,
 release profile, API pin, documentation, release verification, CI), but nothing has been published.
 
@@ -33,7 +33,7 @@ dynamic proxies in the picture.
 | F5 | Two numeric precisions from the first release: `double` and `BigDecimal`. Both are generated for every quantity type (done in milestone 4: `XDouble` and `XDecimal` for all 33 types). Mixing precisions in one operation has a single, documented promotion rule (F23). |
 | F6 | Unit catalogs (done in milestones 3 and 5: `SI` 128 distinct units, `USCustomary` 35, `Imperial` 42, `CGS` 16, `ESU` 22, `EMU` 29, `Gaussian` 26; poise, stokes and oersted are untyped units): SI (all prefixes, plus accepted non-SI units such as minute, hour, litre, tonne, electronvolt), Imperial / US customary (US and imperial gallons distinguished, international vs US survey foot distinguished), CGS mechanical, and CGS electromagnetic (ESU, EMU, Gaussian). |
 | F7 | CGS electromagnetic units are conversion conventions: a statcoulomb is a unit of `ElectricCharge` with a numeric factor to the coulomb. They are not modelled as separate dimension sets. |
-| F8 | Typed system conversion (done in milestones 3 and 5: `UomSystemOfUnits` implements `SystemOfUnits` with preferred units for all 33 types in every system; `quantity.to(system)` on every typed quantity): `quantity.to(system)` converts to the system's preferred unit for that quantity type (e.g. CGS gives centimetre for a length). A unit system maps quantity types to their preferred unit. |
+| F8 | Typed system conversion (done in milestones 3 and 5: `UomSystemOfUnits` implements `SystemOfUnits` with preferred units for all 33 types in every system; `quantity.toSystem(system)` on every typed quantity): `quantity.toSystem(system)` converts to the system's preferred unit for that quantity type (e.g. CGS gives centimetre for a length). A unit system maps quantity types to their preferred unit. |
 | F9 | Done in milestones 3 and 6 (`UomUnitFormat`, `UomQuantityFormat`: symbols, prefixes, formulas such as `kg·m/s^2`; milestone 6: locale-aware numbers through `withLocale`, a decimal-preserving parse through `withDecimals`, and a faithful text form, such as `K + 5`, for every unit with a positive factor without a root, a rational shift and a formula of at most 10,000 characters, offset units included). Unit parsing and formatting (e.g. `"km/h"`, `"m/s^2"`), and quantity formatting (value plus unit symbol). |
 | F10 | Unit algebra per JSR-385: multiply, divide, pow, root, prefixes, shift (offset units such as degree Celsius and Fahrenheit), transform, alternate units, and base-unit decomposition. |
 | F11 | Compatibility checking: combining incompatible units fails with a clear unchecked exception naming both units. |

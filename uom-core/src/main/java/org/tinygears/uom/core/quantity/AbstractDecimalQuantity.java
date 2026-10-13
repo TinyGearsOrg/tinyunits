@@ -94,7 +94,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     protected abstract R createDouble(double value, UomUnit<Q> unit, Quantity.Scale scale);
 
     /**
-     * The standard quantity type of this class, looked up by {@link #to(SystemOfUnits)}; {@link Untyped} if none.
+     * The standard quantity type of this class, looked up by {@link #toSystem(SystemOfUnits)}; {@link Untyped} if none.
      *
      * @return the quantity type
      */
@@ -146,7 +146,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * @param system the system of units
      * @return the converted quantity
      */
-    public R to(SystemOfUnits system) {
+    public R toSystem(SystemOfUnits system) {
         Objects.requireNonNull(system, "system");
         Unit<Q> target = system.getUnit(quantityType());
         if (target == null) {

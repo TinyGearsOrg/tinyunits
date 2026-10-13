@@ -30,7 +30,7 @@ public interface Temperature extends javax.measure.quantity.Temperature,
      * @param system the system of units
      * @return the converted quantity
      */
-    Temperature to(SystemOfUnits system);
+    Temperature toSystem(SystemOfUnits system);
 
     @Override
     Temperature negate();

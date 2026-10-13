@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, seven catalogs with prefixes, `quantity.to(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29) and `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit); `quantity.to(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1112 tests (core 506, codegen 169, uom 322, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 21 and 25); nothing has been published. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, seven catalogs with prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29) and `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1112 tests (core 506, codegen 169, uom 322, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
@@ -12,7 +12,7 @@ System.out.println(marathon.to(USCustomary.MILE));                 // prints: 26
 Speed pace = (Speed) marathon.divide(Time.of(3, SI.HOUR)).asType(javax.measure.quantity.Speed.class);
 System.out.println(pace.to(USCustomary.MILE_PER_HOUR));             // prints: 8.739585818818103 mph
 Temperature boiling = Temperature.of(100, SI.DEGREE_CELSIUS);
-System.out.println(boiling.to(USCustomary.SYSTEM));                 // prints: 212.0 °F
+System.out.println(boiling.toSystem(USCustomary.SYSTEM));                 // prints: 212.0 °F
 Length exact = Length.of(new BigDecimal("0.1"), SI.METRE).add(Length.of(new BigDecimal("0.2"), SI.METRE));
 System.out.println(exact);                                          // prints: 0.3 m
 UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard());
@@ -22,7 +22,7 @@ System.out.println(format.parse("20 km").asType(javax.measure.quantity.Length.cl
 
 Quantities are typed (`Length`, `Speed`, ... for all 33 JSR-385 quantity types), in `double` or exact `BigDecimal`
 precision; the catalogs `SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU` and `Gaussian` hold the units
-([docs/UNITS.md](docs/UNITS.md) lists them all), and `quantity.to(system)` converts to the preferred unit of a system.
+([docs/UNITS.md](docs/UNITS.md) lists them all), and `quantity.toSystem(system)` converts to the preferred unit of a system.
 
 ## Install
 
@@ -65,7 +65,7 @@ Build and test everything: `mvn -q -B clean verify` (see [CONTRIBUTING.md](CONTR
 
 ## Examples
 
-[`Examples.java`](uom-examples/src/main/java/org/tinygears/uom/examples/Examples.java) shows typed quantities and conversion, dividing quantities and `asType`, offset units, `equals` versus `isEquivalentTo`, unit and quantity parsing and formatting, and use through the JSR-385 `ServiceProvider`. `decimals()` shows `BigDecimal` quantities: `0.1 m + 0.2 m` is exactly `0.3 m`, unlike with `double`. `mixedPrecision()`, `contexts()`, `decimalEquality()` and `decimalFormat()` show the precision rule (a `double` operand makes the result a `double`), `MathContext` and `toDecimal`/`toDouble`, `equals` versus `isEquivalentTo` across precisions, and decimal formatting. `systems()` shows `quantity.to(system)`: 1 ft in CGS is `30.48 cm`, 100 °C in US customary is `212.0 °F` (exactly `212 °F` for a `BigDecimal`), the US gallon (3.785411784 L) against the imperial gallon (4.54609 L), and 1 C in Gaussian units. `serialization()` round-trips a unit and a quantity through a byte array, `locales()` prints and parses `1,5 km` in German, `offsetUnits()` formats an unnamed shifted kelvin as `K + 5` and parses it back, `decimalParse()` keeps the scale of `1.50 km`, and `userUnits()` loads a small `.units` text, parses `2 league` and converts it with `to(system)`. `ExamplesTest` checks the printed output. Run it after a build with:
+[`Examples.java`](uom-examples/src/main/java/org/tinygears/uom/examples/Examples.java) shows typed quantities and conversion, dividing quantities and `asType`, offset units, `equals` versus `isEquivalentTo`, unit and quantity parsing and formatting, and use through the JSR-385 `ServiceProvider`. `decimals()` shows `BigDecimal` quantities: `0.1 m + 0.2 m` is exactly `0.3 m`, unlike with `double`. `mixedPrecision()`, `contexts()`, `decimalEquality()` and `decimalFormat()` show the precision rule (a `double` operand makes the result a `double`), `MathContext` and `toDecimal`/`toDouble`, `equals` versus `isEquivalentTo` across precisions, and decimal formatting. `systems()` shows `quantity.toSystem(system)`: 1 ft in CGS is `30.48 cm`, 100 °C in US customary is `212.0 °F` (exactly `212 °F` for a `BigDecimal`), the US gallon (3.785411784 L) against the imperial gallon (4.54609 L), and 1 C in Gaussian units. `serialization()` round-trips a unit and a quantity through a byte array, `locales()` prints and parses `1,5 km` in German, `offsetUnits()` formats an unnamed shifted kelvin as `K + 5` and parses it back, `decimalParse()` keeps the scale of `1.50 km`, and `userUnits()` loads a small `.units` text, parses `2 league` and converts it with `toSystem(system)`. `ExamplesTest` checks the printed output. Run it after a build with:
 
 ```
 mvn -q -B -pl uom-examples -am install -DskipTests
@@ -114,14 +114,14 @@ league:league   3 mi            # formulas use the built-in symbols
 furlong:furlong 220 yd
 rod:rod         1|40 furlong    # exact fraction
 @prefixed league k              # adds kleague
-@preferred Length furlong       # q.to(system) gives furlongs
+@preferred Length furlong       # q.toSystem(system) gives furlongs
 ```
 
 ```java
 UomSystemOfUnits medieval = UomSystemOfUnits.load(Path.of("medieval.units"));
 UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
 Length d = (Length) format.parse("2 league").asType(javax.measure.quantity.Length.class);
-d.to(medieval);                                  // 48.0 furlong
+d.toSystem(medieval);                                  // 48.0 furlong
 ```
 
 ## Generated sources

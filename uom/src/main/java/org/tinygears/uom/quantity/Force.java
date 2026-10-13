@@ -30,7 +30,7 @@ public interface Force extends javax.measure.quantity.Force,
      * @param system the system of units
      * @return the converted quantity
      */
-    Force to(SystemOfUnits system);
+    Force toSystem(SystemOfUnits system);
 
     @Override
     Force negate();

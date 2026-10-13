@@ -30,7 +30,7 @@ public interface ElectricInductance extends javax.measure.quantity.ElectricInduc
      * @param system the system of units
      * @return the converted quantity
      */
-    ElectricInductance to(SystemOfUnits system);
+    ElectricInductance toSystem(SystemOfUnits system);
 
     @Override
     ElectricInductance negate();

@@ -113,8 +113,8 @@ class SystemConversionTest {
     }
 
     private static Quantity<?> to(Quantity<?> q, SystemOfUnits system) {
-        return q instanceof AbstractDoubleQuantity<?, ?> d ? (Quantity<?>) d.to(system)
-                : (Quantity<?>) ((AbstractDecimalQuantity<?, ?>) q).to(system);
+        return q instanceof AbstractDoubleQuantity<?, ?> d ? (Quantity<?>) d.toSystem(system)
+                : (Quantity<?>) ((AbstractDecimalQuantity<?, ?>) q).toSystem(system);
     }
 
     private static void assertValue(String expected, Quantity<?> q) {
@@ -368,23 +368,23 @@ class SystemConversionTest {
     void cgsEsuGaussianChain() {
         BigDecimal one = BigDecimal.ONE;
         ElectricCharge abc = ElectricCharge.of(one, EMU.ABCOULOMB, ABS, UNL);
-        ElectricCharge viaCgs = abc.to(CGS.SYSTEM);
+        ElectricCharge viaCgs = abc.toSystem(CGS.SYSTEM);
         assertValue("10", viaCgs);
-        ElectricCharge viaEsu = viaCgs.to(ESU.SYSTEM);
+        ElectricCharge viaEsu = viaCgs.toSystem(ESU.SYSTEM);
         assertSame(ESU.STATCOULOMB, viaEsu.getUnit());
         assertValue("29979245800", viaEsu);
-        ElectricCharge viaGauss = viaEsu.to(Gaussian.SYSTEM);
+        ElectricCharge viaGauss = viaEsu.toSystem(Gaussian.SYSTEM);
         assertSame(Gaussian.FRANKLIN, viaGauss.getUnit());
         assertValue("29979245800", viaGauss);
-        assertValue("29979245800", abc.to(ESU.SYSTEM));
-        assertValue("2997924580", ElectricCharge.of(one, SI.COULOMB, ABS, UNL).to(Gaussian.SYSTEM));
-        MagneticFluxDensity g = MagneticFluxDensity.of(one, SI.TESLA, ABS, UNL).to(Gaussian.SYSTEM);
+        assertValue("29979245800", abc.toSystem(ESU.SYSTEM));
+        assertValue("2997924580", ElectricCharge.of(one, SI.COULOMB, ABS, UNL).toSystem(Gaussian.SYSTEM));
+        MagneticFluxDensity g = MagneticFluxDensity.of(one, SI.TESLA, ABS, UNL).toSystem(Gaussian.SYSTEM);
         assertSame(EMU.GAUSS, g.getUnit());
         assertValue("10000", g);
-        MagneticFlux mx = MagneticFlux.of(one, SI.WEBER, ABS, UNL).to(Gaussian.SYSTEM);
+        MagneticFlux mx = MagneticFlux.of(one, SI.WEBER, ABS, UNL).toSystem(Gaussian.SYSTEM);
         assertSame(EMU.MAXWELL, mx.getUnit());
         assertValue("100000000", mx);
-        ElectricCurrent ab = ElectricCurrent.of(one, SI.AMPERE, ABS, UNL).to(EMU.SYSTEM);
+        ElectricCurrent ab = ElectricCurrent.of(one, SI.AMPERE, ABS, UNL).toSystem(EMU.SYSTEM);
         assertSame(EMU.ABAMPERE, ab.getUnit());
         assertValue("0.1", ab);
     }

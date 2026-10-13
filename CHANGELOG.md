@@ -19,7 +19,7 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
 - `BigDecimal` quantities for all 33 types with a `MathContext` (`DECIMAL128` by default), single rounding, and the
   precision rule (a `double` operand makes the result a `double`).
 - The catalogs `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU` and `Gaussian`, the `@system`, `@extends` and `@member`
-  directives, and `quantity.to(system)`, which converts to the preferred unit of a system.
+  directives, and `quantity.toSystem(system)`, which converts to the preferred unit of a system.
 - Java serialization of units and quantities through serialization proxies that re-check every invariant.
 - Locale-aware quantity formats (`withLocale`, `withGrouping`), a decimal-preserving parse (`withDecimals`), the
   shift grammar for offset units in formulas (`K + 273.15`) and a faithful text form for unnamed offset units.

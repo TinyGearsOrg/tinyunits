@@ -30,7 +30,7 @@ public interface Dimensionless extends javax.measure.quantity.Dimensionless,
      * @param system the system of units
      * @return the converted quantity
      */
-    Dimensionless to(SystemOfUnits system);
+    Dimensionless toSystem(SystemOfUnits system);
 
     @Override
     Dimensionless negate();

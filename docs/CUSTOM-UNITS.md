@@ -16,7 +16,7 @@ league:league   3 mi            # symbol:name formula
 furlong:furlong 220 yd
 rod:rod         1|40 furlong    # an exact fraction
 @prefixed league k              # adds kleague
-@preferred Length furlong       # q.to(system) gives furlongs for a Length
+@preferred Length furlong       # q.toSystem(system) gives furlongs for a Length
 ```
 
 ```java
@@ -33,7 +33,7 @@ UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(m
 Quantity<?> parsed = format.parse("2 league");
 Length distance = (Length) parsed.asType(javax.measure.quantity.Length.class);
 System.out.println(medieval.getName() + " " + medieval.getUnits());  // prints: Medieval [league, furlong, rod, kleague]
-System.out.println(distance.to(medieval));                          // prints: 48.0 furlong
+System.out.println(distance.toSystem(medieval));                          // prints: 48.0 furlong
 System.out.println(distance.to(SI.KILOMETRE));                      // prints: 9.656064 km
 System.out.println(format.parse("1 Mleague").asType(javax.measure.quantity.Length.class).to(SI.KILOMETRE));
 // prints: 4828032.0 km
@@ -258,7 +258,7 @@ Map<String, String> files = Map.of(
 UomSystemOfUnits road = UomSystemOfUnits.load("road.units", new StringReader(files.get("road.units")),
         name -> files.containsKey(name) ? new StringReader(files.get(name)) : null);
 System.out.println(road.getUnits());                     // prints: [stage, league, kleague]
-System.out.println(Length.of(1, SI.KILOMETRE).to(road)); // prints: 0.207123730745778 league
+System.out.println(Length.of(1, SI.KILOMETRE).toSystem(road)); // prints: 0.207123730745778 league
 System.out.println(road.isPrefixable("league"));         // prints: true
 ```
 
@@ -277,7 +277,7 @@ step 0.75 m
 
 ### `@preferred Type symbol`
 
-Sets the unit `quantity.to(system)` converts to for one of the 33 standard quantity types (simple name, such as
+Sets the unit `quantity.toSystem(system)` converts to for one of the 33 standard quantity types (simple name, such as
 `Length` or `MagneticFlux`). The unit must be defined in the user files before this line, be a unit of the system and
 have the type's system unit, not only its dimension: an alternate unit of another atom is refused. One line per type. A type without a line takes the first parent's preferred unit, else
 `SI`'s.

@@ -30,7 +30,7 @@ public interface Volume extends javax.measure.quantity.Volume,
      * @param system the system of units
      * @return the converted quantity
      */
-    Volume to(SystemOfUnits system);
+    Volume toSystem(SystemOfUnits system);
 
     @Override
     Volume negate();

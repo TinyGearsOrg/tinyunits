@@ -30,7 +30,7 @@ public interface Speed extends javax.measure.quantity.Speed,
      * @param system the system of units
      * @return the converted quantity
      */
-    Speed to(SystemOfUnits system);
+    Speed toSystem(SystemOfUnits system);
 
     @Override
     Speed negate();

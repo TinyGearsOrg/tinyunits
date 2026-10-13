@@ -30,7 +30,7 @@ public interface Power extends javax.measure.quantity.Power,
      * @param system the system of units
      * @return the converted quantity
      */
-    Power to(SystemOfUnits system);
+    Power toSystem(SystemOfUnits system);
 
     @Override
     Power negate();

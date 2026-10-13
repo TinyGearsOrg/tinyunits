@@ -30,7 +30,7 @@ public interface Pressure extends javax.measure.quantity.Pressure,
      * @param system the system of units
      * @return the converted quantity
      */
-    Pressure to(SystemOfUnits system);
+    Pressure toSystem(SystemOfUnits system);
 
     @Override
     Pressure negate();

@@ -30,7 +30,7 @@ public interface Frequency extends javax.measure.quantity.Frequency,
      * @param system the system of units
      * @return the converted quantity
      */
-    Frequency to(SystemOfUnits system);
+    Frequency toSystem(SystemOfUnits system);
 
     @Override
     Frequency negate();

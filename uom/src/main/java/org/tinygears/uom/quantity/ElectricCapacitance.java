@@ -30,7 +30,7 @@ public interface ElectricCapacitance extends javax.measure.quantity.ElectricCapa
      * @param system the system of units
      * @return the converted quantity
      */
-    ElectricCapacitance to(SystemOfUnits system);
+    ElectricCapacitance toSystem(SystemOfUnits system);
 
     @Override
     ElectricCapacitance negate();

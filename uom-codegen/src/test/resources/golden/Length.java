@@ -30,7 +30,7 @@ public interface Length extends javax.measure.quantity.Length,
      * @param system the system of units
      * @return the converted quantity
      */
-    Length to(SystemOfUnits system);
+    Length toSystem(SystemOfUnits system);
 
     @Override
     Length negate();

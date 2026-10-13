@@ -30,7 +30,7 @@ public interface ElectricResistance extends javax.measure.quantity.ElectricResis
      * @param system the system of units
      * @return the converted quantity
      */
-    ElectricResistance to(SystemOfUnits system);
+    ElectricResistance toSystem(SystemOfUnits system);
 
     @Override
     ElectricResistance negate();

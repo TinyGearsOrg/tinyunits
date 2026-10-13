@@ -43,7 +43,7 @@ public final class SourceEmitter {
                  * @param system the system of units
                  * @return the converted quantity
                  */
-                $T to(javax.measure.spi.SystemOfUnits system);
+                $T toSystem(javax.measure.spi.SystemOfUnits system);
 
                 @Override
                 $T negate();

@@ -30,7 +30,7 @@ public interface ElectricConductance extends javax.measure.quantity.ElectricCond
      * @param system the system of units
      * @return the converted quantity
      */
-    ElectricConductance to(SystemOfUnits system);
+    ElectricConductance toSystem(SystemOfUnits system);
 
     @Override
     ElectricConductance negate();

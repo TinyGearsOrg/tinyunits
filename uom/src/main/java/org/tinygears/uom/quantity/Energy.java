@@ -30,7 +30,7 @@ public interface Energy extends javax.measure.quantity.Energy,
      * @param system the system of units
      * @return the converted quantity
      */
-    Energy to(SystemOfUnits system);
+    Energy toSystem(SystemOfUnits system);
 
     @Override
     Energy negate();

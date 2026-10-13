@@ -127,7 +127,7 @@ class SourceEmitterTest {
         assertTrue(decimal.contains(hook), decimal);
         assertTrue(SourceEmitter.doubleImplementation(LENGTH).contains(hook));
         String iface = SourceEmitter.typedInterface(LENGTH);
-        for (String declaration : List.of("Length toDouble();", "Length to(SystemOfUnits system);",
+        for (String declaration : List.of("Length toDouble();", "Length toSystem(SystemOfUnits system);",
                 "Length toDecimal(MathContext mc);",
                 "static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit) {",
                 "static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit,\n"
@@ -229,7 +229,7 @@ class SourceEmitterTest {
                 new Class<?>[] {SystemOfUnits.class},
                 (p, m, a) -> a != null && a[0] == javax.measure.quantity.Length.class
                         ? BaseUnits.METRE.multiply(1000) : null);
-        java.lang.reflect.Method toSystem = iface.getMethod("to", SystemOfUnits.class);
+        java.lang.reflect.Method toSystem = iface.getMethod("toSystem", SystemOfUnits.class);
         assertEquals(iface, toSystem.getReturnType());
         Object inKm = toSystem.invoke(r, km);
         assertEquals(new BigDecimal("0.002"), ((Quantity<?>) inKm).getValue());

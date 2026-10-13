@@ -30,7 +30,7 @@ public interface Acceleration extends javax.measure.quantity.Acceleration,
      * @param system the system of units
      * @return the converted quantity
      */
-    Acceleration to(SystemOfUnits system);
+    Acceleration toSystem(SystemOfUnits system);
 
     @Override
     Acceleration negate();

@@ -37,8 +37,8 @@ import org.tinygears.uom.quantity.Volume;
 class ToSystemTest {
 
     private static Quantity<?> to(Quantity<?> q, SystemOfUnits system) {
-        return q instanceof AbstractDoubleQuantity<?, ?> d ? (Quantity<?>) d.to(system)
-                : (Quantity<?>) ((AbstractDecimalQuantity<?, ?>) q).to(system);
+        return q instanceof AbstractDoubleQuantity<?, ?> d ? (Quantity<?>) d.toSystem(system)
+                : (Quantity<?>) ((AbstractDecimalQuantity<?, ?>) q).toSystem(system);
     }
 
     private static SystemOfUnits foreign(Map<Class<?>, Unit<?>> units) {
@@ -88,81 +88,81 @@ class ToSystemTest {
 
     @Test
     void metreToCgs() {
-        Length d = Length.of(1, SI.METRE).to(CGS.SYSTEM);
+        Length d = Length.of(1, SI.METRE).toSystem(CGS.SYSTEM);
         assertSame(SI.CENTIMETRE, d.getUnit());
         assertEquals(100.0, d.getValue().doubleValue(), 1e-12);
-        assertExact("100", Length.of(BigDecimal.ONE, SI.METRE).to(CGS.SYSTEM));
+        assertExact("100", Length.of(BigDecimal.ONE, SI.METRE).toSystem(CGS.SYSTEM));
     }
 
     @Test
     void footToSi() {
-        assertEquals(0.3048, Length.of(1, USCustomary.FOOT).to(SI.SYSTEM).getValue().doubleValue(), 1e-12);
-        Length m = Length.of(BigDecimal.ONE, USCustomary.FOOT).to(SI.SYSTEM);
+        assertEquals(0.3048, Length.of(1, USCustomary.FOOT).toSystem(SI.SYSTEM).getValue().doubleValue(), 1e-12);
+        Length m = Length.of(BigDecimal.ONE, USCustomary.FOOT).toSystem(SI.SYSTEM);
         assertEquals(SI.METRE, m.getUnit());
         assertExact("0.3048", m);
     }
 
     @Test
     void celsiusToUsCustomary() {
-        Temperature d = Temperature.of(100, SI.DEGREE_CELSIUS).to(USCustomary.SYSTEM);
+        Temperature d = Temperature.of(100, SI.DEGREE_CELSIUS).toSystem(USCustomary.SYSTEM);
         assertSame(USCustomary.DEGREE_FAHRENHEIT, d.getUnit());
         assertEquals(212.0, d.getValue().doubleValue(), 1e-12);
         Temperature f = Temperature.of(new BigDecimal("100"), SI.DEGREE_CELSIUS, Quantity.Scale.ABSOLUTE)
-                .to(USCustomary.SYSTEM);
+                .toSystem(USCustomary.SYSTEM);
         assertExact("212", f);
         assertEquals(Quantity.Scale.ABSOLUTE, f.getScale());
     }
 
     @Test
     void kilogramToImperial() {
-        Mass d = Mass.of(1, SI.KILOGRAM).to(Imperial.SYSTEM);
+        Mass d = Mass.of(1, SI.KILOGRAM).toSystem(Imperial.SYSTEM);
         assertSame(USCustomary.POUND, d.getUnit());
         assertEquals(1 / 0.45359237, d.getValue().doubleValue(), 1e-12);
         // non-terminating, so the DECIMAL128 default context rounds it
         BigDecimal expected = BigDecimal.ONE.divide(new BigDecimal("0.45359237"), MathContext.DECIMAL128);
-        assertEquals(expected, Mass.of(BigDecimal.ONE, SI.KILOGRAM).to(Imperial.SYSTEM).getValue());
+        assertEquals(expected, Mass.of(BigDecimal.ONE, SI.KILOGRAM).toSystem(Imperial.SYSTEM).getValue());
         // UNLIMITED falls back to DECIMAL128 for the non-terminating quotient and stays the context
         Mass unlimited = Mass.of(BigDecimal.ONE, SI.KILOGRAM, Quantity.Scale.ABSOLUTE, MathContext.UNLIMITED)
-                .to(Imperial.SYSTEM);
+                .toSystem(Imperial.SYSTEM);
         assertEquals(expected, unlimited.getValue());
         assertEquals(MathContext.UNLIMITED, ((AbstractDecimalQuantity<?, ?>) (Object) unlimited).mathContext());
     }
 
     @Test
     void secondInGaussianFallsBackToSi() {
-        Time t = Time.of(5, SI.SECOND).to(Gaussian.SYSTEM);
+        Time t = Time.of(5, SI.SECOND).toSystem(Gaussian.SYSTEM);
         assertEquals(SI.SECOND, t.getUnit());
         assertEquals(5.0, t.getValue());
-        assertExact("5", Time.of(new BigDecimal("5"), SI.SECOND).to(Gaussian.SYSTEM));
+        assertExact("5", Time.of(new BigDecimal("5"), SI.SECOND).toSystem(Gaussian.SYSTEM));
     }
 
     @Test
     void coulombToFranklin() {
-        ElectricCharge d = ElectricCharge.of(1, SI.COULOMB).to(Gaussian.SYSTEM);
+        ElectricCharge d = ElectricCharge.of(1, SI.COULOMB).toSystem(Gaussian.SYSTEM);
         assertSame(Gaussian.FRANKLIN, d.getUnit());
         assertEquals(2997924580.0, d.getValue().doubleValue(), 1e-3);
-        assertExact("2997924580", ElectricCharge.of(BigDecimal.ONE, SI.COULOMB).to(Gaussian.SYSTEM));
+        assertExact("2997924580", ElectricCharge.of(BigDecimal.ONE, SI.COULOMB).toSystem(Gaussian.SYSTEM));
     }
 
     @Test
     void pascalAndNewtonToCgs() {
-        Pressure p = Pressure.of(BigDecimal.ONE, SI.PASCAL).to(CGS.SYSTEM);
+        Pressure p = Pressure.of(BigDecimal.ONE, SI.PASCAL).toSystem(CGS.SYSTEM);
         assertSame(CGS.BARYE, p.getUnit());
         assertExact("10", p);
-        assertEquals(10.0, Pressure.of(1, SI.PASCAL).to(CGS.SYSTEM).getValue().doubleValue(), 1e-12);
-        Force n = Force.of(BigDecimal.ONE, SI.NEWTON).to(CGS.SYSTEM);
+        assertEquals(10.0, Pressure.of(1, SI.PASCAL).toSystem(CGS.SYSTEM).getValue().doubleValue(), 1e-12);
+        Force n = Force.of(BigDecimal.ONE, SI.NEWTON).toSystem(CGS.SYSTEM);
         assertSame(CGS.DYNE, n.getUnit());
         assertExact("100000", n);
-        assertEquals(100000.0, Force.of(1, SI.NEWTON).to(CGS.SYSTEM).getValue().doubleValue(), 1e-9);
+        assertEquals(100000.0, Force.of(1, SI.NEWTON).toSystem(CGS.SYSTEM).getValue().doubleValue(), 1e-9);
     }
 
     @Test
     void litreToImperialGallon() {
-        Volume d = Volume.of(1, SI.LITRE).to(Imperial.SYSTEM);
+        Volume d = Volume.of(1, SI.LITRE).toSystem(Imperial.SYSTEM);
         assertSame(Imperial.GALLON_UK, d.getUnit());
         assertEquals(1 / 4.54609, d.getValue().doubleValue(), 1e-12);
         assertEquals(BigDecimal.ONE.divide(new BigDecimal("4.54609"), MathContext.DECIMAL128),
-                Volume.of(BigDecimal.ONE, SI.LITRE).to(Imperial.SYSTEM).getValue());
+                Volume.of(BigDecimal.ONE, SI.LITRE).toSystem(Imperial.SYSTEM).getValue());
     }
 
     @Test
@@ -170,36 +170,36 @@ class ToSystemTest {
         String message = "system SI has no unit for type Untyped";
         Quantity<?> speed = Length.of(1, SI.METRE).divide(Time.of(1, SI.SECOND));
         assertEquals(message, assertThrows(UnsupportedOperationException.class,
-                () -> ((UntypedDoubleQuantity) speed).to(SI.SYSTEM)).getMessage());
+                () -> ((UntypedDoubleQuantity) speed).toSystem(SI.SYSTEM)).getMessage());
         Quantity<?> decimal = Length.of(BigDecimal.ONE, SI.METRE).divide(Time.of(BigDecimal.ONE, SI.SECOND));
         assertEquals(message, assertThrows(UnsupportedOperationException.class,
-                () -> ((UntypedDecimalQuantity) decimal).to(SI.SYSTEM)).getMessage());
+                () -> ((UntypedDecimalQuantity) decimal).toSystem(SI.SYSTEM)).getMessage());
     }
 
     @Test
     void foreignSystems() {
         SystemOfUnits empty = foreign(Map.of());
         assertEquals("system Foreign has no unit for type Length", assertThrows(UnsupportedOperationException.class,
-                () -> Length.of(1, SI.METRE).to(empty)).getMessage());
+                () -> Length.of(1, SI.METRE).toSystem(empty)).getMessage());
         assertEquals("system Foreign has no unit for type Mass", assertThrows(UnsupportedOperationException.class,
-                () -> Mass.of(BigDecimal.ONE, SI.KILOGRAM).to(empty)).getMessage());
+                () -> Mass.of(BigDecimal.ONE, SI.KILOGRAM).toSystem(empty)).getMessage());
         Unit<?> alien = (Unit<?>) Proxy.newProxyInstance(ToSystemTest.class.getClassLoader(),
                 new Class<?>[] {Unit.class}, (p, m, a) -> m.getName().equals("toString") ? "alien" : null);
         SystemOfUnits withAlien = foreign(Map.of(javax.measure.quantity.Length.class, alien));
-        assertThrows(UnconvertibleException.class, () -> Length.of(1, SI.METRE).to(withAlien));
-        assertThrows(UnconvertibleException.class, () -> Length.of(BigDecimal.ONE, SI.METRE).to(withAlien));
-        assertThrows(NullPointerException.class, () -> Length.of(1, SI.METRE).to((SystemOfUnits) null));
+        assertThrows(UnconvertibleException.class, () -> Length.of(1, SI.METRE).toSystem(withAlien));
+        assertThrows(UnconvertibleException.class, () -> Length.of(BigDecimal.ONE, SI.METRE).toSystem(withAlien));
+        assertThrows(NullPointerException.class, () -> Length.of(1, SI.METRE).toSystem(null));
     }
 
     @Test
     void scaleAndContextAreKept() {
         Length rel = Length.of(new BigDecimal("1.23456789"), USCustomary.FOOT, Quantity.Scale.RELATIVE,
-                MathContext.DECIMAL32).to(SI.SYSTEM);
+                MathContext.DECIMAL32).toSystem(SI.SYSTEM);
         // 0.376296292872 rounded to seven digits
         assertEquals(new BigDecimal("0.3762963"), rel.getValue());
         assertEquals(Quantity.Scale.RELATIVE, rel.getScale());
         assertEquals(MathContext.DECIMAL32, ((AbstractDecimalQuantity<?, ?>) (Object) rel).mathContext());
-        Length dbl = Length.of(2, USCustomary.FOOT, Quantity.Scale.RELATIVE).to(SI.SYSTEM);
+        Length dbl = Length.of(2, USCustomary.FOOT, Quantity.Scale.RELATIVE).toSystem(SI.SYSTEM);
         assertEquals(Quantity.Scale.RELATIVE, dbl.getScale());
         assertEquals(0.6096, dbl.getValue().doubleValue(), 1e-12);
     }

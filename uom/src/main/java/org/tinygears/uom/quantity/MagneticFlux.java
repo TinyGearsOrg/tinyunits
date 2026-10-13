@@ -30,7 +30,7 @@ public interface MagneticFlux extends javax.measure.quantity.MagneticFlux,
      * @param system the system of units
      * @return the converted quantity
      */
-    MagneticFlux to(SystemOfUnits system);
+    MagneticFlux toSystem(SystemOfUnits system);
 
     @Override
     MagneticFlux negate();

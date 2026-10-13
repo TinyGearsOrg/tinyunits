@@ -95,7 +95,7 @@ Per quantity type the generator writes four files:
    `divide(Number)` (all return `Length`), `toDouble()` and `toDecimal(MathContext)` (F23, D10), and static factories
    `Length.of(double, unit)`, `Length.of(double, unit, Scale)` and, for `BigDecimal`,
    `of(BigDecimal, unit)`, `of(BigDecimal, unit, Scale)`, `of(BigDecimal, unit, Scale, MathContext)`
-   (D11). Milestone 5 adds `to(SystemOfUnits)` (F8, D5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
+   (D11). Milestone 5 adds `toSystem(SystemOfUnits)` (F8, D5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
    work with any JSR-385 code (F4). The shared simple name is a deliberate trade-off: everyday
    code never mentions both types, and declaring a unit variable needs `var` or the fully
    qualified standard type.
@@ -114,14 +114,14 @@ Per quantity type the generator writes four files:
 The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four per type plus
 `QuantityTypes`; 100 before milestone 4). No extra types were added in milestone 5.
 
-- **`to(SystemOfUnits)` (F8, D5 of milestone 5).** The base classes implement `R to(SystemOfUnits)` once, as
+- **`toSystem(SystemOfUnits)` (F8, D5 of milestone 5).** The base classes implement `R toSystem(SystemOfUnits)` once, as
   `to(system.getUnit(quantityType()))`, through the generated hook `protected abstract Class<Q> quantityType()` (the
   standard interface of the type, `Untyped` for untyped quantities). Scale and `MathContext` are kept. A `null` unit from the
   system (and any untyped quantity) throws `UnsupportedOperationException("system N has no unit for type T")`; a unit of
   another dimension gives `UnconvertibleException`; a `null` system gives `NullPointerException`. Every system of this library
   has a preferred unit for all 33 types (D4 fallback: own `@preferred`, else the first extended system's, else SI's). Offsets
-  apply: `Temperature.of(100, degC).to(USCustomary.SYSTEM)` is `212.0 °F`, exactly `212 °F` for a decimal. Because `to(Unit)`
-  and `to(SystemOfUnits)` overload, `to(null)` with a bare literal is ambiguous (`docs/TODO.md` item 4).
+  apply: `Temperature.of(100, degC).toSystem(USCustomary.SYSTEM)` is `212.0 °F`, exactly `212 °F` for a decimal. Because `to(Unit)`
+  and `toSystem(SystemOfUnits)` overload, `to(null)` with a bare literal is ambiguous (`docs/TODO.md` item 4).
 - **Untyped results.** `multiply(Quantity)`, `divide(Quantity)` and `inverse()` return an
   `UntypedDoubleQuantity` or `UntypedDecimalQuantity` (phantom type `Untyped`) whose unit is built from the system units of
   the operands, scale `ABSOLUTE`. `asType(Class)` returns `this` when the quantity is already
@@ -403,9 +403,9 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    classes (133 generated quantity files), 33 types, 128 SI catalog entries, TCK 113 of 113 tests, 708 tests in
    `mvn -q -B clean verify` (core 350, codegen 97, quantities 28, systems 119, tck 113, examples 1). Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
-5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.to(system)`. Done: `USCustomary`, `Imperial`, `CGS`,
+5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.toSystem(system)`. Done: `USCustomary`, `Imperial`, `CGS`,
    `ESU`, `EMU`, `Gaussian` catalogs (35, 42, 16, 22, 29, 26 distinct units, with `SI` 128), the directives `@system`,
-   `@extends`, `@member`, `to(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 901 tests in
+   `@extends`, `@member`, `toSystem(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 901 tests in
    `mvn -q -B clean verify` (core 430, codegen 162, uom 195, tck 113, examples 1; counted after merging the quantities and
    systems modules into `uom`). Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m5-follow-ups.md`.

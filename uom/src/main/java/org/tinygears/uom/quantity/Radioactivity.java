@@ -30,7 +30,7 @@ public interface Radioactivity extends javax.measure.quantity.Radioactivity,
      * @param system the system of units
      * @return the converted quantity
      */
-    Radioactivity to(SystemOfUnits system);
+    Radioactivity toSystem(SystemOfUnits system);
 
     @Override
     Radioactivity negate();

@@ -155,16 +155,16 @@ public final class Examples {
         return printed + " | " + parsed.getValue().getClass().getSimpleName() + " " + parsed.getValue();
     }
 
-    /** quantity.to(system) converts to the system's preferred unit; US and imperial gallons differ. */
+    /** quantity.toSystem(system) converts to the system's preferred unit; US and imperial gallons differ. */
     static String systems() {
         Length foot = Length.of(1, USCustomary.FOOT);
         Temperature boiling = Temperature.of(100, SI.DEGREE_CELSIUS);
         Temperature exact = Temperature.of(new BigDecimal("100"), SI.DEGREE_CELSIUS);
-        return foot + " = " + foot.to(CGS.SYSTEM) + " | " + boiling + " = " + boiling.to(USCustomary.SYSTEM)
-                + " | exact " + exact.to(USCustomary.SYSTEM)
+        return foot + " = " + foot.toSystem(CGS.SYSTEM) + " | " + boiling + " = " + boiling.toSystem(USCustomary.SYSTEM)
+                + " | exact " + exact.toSystem(USCustomary.SYSTEM)
                 + " | " + Volume.of(1, USCustomary.GALLON_US).to(SI.LITRE)
                 + " vs " + Volume.of(1, Imperial.GALLON_UK).to(SI.LITRE)
-                + " | " + ElectricCharge.of(1, SI.COULOMB).to(Gaussian.SYSTEM);
+                + " | " + ElectricCharge.of(1, SI.COULOMB).toSystem(Gaussian.SYSTEM);
     }
 
     /** Units and quantities are Serializable; a round trip gives equal objects. */
@@ -233,7 +233,7 @@ public final class Examples {
         UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
         Length distance = (Length) format.parse("2 league").asType(javax.measure.quantity.Length.class);
         return medieval.getName() + " | " + distance + " = " + distance.to(SI.KILOMETRE)
-                + " = " + distance.to(medieval);
+                + " = " + distance.toSystem(medieval);
     }
 
     static Map<String, String> all() {

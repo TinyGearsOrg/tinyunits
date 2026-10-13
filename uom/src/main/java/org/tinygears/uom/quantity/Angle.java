@@ -30,7 +30,7 @@ public interface Angle extends javax.measure.quantity.Angle,
      * @param system the system of units
      * @return the converted quantity
      */
-    Angle to(SystemOfUnits system);
+    Angle toSystem(SystemOfUnits system);
 
     @Override
     Angle negate();

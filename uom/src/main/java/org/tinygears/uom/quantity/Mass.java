@@ -30,7 +30,7 @@ public interface Mass extends javax.measure.quantity.Mass,
      * @param system the system of units
      * @return the converted quantity
      */
-    Mass to(SystemOfUnits system);
+    Mass toSystem(SystemOfUnits system);
 
     @Override
     Mass negate();

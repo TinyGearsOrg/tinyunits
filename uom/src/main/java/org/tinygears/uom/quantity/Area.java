@@ -30,7 +30,7 @@ public interface Area extends javax.measure.quantity.Area,
      * @param system the system of units
      * @return the converted quantity
      */
-    Area to(SystemOfUnits system);
+    Area toSystem(SystemOfUnits system);
 
     @Override
     Area negate();

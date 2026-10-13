@@ -30,7 +30,7 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
      * @param system the system of units
      * @return the converted quantity
      */
-    RadiationDoseAbsorbed to(SystemOfUnits system);
+    RadiationDoseAbsorbed toSystem(SystemOfUnits system);
 
     @Override
     RadiationDoseAbsorbed negate();

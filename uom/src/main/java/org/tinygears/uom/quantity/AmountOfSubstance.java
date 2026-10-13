@@ -30,7 +30,7 @@ public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubsta
      * @param system the system of units
      * @return the converted quantity
      */
-    AmountOfSubstance to(SystemOfUnits system);
+    AmountOfSubstance toSystem(SystemOfUnits system);
 
     @Override
     AmountOfSubstance negate();

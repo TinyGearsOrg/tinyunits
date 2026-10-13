@@ -30,7 +30,7 @@ public interface SolidAngle extends javax.measure.quantity.SolidAngle,
      * @param system the system of units
      * @return the converted quantity
      */
-    SolidAngle to(SystemOfUnits system);
+    SolidAngle toSystem(SystemOfUnits system);
 
     @Override
     SolidAngle negate();

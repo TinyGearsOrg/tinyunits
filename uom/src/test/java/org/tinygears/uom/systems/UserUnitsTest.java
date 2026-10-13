@@ -123,10 +123,10 @@ class UserUnitsTest {
                 assertEquals(SI.PREFERRED.get(type), unit, type.getSimpleName());
             }
         }
-        Length d = Length.of(BigDecimal.ONE, SI.KILOMETRE).to(m);
+        Length d = Length.of(BigDecimal.ONE, SI.KILOMETRE).toSystem(m);
         assertSame(m.getUnit("furlong"), d.getUnit());
         assertEquals(BigDecimal.valueOf(1000).divide(new BigDecimal("201.168"), MathContext.DECIMAL128), d.getValue());
-        Length f = Length.of(1, SI.KILOMETRE).to(m);
+        Length f = Length.of(1, SI.KILOMETRE).toSystem(m);
         assertSame(m.getUnit("furlong"), f.getUnit());
         assertEquals(1000 / 201.168, f.getValue().doubleValue(), 1e-12);
     }
@@ -416,7 +416,7 @@ class UserUnitsTest {
         UomQuantityFormat q = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
         Quantity<?> two = q.parse("2 league");
         Length l = Length.of(two.getValue().doubleValue(), two.getUnit().asType(javax.measure.quantity.Length.class));
-        Length furlongs = l.to(medieval);
+        Length furlongs = l.toSystem(medieval);
         assertEquals("furlong", furlongs.getUnit().getSymbol());
         assertEquals(48.0, furlongs.getValue().doubleValue(), 1e-12);
         assertEquals(BaseUnits.METRE.getDimension(), medieval.getUnit("league").getDimension());

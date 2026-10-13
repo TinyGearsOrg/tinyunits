@@ -47,7 +47,7 @@ class ToSystemTest {
     @Test
     void doubleConvertsToTheSystemUnitKeepingScale() {
         TestLengthImpl q = new TestLengthImpl(1500, METRE, Quantity.Scale.RELATIVE);
-        TestLength r = q.to(KM);
+        TestLength r = q.toSystem(KM);
         assertEquals(q.to(KILOMETRE), r);
         assertEquals(1.5, r.getValue());
         assertEquals(KILOMETRE, r.getUnit());
@@ -58,7 +58,7 @@ class ToSystemTest {
     void decimalConvertsToTheSystemUnitKeepingScaleAndContext() {
         TestLengthDecimalImpl q = new TestLengthDecimalImpl(new BigDecimal("1234.5678"), METRE,
                 Quantity.Scale.RELATIVE, MathContext.DECIMAL32);
-        TestLength r = q.to(KM);
+        TestLength r = q.toSystem(KM);
         assertEquals(q.to(KILOMETRE), r);
         // DECIMAL32 rounds to seven digits
         assertEquals(new BigDecimal("1.234568"), r.getValue());
@@ -70,23 +70,23 @@ class ToSystemTest {
     @Test
     void systemWithoutUnitForTheType() {
         assertEquals(UNSUPPORTED + "Length", assertThrows(UnsupportedOperationException.class,
-                () -> new TestLengthImpl(1, METRE).to(EMPTY)).getMessage());
+                () -> new TestLengthImpl(1, METRE).toSystem(EMPTY)).getMessage());
         assertEquals(UNSUPPORTED + "Length", assertThrows(UnsupportedOperationException.class,
-                () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).to(EMPTY)).getMessage());
+                () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).toSystem(EMPTY)).getMessage());
         // the type is the quantity's own, not Length for every class
         UomUnit<Speed> mps = UomUnit.unchecked(BaseUnits.METRE.divide(BaseUnits.SECOND));
         assertEquals(UNSUPPORTED + "Speed", assertThrows(UnsupportedOperationException.class,
-                () -> new TestSpeedImpl(1, mps, Quantity.Scale.ABSOLUTE).to(KM)).getMessage());
+                () -> new TestSpeedImpl(1, mps, Quantity.Scale.ABSOLUTE).toSystem(KM)).getMessage());
         assertEquals(UNSUPPORTED + "Speed", assertThrows(UnsupportedOperationException.class,
                 () -> new TestSpeedDecimalImpl(BigDecimal.ONE, mps, Quantity.Scale.ABSOLUTE, MathContext.DECIMAL128)
-                        .to(KM)).getMessage());
+                        .toSystem(KM)).getMessage());
     }
 
     @Test
     void foreignSystemWithoutName() {
         SystemOfUnits unnamed = system(null, Map.of());
         assertEquals("system null has no unit for type Length", assertThrows(UnsupportedOperationException.class,
-                () -> new TestLengthImpl(1, METRE).to(unnamed)).getMessage());
+                () -> new TestLengthImpl(1, METRE).toSystem(unnamed)).getMessage());
     }
 
     @Test
@@ -96,34 +96,34 @@ class ToSystemTest {
         Quantity<?> decimalArea = new TestLengthDecimalImpl(BigDecimal.TWO, METRE)
                 .multiply(new TestLengthDecimalImpl(BigDecimal.ONE, METRE));
         assertEquals(UNSUPPORTED + "Untyped", assertThrows(UnsupportedOperationException.class,
-                () -> ((UntypedDoubleQuantity) area).to(EMPTY)).getMessage());
+                () -> ((UntypedDoubleQuantity) area).toSystem(EMPTY)).getMessage());
         assertEquals(UNSUPPORTED + "Untyped", assertThrows(UnsupportedOperationException.class,
-                () -> ((UntypedDecimalQuantity) decimalArea).to(EMPTY)).getMessage());
+                () -> ((UntypedDecimalQuantity) decimalArea).toSystem(EMPTY)).getMessage());
         // a system that does map Untyped is honoured, the hook is Untyped.class
-        assertEquals(METRE.multiply(METRE), ((UntypedDoubleQuantity) area).to(all).getUnit());
-        assertEquals(METRE.multiply(METRE), ((UntypedDecimalQuantity) decimalArea).to(all).getUnit());
+        assertEquals(METRE.multiply(METRE), ((UntypedDoubleQuantity) area).toSystem(all).getUnit());
+        assertEquals(METRE.multiply(METRE), ((UntypedDecimalQuantity) decimalArea).toSystem(all).getUnit());
     }
 
     @Test
     void foreignUnitFromTheSystem() {
         SystemOfUnits foreign = system("Test", Map.of(Length.class, foreignUnit()));
-        assertThrows(UnconvertibleException.class, () -> new TestLengthImpl(1, METRE).to(foreign));
-        assertThrows(UnconvertibleException.class, () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).to(foreign));
+        assertThrows(UnconvertibleException.class, () -> new TestLengthImpl(1, METRE).toSystem(foreign));
+        assertThrows(UnconvertibleException.class, () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).toSystem(foreign));
     }
 
     @Test
     void unitOfAnotherDimensionFromTheSystem() {
         SystemOfUnits wrong = system("Test", Map.of(Length.class, BaseUnits.SECOND));
-        assertThrows(UnconvertibleException.class, () -> new TestLengthImpl(1, METRE).to(wrong));
-        assertThrows(UnconvertibleException.class, () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).to(wrong));
+        assertThrows(UnconvertibleException.class, () -> new TestLengthImpl(1, METRE).toSystem(wrong));
+        assertThrows(UnconvertibleException.class, () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).toSystem(wrong));
     }
 
     @Test
     void nullSystem() {
         assertEquals("system", assertThrows(NullPointerException.class,
-                () -> new TestLengthImpl(1, METRE).to((SystemOfUnits) null)).getMessage());
+                () -> new TestLengthImpl(1, METRE).toSystem(null)).getMessage());
         assertEquals("system", assertThrows(NullPointerException.class,
-                () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).to((SystemOfUnits) null)).getMessage());
+                () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).toSystem(null)).getMessage());
     }
 
     @Test

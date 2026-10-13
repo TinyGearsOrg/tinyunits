@@ -30,7 +30,7 @@ public interface Time extends javax.measure.quantity.Time,
      * @param system the system of units
      * @return the converted quantity
      */
-    Time to(SystemOfUnits system);
+    Time toSystem(SystemOfUnits system);
 
     @Override
     Time negate();
