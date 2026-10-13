@@ -46,7 +46,7 @@ Before a pull request, run what the CI runs (`mvn -B verify` on JDK 21 and 25, t
 ```
 mvn -B verify
 mvn -B -Pgenerate -pl uom-codegen -am process-classes
-git diff --exit-code
+git diff --exit-code && test -z "$(git status --porcelain)"
 bash scripts/verify-release.sh --require-jlink
 ```
 

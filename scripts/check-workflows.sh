@@ -29,19 +29,27 @@ self_test() {
     "deploy|sub(CI, 'run: mvn -B verify', 'run: mvn -B -Prelease deploy')|job build runs a forbidden command: 'mvn -B -Prelease deploy'"
     "release-profile|sub(CI, 'run: mvn -B verify', 'run: mvn -B -Prelease verify')|job build runs a forbidden command: 'mvn -B -Prelease verify'"
     "git-push|sub(CI, 'run: git diff --exit-code', 'run: git diff --exit-code && git push origin HEAD')|job generated runs a forbidden command"
-    "gh-release|sub(CI, 'run: git diff --exit-code', 'run: git diff --exit-code\n      - run: gh release create v1')|job generated runs a forbidden command: 'gh release create v1'"
+    "gh-release|sub(CI, 'run: git diff --exit-code', 'run: git diff --exit-code\n      - run: gh release create v1')|job generated runs a forbidden command: 'gh release create v1"
     "unpinned-action|sub(CI, 'actions/checkout@v7', 'actions/checkout@main')|action 'actions/checkout@main' is not an allowed action at a major tag"
     "third-party-action|sub(CI, 'actions/setup-java@v6', 'someone/setup-java@v6')|action 'someone/setup-java@v6' is not an allowed action at a major tag"
     "no-timeout|sub(CI, '    timeout-minutes: 45\n', '')|job release-check has no timeout-minutes"
     "no-concurrency|drop(CI, 'concurrency:', 'cancel-in-progress: true')|concurrency group must contain github.ref"
     "matrix|sub(CI, 'java: [21, 25]', 'java: [21]')|build matrix java is [21], expected [21, 25]"
     "distribution|sub(CI, 'distribution: temurin', 'distribution: zulu')|setup-java distribution is 'zulu'"
-    "missing-job|drop(CI, '  generated:', 'run: git diff --exit-code\n')|jobs are ['build', 'release-check'], expected ['build', 'generated', 'release-check']"
+    "missing-job|drop(CI, '  generated:', 'git status --porcelain)\"\n')|jobs are ['build', 'release-check'], expected ['build', 'generated', 'release-check']"
     "no-require-jlink|sub(CI, 'verify-release.sh --require-jlink', 'verify-release.sh')|the run commands differ from the CI block of CONTRIBUTING.md"
     "contributing-drift|sub('CONTRIBUTING.md', 'mvn -B verify\n', 'mvn -B install\n')|the run commands differ from the CI block of CONTRIBUTING.md"
     "extra-workflow|add('.github/workflows/release.yml', 'name: release\n')|workflow files are ['ci.yml', 'release.yml'], expected ['ci.yml']"
     "yaml-error|sub(CI, 'permissions:', 'permissions: [')|ci.yml does not parse"
     "dependabot-ecosystem|drop(DB, '  - package-ecosystem: github-actions', 'patterns: [\"*\"]\n')|dependabot ecosystems are ['maven'], expected ['github-actions', 'maven']"
+    "untracked-drift|sub(CI, ' && test -z', ' ; test -z')|the run commands differ from the CI block of CONTRIBUTING.md"
+    "persist-credentials|sub(CI, 'persist-credentials: false', 'persist-credentials: true')|job build: checkout must set persist-credentials: false"
+    "job-environment|sub(CI, '    timeout-minutes: 45', '    timeout-minutes: 45\n    environment: production')|job release-check sets environment"
+    "reusable-workflow|sub(CI, '  release-check:\n', '  release-check:\n    uses: someone/x/.github/workflows/a.yml@v1\n')|job release-check sets uses"
+    "central-property|sub(CI, 'run: mvn -B verify', 'run: mvn -B verify -Dcentral.skipPublishing=false')|job build runs a forbidden command"
+    "jdk-outside-matrix|sub(CI, 'java-version: 21', 'java-version: 25')|job generated: java-version is 25, expected 21"
+    "cache-outside-build|sub(CI, 'java-version: 21\n', 'java-version: 21\n          cache: maven\n')|job generated: setup-java must not set cache"
+    "dependabot-groups|drop(DB, '    groups:', 'patterns: [\"*\"]\n')|dependabot maven: needs directory '/', groups and open-pull-requests-limit"
     "dependabot-interval|sub(DB, 'interval: weekly', 'interval: daily')|dependabot maven: interval is 'daily', expected 'weekly'"
   )
   for c in "${cases[@]}"; do
@@ -129,7 +137,7 @@ if '${{ github.ref }}' not in str((ci.get('concurrency') or {}).get('group', '')
 jobs = ci.get('jobs') or {}
 if sorted(jobs) != ['build', 'generated', 'release-check']:
     fail("jobs are %s, expected ['build', 'generated', 'release-check']" % sorted(jobs))
-FORBIDDEN = re.compile(r'\bdeploy\b|-Prelease|\bpublish|\bgpg\b|\bgit\s+(push|tag)\b|\bgh\s+release\b|\bcentral\b', re.I)
+FORBIDDEN = re.compile(r'deploy|-Prelease|publish|\bgpg\b|\bgit\s+(push|tag)\b|\bgh\s+release\b|central', re.I)
 ACTION = re.compile(r'actions/(checkout|setup-java)@v\d+')
 commands = []
 for name, job in jobs.items():
@@ -153,6 +161,9 @@ for name, job in jobs.items():
                 java = with_.get('java-version')
                 if name != 'build' and str(java) != '21':
                     fail("job %s: java-version is %s, expected 21" % (name, java))
+                # only build fills ~/.m2; the others would save a partial cache under the same key
+                if name != 'build' and 'cache' in with_:
+                    fail("job %s: setup-java must not set cache" % name)
         for line in str(step.get('run', '')).splitlines():
             if line.strip():
                 if FORBIDDEN.search(line):
