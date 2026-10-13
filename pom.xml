@@ -12,7 +12,7 @@
   <name>uom-parent</name>
   <description>Parent POM of uom, a Java library of typed quantities and units of measurement implementing JSR-385.</description>
   <url>https://github.com/TinyGearsOrg/tinyunits</url>
-  <inceptionYear>2023</inceptionYear>
+  <inceptionYear>2026</inceptionYear>
 
   <licenses>
     <license>
