@@ -113,11 +113,28 @@ symbol; the formatted output then changes from `m/s^2`.
 
 ## 9. Java baseline
 
-**Status:** undecided. The baseline is Java 21 (REQUIREMENTS section 3); Indriya targets Java 8, and Java 11 for JPMS. Much of the
-JSR-385 audience is on older JDKs, so this limits adoption more than any feature.
+**Status:** undecided; the baseline stays Java 21 for now (REQUIREMENTS section 3). Indriya targets Java 8, and Java 11 for
+JPMS. Much of the JSR-385 audience is on older JDKs, so this limits adoption more than any feature.
 
-**Options:** keep 21, or lower to 17 or 11 (check which language features the core and the generated code use), or a
-multi-release build.
+**Measured cost** (a scratch copy built with `maven.compiler.release=N` on JDK 25; `--release` fixes the bytecode level and
+the visible API, whatever JDK builds):
+- **Java 17:** cheap. The only failures are three APIs: `Math.divideExact` (18; use `Math.toIntExact((long) a / n)`, which
+  keeps the `MIN_VALUE / -1` overflow that `UomDimensionTest.rootEdgeCases` pins), `BigDecimal.TWO` (19) and
+  `InvalidObjectException(String, Throwable)` (19; use `initCause`). That is 8 call sites in 6 main files (`UomUnit`,
+  `UomDimension`, `Factor`, `UnitAtom`, `AffineConverter`, `QuantityProxy`) and 3 test lines (`BigDecimal.TWO` twice,
+  `List.reversed()` in `CgsDataTest`). With these the full build passes: 1115 tests, TCK 113 of 113. Also change the
+  `maven.compiler.release` property, the enforcer `requireJavaVersion`, the CI matrix, the README and REQUIREMENTS.
+  Not verified: runtime on a real JDK 17 (none was available); add a JDK 17 job to CI.
+- **Java 11:** mechanical but large. About 70 syntax sites in main (16 records, 6 of them public API types in
+  `core.parse`, so the API pin changes; about 43 `instanceof` patterns; 9 text blocks; 7 switch rules; 1 `sealed`) plus 9
+  `Stream.toList()`, and in tests about 10 records, 30 text blocks, 57 switch-rule lines and 17 patterns. No Java 12 to 17
+  API was found by grep; not machine-verified.
+- **Java 8:** not recommended. Adds a multi-release jar for `module-info`, about 70 uses of Java 9 to 11 APIs in hand-written
+  code (`List.of`, `Map.of`, `strip`, `repeat`), the same Java 9 factories in the generated catalogs and quantity classes
+  (generator output changes), and an own `BigInteger.sqrt` for pi.
+
+**Options:** keep 21; lower to 17 (recommended if lowered, with a JDK 17 CI job, releases still built with JDK 21); 11 or 8
+only if users ask.
 
 **Needed by:** decide before 1.0.
 
