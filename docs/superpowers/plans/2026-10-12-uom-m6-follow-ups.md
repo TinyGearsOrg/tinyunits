@@ -3,8 +3,8 @@
 Findings from the per-task reviews of milestone 6 (serialization, locale-aware formats, faithful offset-unit form,
 decimal-preserving parse, user units at run time) that were triaged as follow-up work, not merge blockers. Milestone 6
 state: seven systems (`SI` 128, `USCustomary` 35, `Imperial` 42, `CGS` 16, `ESU` 22, `EMU` 29, `Gaussian` 26 distinct
-units), 33 quantity types (133 generated quantity files), TCK 113 of 113 tests passing, 1065 tests in
-`mvn -q -B clean verify` (core 501, codegen 162, uom 288, tck 113, examples 1). "D1" to "D6" refer to the decisions of
+units), 33 quantity types (133 generated quantity files), TCK 113 of 113 tests passing, 1068 tests in
+`mvn -q -B clean verify` (core 504, codegen 162, uom 288, tck 113, examples 1). "D1" to "D6" refer to the decisions of
 `2026-10-12-uom-m6-serialization-formats-user-units.md` (with the amendments recorded there); "M7" refers to the
 milestones in `docs/DESIGN.md` section 7.
 
@@ -21,6 +21,9 @@ milestones in `docs/DESIGN.md` section 7.
 - M5, run-time loading of user `.units` files (F17, F18): `UomSystemOfUnits.load`, `UomUnitFormat.with` and
   `UomUnitFormat.resolve` (Task 7). No `.units` resources are shipped.
 - F12: units and quantities are `Serializable` (Tasks 1 and 2).
+- The pending owner question of Task 1 (share system-unit instances between the `SI` constants and the factories) was
+  done by the merge-modules change before Task 2 (`02173f8`): `SI.NEWTON == ForceFactory.SYSTEM_UNIT`, and `SI.METRE`
+  is `LengthFactory.SYSTEM_UNIT` (DESIGN section 5, "Shared instances").
 
 ## Open owner decisions
 
@@ -28,6 +31,13 @@ Unchanged, tracked with options in `docs/TODO.md` (offset-unit arithmetic, `asTy
 products, `to(null)`).
 
 - Owner decision (milestone 6): the typed quantity interfaces keep the simple names of the standard ones (no `I` prefix).
+- Rulings of milestone 6 (recorded in D1 to D5): proxies write values unshared instead of interning strings, so the bytes
+  depend on values only; at most 1000 atoms or conversion steps per proxy; the stored factor and offset of a converter
+  are trusted and its steps checked against them (exactly when they fold exactly, else by a decimal fold whose
+  tolerance is relative to the largest term); a wrong element type in a stream is an `InvalidObjectException`, not a
+  `ClassCastException`; offset formats put spaces around the sign (`K + 5`) and print the shorter of decimal and
+  fraction (ties: decimal); the ROOT decimal parse goes through the locale normalisation, so it accepts ASCII digits
+  only.
 - Owner-requested follow-ups, after milestone 6, in one small branch:
   - (a) Emit `@prefixed` catalog units as `<base constant>.prefix(MetricPrefix.X).named(...)` (sharing the base constant)
     instead of the decomposed `transform(Converters.affine(...))`.
@@ -66,6 +76,12 @@ products, `to(null)`).
   back as the provider's class (documented on both base classes).
 - `QuantityProxy` repeats a typed `read` and a bounded byte read of `SerialForm`, because `SerialForm` is package-private
   in an exported package. Option: move both into a non-exported `org.tinygears.uom.core.internal`.
+- A multi-step converter whose inexact fold has a part over 4096 bits skips the decimal fold check, so the stored
+  factor and offset stand unchecked: a forged identity converter with huge irrational step parts is accepted, and its
+  `getConversionSteps()` then contradicts `convert()`. Harmless for conversion (the stored values are used), but the
+  steps can be inconsistent.
+- Typed quantity reads accept any unit whose dimension matches the factory's system unit (predates; the same rule as
+  the factories).
 - No dimension exponent range check: the public API builds any `int` exponent, so the proxy checks null and length 7
   only. The zero-factor check lives only in the unit proxy; `UomUnit.of` still accepts a zero-factor converter.
 - A forged pi exponent or root index near `Integer.MAX_VALUE` costs what `Factor.of` plus `doubleValue()` already cost;
@@ -88,8 +104,18 @@ products, `to(null)`).
   cost); only quantity contexts are bounded at 100000.
 - At precision 100000, inexact results below 1 throw `ArithmeticException("scale out of range: N")` (the D9 scale bound
   of milestone 4 is hit before the precision).
-- Flaky under parallel load on JDK 21 (pre-existing timing bounds): `FactorTest.piToTheMaximumContextPrecisionIsFast`
-  (20 s) and `QuantitySerializationTest.arithmeticAtTheMaximumPrecisionIsBounded` (30 s).
+- Fixed in the final review: `FactorTest.piToTheMaximumContextPrecisionIsFast` and
+  `QuantitySerializationTest.arithmeticAtTheMaximumPrecisionIsBounded`, both added on this branch, failed under load on
+  JDK 21. The cause was the JDK: JDK 21's `BigDecimal.divide(x, mc)` strips the trailing zeros of an exact quotient
+  padded to the context in quadratic time, and its `BigDecimal.sqrt` is slow. `Decimals.divide` (non-exported package
+  `org.tinygears.uom.core.internal`) builds terminating quotients by multiplication, with results identical to
+  `BigDecimal.divide` (5000 random cases in `DecimalsTest`; 30,000 conversion and arithmetic cases compared
+  digit for digit against the previous build), and pi takes its root through `BigInteger.sqrt`. On JDK 21 at
+  precision 100000: `to(km)` and `multiply(1.5)` went from 2.5 s to under 5 ms, rad to degree (warm) from 2.5 s to
+  40 ms, pi at 200,100 digits from 13.7 s to 2.5 s (JDK 25: 0.6 s). The timing bounds are now 120 s. Remaining caveat:
+  on JDK 21 the first conversion through a pi factor at precision 100000 costs about 1 to 3 s (computing pi).
+- `UomQuantityFormat` keeps its own private `MAX_SCALE = 100_000`, a copy of the package-private
+  `Precision.MAX_SCALE`; the two can drift.
 - `AbstractDecimalQuantity.withMathContext` is new public API on the base class only (not on the typed interfaces).
 
 ## Formats and parsing (`uom`)
@@ -114,6 +140,8 @@ products, `to(null)`).
   the JDK's CLDR data (the differing ones are derived at run time; the suite passes on JDK 21 and 25).
 - Decimal parse (D4): the scale is pre-checked in linear time, but a huge integer (1,000,000 integer digits, scale 0)
   still costs a full `BigDecimal` parse, which is superlinear; there is no digit bound at parse time.
+- `withDecimals` parses every quantity with scale `ABSOLUTE`, so a `RELATIVE` quantity formats and parses back as
+  `ABSOLUTE` (documented).
 - `withDecimals` cannot be switched off (`withDecimals(null)` throws); keep the original format. It checks the precision by
   building a throwaway `UntypedDecimalQuantity`.
 - The plain ROOT format still accepts `1f m`, `1d m` and hex floats (milestone 3 item, unchanged).
@@ -153,6 +181,7 @@ products, `to(null)`).
   limits (only `java.`, `javax.` and `org.` names shortened, `java.lang` names, an untested string-literal assumption,
   Javadoc resolved before expressions); an untested clash of a referenced catalog name with an import; `ImportCheck`
   flags only qualified leftovers of imported classes; the first commit used a `refactor:` prefix.
+- Task 3 widened visibility for tests: `UomUnitFormat.lookup` and `SystemsCatalogTest.PARSED` are package-private.
 - `CatalogEmitterTest.childCatalogCompilesWithItsParents` compiles the real `UomSystemOfUnits` with the generated
   `QuantityTypes` and a minimal `UomUnitFormat` stand-in, which can drift from the real class.
 
@@ -168,6 +197,10 @@ products, `to(null)`).
   parse (Task 6); the flat-include rule has no clean mutant (its test pins it).
 - `OffsetUnitFormatTest` and the locale round trip are brute force (20,000 random units; every available locale): a few
   seconds each.
+
+- Carried from milestone 1, still open: the per-unit converter cache keeps its target units alive ("revisit before the
+  milestone 6 unit parser"); with run-time user units, converting catalog units to many loaded units keeps those
+  targets in the catalog units' caches.
 
 ## Build
 

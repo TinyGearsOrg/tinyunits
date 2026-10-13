@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, seven catalogs with prefixes, `quantity.to(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29) and `Gaussian` (26); `quantity.to(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1065 tests (core 501, codegen 162, uom 288, tck 113, examples 1). Release engineering is milestone 7. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, seven catalogs with prefixes, `quantity.to(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29) and `Gaussian` (26); `quantity.to(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1068 tests (core 504, codegen 162, uom 288, tck 113, examples 1). Release engineering is milestone 7. Not released.
 
 ## Modules
 
@@ -54,7 +54,7 @@ Length run = Length.of(10, km);
 
 ## Serialization
 
-Units and quantities are `Serializable` through serialization proxies, which rebuild every object through the public factories, so a forged stream cannot create an invalid unit or quantity (`InvalidObjectException`). A quantity reads back through the factory of the current `ServiceProvider`. The serialized form may change before 1.0. Systems and formats are not serializable.
+Units and quantities are `Serializable` through serialization proxies, which rebuild every object through the public factories, so the reader re-checks the invariants and rejects a forged stream that violates them with `InvalidObjectException` (one known gap: the steps of a multi-step converter that do not fold exactly and have a part over 4096 bits are not checked against its stored factor and offset). A quantity reads back through the factory of the current `ServiceProvider`. The serialized form may change before 1.0. Systems and formats are not serializable.
 
 Never read untrusted streams without an `ObjectInputFilter`: the JDK allocates the arrays and strings of a stream before our checks run. For example, as `-Djdk.serialFilter=<filter>` or per stream with `in.setObjectInputFilter(ObjectInputFilter.Config.createFilter(filter))`:
 
@@ -66,7 +66,7 @@ The allow-list needs `org.tinygears.uom.quantity` too, because the filter also c
 
 ## Your own units
 
-A `.units` file defines units of the 33 built-in quantity types, one per line as `symbol:name formula` (`_` in a name is a space):
+A `.units` file defines units, one per line as `symbol:name formula` (`_` in a name is a space). They load as `Unit<?>`; narrow them to a built-in quantity type with `asType`:
 
 ```
 @system Medieval                # system name (else the file name)
@@ -75,7 +75,6 @@ furlong:furlong 220 yd
 rod:rod         1|40 furlong    # exact fraction
 @prefixed league k              # adds kleague
 @preferred Length furlong       # q.to(system) gives furlongs
-@include other.units            # its units are usable in formulas
 ```
 
 ```java
@@ -85,7 +84,7 @@ Length d = (Length) format.parse("2 league").asType(javax.measure.quantity.Lengt
 d.to(medieval);                                  // 48.0 furlong
 ```
 
-`load(String name, Reader, Resolver)` reads from any `Reader`. Formulas may use the built-in symbols (exact catalog symbols and metric prefixes, not labels), and a file may not redefine one. `@preferred Type symbol` names a standard type by simple name; a type without a line falls back to `SI`'s preferred unit. Includes are resolved relative to the root file and must stay inside its directory. Nothing is registered globally: `with` returns a new format, and a symbol of the new system that means a different unit elsewhere is an `IllegalArgumentException`. The exception is `~` (alternate unit) lines, which register their symbol in the JVM-wide registry for the life of the JVM.
+`load(String name, Reader, Resolver)` reads from any `Reader`. Formulas may use the built-in symbols (exact catalog symbols and metric prefixes, not labels), and a file may not redefine one. `@preferred Type symbol` names a standard type by simple name; a type without a line takes the preferred unit of the first `@extends`-ed system, else `SI`'s. `@include other.units` makes another user file's units usable in formulas (`@extends` also makes them members); `load(Path)` resolves such names relative to the root file, inside its directory, and the `Reader` variant through the given `Resolver`. User files cannot include the built-in data files. Nothing is registered globally: `with` returns a new format, and a symbol of the new system that means a different unit elsewhere is an `IllegalArgumentException`. The exception is `~` (alternate unit) lines, which register their symbol in the JVM-wide registry for the life of the JVM.
 
 ## Generated sources
 

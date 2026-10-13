@@ -168,6 +168,9 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     (`ArithmeticException` at construction, so in `toDecimal(mc)` and every factory taking a context; a serialized
     form beyond it is an `InvalidObjectException`). The bound caps the work of every rounded result; it is separate
     from the scale bound, which it does not imply (a value near 1e60000 with 150000 digits has a scale under 100000).
+    At precision 100000 rational conversions and arithmetic take milliseconds; the first use of pi at that precision computes
+    it (about 0.6 s on JDK 25, 2.5 s on JDK 21). Exact quotients avoid JDK 21's quadratic trailing-zero stripping in
+    `BigDecimal.divide` (`Decimals.divide`, a non-exported package).
   - **Explicit conversions (D10).** `toDouble()` throws `ArithmeticException` for a value outside the `double` range;
     `toDecimal(mc)` rounds to `mc`, on both implementations. `asType` keeps the receiver's `MathContext` and never changes
     the value.
@@ -407,7 +410,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 6. Serialization, locale-aware formats, a faithful form for offset units, decimal-preserving parse, user units at
    run time. Done: serialization proxies for units and quantities (F12), the shift grammar and offset format (F9),
    `withLocale`/`withGrouping`/`withDecimals` (F9), `UomSystemOfUnits.load`, `UomUnitFormat.with` and `resolve`
-   (F17, F18), TCK 113 of 113 tests, 1065 tests in `mvn -q -B clean verify` (core 501, codegen 162, uom 288, tck 113,
+   (F17, F18), TCK 113 of 113 tests, 1068 tests in `mvn -q -B clean verify` (core 504, codegen 162, uom 288, tck 113,
    examples 1). Follow-ups: `docs/superpowers/plans/2026-10-12-uom-m6-follow-ups.md`.
 7. Release engineering: POM metadata, sources and javadoc jars, a signing profile, CI on JDK 21 and the current JDK, the
    custom-unit guide and unit table (N7), the versioning policy and public API definition (N8), a JPMS review, the

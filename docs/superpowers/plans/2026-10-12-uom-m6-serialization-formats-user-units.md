@@ -58,7 +58,7 @@
 
 **Files:**
 - Modify: `uom-core/src/main/java/org/tinygears/uom/core/quantity/{AbstractDoubleQuantity,AbstractDecimalQuantity,UntypedDoubleQuantity,UntypedDecimalQuantity}.java`; create `QuantityProxy.java` (package-private) in the same package
-- Test: `uom-core` (fixtures with the test provider), `uom-quantities` and `uom-systems` (`QuantitySerializationTest`), golden files
+- Test: `uom-core` (fixtures with the test provider), `uom` (`QuantitySerializationTest`), golden files
 
 **Interfaces:**
 - Consumes: Task 1; `ServiceProvider.current().getQuantityFactory`; `AbstractDecimalQuantity.with` (package-private re-creation of value, unit, scale, context) and its `double` counterpart.
@@ -88,7 +88,7 @@
 ### Task 4: Faithful format for offset units
 
 **Files:**
-- Modify: `uom-systems/src/main/java/org/tinygears/uom/systems/UomUnitFormat.java` (and its Javadoc, `UomQuantityFormat` Javadoc)
+- Modify: `uom/src/main/java/org/tinygears/uom/systems/UomUnitFormat.java` (and its Javadoc, `UomQuantityFormat` Javadoc)
 - Test: `UnitFormatTest.java`, new `OffsetUnitFormatTest.java`
 
 **Interfaces:**
@@ -104,7 +104,7 @@
 ### Task 5: Locale-aware quantity format
 
 **Files:**
-- Modify: `uom-systems/src/main/java/org/tinygears/uom/systems/UomQuantityFormat.java`
+- Modify: `uom/src/main/java/org/tinygears/uom/systems/UomQuantityFormat.java`
 - Test: `QuantityFormatTest.java` (extend), new `LocaleQuantityFormatTest.java`
 
 **Interfaces:**
@@ -135,8 +135,8 @@
 ### Task 7: User units at run time
 
 **Files:**
-- Modify: `uom-core/src/main/java/org/tinygears/uom/core/parse/DefinitionParser.java`; `uom-systems/src/main/java/org/tinygears/uom/systems/{UomSystemOfUnits,UomUnitFormat}.java`
-- Test: `DefinitionParserTest.java`, new `UserUnitsTest.java` (uom-systems)
+- Modify: `uom-core/src/main/java/org/tinygears/uom/core/parse/DefinitionParser.java`; `uom/src/main/java/org/tinygears/uom/systems/{UomSystemOfUnits,UomUnitFormat}.java`
+- Test: `DefinitionParserTest.java`, new `UserUnitsTest.java` (uom)
 
 **Interfaces:**
 - Consumes: D5; Task 1 directives (`@system`, `@include`, `@preferred`, `@prefixed`).

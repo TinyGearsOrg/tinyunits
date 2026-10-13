@@ -133,6 +133,7 @@ public final class UomQuantityFormat implements QuantityFormat {
         this.exponent = base.exponent;
     }
 
+    /** The locale of the numbers; {@link Locale#ROOT} unless set by {@link #withLocale}. */
     public Locale getLocale() {
         return locale;
     }

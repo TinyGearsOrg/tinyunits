@@ -145,7 +145,7 @@ class QuantityFormatTest {
     void decimalFormatsAsBigDecimalToStringAndParsesAsDouble() {
         Quantity<?> decimal = org.tinygears.uom.quantity.Length.of(new BigDecimal("1.50"), SI.KILOMETRE);
         assertEquals("1.50 km", format.format(decimal));
-        // D12: parse gives double quantities; a decimal-preserving parse is a milestone 6 follow-up.
+        // D12: the default format parses to double; withDecimals keeps the digits (DecimalParseTest).
         Quantity<?> parsed = format.parse("1.50 km");
         assertEquals(1.5, parsed.getValue());
         assertEquals(SI.KILOMETRE, parsed.getUnit());
