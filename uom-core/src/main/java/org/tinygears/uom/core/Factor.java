@@ -14,6 +14,7 @@ import java.math.MathContext;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import org.tinygears.uom.core.internal.Decimals;
 
 /**
  * Exact number {@code sign(n) * (|n|/d * pi^k)^(1/r)}, kept in a normal form: gcd-reduced, {@code d > 0},
@@ -293,13 +294,13 @@ public final class Factor implements Serializable {
 
     public BigDecimal decimalValue(MathContext mc) {
         if (isExact()) {
-            return new BigDecimal(num).divide(new BigDecimal(den), mc);
+            return Decimals.divide(new BigDecimal(num), new BigDecimal(den), mc);
         }
         if (mc.getPrecision() == 0) {
             throw new ArithmeticException("irrational value needs a finite precision");
         }
         MathContext work = new MathContext(mc.getPrecision() + 5);
-        BigDecimal x = new BigDecimal(num.abs()).divide(new BigDecimal(den), work);
+        BigDecimal x = Decimals.divide(new BigDecimal(num.abs()), new BigDecimal(den), work);
         if (piExp != 0) {
             x = x.multiply(pi(mc.getPrecision() + 10).pow(piExp, work), work);
         }
@@ -316,8 +317,12 @@ public final class Factor implements Serializable {
             // Chudnovsky: pi = 426880 sqrt(10005) Q / T, about 14.18 digits per term; binary splitting keeps it fast.
             MathContext mc = new MathContext(p + 10);
             BigInteger[] pqt = chudnovsky(0, p / 14 + 2);
+            // The truncated root rounded HALF_UP is the correctly rounded root (irrational: never a tie), and
+            // BigInteger.sqrt is twice as fast as BigDecimal.sqrt on JDK 21.
+            BigDecimal root = new BigDecimal(BigInteger.valueOf(10_005).multiply(BigInteger.TEN.pow(2 * (p + 10)))
+                    .sqrt(), p + 10).round(mc);
             BigDecimal pi = new BigDecimal(pqt[1].multiply(BigInteger.valueOf(426_880)))
-                    .multiply(BigDecimal.valueOf(10_005).sqrt(mc), mc).divide(new BigDecimal(pqt[2]), mc);
+                    .multiply(root, mc).divide(new BigDecimal(pqt[2]), mc);
             return pi.round(new MathContext(p));
         });
     }

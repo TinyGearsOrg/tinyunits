@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.measure.UnitConverter;
+import org.tinygears.uom.core.internal.Decimals;
 
 /**
  * Serializable through a proxy: one step is rebuilt with {@link Converters}; several are validated and rebuilt
@@ -116,7 +117,7 @@ final class AffineConverter implements UomConverter, Serializable {
             BigDecimal n = b.signum() == 0 ? t
                     : t.signum() == 0 ? b.setScale(Math.max(0, Math.min(t.scale(), guard)))
                     : addFar(t, b, guard);
-            BigDecimal q = n.divide(d, mc);
+            BigDecimal q = Decimals.divide(n, d, mc);
             return q.scale() >= 0 ? q : q.signum() == 0 ? BigDecimal.ZERO
                     : q.setScale(Math.min(0, q.scale() + mc.getPrecision() - q.precision()));
         }

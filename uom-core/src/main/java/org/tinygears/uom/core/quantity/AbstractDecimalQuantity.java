@@ -19,6 +19,7 @@ import javax.measure.spi.SystemOfUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.internal.Decimals;
 
 /**
  * Base class of the generated {@link BigDecimal} quantities; {@code R} is the typed interface returned by
@@ -398,7 +399,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
                 // a zero den throws again below
             }
         }
-        return num.divide(den, Precision.calculation(mc));
+        return Decimals.divide(num, den, Precision.calculation(mc));
     }
 
     /** {@code a + b}, skipping a zero {@code b} so far-apart scales are not aligned. */

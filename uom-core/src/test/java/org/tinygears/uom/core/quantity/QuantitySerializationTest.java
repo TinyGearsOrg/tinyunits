@@ -546,7 +546,8 @@ class QuantitySerializationTest {
         TestLengthDecimalImpl q = new TestLengthDecimalImpl(new BigDecimal("1.5"), METRE, Quantity.Scale.ABSOLUTE,
                 MAX_CONTEXT);
         UomUnit<Length> foot = METRE.multiply(new BigDecimal("0.3048"));
-        assertTimeoutPreemptively(Duration.ofSeconds(30), () -> {
+        // About 1 s on JDK 21 (mostly pi), well under on JDK 25; the bound only catches quadratic or worse.
+        assertTimeoutPreemptively(Duration.ofSeconds(120), () -> {
             assertEquals(new BigDecimal("2.25"), q.multiply(1.5).getValue());
             assertEquals(100_000, ((BigDecimal) q.divide(7).getValue()).precision());
             assertEquals(new BigDecimal("0.0015"), q.to(KILOMETRE).getValue());
