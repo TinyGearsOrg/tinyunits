@@ -1,0 +1,418 @@
+// SPDX-License-Identifier: Apache-2.0
+
+package org.tinygears.uom.systems;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import javax.measure.MeasurementException;
+import javax.measure.MetricPrefix;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.format.MeasurementParseException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.parse.DefinitionException;
+import org.tinygears.uom.core.parse.DefinitionParser;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.QuantityTypes;
+
+class UserUnitsTest {
+    private static final String MEDIEVAL = """
+            league:league 3 mi
+            furlong:furlong 220 yd
+            @system Medieval
+            @preferred Length furlong
+            """;
+    private static final UomUnit<?> THREE_MILES = USCustomary.MILE.multiply(3);
+
+    private static DefinitionParser.Resolver files(Map<String, String> files) {
+        return name -> {
+            String content = files.get(name);
+            if (content == null) {
+                throw new FileNotFoundException(name);
+            }
+            return new StringReader(content);
+        };
+    }
+
+    private static UomSystemOfUnits load(String text) {
+        return load(text, Map.of());
+    }
+
+    private static UomSystemOfUnits load(String text, Map<String, String> files) {
+        return UomSystemOfUnits.load("user.units", new StringReader(text), files(files));
+    }
+
+    private static DefinitionException fails(String text, String message) {
+        return fails(text, Map.of(), message);
+    }
+
+    private static DefinitionException fails(String text, Map<String, String> files, String message) {
+        DefinitionException e = assertThrows(DefinitionException.class, () -> load(text, files));
+        assertEquals(message, e.getMessage());
+        return e;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static BigDecimal metres(Unit<?> unit) {
+        return ((UomUnit<javax.measure.quantity.Length>) unit.asType(javax.measure.quantity.Length.class))
+                .getConverterTo(SI.METRE)
+                .convert(BigDecimal.ONE, MathContext.UNLIMITED);
+    }
+
+    @Test
+    void loadsMedieval() throws Exception {
+        UomSystemOfUnits m = load(MEDIEVAL);
+        assertEquals("Medieval", m.getName());
+        Unit<?> league = m.getUnit("league");
+        assertEquals(THREE_MILES, league);
+        assertEquals(0, new BigDecimal("4828.032").compareTo(metres(league)));
+        assertEquals(0, new BigDecimal("201.168").compareTo(metres(m.getUnit("furlong"))));
+        assertEquals("league", league.getSymbol());
+        assertEquals("league", league.getName());
+        Unit<javax.measure.quantity.Length> typed = league.asType(javax.measure.quantity.Length.class);
+        assertSame(league, typed);
+        assertThrows(ClassCastException.class, () -> league.asType(javax.measure.quantity.Time.class));
+        assertEquals(List.of("league", "furlong"), m.getUnits().stream().map(Unit::getSymbol).toList());
+        assertTrue(m.lookup("league").isPresent());
+        assertTrue(m.lookup("mi").isEmpty());
+        assertFalse(m.isPrefixable("league"));
+    }
+
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void preferredLayersOnSi() {
+        UomSystemOfUnits m = load(MEDIEVAL);
+        assertSame(m.getUnit("furlong"), m.getUnit(javax.measure.quantity.Length.class));
+        assertEquals(SI.SECOND, m.getUnit(javax.measure.quantity.Time.class));
+        assertEquals(33, QuantityTypes.types().size());
+        for (Class<?> type : QuantityTypes.types()) {
+            Unit<?> unit = m.getUnit((Class) type);
+            assertNotNull(unit, type.getSimpleName());
+            if (type != javax.measure.quantity.Length.class) {
+                assertEquals(SI.PREFERRED.get(type), unit, type.getSimpleName());
+            }
+        }
+        Length d = Length.of(BigDecimal.ONE, SI.KILOMETRE).to(m);
+        assertSame(m.getUnit("furlong"), d.getUnit());
+        assertEquals(BigDecimal.valueOf(1000).divide(new BigDecimal("201.168"), MathContext.DECIMAL128), d.getValue());
+        Length f = Length.of(1, SI.KILOMETRE).to(m);
+        assertSame(m.getUnit("furlong"), f.getUnit());
+        assertEquals(1000 / 201.168, f.getValue().doubleValue(), 1e-12);
+    }
+
+    @Test
+    void nameFromArgumentWithoutSystemLine() {
+        assertEquals("fallback",
+                UomSystemOfUnits.load("fallback", new StringReader("league 3 mi\n"), null).getName());
+    }
+
+    @Test
+    void preferredErrors() {
+        String base = "league:league 3 mi\nfurlong:furlong 220 yd\n";
+        fails(base + "@preferred Foo league\n", "user.units:3: unknown quantity type 'Foo'");
+        fails(base + "@preferred Length nothere\n", "user.units:3: unknown unit 'nothere'");
+        fails(base + "@preferred Length m\n", "user.units:3: unknown unit 'm'");
+        fails(base + "@preferred Time league\n", "user.units:3: unit 'league' is not a unit of Time");
+        fails(base + "@preferred Length league\n@preferred Length furlong\n",
+                "user.units:4: duplicate preferred unit for 'Length'");
+        fails("@include a.units\n@preferred Length rod\n", Map.of("a.units", "rod 5.5 yd\n"),
+                "user.units:2: unit 'rod' is not a unit of user.units");
+    }
+
+    @Test
+    void definitionErrorsCarryFileAndLine() {
+        fails("league 3 mi\nx 2 nothere\n", "user.units:2: unknown unit 'nothere'");
+        fails("league 3 mi\nleague 4 mi\n", "user.units:2: duplicate symbol 'league'");
+        fails("league 3 mi^\n", "user.units:1: exponent must be an integer");
+        fails("league 3 mi [length]\n", "user.units:1: malformed quantity type 'length'");
+        fails("\n@include a.units\n", Map.of("a.units", "@include b.units\n", "b.units", "\n@include a.units\n"),
+                "b.units:2: include cycle: a.units -> b.units -> a.units");
+        fails("@include missing.units\n", "user.units:1: cannot include 'missing.units'");
+        DefinitionException e = assertThrows(DefinitionException.class,
+                () -> UomSystemOfUnits.load("user.units", new StringReader("\n@include si.units\n"), null));
+        assertEquals("user.units:2: cannot include 'si.units'", e.getMessage());
+        assertEquals("user.units", e.source());
+        assertEquals(2, e.line());
+    }
+
+    @Test
+    void builtInSymbolsCannotBeRedefined() {
+        for (String symbol : List.of("ft", "m", "kg", "km", "mm", "mi", "s")) {
+            fails("league 3 mi\n" + symbol + " 2 league\n", "user.units:2: symbol '" + symbol + "' is already defined");
+        }
+        // 'mi' is the mile, so the milli form of a user unit 'i' clashes
+        fails("i 2 m\n@prefixed i k m\n", "user.units:2: symbol 'mi' is already defined");
+    }
+
+    @Test
+    void loadFromPath(@TempDir Path dir) throws IOException {
+        Files.writeString(dir.resolve("old.units"), "@include common.units\nleague 3 mi\nperch 1 rod\n");
+        Files.writeString(dir.resolve("common.units"), "rod 5.5 yd\n");
+        UomSystemOfUnits old = UomSystemOfUnits.load(dir.resolve("old.units"));
+        assertEquals("old", old.getName());
+        assertEquals(List.of("league", "perch"), old.getUnits().stream().map(Unit::getSymbol).toList());
+        assertEquals(0, new BigDecimal("5.0292").compareTo(metres(old.getUnit("perch"))));
+
+        Files.createDirectory(dir.resolve("sub"));
+        Files.writeString(dir.resolve("sub/nested.units"), "@include ../common.units\n");
+        DefinitionException e = assertThrows(DefinitionException.class,
+                () -> UomSystemOfUnits.load(dir.resolve("sub/nested.units")));
+        assertEquals("nested.units:1: cannot include '../common.units'", e.getMessage());
+        Files.writeString(dir.resolve("abs.units"), "@include " + dir.resolve("common.units") + "\n");
+        e = assertThrows(DefinitionException.class, () -> UomSystemOfUnits.load(dir.resolve("abs.units")));
+        assertEquals("abs.units:1: cannot include '" + dir.resolve("common.units") + "'", e.getMessage());
+        Files.writeString(dir.resolve("down.units"), "@include sub/inner.units\nx 2 y\n");
+        Files.writeString(dir.resolve("sub/inner.units"), "y 3 m\n");
+        assertEquals(SI.METRE.multiply(6), UomSystemOfUnits.load(dir.resolve("down.units")).getUnit("x"));
+
+        assertThrows(NoSuchFileException.class, () -> UomSystemOfUnits.load(dir.resolve("missing.units")));
+
+        Files.writeString(dir.resolve("bom.units"), "﻿league 3 mi\r\n@system Bom\r\nfurlong 220 yd\r\n",
+                StandardCharsets.UTF_8);
+        UomSystemOfUnits bom = UomSystemOfUnits.load(dir.resolve("bom.units"));
+        assertEquals("Bom", bom.getName());
+        assertEquals(THREE_MILES, bom.getUnit("league"));
+        assertEquals(USCustomary.YARD.multiply(220), bom.getUnit("furlong"));
+    }
+
+    @Test
+    void extendsAnotherUserFile() {
+        Map<String, String> files = Map.of(
+                "base.units", "@system Base\nrod:rod 5.5 yd\n@prefixed rod k\n@preferred Length rod\n"
+                        + "fortnight 14 d\n@preferred Time fortnight\n",
+                "extra.units", "pole 2 rod\nhide 120 m^2\n");
+        UomSystemOfUnits c = load("@extends base.units\n@include extra.units\n@system Child\nleague 3 mi\n"
+                + "@member pole\nweek 7 d\n@preferred Time week\n", files);
+        assertEquals("Child", c.getName());
+        assertEquals(List.of("league", "week", "rod", "krod", "fortnight", "pole"),
+                c.getUnits().stream().map(Unit::getSymbol).toList());
+        assertTrue(c.isPrefixable("rod"));
+        assertSame(c.getUnit("rod"), c.getUnit(javax.measure.quantity.Length.class));
+        assertSame(c.getUnit("week"), c.getUnit(javax.measure.quantity.Time.class));
+        assertEquals(SI.KILOGRAM, c.getUnit(javax.measure.quantity.Mass.class));
+        assertEquals(null, c.getUnit("hide"));
+        UomUnitFormat f = UomUnitFormat.standard().with(c);
+        assertEquals(c.getUnit("rod").multiply(1e6), f.parse("Mrod"));
+    }
+
+    @Test
+    void formatWithUserSystem() {
+        UomSystemOfUnits m = load(MEDIEVAL);
+        UomUnitFormat f = UomUnitFormat.standard().with(m);
+        assertEquals(THREE_MILES, f.parse("league"));
+        assertEquals(THREE_MILES.divide(SI.HOUR), f.parse("league/h"));
+        assertEquals(SI.KILOMETRE.divide(THREE_MILES), f.parse("km/league"));
+        assertEquals("league", f.format(THREE_MILES));
+        assertEquals("league", f.format(m.getUnit("league")));
+        assertThrows(MeasurementParseException.class, () -> f.parse("kleague"));
+        UomQuantityFormat q = new UomQuantityFormat(f);
+        Quantity<?> two = q.parse("2 league");
+        assertEquals(2.0, two.getValue());
+        assertEquals(THREE_MILES, two.getUnit());
+        assertEquals("2.0 league", q.format(two));
+        assertEquals(THREE_MILES, UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
+                .parse("kleague").divide(1000));
+        assertEquals(THREE_MILES.multiply(1e6), UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
+                .parse("Mleague"));
+    }
+
+    @Test
+    void originalFormatIsUnchanged() {
+        UomUnitFormat base = UomUnitFormat.standard();
+        UomUnitFormat f = base.with(load(MEDIEVAL));
+        assertEquals(THREE_MILES, f.parse("league"));
+        assertThrows(MeasurementParseException.class, () -> base.parse("league"));
+        assertTrue(base.resolve("league").isEmpty());
+        assertTrue(f.resolve("league").isPresent());
+    }
+
+    @Test
+    void labelsAreCopied() {
+        UomUnitFormat base = UomUnitFormat.standard();
+        base.label(SI.METRE, "meter");
+        UomUnitFormat f = base.with(load(MEDIEVAL));
+        assertEquals(SI.METRE, f.parse("meter"));
+        assertEquals("meter", f.format(SI.METRE));
+        base.label(SI.SECOND, "sec");
+        assertThrows(MeasurementParseException.class, () -> f.parse("sec"));
+        f.label(SI.KILOGRAM, "kilo");
+        assertThrows(MeasurementParseException.class, () -> base.parse("kilo"));
+        assertTrue(base.resolve("meter").isEmpty());
+    }
+
+    @Test
+    void resolveSeesSymbolsAndPrefixesButNotLabels() {
+        UomUnitFormat f = UomUnitFormat.standard();
+        assertSame(USCustomary.FOOT, f.resolve("ft").orElseThrow());
+        assertEquals(SI.KILOMETRE, f.resolve("km").orElseThrow());
+        assertEquals(SI.METRE.multiply(1e9), f.resolve("Gm").orElseThrow());
+        assertTrue(f.resolve("").isEmpty());
+        assertTrue(f.resolve("nope").isEmpty());
+        f.label(SI.METRE, "meter");
+        assertTrue(f.resolve("meter").isEmpty());
+        assertThrows(NullPointerException.class, () -> f.resolve(null));
+    }
+
+    @Test
+    void conflictingSymbolsAreRejected() {
+        UomSystemOfUnits fake = new UomSystemOfUnits("Fake", List.of(SI.METRE.named("ft", "fake foot")), Map.of(),
+                Set.of());
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> UomUnitFormat.standard().with(fake));
+        assertEquals("symbol 'ft' of Fake is a different unit in USCustomary", e.getMessage());
+        UomSystemOfUnits km = new UomSystemOfUnits("Km", List.of(SI.METRE.named("km", "k")), Map.of(), Set.of());
+        e = assertThrows(IllegalArgumentException.class, () -> UomUnitFormat.standard().with(km));
+        assertEquals("symbol 'km' of Km is a different unit in SI", e.getMessage());
+
+        UomSystemOfUnits same = new UomSystemOfUnits("Same", List.of(USCustomary.FOOT, SI.KILOMETRE), Map.of(),
+                Set.of());
+        assertSame(USCustomary.FOOT, UomUnitFormat.standard().with(same).parse("ft"));
+
+        UomSystemOfUnits a = load("xx 2 m\n@system A\n");
+        UomSystemOfUnits b = load("xx 3 s\n@system B\n");
+        e = assertThrows(IllegalArgumentException.class, () -> UomUnitFormat.standard().with(a, b));
+        assertEquals("symbol 'xx' of B is a different unit in A", e.getMessage());
+        e = assertThrows(IllegalArgumentException.class, () -> UomUnitFormat.standard().with(a).with(b));
+        assertEquals("symbol 'xx' of B is a different unit in A", e.getMessage());
+
+        UomUnitFormat labelled = UomUnitFormat.standard();
+        labelled.label(SI.SECOND, "xx");
+        e = assertThrows(IllegalArgumentException.class, () -> labelled.with(a));
+        assertEquals("symbol 'xx' of A is the label of s", e.getMessage());
+    }
+
+    @Test
+    void withArguments() {
+        UomUnitFormat f = UomUnitFormat.standard();
+        assertThrows(NullPointerException.class, () -> f.with((UomSystemOfUnits[]) null));
+        assertThrows(NullPointerException.class, () -> f.with((UomSystemOfUnits) null));
+        assertThrows(IllegalArgumentException.class, f::with);
+        UomSystemOfUnits m = load(MEDIEVAL);
+        UomUnitFormat twice = f.with(m, m).with(m).with(SI.SYSTEM);
+        assertEquals(THREE_MILES, twice.parse("league"));
+        assertEquals("league", twice.format(THREE_MILES));
+    }
+
+    @Test
+    void noGlobalState() {
+        UomUnitFormat fa = UomUnitFormat.standard().with(load("xx 2 m\n@system A\n"));
+        UomUnitFormat fb = UomUnitFormat.standard().with(load("xx 3 s\n@system B\n"));
+        assertEquals(SI.METRE.multiply(2), fa.parse("xx"));
+        assertEquals(SI.SECOND.multiply(3), fb.parse("xx"));
+        assertEquals(SI.METRE.multiply(2), fa.parse("xx"));
+        assertThrows(MeasurementParseException.class, () -> UomUnitFormat.standard().parse("xx"));
+        assertThrows(MeasurementParseException.class, () -> new UomUnitFormat(UnitSystems.all()).parse("xx"));
+        // a later load does not see units of earlier ones
+        assertEquals(SI.METRE.multiply(4), load("xx 4 m\n").getUnit("xx"));
+    }
+
+    @Test
+    void alternateUnits() {
+        String text = "uu7alt:usertestalt ~ m/s\nslow 2 uu7alt\n";
+        UomSystemOfUnits one = load(text);
+        UomSystemOfUnits two = load(text);
+        assertEquals(one.getUnit("uu7alt"), two.getUnit("uu7alt"));
+        assertEquals(SI.METRE.divide(SI.SECOND).getDimension(), one.getUnit("uu7alt").getDimension());
+        assertFalse(one.getUnit("uu7alt").equals(SI.METRE.divide(SI.SECOND)));
+        assertEquals(one.getUnit("slow"), UomUnitFormat.standard().with(two).parse("2 uu7alt"));
+        DefinitionException e = fails("\nuu7alt ~ kg\n",
+                "user.units:2: symbol uu7alt is already associated to a different unit");
+        assertInstanceOf(MeasurementException.class, e.getCause());
+    }
+
+    @Test
+    void systemsAreImmutable() {
+        UomSystemOfUnits m = load(MEDIEVAL);
+        assertThrows(UnsupportedOperationException.class, () -> m.getUnits().clear());
+        assertThrows(UnsupportedOperationException.class,
+                () -> m.getUnits(SI.METRE.getDimension()).clear());
+    }
+
+    @Test
+    void everyUnitRoundTrips() {
+        UomSystemOfUnits m = load(MEDIEVAL + "@prefixed league k c\n@prefixed furlong M\nfortnight 14 d\n"
+                + "fps furlong/fortnight\nhot K = x + 7\n");
+        UomUnitFormat f = UomUnitFormat.standard().with(m);
+        int n = 0;
+        for (Unit<?> u : m.getUnits()) {
+            assertEquals(u, f.parse(f.format(u)), u.toString());
+            n++;
+            if (m.isPrefixable(u.getSymbol())) {
+                for (MetricPrefix p : MetricPrefix.values()) {
+                    Unit<?> prefixed = u.prefix(p);
+                    assertEquals(prefixed, f.parse(f.format(prefixed)), p + " " + u);
+                    assertEquals(prefixed, f.parse(p.getSymbol() + u.getSymbol()), p + " " + u);
+                    n++;
+                }
+            }
+        }
+        assertEquals(8 + 2 * MetricPrefix.values().length, n);
+    }
+
+    @Test
+    void threadSafety() throws Exception {
+        UomSystemOfUnits shared = load(MEDIEVAL);
+        UomUnitFormat format = UomUnitFormat.standard().with(shared);
+        ExecutorService pool = Executors.newFixedThreadPool(8);
+        try {
+            List<Future<Boolean>> results = new ArrayList<>();
+            for (int t = 0; t < 8; t++) {
+                results.add(pool.submit(() -> {
+                    for (int i = 0; i < 200; i++) {
+                        UomSystemOfUnits own = load(MEDIEVAL);
+                        UomUnitFormat f = UomUnitFormat.standard().with(own);
+                        if (!format.parse("league/h").equals(f.parse("league/h"))
+                                || !"league".equals(format.format(THREE_MILES))
+                                || own.getUnit(javax.measure.quantity.Length.class) != own.getUnit("furlong")
+                                || !shared.getUnit("league").equals(own.getUnit("league"))) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }));
+            }
+            for (Future<Boolean> r : results) {
+                assertTrue(r.get());
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    @Test
+    void planExample() {
+        UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval", new StringReader(MEDIEVAL), null);
+        UomQuantityFormat q = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
+        Quantity<?> two = q.parse("2 league");
+        Length l = Length.of(two.getValue().doubleValue(), two.getUnit().asType(javax.measure.quantity.Length.class));
+        Length furlongs = l.to(medieval);
+        assertEquals("furlong", furlongs.getUnit().getSymbol());
+        assertEquals(48.0, furlongs.getValue().doubleValue(), 1e-12);
+        assertEquals(BaseUnits.METRE.getDimension(), medieval.getUnit("league").getDimension());
+    }
+}

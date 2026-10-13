@@ -14,7 +14,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.measure.MeasurementException;
@@ -47,6 +49,7 @@ public final class DefinitionParser {
     }
 
     private final Resolver resolver;
+    private final Function<String, UomUnit<?>> known;
     private final Map<String, UomUnit<?>> units = new HashMap<>();
     private final List<Definition> definitions = new ArrayList<>();
     private final List<Preferred> preferred = new ArrayList<>();
@@ -57,8 +60,9 @@ public final class DefinitionParser {
     private final List<String> stack = new ArrayList<>();
     private final Set<String> done = new HashSet<>();
 
-    private DefinitionParser(Resolver resolver) {
+    private DefinitionParser(Resolver resolver, Function<String, UomUnit<?>> known) {
         this.resolver = resolver;
+        this.known = known;
     }
 
     /**
@@ -67,7 +71,16 @@ public final class DefinitionParser {
      * definition cannot be re-registered differently until the JVM restarts.
      */
     public static Definitions parse(String source, Reader reader, Resolver resolver) {
-        DefinitionParser p = new DefinitionParser(resolver);
+        return parse(source, reader, resolver, s -> null);
+    }
+
+    /**
+     * As {@link #parse(String, Reader, Resolver)}; formula symbols the files do not define resolve through
+     * {@code known} (null when unknown), and defining a symbol that {@code known} resolves is an error.
+     */
+    public static Definitions parse(String source, Reader reader, Resolver resolver,
+            Function<String, UomUnit<?>> known) {
+        DefinitionParser p = new DefinitionParser(resolver, Objects.requireNonNull(known, "known"));
         try {
             p.file(source, reader);
         } catch (IOException e) {
@@ -287,7 +300,12 @@ public final class DefinitionParser {
     }
 
     private UomUnit<?> evaluate(String formula) throws FormulaException {
-        return FormulaEvaluator.evaluate(formula, units::get);
+        return FormulaEvaluator.evaluate(formula, this::find);
+    }
+
+    private UomUnit<?> find(String symbol) {
+        UomUnit<?> unit = units.get(symbol);
+        return unit != null || symbol == null || symbol.isEmpty() ? unit : known.apply(symbol);
     }
 
     private static UomUnit<?> base(String src, int ln, String symbol, String letter) {
@@ -313,6 +331,9 @@ public final class DefinitionParser {
         }
         if (units.containsKey(symbol)) {
             throw new DefinitionException(src, ln, "duplicate symbol '" + symbol + "'", null);
+        }
+        if (known.apply(symbol) != null) {
+            throw new DefinitionException(src, ln, "symbol '" + symbol + "' is already defined", null);
         }
     }
 

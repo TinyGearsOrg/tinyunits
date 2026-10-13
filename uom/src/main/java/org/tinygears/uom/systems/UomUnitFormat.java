@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParsePosition;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -39,6 +40,47 @@ public final class UomUnitFormat implements UnitFormat {
 
     public UomUnitFormat(List<UomSystemOfUnits> systems) {
         this.systems = List.copyOf(systems);
+    }
+
+    /**
+     * A new format over this format's systems followed by {@code systems}, with a snapshot of this format's
+     * labels; this format is unchanged. A system already in the format is skipped.
+     *
+     * @throws IllegalArgumentException when {@code systems} is empty, or a symbol of a given system resolves in
+     *     the systems before it (exactly or as a prefixed form) or as a label to a different unit
+     */
+    public UomUnitFormat with(UomSystemOfUnits... systems) {
+        if (Objects.requireNonNull(systems, "systems").length == 0) {
+            throw new IllegalArgumentException("no systems");
+        }
+        List<UomSystemOfUnits> all = new ArrayList<>(this.systems);
+        UomUnitFormat result;
+        synchronized (this) {
+            for (UomSystemOfUnits system : systems) {
+                Objects.requireNonNull(system, "system");
+                if (all.stream().anyMatch(s -> s == system)) {
+                    continue;
+                }
+                for (String symbol : system.symbols()) {
+                    UomUnit<?> unit = system.lookup(symbol).orElseThrow();
+                    UomUnit<?> label = aliases.get(symbol);
+                    if (label != null && !label.equals(unit)) {
+                        throw new IllegalArgumentException("symbol '" + symbol + "' of " + system.getName()
+                                + " is the label of " + label);
+                    }
+                    Found other = resolve(all, symbol);
+                    if (other != null && !other.unit().equals(unit)) {
+                        throw new IllegalArgumentException("symbol '" + symbol + "' of " + system.getName()
+                                + " is a different unit in " + other.system().getName());
+                    }
+                }
+                all.add(system);
+            }
+            result = new UomUnitFormat(all);
+            result.aliases.putAll(aliases);
+            result.labels.putAll(labels);
+        }
+        return result;
     }
 
     /** A new format over {@link UnitSystems#all()}. */
@@ -183,13 +225,23 @@ public final class UomUnitFormat implements UnitFormat {
 
     UomUnit<?> lookup(String symbol) {
         UomUnit<?> alias = aliases.get(symbol);
-        if (alias != null) {
-            return alias;
-        }
+        return alias != null ? alias : resolve(symbol).orElse(null);
+    }
+
+    /** The unit of an exact symbol of the systems, else of a metric prefix on a prefixable unit; never a label. */
+    public Optional<UomUnit<?>> resolve(String symbol) {
+        Found found = resolve(systems, Objects.requireNonNull(symbol, "symbol"));
+        return found == null ? Optional.empty() : Optional.of(found.unit());
+    }
+
+    private record Found(UomSystemOfUnits system, UomUnit<?> unit) {
+    }
+
+    private static Found resolve(List<UomSystemOfUnits> systems, String symbol) {
         for (UomSystemOfUnits system : systems) {
             Optional<UomUnit<?>> unit = system.lookup(symbol);
             if (unit.isPresent()) {
-                return unit.get();
+                return new Found(system, unit.get());
             }
         }
         for (MetricPrefix prefix : PREFIXES) {
@@ -200,7 +252,8 @@ public final class UomUnitFormat implements UnitFormat {
                     Optional<UomUnit<?>> unit = system.lookup(rest);
                     if (system.isPrefixable(rest) && unit.isPresent()) {
                         UomUnit<?> u = unit.get();
-                        return u.prefix(prefix).named(symbol, prefix.name().toLowerCase(Locale.ROOT) + u.getName());
+                        return new Found(system,
+                                u.prefix(prefix).named(symbol, prefix.name().toLowerCase(Locale.ROOT) + u.getName()));
                     }
                 }
             }

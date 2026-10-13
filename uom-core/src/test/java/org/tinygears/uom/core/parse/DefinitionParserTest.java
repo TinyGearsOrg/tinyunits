@@ -504,4 +504,83 @@ class DefinitionParserTest {
         assertTimeoutPreemptively(Duration.ofSeconds(5),
                 () -> fails("x ((10^1000)^1000)^100\n", "test.units:1: factor too large"));
     }
+
+    private static final Map<String, UomUnit<?>> KNOWN = Map.of("m", METRE, "km", METRE.prefix(MetricPrefix.KILO),
+            "kg", KILOGRAM, "s", SECOND);
+
+    private static Definitions known(String text) {
+        return DefinitionParser.parse("test.units", new StringReader(text), null, KNOWN::get);
+    }
+
+    private static void knownFails(String text, String message) {
+        DefinitionException e = assertThrows(DefinitionException.class, () -> known(text));
+        assertEquals(message, e.getMessage());
+    }
+
+    @Test
+    void knownSymbolsResolveInFormulas() {
+        Definitions d = known("a 1.5 m\nb km\nN:newton kg m / s^2\nc 2 a\n");
+        assertEquals(METRE.multiply(1.5), find(d, "a").unit());
+        assertEquals(METRE.multiply(1000), find(d, "b").unit());
+        assertEquals(KILOGRAM.multiply(METRE).divide(SECOND.pow(2)), find(d, "N").unit());
+        assertEquals(METRE.multiply(3), find(d, "c").unit());
+        assertEquals(List.of("a", "b", "N", "c"), symbols(d));
+        knownFails("a 1.5 m\nb 2 nothere\n", "test.units:2: unknown unit 'nothere'");
+    }
+
+    @Test
+    void definingAKnownSymbolIsAnError() {
+        knownFails("x 2 m\nm:metre 1\n", "test.units:2: symbol 'm' is already defined");
+        knownFails("km 1000 m\n", "test.units:1: symbol 'km' is already defined");
+        knownFails("s:second !T\n", "test.units:1: symbol 's' is already defined");
+        knownFails("kg ~ m\n", "test.units:1: symbol 'kg' is already defined");
+        DefinitionException e = assertThrows(DefinitionException.class,
+                () -> DefinitionParser.parse("t.units", new StringReader("@include a\n"),
+                        n -> new StringReader("\nx m\nkm m\n"), KNOWN::get));
+        assertEquals("a:3: symbol 'km' is already defined", e.getMessage());
+        assertEquals("a", e.source());
+        assertEquals(3, e.line());
+    }
+
+    @Test
+    void prefixedSymbolClashingWithAKnownOneIsAnError() {
+        Map<String, UomUnit<?>> k = Map.of("m", METRE, "kleague", METRE);
+        DefinitionException e = assertThrows(DefinitionException.class, () -> DefinitionParser.parse("t.units",
+                new StringReader("league 3 m\n@prefixed league M k\n"), null, k::get));
+        assertEquals("t.units:2: symbol 'kleague' is already defined", e.getMessage());
+    }
+
+    @Test
+    void knownIsNotConsultedForSymbolsTheFileDefines() {
+        List<String> calls = new ArrayList<>();
+        Definitions d = DefinitionParser.parse("t.units", new StringReader("a 2 m\nb 3 a\nc a b\n"), null, s -> {
+            calls.add(s);
+            return KNOWN.get(s);
+        });
+        // once each for the symbol check of a, b and c, and once for m
+        assertEquals(List.of("a", "m", "b", "c"), calls);
+        assertEquals(METRE.pow(2).multiply(12), find(d, "c").unit());
+    }
+
+    @Test
+    void preferredOfAKnownSymbolIsAnError() {
+        knownFails("a 2 m\n@preferred Length m\n", "test.units:2: unknown unit 'm'");
+        assertEquals(List.of(new Preferred("Length", "a", "test.units", 2)),
+                known("a 2 m\n@preferred Length a\n").preferred());
+    }
+
+    @Test
+    void knownNullSafety() {
+        assertThrows(NullPointerException.class,
+                () -> DefinitionParser.parse("t.units", new StringReader("a m\n"), null, null));
+        List<String> calls = new ArrayList<>();
+        known("a 2 m\n");
+        DefinitionParser.parse("t.units", new StringReader("a 2 m\nb (a)·m\n"), null, s -> {
+            calls.add(s);
+            return KNOWN.get(s);
+        });
+        assertTrue(calls.stream().noneMatch(s -> s == null || s.isEmpty()), calls.toString());
+        // the three-argument form knows nothing
+        assertThrows(DefinitionException.class, () -> parse("a 2 m\n"));
+    }
 }

@@ -37,7 +37,8 @@ Unchanged, tracked with options in `docs/TODO.md`. Two more are visible through 
 
 ## Systems and data
 
-- Run-time loading of `.units` resources and user files (F17, F18) is still open; the catalogs are generated only.
+- Done by milestone 6 (Task 7: `UomSystemOfUnits.load`, `UomUnitFormat.with`). Run-time loading of user `.units` files
+  (F17, F18); the built-in catalogs stay generated only and no `.units` resources are shipped.
 - A label that equals a prefix reading of another unit (`label(SECOND, "Gm")`) is accepted; it predates this milestone but
   is widened by the new prefixable units `G`, `Gal`, `P` and `St`. Reject labels that `lookup` already resolves.
 - `abH` equals SI `nH` and `cm³` equals `mL`. A unit with its own symbol formats to it (`format(EMU.ABHENRY)` is `abH`,

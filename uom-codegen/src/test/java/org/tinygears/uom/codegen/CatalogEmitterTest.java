@@ -287,8 +287,21 @@ class CatalogEmitterTest {
             sources.put(q + "Decimal", SourceEmitter.decimalImplementation(s));
             sources.put(q + "Factory", SourceEmitter.factory(s, parsed.get("si.units")));
         }
+        sources.put("org.tinygears.uom.quantity.QuantityTypes", SourceEmitter.registry(types));
         sources.put("org.tinygears.uom.systems.UomSystemOfUnits", Files.readString(Path.of(
                 "../uom/src/main/java/org/tinygears/uom/systems/UomSystemOfUnits.java")));
+        // UomSystemOfUnits.load needs these; the hand-written format is not under test here.
+        sources.put("org.tinygears.uom.systems.UomUnitFormat", """
+                package org.tinygears.uom.systems;
+                final class UomUnitFormat {
+                    static UomUnitFormat standard() {
+                        return new UomUnitFormat();
+                    }
+                    java.util.Optional<org.tinygears.uom.core.UomUnit<?>> resolve(String symbol) {
+                        return java.util.Optional.empty();
+                    }
+                }
+                """);
         catalogs.forEach((file, c) -> sources.put("org.tinygears.uom.systems." + c.className(),
                 CatalogEmitter.catalog(c, parsed.get(file))));
         try (URLClassLoader loader = InMemoryCompiler.compile(sources, tmp)) {
