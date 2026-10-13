@@ -1,6 +1,6 @@
 # TODO
 
-Open items that need a decision from the project owner. Each says under "Needed by" what, if anything, it blocks; none blocks milestone 3 any more.
+Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
 
 ## 1. Offset-unit arithmetic (decision D5)
 
@@ -77,3 +77,46 @@ requirement names the method `to(system)`. Options: keep, or rename the system o
 **Related, follows decision 1:** `to(system)` of a `Scale.RELATIVE` temperature applies the offset like any other conversion.
 
 **Needed by:** nothing; decide before 1.0.
+
+## 5. Emit prefixed catalog units through `prefix(...)`
+
+**Status:** owner-requested, not started. `@prefixed` units are generated as the decomposed
+`BaseUnits.METRE.transform(Converters.affine(Factor.of(1L, 100L), Factor.ZERO)).named("cm", "centimetre")`. Emit them as
+`<base constant>.prefix(MetricPrefix.CENTI).named("cm", "centimetre")` instead, using the shared base constant. The result
+is the same unit; the generated code states its intent and is shorter. `Definitions` already records the `@prefixed` lines.
+Needs a generator change, a test that every prefixed constant equals its prefixed base, and one regeneration.
+
+**Needed by:** nothing; do together with item 6.
+
+## 6. Typed `from(Quantity<?>)` on the quantity interfaces
+
+**Status:** owner-requested, not started. `Speed v = Speed.from(length.divide(time));` instead of
+`q.asType(javax.measure.quantity.Speed.class)`, which cannot take our interface (`T extends Quantity<T>` does not hold for it).
+Generate `static X from(Quantity<?> quantity)` on each of the 33 typed interfaces: `asType` with the standard class, then a
+cast to our interface; same exceptions as `asType`, plus `ClassCastException` for a quantity of a foreign provider. Tests for
+33 types x {double, decimal} and the errors. README note: declare units with `Unit<?>` or `var`, and why. The typed interface
+names stay as they are (owner decision, no `I` prefix).
+
+**Needed by:** nothing; do together with item 5.
+
+## 7. Binary prefixes and byte units
+
+**Status:** not implemented. `BinaryPrefix` (`MiB`) is not resolved by the unit format or `@prefixed`, and no bit or byte
+units exist; `UomUnit.prefix(BinaryPrefix.KIBI)` works on a unit. Needs bit and byte definitions (IEC 80000-13), a binary
+prefix directive and run-time resolution, and a decision whether information units belong in 1.0.
+
+**Needed by:** nothing; decide before 1.0.
+
+## 8. Superscript exponents in formulas
+
+**Status:** not implemented. The formula evaluator reads `^n` only, so the Acceleration system unit's symbol is `m/s^2` and
+`m/s²` does not parse (as a symbol, formatting that unit would fail). Reading `²` and `³` as exponents would allow the nicer
+symbol; the formatted output then changes from `m/s^2`.
+
+**Needed by:** nothing.
+
+## Milestone follow-up lists
+
+Review findings of each milestone that are not owner decisions: `docs/superpowers/plans/2026-10-12-uom-m1-follow-ups.md`
+to `2026-10-12-uom-m6-follow-ups.md`.
+
