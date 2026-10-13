@@ -3,9 +3,9 @@
 #
 # Verifies the release artifacts without publishing anything: builds the release profile into temporary local
 # repositories, checks the installed files and POMs, reproducibility, jlink and a consumer project (scripts/README.md).
-# Usage: scripts/verify-release.sh [--jdk <JDK home>] [--self-test]
+# Usage: scripts/verify-release.sh [--jdk <JDK home>] [--require-jlink] [--self-test]
 #   internal (used by --self-test): --check <repo> | --compare <repo1> <repo2> | --consumer <repo>
-# Requires: bash, mvn (3.9+), a JDK 21+ (jar, javac, jlink), unzip, python3 (self-test only).
+# Requires: bash, mvn (3.9+), a JDK 21+ (jar, javac, jlink), unzip, python3.
 # Exits 1 with a message on the first failed check.
 set -euo pipefail
 
@@ -13,22 +13,31 @@ SCRIPT=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PUBLISHED=(uom-parent uom-core uom)
 UNPUBLISHED=(uom-codegen uom-tck uom-examples)
-# Maven 3.9 chained local repository: installs go to the temporary head, ~/.m2 is only read
+# Maven 3.9 chained local repository (comma-separated tail): installs go to the temporary head, the tail is only read
 TAIL=${VERIFY_REPO_TAIL:-$HOME/.m2/repository}
+[[ -n ${VERIFY_REPO_TAIL:-} || -d $TAIL ]] || TAIL=
 EXPECTED=${VERIFY_EXPECTED:-$ROOT/scripts/consumer/expected-output.txt}
 
 fail() { echo "verify-release: FAIL: $*" >&2; exit 1; }
 say() { echo "verify-release: $*"; }
 
-if [[ ${1:-} == --jdk ]]; then
-  [[ -x ${2:-}/bin/java ]] || fail "--jdk: no bin/java in '${2:-}'"
-  export JAVA_HOME=$(cd "$2" && pwd)
-  shift 2
-fi
+USAGE="usage: verify-release.sh [--jdk <JDK home>] [--require-jlink] [--self-test]"
+MODE=release REQUIRE_JLINK= ARGS=()
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --jdk)
+      [[ -x ${2:-}/bin/java ]] || fail "--jdk: no bin/java in '${2:-}'"
+      export JAVA_HOME=$(cd "$2" && pwd); shift 2 ;;
+    --require-jlink) REQUIRE_JLINK=1; shift ;;
+    --self-test) MODE=self-test; shift ;;
+    --check|--consumer) MODE=${1#--}; ARGS=("${2:?$1 needs a repository}"); shift 2 ;;
+    --compare) MODE=compare; ARGS=("${2:?}" "${3:?--compare needs two repositories}"); shift 3 ;;
+    *) fail "unknown argument '$1' ($USAGE)" ;;
+  esac
+done
 # mvn runs on JAVA_HOME when set: the jar tools must be the same JDK
 [[ -z ${JAVA_HOME:-} ]] || export PATH=$JAVA_HOME/bin:$PATH
-[[ -d $TAIL ]] || TAIL=
-for t in mvn java javac jar jlink unzip; do command -v "$t" > /dev/null || fail "$t not found on the PATH"; done
+for t in mvn java javac jar jlink unzip python3; do command -v "$t" > /dev/null || fail "$t not found on the PATH"; done
 JDK=$(java -XshowSettings:properties -version 2>&1 | sed -n 's/^ *java.specification.version = //p')
 
 tmp=$(mktemp -d)
@@ -66,7 +75,7 @@ check_entries() { # <jar> <allowed regex> <required entries...>
   for e in "$@"; do grep -qxF "$e" <<< "$list" || fail "$(basename "$jar") lacks $e"; done
   while IFS= read -r e; do
     [[ $e =~ $allowed ]] || fail "$(basename "$jar"): stray entry $e"
-    [[ ! $e =~ (Test|Tests|IT)(\$[^/]*)?\.(class|java)$ ]] || fail "$(basename "$jar"): test class $e"
+    [[ ! $e =~ [a-z0-9](Test|Tests|IT)(\$[^/]*)?\.(class|java)$ ]] || fail "$(basename "$jar"): test class $e"
   done <<< "$list"
 }
 
@@ -119,6 +128,8 @@ check() { # <repo>
                 "Build-Jdk-Spec: $JDK"; do
       grep -qxF "$want" <<< "$got" || fail "$a-$v.jar: manifest lacks '$want'"
     done
+    # a named module: the manifest must not suggest another name
+    ! grep -q '^Automatic-Module-Name:' <<< "$got" || fail "$a-$v.jar: manifest has Automatic-Module-Name"
     got=$(jar --describe-module --file "$jar.jar" | sed '1s/ .*//; /^$/d')
     [[ $got == "$(describe_expected "$a" "$v")" ]] \
       || fail "$a-$v.jar: jar --describe-module gives [$(echo $got)], expected [$(echo $(describe_expected "$a" "$v"))]"
@@ -152,9 +163,11 @@ run_examples() { # <label> <java> <args...>: compares the output with the expect
     || { diff <(echo "$out") "$EXPECTED" >&2 || true; fail "consumer ($label): output differs from $EXPECTED"; }
 }
 
-# Stages 4 and 5: a consumer project on the class path, the module path and in a jlink image.
+MAIN=org.tinygears.uom.examples.Examples
+
+# Stage 4: a consumer project on the class path and on the module path; sets CONSUMER_PATH for stage 5.
 consumer() { # <repo>
-  local repo=$1 v c=$tmp/consumer deps cp jar main=org.tinygears.uom.examples.Examples got
+  local repo=$1 v c=$tmp/consumer cp got
   v=$(version_of "$repo")
   rm -rf "$c" && cp -r "$ROOT/scripts/consumer" "$c"
   mkdir -p "$c/src/main/java/org/tinygears/uom/examples"
@@ -170,26 +183,33 @@ consumer() { # <repo>
   for a in uom uom-core; do
     [[ ":$cp:" == *":$repo/org/tinygears/$a/$v/$a-$v.jar:"* ]] || fail "consumer: $a not resolved from $repo"
   done
-  jar=$c/target/uom-consumer-1.jar
   mkdir -p "$c/cp"
   javac --release 21 -encoding UTF-8 -cp "$cp" -d "$c/cp" "$c/src/main/java/org/tinygears/uom/examples/Examples.java" \
     || fail "consumer: javac on the class path failed"
-  run_examples "class path" java -cp "$c/cp:$cp" "$main"
-  run_examples "module path" java -p "$jar:$cp" -m "org.tinygears.uom.consumer/$main"
+  run_examples "class path" java -cp "$c/cp:$cp" "$MAIN"
+  CONSUMER_PATH=$c/target/uom-consumer-1.jar:$cp
+  run_examples "module path" java -p "$CONSUMER_PATH" -m "org.tinygears.uom.consumer/$MAIN"
+}
+
+# Stage 5: a jlink image with org.tinygears.uom and the consumer.
+jlink_image() {
+  local img=$tmp/image got
+  rm -rf "$img"
   # jdk.localedata: Examples.locales formats for Locale.GERMANY, which the root locale data lacks
-  if ! jlink -p "$jar:$cp" --add-modules org.tinygears.uom,org.tinygears.uom.consumer,jdk.localedata --output "$c/image" \
+  if ! jlink -p "$CONSUMER_PATH" --add-modules org.tinygears.uom,org.tinygears.uom.consumer,jdk.localedata --output "$img" \
        > "$tmp/jlink.log" 2>&1; then
     # a JDK without jmods cannot link if its runtime is not linkable or was modified (distribution packages)
     if grep -q -e 'Module java.base not found' -e 'has been modified' "$tmp/jlink.log"; then
+      [[ -z $REQUIRE_JLINK ]] || fail "jlink: this JDK cannot link and --require-jlink is set: $(head -1 "$tmp/jlink.log")"
       JLINK="SKIPPED (this JDK cannot link: $(head -1 "$tmp/jlink.log"))"; return
     fi
     cat "$tmp/jlink.log" >&2; fail "jlink failed"
   fi
-  got=$("$c/image/bin/java" --list-modules | sed 's/@.*//' | sort)
+  got=$("$img/bin/java" --list-modules | sed 's/@.*//' | sort)
   [[ $got == "$(printf '%s\n' java.base java.measure jdk.localedata org.tinygears.uom org.tinygears.uom.consumer \
       org.tinygears.uom.core)" ]] \
     || fail "jlink image modules are [$(echo $got)]"
-  run_examples "jlink image" "$c/image/bin/java" -m "org.tinygears.uom.consumer/$main"
+  run_examples "jlink image" "$img/bin/java" -m "org.tinygears.uom.consumer/$MAIN"
   JLINK=ok
 }
 
@@ -217,11 +237,13 @@ self_test() {
     "snapshot-dependency|check|sub(j('uom-core') + '.pom', '<dependencies>', '<dependencies><dependency><groupId>com.example</groupId><artifactId>x</artifactId><version>1.0-SNAPSHOT</version></dependency>')|uom-core: default: SNAPSHOT dependency com.example:x:1.0-SNAPSHOT"
     "not-reproducible|compare|replace(j('uom-core') + '-sources.jar', 'META-INF/LICENSE', b'x')|not reproducible: uom-core-$v-sources.jar differ"
     "consumer-output|consumer|expected()|consumer (class path): output differs"
+    "module-descriptor|check|swap(j('uom') + '.jar', 'module-info.class', j('uom-core') + '.jar')|uom-$v.jar: jar --describe-module gives [org.tinygears.uom.core@$v"
+    "resolved-from-tail|consumer|to_tail('uom')|consumer: uom not resolved from"
   )
   local c mode
   for c in "${cases[@]}"; do
     IFS='|' read -r name mode mutation expect <<< "$c"
-    rm -rf "$tmp/copy" "$tmp/expected" && cp -r "$base" "$tmp/copy" && cp "$EXPECTED" "$tmp/expected"
+    rm -rf "$tmp/copy" "$tmp/expected" "$tmp/tail" && cp -r "$base" "$tmp/copy" && cp "$EXPECTED" "$tmp/expected"
     if [[ -n $mutation ]]; then
       python3 - "$tmp/copy" "$v" "$tmp/expected" <<EOF
 import os, sys, zipfile, pathlib
@@ -240,6 +262,12 @@ def add(f, name): rewrite(f, lambda es: es + [(zipfile.ZipInfo(name), b'x')])
 def replace(f, name, data): rewrite(f, lambda es: [(i, data if i.filename == name else d) for i, d in es])
 def manifest(f, old, new):
     rewrite(f + '.jar', lambda es: [(i, d.replace(old.encode(), new.encode()) if i.filename == 'META-INF/MANIFEST.MF' else d) for i, d in es])
+def swap(f, name, other):
+    with zipfile.ZipFile(root / other) as z: data = z.read(name)
+    replace(f, name, data)
+def to_tail(a):
+    d = root.parent / 'tail' / 'org/tinygears'; d.mkdir(parents=True)
+    (root / 'org/tinygears' / a).rename(d / a)
 def rm(f): (root / f).unlink()
 def touch(f): (root / f).write_bytes(b'x')
 def mkdir(d): (root / d / v).mkdir(parents=True)
@@ -255,7 +283,9 @@ EOF
     case $mode in
       check) out=$(bash "$SCRIPT" --check "$tmp/copy" 2>&1) ;;
       compare) out=$(bash "$SCRIPT" --compare "$base" "$tmp/copy" 2>&1) ;;
-      consumer) out=$(VERIFY_EXPECTED=$tmp/expected bash "$SCRIPT" --consumer "$tmp/copy" 2>&1) ;;
+      # the tail holds what to_tail moved out of the copy, then the usual tail
+      consumer) out=$(VERIFY_EXPECTED=$tmp/expected VERIFY_REPO_TAIL=$tmp/tail${TAIL:+,$TAIL} \
+                      bash "$SCRIPT" ${REQUIRE_JLINK:+--require-jlink} --consumer "$tmp/copy" 2>&1) ;;
     esac
     status=$?
     set -e
@@ -271,13 +301,11 @@ EOF
 }
 
 JLINK=
-case ${1:-} in
-  --self-test) self_test; exit 0 ;;
-  --check) check "$2"; say "check: OK"; exit 0 ;;
-  --compare) compare "$2" "$3"; say "compare: OK"; exit 0 ;;
-  --consumer) consumer "$2"; say "consumer: OK (jlink: $JLINK)"; exit 0 ;;
-  '') ;;
-  *) fail "unknown argument '$1' (usage: verify-release.sh [--jdk <JDK home>] [--self-test])" ;;
+case $MODE in
+  self-test) self_test; exit 0 ;;
+  check) check "${ARGS[0]}"; say "check: OK"; exit 0 ;;
+  compare) compare "${ARGS[@]}"; say "compare: OK"; exit 0 ;;
+  consumer) consumer "${ARGS[0]}"; jlink_image; say "consumer: OK (jlink: $JLINK)"; exit 0 ;;
 esac
 
 say "JDK $JDK ($(command -v java)), Maven repository tail ${TAIL:-none}"
@@ -289,11 +317,13 @@ say "[3/5] reproducibility: second build from another directory, byte comparison
 build 2
 compare "$tmp/repo-1" "$tmp/repo-2"
 say "[4/5] consumer on the class path and on the module path"
-say "[5/5] jlink image with org.tinygears.uom"
 consumer "$tmp/repo-1"
+say "[5/5] jlink image with org.tinygears.uom"
+jlink_image
 [[ $JLINK == ok ]] || say "[5/5] $JLINK"
 if [[ $JDK != 21 ]]; then
   say "NOTE: built with JDK $JDK; releases are built with JDK 21 (docs/RELEASING.md). The JDK 21 run was NOT done;"
-  say "      rerun with: bash scripts/verify-release.sh --jdk <JDK 21 home>"
+  say "      rerun with: bash scripts/verify-release.sh --jdk <JDK 21 home> --require-jlink"
 fi
-say "OK (nothing was signed, deployed or uploaded)"
+if [[ $JLINK == ok ]]; then say "OK (nothing was signed, deployed or uploaded)"
+else say "OK (jlink skipped); nothing was signed, deployed or uploaded"; fi

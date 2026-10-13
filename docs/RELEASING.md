@@ -78,12 +78,14 @@ Example for version `1.0.0`; the next development version is `1.0.1-SNAPSHOT`.
    mvn -q -B clean verify
    bash scripts/check-pom.sh
    bash scripts/check-javadoc.sh
-   bash scripts/verify-release.sh
+   bash scripts/verify-release.sh --require-jlink
    ```
 
    All must pass. `verify-release.sh` builds the release artifacts into a temporary repository, checks their
    contents, reproducibility, a `jlink` image and a consumer project, and uploads nothing
-   ([scripts/README.md](../scripts/README.md)). With another JDK on the `PATH`, pass `--jdk <JDK 21 home>`.
+   ([scripts/README.md](../scripts/README.md)). `--require-jlink` makes a JDK that cannot link (no `jmods`, as in
+   some distribution packages) fail the check instead of skipping the `jlink` stage. With another JDK on the `PATH`,
+   pass `--jdk <JDK 21 home>`.
 3. **Commit** the version change: `git commit -m "build: release 1.0.0"` (do not tag yet).
 4. **Check the credentials**: `~/.m2/settings.xml` has the `central` server, and `gpg --list-secret-keys` shows the
    key.
