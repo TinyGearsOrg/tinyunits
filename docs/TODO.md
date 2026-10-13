@@ -1,6 +1,6 @@
 # TODO
 
-Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
+Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), gaps against the JSR-385 reference implementation Indriya (9 to 14), the base units of a system (15), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
 
 ## 1. Offset-unit arithmetic (decision D5)
 
@@ -114,6 +114,82 @@ prefix directive and run-time resolution, and a decision whether information uni
 symbol; the formatted output then changes from `m/s^2`.
 
 **Needed by:** nothing.
+
+## 9. Java baseline
+
+**Status:** undecided. The baseline is Java 21 (REQUIREMENTS section 3); Indriya targets Java 8, and Java 11 for JPMS. Much of the
+JSR-385 audience is on older JDKs, so this limits adoption more than any feature.
+
+**Options:** keep 21, or lower to 17 or 11 (check which language features the core and the generated code use), or a
+multi-release build.
+
+**Needed by:** decide before 1.0.
+
+## 10. Behaviour comparison with Indriya
+
+**Status:** not started. Run the same probes against Indriya and record the differences: offset-unit arithmetic (item 1),
+`asType` with alternate units such as `1/s` to `Frequency` (item 2), offset-unit products (item 3), quantity and unit
+equality, `isEquivalentTo` tolerance, unit parsing and formatting of the same symbols. Users will compare against the
+reference implementation first.
+
+**Needed by:** input to items 1 to 3; do before deciding them.
+
+## 11. Precision promotion rule
+
+**Status:** undecided, revisit. F23 says the lower precision wins, so `double` mixed with `BigDecimal` gives `double`. This is
+defensible but the opposite of promoting upward, and Indriya's number handling differs. Decide whether to keep it, document
+the rationale prominently, or offer a strict no-mixing mode (not provided today).
+
+**Needed by:** decide before 1.0.
+
+## 12. Coexistence with other JSR-385 providers
+
+**Status:** open risk. `UomUnit.asType` uses `ServiceProvider.current()`; a provider of higher priority on the class path
+(Indriya, for example) breaks it (item 2, related risk). Decide whether `asType` and the formats should avoid the global
+lookup, and test a class path that holds both implementations.
+
+**Needed by:** decide before 1.0.
+
+## 13. Scope gaps against Indriya
+
+**Status:** known, deferred or unchecked. Items marked "unchecked" were read from Indriya's README only.
+- User-defined quantity types: out of scope for 1.0 (REQUIREMENTS F14); Indriya supports them.
+- Typed quantity products and quotients (`Length` / `Time` returning `Speed`): out of scope; `multiply` and `divide` return
+  untyped results and need `asType` or `from` (item 6).
+- Closed set of 33 generated quantity types.
+- Unit sets and formats beyond the seven catalogs and the standard format (for example UCUM, and unit sets of the separate
+  unitsofmeasurement projects): unchecked.
+- Byte and bit units and binary prefixes: item 7.
+
+**Needed by:** decide which gaps matter for 1.0 and say so in the README.
+
+## 14. Positioning and community
+
+**Status:** open. Position uom as a typed, multi-system JSR-385 implementation, not as the reference implementation. The
+reference status is the expert group's, so engage the unitsofmeasurement maintainers early and share the TCK result as the
+first second implementation. Re-run the TCK in CI and publish the result rather than relying on the README claim.
+
+**Needed by:** before the first release announcement.
+
+## 15. Base units of a system (CGS and others)
+
+**Status:** undecided. Every system is built on the seven SI base units: `cgs.units` is `@include si.units` with `cm g s` as
+members, and its definitions are exact factors to SI units (F7). `getSystemUnit()` and `Dimension` are SI-based, so `cm` and
+`0.01 m` are the same unit, and untyped results of `multiply`/`divide` come back in SI system units. A system only adds
+its catalogue and its preferred units (`@preferred Length cm`). A user may expect CGS to have `cm`, `g`, `s` as base units.
+
+**Limit:** for ESU, EMU and Gaussian, values convert correctly but formulas do not (in Gaussian, charge has dimension
+`g^1/2 cm^3/2 s^-1`); the documentation must say so (REQUIREMENTS section 7) and does not yet, prominently.
+
+**Options:**
+- **A. Document the current model** in the README: systems are catalogues plus a preferred-unit mapping over the SI
+  dimension model.
+- **B. Per-system base-unit view.** Each system names its base units (CGS: `cm`, `g`, `s`), used to decompose and format
+  units and untyped results in that system (`cm/s` instead of `m/s`). Presentation only; `getSystemUnit()` stays SI-based.
+- **C. Distinct dimension systems** for ESU, EMU and Gaussian (option B of the design notes, out of scope for 1.0). The
+  only option that makes the electromagnetic CGS formulas correct; touches the core, `asType` and equality.
+
+**Needed by:** A before 1.0; decide B and C before 1.0 or record them as out of scope.
 
 ## Release readiness
 
