@@ -3,7 +3,11 @@
 package org.tinygears.uom.examples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -33,5 +37,14 @@ class ExamplesTest {
                 Map.entry("offsetUnits", "K + 5 | parses back equal: true | 2·K + 136.575"),
                 Map.entry("decimalParse", "1.50 km | scale 2 | true"),
                 Map.entry("userUnits", "Medieval | 2.0 league = 9.656064 km = 48.0 furlong")), Examples.all());
+    }
+
+    @Test
+    void securityDocumentShowsTheExamplesFilter() throws IOException {
+        // the plain block and the java literal (joined over its " + " line break) of SECURITY.md
+        String text = Files.readString(Path.of("../SECURITY.md"));
+        assertTrue(text.lines().anyMatch(Examples.SERIAL_FILTER::equals), "plain filter block");
+        assertTrue(text.replaceAll("\"\\s*\\+\\s*\"", "").contains("\"" + Examples.SERIAL_FILTER + "\""),
+                "java filter literal");
     }
 }

@@ -201,7 +201,7 @@ B:byte 8 bit
 
 ### Base units: `!`
 
-`symbol !L` marks the base unit of a dimension (`L M T I Θ N J`) in the generator's `si.units`. The seven base units
+`symbol !L` marks the base unit of a dimension (`L M T I Θ N J`, and `K` for `Θ`) in the generator's `si.units`. The seven base units
 are built in, so a user file cannot define one: the symbol is taken.
 
 ```units-error
@@ -279,8 +279,15 @@ step 0.75 m
 
 Sets the unit `quantity.to(system)` converts to for one of the 33 standard quantity types (simple name, such as
 `Length` or `MagneticFlux`). The unit must be defined in the user files before this line, be a unit of the system and
-have the type's dimension; one line per type. A type without a line takes the first parent's preferred unit, else
+have the type's system unit, not only its dimension: an alternate unit of another atom is refused. One line per type. A type without a line takes the first parent's preferred unit, else
 `SI`'s.
+
+```units-error
+@system Pulses
+flash:flash_rate ~ 1/s     # dimension 1/s, but its own atom: not the hertz
+@preferred Frequency flash
+# error: example.units:3: unit 'flash' is not a unit of Frequency
+```
 
 ### `@prefixed symbol prefix...`
 
@@ -291,17 +298,20 @@ U+00B5).
 
 ## Errors
 
-Every error names the file and line. The messages, by cause:
+Every error names the file and line. The common messages, by cause:
 
 | Cause | Message text after `file:line: ` |
 |---|---|
 | a symbol defined twice | `duplicate symbol 'x'` |
+| a symbol the built-in catalogs resolve, after `!` | `symbol 'kg' is already defined` (a new symbol: `base unit symbol must be 'm'`) |
+| a bad letter after `!` | `unknown base dimension 'Q'` |
 | a symbol the built-in catalogs resolve | `symbol 'x' is already defined` |
 | a malformed symbol, or `pi` | `invalid symbol 'x'`, `symbol 'pi' is reserved` |
 | an unknown symbol in a formula or directive | `unknown unit 'x'` |
 | a glued minus before an integer | `ambiguous 's-1': write 's^-1' for a negative exponent or 's - 1' for a shift` |
 | a shift inside parentheses | `shift is only allowed at the end of a formula` |
 | a non-integer exponent | `exponent must be an integer` |
+| limits | `formula too long`, `formula nested too deeply`, `number out of range` |
 | an `f(x)` that is not affine | `function is not affine` |
 | a scaled formula after `~` | `alternate unit must be an unscaled unit` |
 | a bad `[Type]` spelling | `malformed quantity type 'x'` |
@@ -312,6 +322,8 @@ Every error names the file and line. The messages, by cause:
 | an unknown or mismatched `@preferred` | `unknown quantity type 'X'`, `unit 'x' is not a unit of Speed` |
 | a second `@preferred` for a type | `duplicate preferred unit for 'Length'` |
 | a prefix that is not a metric prefix symbol | `unknown metric prefix 'x'` |
+| `@member` of a unit of the same file, or twice | `unit 'x' is defined in this file`, `duplicate member 'x'` |
+| the same file extended twice | `duplicate '@extends' of 'x.units'` |
 | an offset unit in `@prefixed` | `unit 'x' can not be prefixed` |
 
 ```units-error
@@ -368,8 +380,9 @@ not the micro sign U+00B5 of the metric prefix, and the ohm sign U+2126 is not t
 - **Path containment.** `load(Path)` refuses absolute names and names that leave the root file's directory, also
   through symbolic links (`cannot include '../common.units'`). The check and the read are two steps: a link swapped
   between them is not detected, so do not load from directories that others can write to.
-- **Reader names.** `load(name, reader, resolver)` uses `name` verbatim as the default system name (`shop.units`);
-  only `load(Path)` strips the extension. Use `@system` for a stable name.
+- **Reader names.** For the root file, `load(name, reader, resolver)` uses `name` verbatim as the default system name
+  (`shop.units`) and `load(Path)` strips the extension; a parent named by `@extends` without `@system` loses its
+  extension in both. Use `@system` for a stable name.
 - **Only user units in directives.** `@preferred`, `@member` and `@prefixed` name units of the user files; a built-in
   symbol such as `mi` is `unknown unit 'mi'` there (define an alias, `mile 1 mi`, if needed).
 - **Aliases.** A unit equal to another unit of the system (`marker 1 league`) is listed once by `getUnits()`, under

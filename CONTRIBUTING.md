@@ -54,7 +54,7 @@ bash scripts/verify-release.sh
   scripts carry `# SPDX-License-Identifier: Apache-2.0` after the shebang. Contributions are licensed under the
   [Apache License 2.0](LICENSE).
 - Code comments are short (one to three lines) and state what the code cannot: a constraint or a reason.
-- Commit subjects use a conventional prefix: `feat:`, `fix:`, `test:`, `docs:`, `build:`, `ci:`, `refactor:`. The body
+- Commit subjects use a conventional prefix: `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `style:`, `build:`, `ci:`. The body
   says what changed and why. No emojis.
 - Documentation is concise and technical; every statement must match the code and the commands.
 - Releases are made by the maintainer only, following [docs/RELEASING.md](docs/RELEASING.md).

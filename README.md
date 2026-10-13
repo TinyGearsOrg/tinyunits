@@ -36,7 +36,8 @@ Java 21 or later. Not published yet; after `mvn -q -B install -DskipTests` in th
 </dependency>
 ```
 
-The only runtime dependency is `javax.measure:unit-api` 2.2. On the module path, `requires org.tinygears.uom;`
+`uom` depends on `uom-core` and the JSR-385 API; the only third-party runtime dependency is
+`javax.measure:unit-api` 2.2. On the module path, `requires org.tinygears.uom;`
 (module `org.tinygears.uom` requires `org.tinygears.uom.core` and `java.measure` transitively).
 
 ## Documentation

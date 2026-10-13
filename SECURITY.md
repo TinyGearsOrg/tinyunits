@@ -10,7 +10,7 @@ the latest minor release of the current major version does.
 Do not open a public issue. Report it privately through GitHub's private vulnerability reporting of
 [TinyGearsOrg/tinyunits](https://github.com/TinyGearsOrg/tinyunits/security/advisories/new), or by email to the
 maintainer, Thomas Neidhart (thomas.neidhart@gmail.com). Include the version, a minimal reproduction and the impact you
-see. You get an answer within two weeks; a fix is released before the details are published.
+see. Reports are answered on a best-effort basis; a fix is released before the details are published.
 
 ## Java serialization
 

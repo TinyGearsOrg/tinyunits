@@ -101,8 +101,10 @@ class DocsSnippetsTest {
                             b.toString());
                 }));
                 case "java" -> tests.add(DynamicTest.dynamicTest(b.toString(), () -> java(b)));
-                default -> {
+                // not run; any other tag is a typo that would drop a block from this test
+                case "", "xml", "text", "bash" -> {
                 }
+                default -> throw new AssertionError(b + ": unknown fence tag '" + b.tag() + "'");
             }
         }
         return tests.stream();

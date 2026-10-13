@@ -66,7 +66,7 @@ Example for version `1.0.0`; the next development version is `1.0.1-SNAPSHOT`.
 1. **Set the version** in all six POMs:
 
    ```
-   mvn -B versions:set -DnewVersion=1.0.0 -DgenerateBackupPoms=false
+   mvn -B org.codehaus.mojo:versions-maven-plugin:2.23.0:set -DnewVersion=1.0.0 -DgenerateBackupPoms=false
    ```
 
    Change the version of the dependency snippet in `README.md` by hand. In `pom.xml`, set
@@ -108,7 +108,7 @@ Example for version `1.0.0`; the next development version is `1.0.1-SNAPSHOT`.
 8. **Next snapshot:**
 
    ```
-   mvn -B versions:set -DnewVersion=1.0.1-SNAPSHOT -DgenerateBackupPoms=false
+   mvn -B org.codehaus.mojo:versions-maven-plugin:2.23.0:set -DnewVersion=1.0.1-SNAPSHOT -DgenerateBackupPoms=false
    ```
 
    Add a new empty `Unreleased` section to `CHANGELOG.md`, commit `build: prepare 1.0.1-SNAPSHOT` and push.
