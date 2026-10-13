@@ -137,8 +137,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * The same quantity with context {@code mc}; unlike {@link #toDecimal(MathContext)} the value is kept exactly,
-     * digits beyond the precision of {@code mc} included. Throws {@link ArithmeticException} if the precision of
-     * {@code mc} exceeds 100000.
+     * digits beyond the precision of {@code mc} included; used by the quantity format's decimal parse. Throws
+     * {@link ArithmeticException} if the precision of {@code mc} exceeds 100000.
      */
     public R withMathContext(MathContext mc) {
         return create(value, unit, scale, mc);

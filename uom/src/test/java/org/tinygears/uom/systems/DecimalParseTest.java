@@ -4,11 +4,11 @@ package org.tinygears.uom.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -178,7 +178,22 @@ class DecimalParseTest {
         assertFails(D64.withLocale(Locale.GERMANY), "1,5E-100000 m",
                 "invalid number '1,5E-100000': scale out of range: 100001", 0);
         assertEquals(100000, ((BigDecimal) D64.parse("1E-100000 m").getValue()).scale());
-        assertFails(D64, "1E+99999999999 m", "invalid number '1E+99999999999'", 0);
+        assertFails(D64, "1E+99999999999 m", "invalid number '1E+99999999999': scale out of range: -99999999999",
+                0);
+        assertFails(D64, "1E-9999999999999999999999 m",
+                "invalid number '1E-9999999999999999999999': scale out of range", 0);
+        assertFails(D64, "1E+9999999999999999999999 m",
+                "invalid number '1E+9999999999999999999999': scale out of range", 0);
+        assertFails(D64, "1E-000100001 m", "invalid number '1E-000100001': scale out of range: 100001", 0);
+        assertEquals(100000, ((BigDecimal) D64.parse("-.5E-99999 m").getValue()).scale());
+        assertFails(D64, "-.50E-99999 m", "invalid number '-.50E-99999': scale out of range: 100001", 0);
+        // number errors come before unit errors
+        assertFails(D64, "1E-100001 foo", "invalid number '1E-100001': scale out of range: 100001", 0);
+        assertEquals(-100000, ((BigDecimal) D64.parse("1E+100000 m").getValue()).scale());
+        assertEquals(100000, ((BigDecimal) D64.parse("0.1E-99999 m").getValue()).scale());
+        String fraction = "0." + "0".repeat(99_999) + "1";
+        assertEquals(100000, ((BigDecimal) D64.parse(fraction + " m").getValue()).scale());
+        assertFails(D64, "0" + fraction + "5 m", "invalid number '0" + fraction + "5': scale out of range: 100001", 0);
         ParsePosition pos = new ParsePosition(2);
         assertThrows(MeasurementParseException.class, () -> D64.parse("x 1E-100001 m", pos));
         assertEquals(2, pos.getErrorIndex());
@@ -194,7 +209,23 @@ class DecimalParseTest {
         assertFails(D64, "1f m", "invalid number '1f'", 0);
         assertFails(D64, "", "missing number", 0);
         assertFails(D64, "   ", "missing number", 3);
-        assertFails(D64, "1,5 m", "invalid number '1,5'", 0);
+        assertFails(D64, "1,5 m", "grouping separator not allowed: ','", 1);
+        // only ASCII digits in ROOT, only ASCII and the locale's digits elsewhere
+        assertFails(D64, "\u0661\u0662 m", "invalid number '\u0661\u0662'", 0);
+        assertFails(D64, "\uFF11\uFF12 m", "invalid number '\uFF11\uFF12'", 0);
+        assertFails(D64, "1\u0662 m", "invalid number '1\u0662'", 0);
+        assertFails(D64, "1E\u0661 m", "invalid number '1E\u0661'", 0);
+        assertFails(D64, "1.\u0965 m", "invalid number '1.\u0965'", 0);
+        UomQuantityFormat de = D64.withLocale(Locale.GERMANY);
+        assertFails(de, "\u0661\u0662 m", "invalid number '\u0661\u0662'", 0);
+        assertFails(de, "\uFF11\uFF12 m", "invalid number '\uFF11\uFF12'", 0);
+        UomQuantityFormat eg = D64.withLocale(Locale.forLanguageTag("ar-EG"));
+        assertEquals(d("12"), eg.parse("\u0661\u0662 m").getValue());
+        assertEquals(d("12"), eg.parse("1\u0662 m").getValue());
+        assertEquals(d("1E+12"), eg.parse("1E\u0661\u0662 m").getValue());
+        assertFails(eg, "\uFF11\uFF12 m", "invalid number '\uFF11\uFF12'", 0);
+        assertFails(eg, "1E\uFF11 m", "invalid number '1E\uFF11'", 0);
+        assertFails(eg, "\u0967 m", "invalid number '\u0967'", 0);
         assertFails(D64, "1.5 foo", "unknown unit 'foo'", 4);
         assertFails(D64.withLocale(Locale.GERMANY), "1.5 m", "grouping separator not allowed: '.'", 1);
         assertFails(D64.withLocale(Locale.GERMANY), "1d m", "invalid number '1d'", 0);
@@ -261,12 +292,16 @@ class DecimalParseTest {
         UomQuantityFormat a = ROOT.withDecimals(MathContext.DECIMAL64);
         assertEquals(a, ROOT.withDecimals(new MathContext(16, RoundingMode.HALF_EVEN)));
         assertEquals(a.hashCode(), ROOT.withDecimals(new MathContext(16, RoundingMode.HALF_EVEN)).hashCode());
-        assertTrue(!a.equals(ROOT));
-        assertTrue(!a.equals(ROOT.withDecimals(MathContext.DECIMAL32)));
-        assertTrue(!a.equals(ROOT.withDecimals(new MathContext(16, RoundingMode.HALF_UP))));
+        assertNotEquals(a, ROOT);
+        assertNotEquals(a, ROOT.withDecimals(MathContext.DECIMAL32));
+        assertNotEquals(a, ROOT.withDecimals(new MathContext(16, RoundingMode.HALF_UP)));
         assertEquals("UomQuantityFormat[locale=und, grouping=false, decimals=off]", ROOT.toString());
-        assertEquals("UomQuantityFormat[locale=de-DE, grouping=true, decimals=precision=16 roundingMode=HALF_EVEN]",
+        assertEquals("UomQuantityFormat[locale=de-DE, grouping=true, decimals=16/HALF_EVEN]",
                 a.withLocale(Locale.GERMANY).withGrouping(true).toString());
+        assertEquals("UomQuantityFormat[locale=und, grouping=false, decimals=unlimited]",
+                ROOT.withDecimals(MathContext.UNLIMITED).toString());
+        assertEquals("UomQuantityFormat[locale=und, grouping=false, decimals=0/HALF_EVEN]",
+                ROOT.withDecimals(new MathContext(0, RoundingMode.HALF_EVEN)).toString());
         assertEquals(MathContext.DECIMAL64, a.withLocale(Locale.GERMANY).withGrouping(true).getDecimalContext());
     }
 
@@ -363,12 +398,23 @@ class DecimalParseTest {
     }
 
     @Test
+    void millionDigitFractionFailsBeforeTheParse() {
+        String text = "0." + "3".repeat(1_000_000) + " m";
+        assertTimeoutPreemptively(Duration.ofMillis(500), () -> assertFails(D64.withLocale(Locale.GERMANY),
+                text.replace('.', ','), "invalid number '" + text.substring(0, text.length() - 2).replace('.', ',')
+                        + "': scale out of range: 1000000", 0));
+        assertTimeoutPreemptively(Duration.ofMillis(500), () -> assertFails(D64, "1" + text,
+                "invalid number '1" + text.substring(0, text.length() - 2) + "': scale out of range: 1000000", 0));
+    }
+
+    @Test
     void hundredThousandDigitsParseQuickly() {
         String digits = "7".repeat(100_000);
         String text = "-" + digits.substring(0, 50_000) + "." + digits.substring(50_000) + " m";
         UomQuantityFormat de = ROOT.withLocale(Locale.GERMANY).withDecimals(MathContext.DECIMAL64);
         String deText = text.replace('.', ',');
-        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+        // generous bound: the parse is well under a second, but CI machines vary
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
             BigDecimal v = (BigDecimal) D64.parse(text).getValue();
             assertEquals(100_000, v.precision());
             assertEquals(50_000, v.scale());

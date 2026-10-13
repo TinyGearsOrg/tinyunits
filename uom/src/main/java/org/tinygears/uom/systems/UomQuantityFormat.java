@@ -55,6 +55,8 @@ import org.tinygears.uom.quantity.QuantityTypes;
  */
 public final class UomQuantityFormat implements QuantityFormat {
     private static final DecimalFormatSymbols ROOT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ROOT);
+    /** The value-scale bound of the decimal quantities, checked before parsing so huge texts fail fast. */
+    private static final int MAX_SCALE = 100_000;
 
     private final UomUnitFormat unitFormat;
     private final Locale locale;
@@ -104,12 +106,13 @@ public final class UomQuantityFormat implements QuantityFormat {
 
     /**
      * This format parsing to decimal quantities with context {@code mc}; formatting is unchanged. The number text,
-     * read with the same locale and grouping rules, becomes {@code new BigDecimal(text)} with every digit and its
-     * scale kept, never rounded to {@code mc} ({@code 1.50 km} has scale 2). The quantity has scale
-     * {@code ABSOLUTE} and the standard type of its unit, else it is an {@link UntypedDecimalQuantity}. NaN,
-     * infinity, the forms only {@link Double#parseDouble} accepts (hexadecimal, a {@code d} or {@code f} suffix) and
-     * a value scale beyond ±100000 are {@link MeasurementParseException}s. Throws {@link ArithmeticException}, as
-     * the quantities do, if the precision of {@code mc} exceeds 100000.
+     * read with the same locale and grouping rules (in ROOT too, so only ASCII digits there), becomes
+     * {@code new BigDecimal(text)} with every digit and its scale kept, never rounded to {@code mc} ({@code 1.50 km}
+     * has scale 2). The quantity has scale {@code ABSOLUTE} and the standard type of its unit, else it is an
+     * {@link UntypedDecimalQuantity}. NaN, infinity, the forms only {@link Double#parseDouble} accepts (hexadecimal,
+     * a {@code d} or {@code f} suffix) and a value scale beyond ±100000 are {@link MeasurementParseException}s,
+     * reported before any unit error. Throws {@link ArithmeticException}, as the quantities do, if the precision of
+     * {@code mc} exceeds 100000.
      */
     public UomQuantityFormat withDecimals(MathContext mc) {
         // the quantities' own precision check
@@ -160,7 +163,8 @@ public final class UomQuantityFormat implements QuantityFormat {
     @Override
     public String toString() {
         return "UomQuantityFormat[locale=" + locale.toLanguageTag() + ", grouping=" + grouping + ", decimals="
-                + (decimals == null ? "off" : decimals) + "]";
+                + (decimals == null ? "off" : decimals.equals(MathContext.UNLIMITED) ? "unlimited"
+                        : decimals.getPrecision() + "/" + decimals.getRoundingMode()) + "]";
     }
 
     private void check() {
@@ -267,13 +271,21 @@ public final class UomQuantityFormat implements QuantityFormat {
         double value = 0;
         BigDecimal decimal = null;
         try {
-            String text = isLocaleSensitive() || grouping ? normalize(csq, from, to) : token;
+            // plain ROOT doubles keep Double.parseDouble's grammar; decimals accept ASCII or the locale's digits only
+            String text = isLocaleSensitive() || grouping || decimals != null ? normalize(csq, from, to) : token;
             if (decimals == null) {
                 value = Double.parseDouble(text);
-            } else if (text.matches("[+-]?(NaN|Infinity)")) {
-                throw new MeasurementParseException(
-                        "decimal quantities have no NaN or infinity: '" + token + "'", csq, from);
             } else {
+                String unsigned = text.startsWith("+") || text.startsWith("-") ? text.substring(1) : text;
+                if (unsigned.equals("NaN") || unsigned.equals("Infinity")) {
+                    throw new MeasurementParseException(
+                            "decimal quantities have no NaN or infinity: '" + token + "'", csq, from);
+                }
+                long scale = scaleOf(text);
+                if (scale > MAX_SCALE || scale < -MAX_SCALE) {
+                    throw new MeasurementParseException("invalid number '" + token + "': scale out of range"
+                            + (scale == Long.MAX_VALUE || scale == Long.MIN_VALUE ? "" : ": " + scale), csq, from);
+                }
                 decimal = new BigDecimal(text);
             }
         } catch (NumberFormatException e) {
@@ -289,6 +301,53 @@ public final class UomQuantityFormat implements QuantityFormat {
         } catch (ArithmeticException e) {
             throw new MeasurementParseException("invalid number '" + token + "': " + e.getMessage(), csq, from);
         }
+    }
+
+    /**
+     * The scale {@code new BigDecimal(text)} would have, in linear time, so a huge text fails before the quadratic
+     * parse; 0 if {@code text} is malformed (BigDecimal rejects it) and {@link Long#MAX_VALUE} or
+     * {@link Long#MIN_VALUE} for an exponent of 10^15 or more.
+     */
+    private static long scaleOf(String text) {
+        int i = text.startsWith("+") || text.startsWith("-") ? 1 : 0;
+        int digits = 0;
+        long fraction = 0;
+        boolean point = false;
+        for (; i < text.length() && text.charAt(i) != 'E'; i++) {
+            char c = text.charAt(i);
+            if (c == '.' && !point) {
+                point = true;
+            } else if (c >= '0' && c <= '9') {
+                digits++;
+                fraction += point ? 1 : 0;
+            } else {
+                return 0;
+            }
+        }
+        if (digits == 0) {
+            return 0;
+        }
+        if (i == text.length()) {
+            return fraction;
+        }
+        boolean negative = i + 1 < text.length() && text.charAt(i + 1) == '-';
+        int start = i + 1 < text.length() && (negative || text.charAt(i + 1) == '+') ? i + 2 : i + 1;
+        if (start == text.length()) {
+            return 0;
+        }
+        long e = 0;
+        for (int j = start; j < text.length(); j++) {
+            char c = text.charAt(j);
+            if (c < '0' || c > '9') {
+                return 0;
+            }
+            // saturates: an exponent of 10^15 or more is out of range whatever the fraction
+            e = e >= 1_000_000_000_000_000L ? e : e * 10 + c - '0';
+        }
+        if (e >= 1_000_000_000_000_000L) {
+            return negative ? Long.MAX_VALUE : Long.MIN_VALUE;
+        }
+        return fraction - (negative ? -e : e);
     }
 
     /**
