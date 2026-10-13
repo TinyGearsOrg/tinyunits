@@ -18,6 +18,13 @@ public final class UntypedDoubleQuantity extends AbstractDoubleQuantity<Untyped,
         super(value, unit, scale);
     }
 
+    /**
+     * An {@code ABSOLUTE} quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public static UntypedDoubleQuantity of(double value, UomUnit<?> unit) {
         return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit), Quantity.Scale.ABSOLUTE);
     }

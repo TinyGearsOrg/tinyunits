@@ -18,18 +18,35 @@ import org.tinygears.uom.core.UomUnit;
 public final class AccelerationFactory
         implements QuantityFactory<javax.measure.quantity.Acceleration> {
 
+    /** The system unit of {@link Acceleration}. */
     public static final UomUnit<javax.measure.quantity.Acceleration> SYSTEM_UNIT =
             UomUnit.unchecked(BaseUnits.METRE.divide(BaseUnits.SECOND.pow(2)).named("m/s^2", "metre per second squared"));
 
+    /** The only instance. */
     public static final AccelerationFactory INSTANCE = new AccelerationFactory();
 
     private AccelerationFactory() {
     }
 
+    /**
+     * An absolute double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Acceleration of(double value, Unit<javax.measure.quantity.Acceleration> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
+    /**
+     * A double quantity; a unit of another implementation throws UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Acceleration of(double value, Unit<javax.measure.quantity.Acceleration> unit,
             Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Acceleration> u) {
@@ -38,12 +55,25 @@ public final class AccelerationFactory
         throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Acceleration of(BigDecimal value, Unit<javax.measure.quantity.Acceleration> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Acceleration of(BigDecimal value, Unit<javax.measure.quantity.Acceleration> unit,
             Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
@@ -51,7 +81,13 @@ public final class AccelerationFactory
 
     /**
      * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
-     * 100000 throws ArithmeticException.
+     * 100000 throws ArithmeticException; a unit of another implementation UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the math context
+     * @return the quantity
      */
     public Acceleration of(BigDecimal value, Unit<javax.measure.quantity.Acceleration> unit,
             Quantity.Scale scale, MathContext mc) {

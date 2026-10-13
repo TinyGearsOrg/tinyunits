@@ -45,6 +45,14 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     private final Map<Class<?>, UomUnit<?>> preferred;
     private final Set<String> prefixable;
 
+    /**
+     * A system; a unit without a symbol, a duplicate symbol or a prefixable symbol that is not a unit symbol throws IllegalArgumentException.
+     *
+     * @param name the name
+     * @param units the units, in lookup and listing order
+     * @param preferred the unit of each quantity type
+     * @param prefixable the symbols that take a metric prefix
+     */
     public UomSystemOfUnits(String name, List<UomUnit<?>> units, Map<Class<?>, UomUnit<?>> preferred,
             Set<String> prefixable) {
         this.name = Objects.requireNonNull(name, "name");
@@ -76,6 +84,8 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * resolving symbolic links (the real path of the file must lie in the real path of the directory), else it can
      * not be included. The name is the {@code @system} name, else the file name without its extension.
      *
+     * @param file the root file
+     * @return the system
      * @throws IOException when the file itself can not be read ({@link java.nio.file.NoSuchFileException} if it
      *     does not exist, {@link java.nio.charset.MalformedInputException} if it is not UTF-8); errors in the
      *     content, includes too, are {@link DefinitionException}s
@@ -129,6 +139,10 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * {@code ku} against the built-in symbols, though every metric prefix on {@code u} is readable at run time; an
      * exact built-in symbol wins over such a reading.
      *
+     * @param name the file name in messages and the default system name
+     * @param reader the content of the root file
+     * @param resolver opens included and extended files, or null
+     * @return the system
      * @throws DefinitionException for an error in a file, with its name and line
      * @throws UncheckedIOException when {@code reader} fails, or a reader from {@code resolver} can not be read
      */
@@ -287,10 +301,22 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         return Collections.unmodifiableSet(result);
     }
 
+    /**
+     * The unit with exactly this symbol; no prefixed forms.
+     *
+     * @param symbol the symbol
+     * @return the unit, or empty
+     */
     public Optional<UomUnit<?>> lookup(String symbol) {
         return Optional.ofNullable(bySymbol.get(symbol));
     }
 
+    /**
+     * Whether metric prefixes apply to the unit with this symbol.
+     *
+     * @param unitSymbol the unit symbol
+     * @return true if prefixable
+     */
     public boolean isPrefixable(String unitSymbol) {
         return prefixable.contains(unitSymbol);
     }

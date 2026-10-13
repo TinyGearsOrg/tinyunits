@@ -69,17 +69,20 @@ public final class ESU {
     private ESU() {
     }
 
+    /** The statcoulomb, {@code statC}. */
     public static final UomUnit<ElectricCharge> STATCOULOMB =
             UomUnit.unchecked(BaseUnits.AMPERE
                     .multiply(BaseUnits.SECOND)
                     .transform(Converters.affine(Factor.of(1L, 2997924580L), Factor.ZERO))
                     .named("statC", "statcoulomb"));
 
+    /** The statampere, {@code statA}. */
     public static final UomUnit<ElectricCurrent> STATAMPERE =
             UomUnit.unchecked(BaseUnits.AMPERE
                     .transform(Converters.affine(Factor.of(1L, 2997924580L), Factor.ZERO))
                     .named("statA", "statampere"));
 
+    /** The statvolt, {@code statV}. */
     public static final UomUnit<ElectricPotential> STATVOLT =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .multiply(BaseUnits.METRE.pow(2))
@@ -88,6 +91,7 @@ public final class ESU {
                     .transform(Converters.affine(Factor.of(149896229L, 500000L), Factor.ZERO))
                     .named("statV", "statvolt"));
 
+    /** The statohm, {@code statΩ}. */
     public static final UomUnit<ElectricResistance> STATOHM =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .multiply(BaseUnits.METRE.pow(2))
@@ -96,6 +100,7 @@ public final class ESU {
                     .transform(Converters.affine(Factor.of(22468879468420441L, 25000L), Factor.ZERO))
                     .named("statΩ", "statohm"));
 
+    /** The statfarad, {@code statF}. */
     public static final UomUnit<ElectricCapacitance> STATFARAD =
             UomUnit.unchecked(BaseUnits.AMPERE
                     .pow(2)
@@ -105,6 +110,7 @@ public final class ESU {
                     .transform(Converters.affine(Factor.of(25000L, 22468879468420441L), Factor.ZERO))
                     .named("statF", "statfarad"));
 
+    /** The stathenry, {@code statH}. */
     public static final UomUnit<ElectricInductance> STATHENRY =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .multiply(BaseUnits.METRE.pow(2))
@@ -113,6 +119,7 @@ public final class ESU {
                     .transform(Converters.affine(Factor.of(22468879468420441L, 25000L), Factor.ZERO))
                     .named("statH", "stathenry"));
 
+    /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS =
             List.<UomUnit<?>>of(
                     STATCOULOMB,
@@ -138,6 +145,7 @@ public final class ESU {
                     SI.GRAM,
                     SI.SECOND);
 
+    /** The symbols that take a prefix in this system. */
     public static final Set<String> PREFIXABLE =
             Set.of(
                     "Gal",
@@ -146,6 +154,7 @@ public final class ESU {
                     "g",
                     "s");
 
+    /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED =
             Map.<Class<?>, UomUnit<?>>ofEntries(
                     Map.entry(Acceleration.class, CGS.GALILEO),
@@ -182,6 +191,7 @@ public final class ESU {
                     Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
                     Map.entry(Volume.class, CGS.CUBIC_CENTIMETRE));
 
+    /** This system of units. */
     public static final UomSystemOfUnits SYSTEM =
             new UomSystemOfUnits("ESU", UNITS, PREFERRED, PREFIXABLE);
 }

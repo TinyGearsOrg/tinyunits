@@ -10,6 +10,10 @@ import javax.measure.spi.SystemOfUnitsService;
 /** The systems of {@link UnitSystems#all()}; SI is the default. */
 public final class UomSystemOfUnitsService implements SystemOfUnitsService {
 
+    /** A service over the systems of {@link UnitSystems#all()}. */
+    public UomSystemOfUnitsService() {
+    }
+
     @Override
     public SystemOfUnits getSystemOfUnits() {
         return SI.SYSTEM;

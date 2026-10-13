@@ -46,17 +46,18 @@ public final class CatalogEmitter {
                 }
                 unit = UnitExpressionEmitter.named(unit, d.symbol(), d.name(), imports);
             }
-            out.append("\n    public static final ").append(unitClass).append('<').append(type).append("> ")
+            out.append("\n    /** The ").append(d.name()).append(", {@code ").append(d.symbol())
+                    .append("}. */\n    public static final ").append(unitClass).append('<').append(type).append("> ")
                     .append(e.constantName()).append(" =\n            ").append(unitClass).append(".unchecked(")
                     .append(wrap(unit)).append(");\n");
         }
         String list = imports.name("java.util.List");
-        out.append("\n    public static final ").append(list).append('<').append(unitClass).append("<?>> UNITS =\n")
+        out.append("\n    /** The units of this catalog. */\n    public static final ").append(list).append('<').append(unitClass).append("<?>> UNITS =\n")
                 .append("            ").append(list).append(".<").append(unitClass).append("<?>>of(")
                 .append(args(catalog.units().values().stream().map(r -> local(r, className, imports)).toList()))
                 .append(";\n");
         String set = imports.name("java.util.Set");
-        out.append("\n    public static final ").append(set).append("<String> PREFIXABLE =\n            ").append(set)
+        out.append("\n    /** The symbols that take a prefix in this system. */\n    public static final ").append(set).append("<String> PREFIXABLE =\n            ").append(set)
                 .append(".of(")
                 .append(args(catalog.prefixable().stream().sorted().map(UnitExpressionEmitter::literal).toList()))
                 .append(";\n");
@@ -64,11 +65,11 @@ public final class CatalogEmitter {
         List<String> pairs = new ArrayList<>();
         catalog.preferred().forEach((type, ref) -> pairs.add(map + ".entry("
                 + imports.name("javax.measure.quantity." + type) + ".class, " + local(ref, className, imports) + ")"));
-        out.append("\n    public static final ").append(map).append("<Class<?>, ").append(unitClass)
+        out.append("\n    /** The preferred unit of each quantity type. */\n    public static final ").append(map).append("<Class<?>, ").append(unitClass)
                 .append("<?>> PREFERRED =\n            ").append(map).append(".<Class<?>, ").append(unitClass)
                 .append("<?>>ofEntries(").append(args(pairs)).append(";\n");
         String system = imports.name("org.tinygears.uom.systems.UomSystemOfUnits");
-        out.append("\n    public static final ").append(system).append(" SYSTEM =\n            new ").append(system)
+        out.append("\n    /** This system of units. */\n    public static final ").append(system).append(" SYSTEM =\n            new ").append(system)
                 .append('(').append(UnitExpressionEmitter.literal(className))
                 .append(", UNITS, PREFERRED, PREFIXABLE);\n");
         return """

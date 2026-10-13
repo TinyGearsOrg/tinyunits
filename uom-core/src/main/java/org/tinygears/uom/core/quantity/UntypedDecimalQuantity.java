@@ -21,6 +21,11 @@ public final class UntypedDecimalQuantity extends AbstractDecimalQuantity<Untype
     /**
      * An {@code ABSOLUTE} quantity; throws {@link ArithmeticException} if the value's scale exceeds ±100000 or the
      * precision of {@code mc} exceeds 100000.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param mc the context
+     * @return the quantity
      */
     public static UntypedDecimalQuantity of(BigDecimal value, UomUnit<?> unit, MathContext mc) {
         return new UntypedDecimalQuantity(value, UomUnit.unchecked(unit), Quantity.Scale.ABSOLUTE, mc);

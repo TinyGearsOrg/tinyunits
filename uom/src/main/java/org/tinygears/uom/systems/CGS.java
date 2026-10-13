@@ -75,6 +75,7 @@ public final class CGS {
     private CGS() {
     }
 
+    /** The dyne, {@code dyn}. */
     public static final UomUnit<Force> DYNE =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .multiply(BaseUnits.METRE)
@@ -82,6 +83,7 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 100000L), Factor.ZERO))
                     .named("dyn", "dyne"));
 
+    /** The erg, {@code erg}. */
     public static final UomUnit<Energy> ERG =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .multiply(BaseUnits.METRE.pow(2))
@@ -89,6 +91,7 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 10000000L), Factor.ZERO))
                     .named("erg", "erg"));
 
+    /** The barye, {@code Ba}. */
     public static final UomUnit<Pressure> BARYE =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .divide(BaseUnits.METRE)
@@ -96,24 +99,28 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 10L), Factor.ZERO))
                     .named("Ba", "barye"));
 
+    /** The galileo, {@code Gal}. */
     public static final UomUnit<Acceleration> GALILEO =
             UomUnit.unchecked(BaseUnits.METRE
                     .divide(BaseUnits.SECOND.pow(2))
                     .transform(Converters.affine(Factor.of(1L, 100L), Factor.ZERO))
                     .named("Gal", "galileo"));
 
+    /** The square centimetre, {@code cm²}. */
     public static final UomUnit<Area> SQUARE_CENTIMETRE =
             UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
                     .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO))
                     .named("cm²", "square centimetre"));
 
+    /** The cubic centimetre, {@code cm³}. */
     public static final UomUnit<Volume> CUBIC_CENTIMETRE =
             UomUnit.unchecked(BaseUnits.METRE
                     .pow(3)
                     .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("cm³", "cubic centimetre"));
 
+    /** The poise, {@code P}. */
     public static final UomUnit<?> POISE =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .divide(BaseUnits.METRE)
@@ -121,6 +128,7 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 10L), Factor.ZERO))
                     .named("P", "poise"));
 
+    /** The stokes, {@code St}. */
     public static final UomUnit<?> STOKES =
             UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
@@ -128,6 +136,7 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO))
                     .named("St", "stokes"));
 
+    /** The centipoise, {@code cP}. */
     public static final UomUnit<?> CENTIPOISE =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .divide(BaseUnits.METRE)
@@ -135,6 +144,7 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("cP", "centipoise"));
 
+    /** The millipoise, {@code mP}. */
     public static final UomUnit<?> MILLIPOISE =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .divide(BaseUnits.METRE)
@@ -142,6 +152,7 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO))
                     .named("mP", "millipoise"));
 
+    /** The centistokes, {@code cSt}. */
     public static final UomUnit<?> CENTISTOKES =
             UomUnit.unchecked(BaseUnits.METRE
                     .pow(2)
@@ -149,18 +160,21 @@ public final class CGS {
                     .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("cSt", "centistokes"));
 
+    /** The milligalileo, {@code mGal}. */
     public static final UomUnit<Acceleration> MILLIGALILEO =
             UomUnit.unchecked(BaseUnits.METRE
                     .divide(BaseUnits.SECOND.pow(2))
                     .transform(Converters.affine(Factor.of(1L, 100000L), Factor.ZERO))
                     .named("mGal", "milligalileo"));
 
+    /** The microgalileo, {@code µGal}. */
     public static final UomUnit<Acceleration> MICROGALILEO =
             UomUnit.unchecked(BaseUnits.METRE
                     .divide(BaseUnits.SECOND.pow(2))
                     .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO))
                     .named("µGal", "microgalileo"));
 
+    /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS =
             List.<UomUnit<?>>of(
                     DYNE,
@@ -180,6 +194,7 @@ public final class CGS {
                     SI.GRAM,
                     SI.SECOND);
 
+    /** The symbols that take a prefix in this system. */
     public static final Set<String> PREFIXABLE =
             Set.of(
                     "Gal",
@@ -188,6 +203,7 @@ public final class CGS {
                     "g",
                     "s");
 
+    /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED =
             Map.<Class<?>, UomUnit<?>>ofEntries(
                     Map.entry(Acceleration.class, GALILEO),
@@ -224,6 +240,7 @@ public final class CGS {
                     Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
                     Map.entry(Volume.class, CUBIC_CENTIMETRE));
 
+    /** This system of units. */
     public static final UomSystemOfUnits SYSTEM =
             new UomSystemOfUnits("CGS", UNITS, PREFERRED, PREFIXABLE);
 }

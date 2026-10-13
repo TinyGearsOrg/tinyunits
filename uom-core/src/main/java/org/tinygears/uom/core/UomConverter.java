@@ -9,6 +9,13 @@ import javax.measure.UnitConverter;
 /** An affine converter {@code x -> factor() * x + offset()}. */
 public interface UomConverter extends UnitConverter {
 
+    /**
+     * Converts a decimal value.
+     *
+     * @param value the value
+     * @param mc the rounding; precision 0 is exact where the converter allows, else {@code DECIMAL128}
+     * @return the converted value
+     */
     BigDecimal convert(BigDecimal value, MathContext mc);
 
     @Override
@@ -18,7 +25,17 @@ public interface UomConverter extends UnitConverter {
     @Override
     UomConverter concatenate(UnitConverter other);
 
+    /**
+     * The factor.
+     *
+     * @return the factor
+     */
     Factor factor();
 
+    /**
+     * The offset.
+     *
+     * @return the offset
+     */
     Factor offset();
 }

@@ -38,6 +38,11 @@ public final class UomUnitFormat implements UnitFormat {
     private final Map<String, UomUnit<?>> aliases = new ConcurrentHashMap<>();
     private final Map<UomUnit<?>, String> labels = new ConcurrentHashMap<>();
 
+    /**
+     * A format over {@code systems}, in lookup order.
+     *
+     * @param systems the systems
+     */
     public UomUnitFormat(List<UomSystemOfUnits> systems) {
         this.systems = List.copyOf(systems);
     }
@@ -48,6 +53,8 @@ public final class UomUnitFormat implements UnitFormat {
      * reading of a new prefixable unit that equals an existing exact symbol; the existing symbol wins and
      * formatting still round-trips.
      *
+     * @param systems the systems to add
+     * @return the new format
      * @throws IllegalArgumentException when {@code systems} is empty, or a symbol of a given system resolves in
      *     the systems before it (exactly or as a prefixed form) or as a label to a different unit
      */
@@ -85,7 +92,11 @@ public final class UomUnitFormat implements UnitFormat {
         return result;
     }
 
-    /** A new format over {@link UnitSystems#all()}. */
+    /**
+     * A new format over {@link UnitSystems#all()}.
+     *
+     * @return the format
+     */
     public static UomUnitFormat standard() {
         return new UomUnitFormat(UnitSystems.all());
     }
@@ -230,7 +241,12 @@ public final class UomUnitFormat implements UnitFormat {
         return alias != null ? alias : resolve(symbol).orElse(null);
     }
 
-    /** The unit of an exact symbol of the systems, else of a metric prefix on a prefixable unit; never a label. */
+    /**
+     * The unit of an exact symbol of the systems, else of a metric prefix on a prefixable unit; never a label.
+     *
+     * @param symbol the symbol
+     * @return the unit, or empty
+     */
     public Optional<UomUnit<?>> resolve(String symbol) {
         Found found = resolve(systems, Objects.requireNonNull(symbol, "symbol"));
         return found == null ? Optional.empty() : Optional.of(found.unit());

@@ -31,6 +31,9 @@ import org.tinygears.uom.core.UomUnit;
  * scale: a user subclass, or a quantity read under another top-priority provider, comes back as that provider's
  * class (so it no longer equals the original), and a provider without factories for the standard types makes typed
  * reads fail.
+ *
+ * @param <Q> the quantity type
+ * @param <R> the typed interface returned by conversions
  */
 public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
@@ -41,22 +44,52 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     /** Relative tolerance of {@link #isEquivalentTo}. */
     public static final double EQUIVALENCE_TOLERANCE = 1e-12;
 
+    /** The value. */
     private final double value;
+    /** The unit. */
     private final UomUnit<Q> unit;
+    /** The scale. */
     private final Quantity.Scale scale;
 
+    /**
+     * A quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     */
     protected AbstractDoubleQuantity(double value, UomUnit<Q> unit, Quantity.Scale scale) {
         this.value = value;
         this.unit = Objects.requireNonNull(unit, "unit");
         this.scale = Objects.requireNonNull(scale, "scale");
     }
 
+    /**
+     * Creates a {@code double} quantity of the same typed interface.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     protected abstract R create(double value, UomUnit<Q> unit, Quantity.Scale scale);
 
-    /** Creates the {@link BigDecimal} quantity of the same typed interface. */
+    /**
+     * Creates the {@link BigDecimal} quantity of the same typed interface.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the context
+     * @return the quantity
+     */
     protected abstract R createDecimal(BigDecimal value, UomUnit<Q> unit, Quantity.Scale scale, MathContext mc);
 
-    /** The standard quantity type of this class, looked up by {@link #to(SystemOfUnits)}; {@link Untyped} if none. */
+    /**
+     * The standard quantity type of this class, looked up by {@link #to(SystemOfUnits)}; {@link Untyped} if none.
+     *
+     * @return the quantity type
+     */
     protected abstract Class<Q> quantityType();
 
     @Override
@@ -86,6 +119,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * without a unit for the type ({@code getUnit} returns null) throws {@link UnsupportedOperationException}.
      * Untyped quantities look up {@link Untyped}, so they throw too unless the system maps it (no system of this
      * library does); those systems have a unit for each of the 33 standard types.
+     *
+     * @param system the system of units
+     * @return the converted quantity
      */
     public R to(SystemOfUnits system) {
         Objects.requireNonNull(system, "system");
@@ -97,7 +133,11 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return to(target);
     }
 
-    /** The same quantity: an equal {@code double} quantity. */
+    /**
+     * The same quantity: an equal {@code double} quantity.
+     *
+     * @return the double quantity
+     */
     public R toDouble() {
         return create(value, unit, scale);
     }
@@ -106,6 +146,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * The same quantity as a decimal: the value as written ({@link BigDecimal#valueOf(double)}), rounded to
      * {@code mc}, which becomes its context. NaN, infinity or a precision of {@code mc} over 100000 throws
      * {@link ArithmeticException}.
+     *
+     * @param mc the context of the result
+     * @return the decimal quantity
      */
     public R toDecimal(MathContext mc) {
         return createDecimal(Precision.toDecimal(value).round(mc), unit, scale, mc);
@@ -236,18 +279,31 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * Writes the type, unit, scale and raw value bits; reading creates the quantity through
      * {@code ServiceProvider.current().getQuantityFactory(type)}. A type outside the 33 standard quantity
      * interfaces and {@link Untyped} throws {@link java.io.NotSerializableException}.
+     *
+     * @return the proxy
+     * @throws ObjectStreamException if the quantity cannot be serialized
      */
     @Serial
     protected final Object writeReplace() throws ObjectStreamException {
         return QuantityProxy.ofDouble(quantityType(), unit, scale, value);
     }
 
+    /**
+     * Rejects a stream without the proxy.
+     *
+     * @param in the stream
+     * @throws InvalidObjectException always
+     */
     @Serial
     private void readObject(ObjectInputStream in) throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");
     }
 
-    /** Called instead of readObject when a stream names a subclass without this class. */
+    /**
+     * Called instead of readObject when a stream names a subclass without this class.
+     *
+     * @throws InvalidObjectException always
+     */
     @Serial
     private void readObjectNoData() throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");

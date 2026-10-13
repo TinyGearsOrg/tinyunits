@@ -18,18 +18,35 @@ import org.tinygears.uom.core.UomUnit;
 public final class DimensionlessFactory
         implements QuantityFactory<javax.measure.quantity.Dimensionless> {
 
+    /** The system unit of {@link Dimensionless}. */
     public static final UomUnit<javax.measure.quantity.Dimensionless> SYSTEM_UNIT =
             UomUnit.unchecked(BaseUnits.ONE);
 
+    /** The only instance. */
     public static final DimensionlessFactory INSTANCE = new DimensionlessFactory();
 
     private DimensionlessFactory() {
     }
 
+    /**
+     * An absolute double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Dimensionless of(double value, Unit<javax.measure.quantity.Dimensionless> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
+    /**
+     * A double quantity; a unit of another implementation throws UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Dimensionless of(double value, Unit<javax.measure.quantity.Dimensionless> unit,
             Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Dimensionless> u) {
@@ -38,12 +55,25 @@ public final class DimensionlessFactory
         throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit,
             Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
@@ -51,7 +81,13 @@ public final class DimensionlessFactory
 
     /**
      * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
-     * 100000 throws ArithmeticException.
+     * 100000 throws ArithmeticException; a unit of another implementation UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the math context
+     * @return the quantity
      */
     public Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit,
             Quantity.Scale scale, MathContext mc) {

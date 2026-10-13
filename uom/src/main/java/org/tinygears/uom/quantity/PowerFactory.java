@@ -18,18 +18,35 @@ import org.tinygears.uom.core.UomUnit;
 public final class PowerFactory
         implements QuantityFactory<javax.measure.quantity.Power> {
 
+    /** The system unit of {@link Power}. */
     public static final UomUnit<javax.measure.quantity.Power> SYSTEM_UNIT =
             UomUnit.unchecked(BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3)).named("W", "watt"));
 
+    /** The only instance. */
     public static final PowerFactory INSTANCE = new PowerFactory();
 
     private PowerFactory() {
     }
 
+    /**
+     * An absolute double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Power of(double value, Unit<javax.measure.quantity.Power> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
+    /**
+     * A double quantity; a unit of another implementation throws UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Power of(double value, Unit<javax.measure.quantity.Power> unit,
             Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Power> u) {
@@ -38,12 +55,25 @@ public final class PowerFactory
         throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit,
             Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
@@ -51,7 +81,13 @@ public final class PowerFactory
 
     /**
      * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
-     * 100000 throws ArithmeticException.
+     * 100000 throws ArithmeticException; a unit of another implementation UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the math context
+     * @return the quantity
      */
     public Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit,
             Quantity.Scale scale, MathContext mc) {

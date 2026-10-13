@@ -14,6 +14,9 @@ public final class UomServiceProvider extends ServiceProvider {
     private final SystemOfUnitsService systems = new UomSystemOfUnitsService();
     private final FormatService formats = new UomFormatService();
 
+    /**
+     * Called by the {@link java.util.ServiceLoader}.
+     */
     public UomServiceProvider() {
     }
 

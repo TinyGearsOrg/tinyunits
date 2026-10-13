@@ -2,6 +2,12 @@
 
 package org.tinygears.uom.core.parse;
 
-/** One symbol of an {@code @member symbol...} directive of the root file. */
+/**
+ * One symbol of an {@code @member symbol...} directive of the root file.
+ *
+ * @param symbol the symbol
+ * @param source the file the line is in
+ * @param line the 1-based line number
+ */
 public record Member(String symbol, String source, int line) {
 }

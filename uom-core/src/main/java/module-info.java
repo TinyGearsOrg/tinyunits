@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
+/**
+ * The core of uom, a JSR-385 implementation: units with exact factors, dimensions, converters, the {@code .units}
+ * definition parser and the base classes of the quantities. Most programs use the module {@code org.tinygears.uom},
+ * which adds the typed quantities, the unit catalogs and the service provider.
+ */
 module org.tinygears.uom.core {
     requires transitive java.measure;
 

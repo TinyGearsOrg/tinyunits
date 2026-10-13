@@ -191,8 +191,8 @@
       <id>release</id>
       <properties>
         <gpg.skip>true</gpg.skip>
-        <!-- Task 2 of milestone 7 fixes the javadoc warnings and sets this to true. -->
-        <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
+        <!-- scripts/check-javadoc.sh turns it off to count every warning -->
+        <javadoc.failOnWarnings>true</javadoc.failOnWarnings>
       </properties>
       <build>
         <plugins>

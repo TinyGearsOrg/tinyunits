@@ -31,13 +31,20 @@ public final class Factor implements Serializable {
     private static final int MAX_BITS = 65_536;
     private static final Map<Integer, BigDecimal> PI_CACHE = new ConcurrentHashMap<>();
 
+    /** Zero. */
     public static final Factor ZERO = new Factor(BigInteger.ZERO, BigInteger.ONE, 0, 1);
+    /** One. */
     public static final Factor ONE = new Factor(BigInteger.ONE, BigInteger.ONE, 0, 1);
+    /** Pi. */
     public static final Factor PI = new Factor(BigInteger.ONE, BigInteger.ONE, 1, 1);
 
+    /** Radicand numerator, with the sign. */
     private final BigInteger num;
+    /** Radicand denominator, positive. */
     private final BigInteger den;
+    /** Exponent of pi in the radicand. */
     private final int piExp;
+    /** Root index. */
     private final int index;
 
     private Factor(BigInteger num, BigInteger den, int piExp, int index) {
@@ -47,15 +54,37 @@ public final class Factor implements Serializable {
         this.index = index;
     }
 
+    /**
+     * The fraction {@code n/d}; a zero {@code d} throws ArithmeticException.
+     *
+     * @param n the numerator
+     * @param d the denominator
+     * @return the factor
+     */
     public static Factor of(long n, long d) {
         return of(BigInteger.valueOf(n), BigInteger.valueOf(d));
     }
 
+    /**
+     * The fraction {@code n/d}; a zero {@code d} throws ArithmeticException.
+     *
+     * @param n the numerator
+     * @param d the denominator
+     * @return the factor
+     */
     public static Factor of(BigInteger n, BigInteger d) {
         return make(n, d, 0, 1);
     }
 
-    /** Rebuilds {@code (n/d * pi^k)^(1/r)} from normalized parts; the pow/root limit does not apply here. */
+    /**
+     * Rebuilds {@code (n/d * pi^k)^(1/r)} from normalized parts; the pow/root limit does not apply here.
+     *
+     * @param numerator the radicand numerator {@code n}, with the sign
+     * @param denominator the radicand denominator {@code d}
+     * @param piExponent the exponent {@code k} of pi
+     * @param rootIndex the root index {@code r}, positive
+     * @return the factor
+     */
     public static Factor of(BigInteger numerator, BigInteger denominator, int piExponent, int rootIndex) {
         if (rootIndex <= 0) {
             throw new IllegalArgumentException("root index must be positive: " + rootIndex);
@@ -63,10 +92,22 @@ public final class Factor implements Serializable {
         return make(numerator, denominator, piExponent, rootIndex);
     }
 
+    /**
+     * The integer {@code n}.
+     *
+     * @param n the value
+     * @return the factor
+     */
     public static Factor ofLong(long n) {
         return of(n, 1);
     }
 
+    /**
+     * The exact value of a decimal literal in the syntax of {@link BigDecimal#BigDecimal(String)}.
+     *
+     * @param literal the literal
+     * @return the factor
+     */
     public static Factor decimal(String literal) {
         BigDecimal value = new BigDecimal(literal);
         checkSize(Math.abs((long) value.scale()) * 3);
@@ -141,6 +182,12 @@ public final class Factor implements Serializable {
         return y.pow(p).equals(x) ? y : null;
     }
 
+    /**
+     * The product.
+     *
+     * @param other the other factor
+     * @return this times {@code other}
+     */
     public Factor multiply(Factor other) {
         if (isZero() || other.isZero()) {
             return ZERO;
@@ -157,10 +204,22 @@ public final class Factor implements Serializable {
         return make(sign < 0 ? n.negate() : n, d, k, l);
     }
 
+    /**
+     * The quotient; a zero divisor throws ArithmeticException.
+     *
+     * @param other the divisor
+     * @return this divided by {@code other}
+     */
     public Factor divide(Factor other) {
         return multiply(other.inverse());
     }
 
+    /**
+     * The exact sum; terms with different roots or powers of pi that do not combine throw ArithmeticException.
+     *
+     * @param other the other term
+     * @return this plus {@code other}
+     */
     public Factor add(Factor other) {
         if (isZero()) {
             return other;
@@ -181,10 +240,21 @@ public final class Factor implements Serializable {
         return ofLong(signum() + other.signum()).multiply(magnitude);
     }
 
+    /**
+     * The negation.
+     *
+     * @return {@code -this}
+     */
     public Factor negate() {
         return new Factor(num.negate(), den, piExp, index);
     }
 
+    /**
+     * The {@code n}-th power; {@code |n|} over 1000 throws ArithmeticException.
+     *
+     * @param n the exponent
+     * @return this to the power {@code n}
+     */
     public Factor pow(int n) {
         checkExponent(n);
         if (n == 0) {
@@ -196,6 +266,12 @@ public final class Factor implements Serializable {
         return make(base.num.pow(m), base.den.pow(m), Math.multiplyExact(base.piExp, m), base.index);
     }
 
+    /**
+     * The {@code n}-th root; a zero or {@code |n|} over 1000 and an even root of a negative value throw ArithmeticException.
+     *
+     * @param n the root index, negative for the root of the inverse
+     * @return the root
+     */
     public Factor root(int n) {
         checkExponent(n);
         if (n == 0) {
@@ -235,42 +311,83 @@ public final class Factor implements Serializable {
         return BigInteger.valueOf(a).gcd(BigInteger.valueOf(b)).intValue();
     }
 
-    /** Radicand numerator {@code n}; it carries the sign, which applies outside the root. */
+    /**
+     * Radicand numerator {@code n}; it carries the sign, which applies outside the root.
+     *
+     * @return the numerator
+     */
     public BigInteger numerator() {
         return num;
     }
 
-    /** Radicand denominator {@code d}, always positive. */
+    /**
+     * Radicand denominator {@code d}, always positive.
+     *
+     * @return the denominator
+     */
     public BigInteger denominator() {
         return den;
     }
 
-    /** Exponent {@code k} of pi inside the radicand. */
+    /**
+     * Exponent {@code k} of pi inside the radicand.
+     *
+     * @return the exponent
+     */
     public int piExponent() {
         return piExp;
     }
 
-    /** Root index {@code r}, 1 for a rational multiple of a power of pi. */
+    /**
+     * Root index {@code r}, 1 for a rational multiple of a power of pi.
+     *
+     * @return the root index
+     */
     public int rootIndex() {
         return index;
     }
 
+    /**
+     * Whether this is a rational number.
+     *
+     * @return true if the root index is 1 and the pi exponent 0
+     */
     public boolean isExact() {
         return index == 1 && piExp == 0;
     }
 
+    /**
+     * Whether this is zero.
+     *
+     * @return true for zero
+     */
     public boolean isZero() {
         return num.signum() == 0;
     }
 
+    /**
+     * Whether this is one.
+     *
+     * @return true for one
+     */
     public boolean isOne() {
         return equals(ONE);
     }
 
+    /**
+     * The sign.
+     *
+     * @return -1, 0 or 1
+     */
     public int signum() {
         return num.signum();
     }
 
+    /**
+     * The nearest {@code double}.
+     *
+     * @return the value correctly rounded
+     */
     public double doubleValue() {
         if (isExact()) {
             // Quotient of >= 56 bits with a sticky low bit: never a binary midpoint, so one exact rounding.
@@ -293,6 +410,12 @@ public final class Factor implements Serializable {
         }
     }
 
+    /**
+     * The value rounded to {@code mc}; an irrational value with precision 0, or a non-terminating rational one, throws ArithmeticException.
+     *
+     * @param mc the rounding
+     * @return the decimal value
+     */
     public BigDecimal decimalValue(MathContext mc) {
         if (isExact()) {
             return Decimals.divide(new BigDecimal(num), new BigDecimal(den), mc);
@@ -379,11 +502,22 @@ public final class Factor implements Serializable {
         return y;
     }
 
+    /**
+     * The serialization proxy.
+     *
+     * @return the proxy
+     */
     @Serial
     private Object writeReplace() {
         return new Proxy(num, den, piExp, index);
     }
 
+    /**
+     * Rejects a stream without the proxy.
+     *
+     * @param in the stream
+     * @throws InvalidObjectException always
+     */
     @Serial
     private void readObject(ObjectInputStream in) throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");

@@ -21,36 +21,44 @@ public final class SI {
     private SI() {
     }
 
+    /** The metre, {@code m}. */
     public static final UomUnit<Length> METRE =
             UomUnit.unchecked(LengthFactory.SYSTEM_UNIT);
 
+    /** The second, {@code s}. */
     public static final UomUnit<Time> SECOND =
             UomUnit.unchecked(TimeFactory.SYSTEM_UNIT);
 
+    /** The kelvin, {@code K}. */
     public static final UomUnit<?> KELVIN =
             UomUnit.unchecked(BaseUnits.KELVIN);
 
+    /** The hertz, {@code Hz}. */
     public static final UomUnit<?> HERTZ =
             UomUnit.unchecked(BaseUnits.ONE
                     .divide(BaseUnits.SECOND)
                     .alternate("Hz")
                     .named("Hz", "hertz"));
 
+    /** The minute, {@code min}. */
     public static final UomUnit<Time> MINUTE =
             UomUnit.unchecked(BaseUnits.SECOND
                     .transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO))
                     .named("min", "minute"));
 
+    /** The degree Celsius, {@code °C}. */
     public static final UomUnit<?> DEGREE_CELSIUS =
             UomUnit.unchecked(BaseUnits.KELVIN
                     .transform(Converters.affine(Factor.ONE, Factor.of(5463L, 20L)))
                     .named("°C", "degree Celsius"));
 
+    /** The kilometre, {@code km}. */
     public static final UomUnit<Length> KILOMETRE =
             UomUnit.unchecked(BaseUnits.METRE
                     .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("km", "kilometre"));
 
+    /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS =
             List.<UomUnit<?>>of(
                     METRE,
@@ -61,15 +69,18 @@ public final class SI {
                     DEGREE_CELSIUS,
                     KILOMETRE);
 
+    /** The symbols that take a prefix in this system. */
     public static final Set<String> PREFIXABLE =
             Set.of(
                     "m");
 
+    /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED =
             Map.<Class<?>, UomUnit<?>>ofEntries(
                     Map.entry(Length.class, LengthFactory.SYSTEM_UNIT),
                     Map.entry(Time.class, TimeFactory.SYSTEM_UNIT));
 
+    /** This system of units. */
     public static final UomSystemOfUnits SYSTEM =
             new UomSystemOfUnits("SI", UNITS, PREFERRED, PREFIXABLE);
 }

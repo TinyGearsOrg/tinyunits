@@ -45,6 +45,13 @@ public final class DefinitionParser {
 
     /** Opens an included file by name. */
     public interface Resolver {
+        /**
+         * Opens a file.
+         *
+         * @param name the file name as written in the directive
+         * @return a reader the parser closes
+         * @throws IOException if the file cannot be read
+         */
         Reader open(String name) throws IOException;
     }
 
@@ -69,6 +76,12 @@ public final class DefinitionParser {
      * Parses {@code reader} without closing it; included files are opened and closed here. Alternate-unit
      * registrations ({@code ~} lines) are JVM-global and permanent, so a failed or corrected {@code ~}
      * definition cannot be re-registered differently until the JVM restarts.
+     *
+     * @param source the name of the file, used in messages and to detect include cycles
+     * @param reader the content
+     * @param resolver opens included files; with null, {@code @include} and {@code @extends} are errors
+     * @return the definitions
+     * @throws DefinitionException if a line is invalid
      */
     public static Definitions parse(String source, Reader reader, Resolver resolver) {
         return parse(source, reader, resolver, s -> null);
@@ -77,6 +90,13 @@ public final class DefinitionParser {
     /**
      * As {@link #parse(String, Reader, Resolver)}; formula symbols the files do not define resolve through
      * {@code known} (null when unknown), and defining a symbol that {@code known} resolves is an error.
+     *
+     * @param source the name of the file, used in messages and to detect include cycles
+     * @param reader the content
+     * @param resolver opens included files; with null, {@code @include} and {@code @extends} are errors
+     * @param known resolves symbols defined elsewhere
+     * @return the definitions
+     * @throws DefinitionException if a line is invalid
      */
     public static Definitions parse(String source, Reader reader, Resolver resolver,
             Function<String, UomUnit<?>> known) {

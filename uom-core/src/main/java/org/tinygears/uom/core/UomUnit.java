@@ -31,13 +31,20 @@ import javax.measure.spi.ServiceProvider;
 /**
  * A product of atoms with integer exponents, an affine converter to the system unit, and labels. Serializable
  * through a proxy (atoms, converter, symbol and name); the serialized form may change before 1.0.
+ *
+ * @param <Q> the quantity type
  */
 public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializable {
 
+    /** Atoms and their exponents, sorted by symbol. */
     private final Map<UnitAtom, Integer> atoms;
+    /** Converter to the system unit. */
     private final UomConverter toSystem;
+    /** Symbol, or null. */
     private final String symbol;
+    /** Name, or null. */
     private final String name;
+    /** Dimension of the atoms. */
     private final UomDimension dimension;
     private final transient Map<UomUnit<?>, UomConverter> converterCache = new ConcurrentHashMap<>();
 
@@ -53,12 +60,28 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         this.dimension = d;
     }
 
-    /** Caller guarantees the unit belongs to Q; for generated code. */
+    /**
+     * Caller guarantees the unit belongs to Q; for generated code.
+     *
+     * @param <Q> the quantity type
+     * @param unit the unit
+     * @return the same unit
+     */
     @SuppressWarnings("unchecked")
     public static <Q extends Quantity<Q>> UomUnit<Q> unchecked(UomUnit<?> unit) {
         return (UomUnit<Q>) Objects.requireNonNull(unit, "unit");
     }
 
+    /**
+     * A unit of atoms with non-zero exponents (zero exponents are dropped).
+     *
+     * @param <Q> the quantity type
+     * @param atoms the atoms and their exponents
+     * @param toSystem the converter to the system unit
+     * @param symbol the symbol, or null
+     * @param name the name, or null
+     * @return the unit
+     */
     public static <Q extends Quantity<Q>> UomUnit<Q> of(
             Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
         Objects.requireNonNull(toSystem, "toSystem");
@@ -70,14 +93,31 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return new UomUnit<>(Collections.unmodifiableMap(normalized), toSystem, symbol, name);
     }
 
+    /**
+     * This unit with other labels.
+     *
+     * @param symbol the symbol, or null
+     * @param name the name, or null
+     * @return the relabelled unit
+     */
     public UomUnit<Q> named(String symbol, String name) {
         return new UomUnit<>(atoms, toSystem, symbol, name);
     }
 
+    /**
+     * The atoms and their exponents, sorted by symbol.
+     *
+     * @return an unmodifiable map
+     */
     public Map<UnitAtom, Integer> atoms() {
         return atoms;
     }
 
+    /**
+     * The converter to the system unit.
+     *
+     * @return the converter
+     */
     public UomConverter toSystemConverter() {
         return toSystem;
     }
@@ -233,6 +273,12 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return multiply((Number) multiplier);
     }
 
+    /**
+     * This unit multiplied by an exact factor.
+     *
+     * @param factor the factor
+     * @return the scaled unit
+     */
     public UomUnit<?> scaledBy(Factor factor) {
         return transform(Converters.scale(factor));
     }
@@ -330,12 +376,23 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return of(m, Converters.scale(toSystem.factor().root(n)), null, null);
     }
 
+    /**
+     * The serialization proxy.
+     *
+     * @return the proxy
+     */
     @Serial
     private Object writeReplace() {
         return new Proxy(atoms.keySet().toArray(UnitAtom[]::new),
                 atoms.values().stream().mapToInt(Integer::intValue).toArray(), toSystem, symbol, name);
     }
 
+    /**
+     * Rejects a stream without the proxy.
+     *
+     * @param in the stream
+     * @throws InvalidObjectException always
+     */
     @Serial
     private void readObject(ObjectInputStream in) throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");

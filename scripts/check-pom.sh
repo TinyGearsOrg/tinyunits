@@ -42,6 +42,7 @@ self_test() {
     "snapshot-dependency|sub('uom-core/pom.xml', '<dependencies>', '<dependencies><dependency><groupId>com.example</groupId><artifactId>x</artifactId><version>1.0-SNAPSHOT</version></dependency>')|uom-core: default: SNAPSHOT dependency com.example:x:1.0-SNAPSHOT"
     "unresolved-expression|sub('uom/pom.xml', '<description>', '<description>\${no.such.property} ')|uom: default: unresolved expression '\${no.such.property}"
     "doclint|drop('pom.xml', '<doclint>', '</doclint>')|maven-javadoc-plugin doclint is ''"
+    "javadoc-fail-on-warnings|sub('pom.xml', '<javadoc.failOnWarnings>true<', '<javadoc.failOnWarnings>false<')|maven-javadoc-plugin failOnWarnings is 'false'"
     "enforcer-phase|sub('pom.xml', '<phase>validate</phase>', '<phase>none</phase>')|maven-enforcer-plugin must have one execution bound to the validate phase"
     "manifest-vendor|drop('pom.xml', '<Implementation-Vendor>', '</Implementation-Vendor>')|uom-core: manifest entry Implementation-Vendor is ''"
     "distribution-management|sub('pom.xml', '<issueManagement>', '<distributionManagement><repository><id>x</id><url>https://example.invalid/repo</url></repository></distributionManagement><issueManagement>')|distributionManagement must not be set"
@@ -249,8 +250,10 @@ for mode, eff in (('default', default), ('release', rel)):
             if sorted(excluded) != sorted(UNPUBLISHED):
                 fail("%s: release: central-publishing excludeArtifacts is %s, expected %s" % (a, excluded, UNPUBLISHED))
             jd = plugin(p, 'maven-javadoc-plugin')
-            if text(jd, 'executions/execution/configuration/doclint') != 'all':
-                fail("%s: release: maven-javadoc-plugin doclint is '%s', expected 'all'" % (a, text(jd, 'executions/execution/configuration/doclint')))
+            for param, want in (('doclint', 'all'), ('failOnWarnings', 'true')):
+                got = text(jd, 'executions/execution/configuration/' + param)
+                if got != want:
+                    fail("%s: release: maven-javadoc-plugin %s is '%s', expected '%s'" % (a, param, got, want))
         if p.find('distributionManagement') is not None:
             fail("%s: %s: distributionManagement must not be set (plain mvn deploy would upload)" % (a, mode))
         for e in p.findall('properties/*'):

@@ -48,6 +48,13 @@ public final class QuantityTypes {
     private QuantityTypes() {
     }
 
+    /**
+     * The factory of {@code type}; a type without one throws IllegalArgumentException.
+     *
+     * @param <Q> the quantity type
+     * @param type the quantity type
+     * @return the factory
+     */
     @SuppressWarnings("unchecked")
     public static <Q extends Quantity<Q>> QuantityFactory<Q> factory(Class<Q> type) {
         Objects.requireNonNull(type, "type");
@@ -153,6 +160,11 @@ public final class QuantityTypes {
         throw new IllegalArgumentException("no quantity factory for " + type.getName());
     }
 
+    /**
+     * The quantity types with a factory.
+     *
+     * @return the types
+     */
     public static Set<Class<?>> types() {
         return TYPES;
     }
