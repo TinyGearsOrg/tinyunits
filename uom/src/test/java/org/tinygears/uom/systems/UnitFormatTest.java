@@ -289,7 +289,7 @@ class UnitFormatTest {
                                 ? current.prefix(prefixes[random.nextInt(prefixes.length)]) : current;
                     };
                 } catch (RuntimeException e) {
-                    // offset units can not be combined
+                    // a fractional root or an exponent overflow
                 }
             }
             UomUnit<?> unit = u;

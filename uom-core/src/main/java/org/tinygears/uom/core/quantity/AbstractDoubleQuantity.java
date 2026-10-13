@@ -241,13 +241,14 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     /**
-     * Multiplies the system-unit values; the result is an {@link Untyped} quantity in the product of the system
-     * units, scale {@code ABSOLUTE}. Throws {@link UnconvertibleException} for a foreign unit.
+     * Multiplies the system-unit values (offsets count, except for a {@code RELATIVE} operand, which is a difference
+     * and counts by its factor only); the result is an {@link Untyped} quantity in the product of the system units,
+     * scale {@code ABSOLUTE}. Throws {@link UnconvertibleException} for a foreign unit.
      */
     @Override
     public Quantity<?> multiply(Quantity<?> multiplicand) {
         UomUnit<?> u = uomUnit(multiplicand.getUnit());
-        return untyped(toSystem(value, unit) * toSystem(multiplicand, u),
+        return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) * systemValue(multiplicand, u),
                 unit.getSystemUnit().multiply(u.getSystemUnit()));
     }
 
@@ -255,13 +256,14 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     @Override
     public Quantity<?> divide(Quantity<?> divisor) {
         UomUnit<?> u = uomUnit(divisor.getUnit());
-        return untyped(toSystem(value, unit) / toSystem(divisor, u), unit.getSystemUnit().divide(u.getSystemUnit()));
+        return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) / systemValue(divisor, u),
+                unit.getSystemUnit().divide(u.getSystemUnit()));
     }
 
     /** Returns {@code 1 / systemValue} in the inverse system unit, as an {@link Untyped} quantity. */
     @Override
     public Quantity<?> inverse() {
-        return untyped(1 / toSystem(value, unit), unit.getSystemUnit().inverse());
+        return untyped(1 / systemValue(value, unit, scale == Quantity.Scale.RELATIVE), unit.getSystemUnit().inverse());
     }
 
     /**
@@ -327,8 +329,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit.getSystemUnit()), Quantity.Scale.ABSOLUTE);
     }
 
-    private static double toSystem(Quantity<?> quantity, UomUnit<?> unit) {
-        return unit.toSystemConverter().convert(Precision.toDouble(quantity.getValue()));
+    private static double systemValue(Quantity<?> quantity, UomUnit<?> unit) {
+        return systemValue(Precision.toDouble(quantity.getValue()), unit,
+                quantity.getScale() == Quantity.Scale.RELATIVE);
     }
 
     private R scalar(double n, DoubleBinaryOperator op) {

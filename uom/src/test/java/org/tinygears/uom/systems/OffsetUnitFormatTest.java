@@ -21,7 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
-import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import org.junit.jupiter.api.Test;
@@ -143,8 +142,8 @@ class OffsetUnitFormatTest {
                 Factor.of(BigInteger.TWO.pow(65_000), BigInteger.ONE)));
         e = assertThrows(IllegalArgumentException.class, () -> FORMAT.format(huge));
         assertTrue(e.getMessage().startsWith("unit can not be formatted: K (factor 1/"), e.getMessage().substring(0, 40));
-        // Offset units have no products, so no compound shifted form can arise.
-        assertThrows(UnconvertibleException.class, () -> SI.DEGREE_CELSIUS.multiply(SI.METRE));
+        // A product drops the offset, so no compound shifted form can arise.
+        assertTrue(SI.DEGREE_CELSIUS.multiply(SI.METRE).toSystemConverter().isLinear());
     }
 
     @Test

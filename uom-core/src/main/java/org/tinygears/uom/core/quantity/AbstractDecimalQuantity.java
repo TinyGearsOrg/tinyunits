@@ -292,7 +292,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /**
-     * Multiplies the system-unit values (operands are taken to the system unit, so offsets count), evaluated exactly
+     * Multiplies the system-unit values (operands are taken to the system unit, so offsets count, except for a
+     * {@code RELATIVE} operand, which is a difference and counts by its factor only), evaluated exactly
      * and rounded once to the lower context of the two; the result is an {@link Untyped} quantity in the product of
      * the system units, scale {@code ABSOLUTE}. A {@code double} operand gives an {@link UntypedDoubleQuantity}.
      * Throws {@link UnconvertibleException} for a foreign unit.
@@ -317,7 +318,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      */
     @Override
     public Quantity<?> inverse() {
-        Ratio a = system(value, unit, guardDigits(mathContext, BigDecimal.ONE));
+        Ratio a = system(value, unit, guardDigits(mathContext, BigDecimal.ONE), scale == Quantity.Scale.RELATIVE);
         return UntypedDecimalQuantity.of(roundOnce(a.den, a.num, mathContext, a.exact),
                 unit.getSystemUnit().inverse().getSystemUnit(), mathContext);
     }
@@ -398,8 +399,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         MathContext mc = contextWith(that);
         BigDecimal b = Precision.toDecimal(n);
         int digits = guardDigits(mc, b);
-        Ratio sa = system(value, unit, digits);
-        Ratio sb = system(b, thatUnit, digits);
+        Ratio sa = system(value, unit, digits, scale == Quantity.Scale.RELATIVE);
+        Ratio sb = system(b, thatUnit, digits, that.getScale() == Quantity.Scale.RELATIVE);
         BigDecimal num = divide ? sa.num.multiply(sb.den) : sa.num.multiply(sb.num);
         BigDecimal den = divide ? sa.den.multiply(sb.num) : sa.den.multiply(sb.den);
         UomUnit<?> product = divide ? unit.getSystemUnit().divide(thatUnit.getSystemUnit())
@@ -407,9 +408,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return UntypedDecimalQuantity.of(roundOnce(num, den, mc, sa.exact && sb.exact), product.getSystemUnit(), mc);
     }
 
-    /** The system value {@code f·v + o} as numerator over denominator. */
-    private static Ratio system(BigDecimal v, UomUnit<?> u, int digits) {
-        UomConverter c = u.toSystemConverter();
+    /** The system value {@code f·v + o} as numerator over denominator; {@code o} is 0 for a difference. */
+    private static Ratio system(BigDecimal v, UomUnit<?> u, int digits, boolean delta) {
+        UomConverter c = delta ? Deltas.converter(u.toSystemConverter()) : u.toSystemConverter();
         Ratio f = Ratio.of(c.factor(), digits);
         Ratio o = Ratio.of(c.offset(), digits);
         return new Ratio(plus(v.multiply(f.num).multiply(o.den), o.num.multiply(f.den)), f.den.multiply(o.den),

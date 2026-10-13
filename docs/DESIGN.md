@@ -61,8 +61,9 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
 - **Converters.** Identity, affine (`factor * x + offset`) and concatenation. Factors are exact
   rationals, optionally times a power of pi, so degrees and gradians are exact (N2). Each
   converter also caches the rounded `double` of its factor and offset, computed once.
-  Additions to the standard interface: `convert(BigDecimal, MathContext)` (F23). Units with an
-  offset can not be multiplied or divided and throw.
+  Additions to the standard interface: `convert(BigDecimal, MathContext)` (F23). A unit with an
+  offset takes part in `multiply`, `divide`, `pow`, `root` and `inverse` by its factor only (the product measures
+  differences, `°C/m` is `K/m`; `docs/OFFSET-UNITS.md`).
 - **Powers and roots.** `pow(n)` raises factor and exponents; `root(n)` divides the exponents
   and roots the factor exactly. A factor is `(n/d * pi^k)^(1/r)` with the sign of `n` outside
   the root, so every converter stays affine and equality is structural. Ceiling: radicals are

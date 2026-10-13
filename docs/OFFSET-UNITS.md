@@ -27,15 +27,28 @@ compared by `equals`, written by serialization and not written by the format; a 
 | `negate` | any | the value negated in the same unit, scale kept |
 | `compareTo`, `isEquivalentTo` | both RELATIVE | compared as differences (factor only) |
 | | otherwise | compared as system-unit values (offset applied) |
+| `multiply(Quantity)`, `divide(Quantity)`, `inverse()` | an ABSOLUTE operand | its system-unit value, offset applied (a point) |
+| | a RELATIVE operand | its system-unit value by the factor only (a difference) |
+| Unit products: `multiply(Unit)`, `divide(Unit)`, `pow`, `root`, `inverse` and formulas such as `°C/m` | any | the offset is dropped; see below |
 
 The **literal rule** is the one in the `javax.measure.Quantity` Javadoc: the operands behave as if they were first
 converted to the system unit, combined, and the result converted back to the unit of the left operand. The Javadoc does
 not mention `Scale`. For a unit without an offset the rule is plain arithmetic. For an offset unit it gives results
 that are correct for conversion but odd for sums of points, because adding two points has no physical meaning.
 
-Not covered by these rules: `multiply(Quantity)`, `divide(Quantity)` and `inverse()` take the system-unit values of
-their operands, offsets included, whatever the scale, and return an `ABSOLUTE` quantity without a typed class
-(`docs/TODO.md`, item 1).
+A quantity-by-quantity product returns an `ABSOLUTE` quantity in system units without a typed class, whatever the scales
+of the operands.
+
+## Derived units: °C/m, J/(kg·°C)
+
+A unit that is a product of an offset unit with other units measures differences: a gradient in °C/m, a specific heat in
+J/(kg·°C), a rate in °C/s. So an offset unit takes part in `multiply(Unit)`, `divide(Unit)`, `pow`, `root` and `inverse`,
+and in formulas, by its **factor only**: `°C/m` is `K/m`, `°C·m` is `K·m`, and `°F/m` is 5/9 of `K/m`. The unit keeps its
+symbol (`°C/m`), is equal to the unit built from kelvin, and parses and formats. `pow(1)` and `root(1)` return the unit
+itself, offset included.
+
+The offset is dropped without a warning, so such a unit must not be used for point values: 20 °C divided by 2 m as
+`ABSOLUTE` quantities is 146.575 K/m (the point 293.15 K, over 2 m), while the gradient 20 °C/m is 20 K/m.
 
 ## Examples
 
@@ -89,6 +102,19 @@ Temperature difference = Temperature.of(kelvin.getValue().doubleValue(), SI.KELV
 System.out.println(difference.to(SI.DEGREE_CELSIUS)); // prints: 5.0 °C
 ```
 
+A difference divided by a length is a gradient, and the derived units parse and convert by their factor:
+
+```java
+Temperature rise = Temperature.of(20, SI.DEGREE_CELSIUS, Quantity.Scale.RELATIVE);
+Temperature point = Temperature.of(20, SI.DEGREE_CELSIUS);
+Length two = Length.of(2, SI.METRE);
+System.out.println(rise.divide(two));             // prints: 10.0 K/m
+System.out.println(point.divide(two));            // prints: 146.575 K/m
+System.out.println(UomUnitFormat.standard().parse("°C/m").equals(UomUnitFormat.standard().parse("K/m"))); // prints: true
+System.out.println(UomUnitFormat.standard().parse("J/(kg·°C)").equals(UomUnitFormat.standard().parse("J/(kg·K)"))); // prints: true
+System.out.println(SI.DEGREE_CELSIUS.divide(SI.METRE));  // prints: °C/m
+```
+
 `BigDecimal` quantities follow the same rules and are exact, where `double` shows the rounding of the offset:
 
 ```java
@@ -103,6 +129,9 @@ System.out.println(Temperature.of(20, SI.DEGREE_CELSIUS).subtract(Temperature.of
 
 - The behaviour for two `ABSOLUTE` operands is the Javadoc rule, and agrees with Indriya 2.2 (`2 °C + 1 °C` is
   `276.15 °C`; probed, not specified by the standard).
+- The `Unit` Javadoc says the interface "supports the multiplication of offsets units" and gives Celsius per metre as
+  an example. Indriya 2.2 creates such units (`℃/m`) but cannot convert them (`UnsupportedOperationException: ℃ is
+  non-linear, cannot convert`). uom drops the offset, so they convert by their factor.
 - For a `RELATIVE` operand uom and Indriya 2.2 agree on a point plus or minus a difference, a difference plus a
   difference, a difference times a number, and the conversion of a difference. They differ on a difference minus a point:
   Indriya 2.2 returned `-545.30 °C` for `2 °C` (relative) minus `1 °C` (absolute); uom returns the delta `1 °C`.
@@ -111,5 +140,3 @@ System.out.println(Temperature.of(20, SI.DEGREE_CELSIUS).subtract(Temperature.of
 ## Open points
 
 - A point minus a point is not returned as a difference; use the kelvin idiom above.
-- Quantity-by-quantity products with a `RELATIVE` operand apply the offset (see above).
-- `UomUnit.multiply(Unit)` and `divide(Unit)` of an offset unit throw (`docs/TODO.md`, item 3).

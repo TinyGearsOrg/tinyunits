@@ -13,9 +13,6 @@ between two `RELATIVE` quantities compare differences. This matches Indriya 2.2 
 the TCK does not test `Scale`). It differs on a difference minus a point, where Indriya 2.2 returned `-545.30 degC`.
 
 **Open points:**
-- `multiply(Quantity)`, `divide(Quantity)` and `inverse()` still take the system-unit values of their operands with offsets,
-  also for a `RELATIVE` operand (a 5 degC difference times 2 m uses 278.15). Decide whether they should use the factor only
-  for `RELATIVE` operands.
 - A point minus a point is not returned as a `RELATIVE` quantity (option B and C, rejected: they differ from the Javadoc
   and Indriya). The kelvin idiom in OFFSET-UNITS.md gives the difference; a helper could be added if users ask.
 - `double` arithmetic through an offset shows rounding (`20 degC - 0 degC` is -253.14999999999998); `BigDecimal` quantities
@@ -56,11 +53,15 @@ higher priority on the class path still breaks it.
 
 ## 3. Offset-unit products
 
-**Status:** undecided. `UomUnit.multiply(Unit)` and `divide(Unit)` throw for a unit with an offset (DESIGN section 3), while the
-`Unit` Javadoc says multiplication of offset units is supported. Kept in `UomUnit` and its tests in
-`uom-core`. Options: keep and document, or apply the offset to the system unit first.
+**Status:** decided (option B) and implemented; documented in [OFFSET-UNITS.md](OFFSET-UNITS.md). The `Unit` Javadoc says the
+interface "supports the multiplication of offsets units" (Celsius per metre is its example). A unit with an offset now
+takes part in `multiply(Unit)`, `divide(Unit)`, `pow`, `root`, `inverse` and in formulas by its factor only, so `°C/m` is
+`K/m` and `J/(kg·°C)` parses. A `RELATIVE` operand of `multiply(Quantity)`, `divide(Quantity)` and `inverse()` counts by its
+factor only (a 20 degC difference over 2 m is 10 K/m); an `ABSOLUTE` one is a point and goes through the offset (146.575 K/m).
+Indriya 2.2 creates such units but cannot convert them. The offset is dropped without a warning, which the guide states.
 
-**Needed by:** nothing in milestone 3; decide before 1.0.
+**Where it lives:** `UomUnit.combine`, `pow` and `root`; `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`multiply`,
+`divide`, `inverse`); tests `OffsetUnitProductsTest`, `UomUnitAlgebraTest`, `UnitContractTest`, `FormulaEvaluatorTest`.
 
 ## 4. Name of the system overload
 
@@ -489,4 +490,4 @@ No version has been released, signed, tagged or uploaded. The release is prepare
 - Decide the CI items of item 31 (SHA pinning of actions, duplicate push and pull-request runs, `cancel-in-progress` on
   `main`, job-level permissions), push the branch and see the workflow green on JDK 21 and 25.
 - Decide the repository rename; the POM's `url`, `scm` and `issueManagement` follow it.
-- Items 2 and 3 above are due before 1.0, not before a 0.x release.
+- Item 2 above is due before 1.0, not before a 0.x release.

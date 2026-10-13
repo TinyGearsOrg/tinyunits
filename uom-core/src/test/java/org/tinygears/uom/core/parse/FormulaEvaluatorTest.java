@@ -93,6 +93,13 @@ class FormulaEvaluatorTest {
     }
 
     @Test
+    void offsetUnitsTakePartInProductsByTheirFactor() throws Exception {
+        assertEquals(METRE.divide(SECOND), eval("°C/s"));
+        assertEquals(METRE.multiply(SECOND), eval("°C s"));
+        assertEquals(METRE.pow(2), eval("°C^2"));
+    }
+
+    @Test
     void symbolsAreExactLookupResultsAndMayBeNonAscii() throws Exception {
         assertEquals(DEG_C, eval("°C"));
         assertEquals(KILOGRAM, eval("Ω"));
@@ -295,7 +302,6 @@ class FormulaEvaluatorTest {
         fails("-1 m", "unexpected '-'", 1);
         fails("m/+1", "unexpected '+'", 3);
         fails("m^+1", "exponent must be an integer", 3);
-        fails("°C/s", "unit with an offset cannot be combined: " + DEG_C, 3);
     }
 
     @Test

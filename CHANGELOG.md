@@ -24,6 +24,8 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
 - `Quantity.Scale.RELATIVE` quantities are differences: they convert, add, scale and compare without the offset of
   units such as °C, and a sum or difference is `RELATIVE` only if both operands are
   ([docs/OFFSET-UNITS.md](docs/OFFSET-UNITS.md)). `ABSOLUTE` quantities keep the literal `Quantity` Javadoc rule.
+- Offset units take part in unit products, powers, roots and formulas by their factor only, so `°C/m` and
+  `J/(kg·°C)` parse and `°C/m` equals `K/m`; a `RELATIVE` operand of a quantity product counts by its factor only.
 - Locale-aware quantity formats (`withLocale`, `withGrouping`), a decimal-preserving parse (`withDecimals`), the
   shift grammar for offset units in formulas (`K + 273.15`) and a faithful text form for unnamed offset units.
 - User `.units` files loaded at run time (`UomSystemOfUnits.load`) and added to a format with `UomUnitFormat.with`

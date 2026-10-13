@@ -311,19 +311,23 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return symbol == null || !symbol.equals(group(symbol, "·/^")) ? u : u.named(prefix.getSymbol() + symbol, null);
     }
 
+    /**
+     * The product with {@code multiplier}. A unit with an offset takes part by its factor only, so {@code °C·m}
+     * is {@code K·m}: the offset belongs to points, and a product unit measures differences (docs/OFFSET-UNITS.md).
+     */
     @Override
     public UomUnit<?> multiply(Unit<?> multiplier) {
         return combine(multiplier, false);
     }
 
+    /** The quotient by {@code divisor}; an offset is dropped as in {@link #multiply(Unit)}. */
     @Override
     public UomUnit<?> divide(Unit<?> divisor) {
         return combine(divisor, true);
     }
 
     private UomUnit<?> combine(Unit<?> other, boolean quotient) {
-        UomUnit<?> that = requireLinear(uomUnit(other));
-        requireLinear(this);
+        UomUnit<?> that = uomUnit(other);
         Map<UnitAtom, Integer> m = new LinkedHashMap<>(atoms);
         that.atoms.forEach((a, n) -> {
             int e = m.getOrDefault(a, 0);
@@ -350,7 +354,6 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         if (n == 1) {
             return this;
         }
-        requireLinear(this);
         Factor f = toSystem.factor().pow(n);
         Map<UnitAtom, Integer> m = new LinkedHashMap<>();
         atoms.forEach((a, e) -> m.put(a, Math.multiplyExact(e, n)));
@@ -365,7 +368,6 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         if (n == 1) {
             return this;
         }
-        requireLinear(this);
         Map<UnitAtom, Integer> m = new LinkedHashMap<>();
         atoms.forEach((a, e) -> {
             if (e % n != 0) {
@@ -471,13 +473,6 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     /** Parenthesizes {@code s} if it contains any of {@code operators}. */
     private static String group(String s, String operators) {
         return s.chars().anyMatch(c -> operators.indexOf(c) >= 0) ? "(" + s + ")" : s;
-    }
-
-    private static UomUnit<?> requireLinear(UomUnit<?> u) {
-        if (!u.toSystem.isLinear()) {
-            throw new UnconvertibleException("unit with an offset cannot be combined: " + u);
-        }
-        return u;
     }
 
     private static Factor toFactor(Number n) {

@@ -248,8 +248,10 @@ class UnitContractTest {
     }
 
     @Test
-    void offsetUnitProductIsRejected() {
-        // The class Javadoc allows products of offset units; DESIGN section 3 rejects them.
-        assertThrows(UnconvertibleException.class, () -> CELSIUS.divide(METRE));
+    void offsetUnitProductDropsTheOffset() {
+        // The class Javadoc allows products of offset units; the product measures differences (docs/OFFSET-UNITS.md).
+        assertEquals(KELVIN.divide(METRE), CELSIUS.divide(METRE));
+        assertEquals(KELVIN.divide(METRE).getSystemUnit(), CELSIUS.divide(METRE).getSystemUnit());
+        assertTrue(CELSIUS.divide(METRE).toSystemConverter().isLinear());
     }
 }

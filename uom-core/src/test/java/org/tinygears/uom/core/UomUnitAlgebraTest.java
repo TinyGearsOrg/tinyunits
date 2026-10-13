@@ -76,14 +76,20 @@ class UomUnitAlgebraTest {
         UomUnit<Temperature> celsius = KELVIN.shift(273.15);
         assertEquals(373.15, celsius.getConverterTo(KELVIN).convert(100.0), 1e-12);
         assertEquals(KELVIN.shift(3), KELVIN.shift(1).shift(2));
-        assertThrows(UnconvertibleException.class, () -> celsius.multiply(METRE));
-        assertThrows(UnconvertibleException.class, () -> METRE.multiply(celsius));
-        assertThrows(UnconvertibleException.class, () -> celsius.divide(SECOND));
-        assertThrows(UnconvertibleException.class, () -> celsius.pow(2));
-        assertThrows(UnconvertibleException.class, () -> celsius.root(2));
-        assertThrows(UnconvertibleException.class, celsius::inverse);
+        // A product takes an offset unit by its factor only: it measures differences, so °C·m is K·m.
+        assertEquals(KELVIN.multiply(METRE), celsius.multiply(METRE));
+        assertEquals(KELVIN.multiply(METRE), METRE.multiply(celsius));
+        assertEquals(KELVIN.divide(SECOND), celsius.divide(SECOND));
+        assertEquals(SECOND.divide(KELVIN), SECOND.divide(celsius));
+        assertEquals(KELVIN.pow(2), celsius.pow(2));
+        assertEquals(KELVIN.inverse(), celsius.inverse());
+        assertEquals(KELVIN, celsius.pow(2).root(2));
+        UomUnit<Temperature> fahrenheit = KELVIN.multiply(5).divide(9).shift(459.67);
+        assertEquals(KELVIN.multiply(5).divide(9).divide(METRE), fahrenheit.divide(METRE));
         assertEquals(celsius, celsius.pow(1));
         assertEquals(celsius, celsius.root(1));
+        // The exponent of K must still divide: °C has K^1.
+        assertThrows(ArithmeticException.class, () -> celsius.root(2));
     }
 
     @Test
