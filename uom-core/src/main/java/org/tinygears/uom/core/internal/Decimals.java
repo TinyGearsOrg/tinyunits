@@ -16,9 +16,11 @@ public final class Decimals {
     }
 
     /**
-     * Exactly {@code x.divide(y, mc)}, except at scales within about 10 of the {@code int} limits, where the JDK
-     * throws an overflow, underflow or non-terminating {@link ArithmeticException} although a correct result is
-     * representable; this method returns that result. A terminating quotient is built by multiplication instead,
+     * Exactly {@code x.divide(y, mc)} (value, scale, exception class and message), except at scales close to the
+     * {@code int} limits (up to about {@code mc.getPrecision()} away from them): there the JDK may throw an
+     * overflow, underflow or non-terminating {@link ArithmeticException} although a correct result is
+     * representable, and this method returns that result; under {@code RoundingMode.UNNECESSARY} it throws
+     * "Rounding necessary" where the JDK says "Underflow". A terminating quotient is built by multiplication,
      * because JDK 21 strips the trailing zeros of an exact quotient padded to {@code mc} in quadratic time.
      */
     public static BigDecimal divide(BigDecimal x, BigDecimal y, MathContext mc) {

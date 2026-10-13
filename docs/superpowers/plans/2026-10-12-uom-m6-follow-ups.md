@@ -143,6 +143,11 @@ products, `to(null)`).
   the JDK's CLDR data (the differing ones are derived at run time; the suite passes on JDK 21 and 25).
 - Decimal parse (D4): the scale is pre-checked in linear time, but a huge integer (1,000,000 integer digits, scale 0)
   still costs a full `BigDecimal` parse, which is superlinear; there is no digit bound at parse time.
+- `DecimalsTest.hugePowersOfTwoAndFiveEqualBigDecimalDivide` takes 34 s alone and up to 56 s under load on JDK 21 (1.4-2.4 s on
+  JDK 25), almost all of it in the JDK 21 reference `BigDecimal.divide`; only the helper is timed, so it is not flaky, but
+  shrink the cases on JDK 21 if the suite time matters. The helper is slower than the JDK when the exact quotient is much
+  longer than `mc` (70,000-digit dividend / 5^70000 at DECIMAL128: 36-57 ms against 6-12 ms): it builds the full quotient
+  before rounding. Growth measured at about n^1.3-1.6 (BigInteger multiplication), not quadratic.
 - `withDecimals` parses every quantity with scale `ABSOLUTE`, so a `RELATIVE` quantity formats and parses back as
   `ABSOLUTE` (documented).
 - `withDecimals` cannot be switched off (`withDecimals(null)` throws); keep the original format. It checks the precision by
