@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.ElectricCharge;
@@ -182,6 +183,34 @@ class SystemsCatalogTest {
         assertEquals(CGS.PREFIXABLE, ESU.PREFIXABLE);
         assertEquals(Set.of("G", "Gal", "P", "St", "g", "s"), EMU.PREFIXABLE);
         assertEquals(EMU.PREFIXABLE, Gaussian.PREFIXABLE);
+    }
+
+    @Test
+    void prefixedConstantsEqualTheirPrefixedBase() {
+        int expected = 0;
+        int checked = 0;
+        for (Catalog c : CATALOGS) {
+            for (Prefixed p : PARSED.get(c.file()).prefixed()) {
+                if (!p.source().equals(c.file())) {
+                    continue;
+                }
+                UomUnit<?> base = (UomUnit<?>) c.system().getUnit(p.unitSymbol());
+                for (String symbol : p.prefixSymbols()) {
+                    expected++;
+                    MetricPrefix prefix = java.util.Arrays.stream(MetricPrefix.values())
+                            .filter(m -> m.getSymbol().equals(symbol)).findFirst().orElseThrow();
+                    String unitSymbol = symbol + p.unitSymbol();
+                    UomUnit<?> found = (UomUnit<?>) c.system().getUnit(unitSymbol);
+                    String name = prefix.getName().toLowerCase(java.util.Locale.ROOT) + base.getName();
+                    assertEquals(base.prefix(prefix).named(unitSymbol, name), found, c.name() + ": " + unitSymbol);
+                    assertEquals(unitSymbol, found.getSymbol());
+                    assertEquals(name, found.getName());
+                    checked++;
+                }
+            }
+        }
+        assertEquals(expected, checked);
+        assertEquals(92, checked);
     }
 
     // Lets the loop below name a type variable for getUnit(Class<Q>).

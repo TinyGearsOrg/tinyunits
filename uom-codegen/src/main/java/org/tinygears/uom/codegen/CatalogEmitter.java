@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+import javax.measure.MetricPrefix;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.Definitions;
+import org.tinygears.uom.core.parse.Prefixed;
 
 /** Writes the catalog class of typed unit constants and its system of units. */
 public final class CatalogEmitter {
@@ -32,6 +34,7 @@ public final class CatalogEmitter {
                     }
                 """.replace("$J", join(files.stream().map(f -> "{@code data/" + f + "}").toList()))
                 .replace("$C", className));
+        Set<String> emitted = new TreeSet<>();
         for (CatalogEntry e : catalog.entries()) {
             Definition d = e.definition();
             String type = e.quantityType() == null ? "?" : imports.name("javax.measure.quantity." + e.quantityType());
@@ -39,13 +42,17 @@ public final class CatalogEmitter {
             if (e.shared() != null) {
                 unit = local(e.shared(), className, imports);
             } else {
-                try {
-                    unit = UnitExpressionEmitter.emitUnit(d.unit(), definitions, imports);
-                } catch (GenerationException x) {
-                    throw new GenerationException(d.source(), d.line(), x.getMessage(), x);
+                unit = prefixed(d, catalog, definitions, emitted, imports);
+                if (unit == null) {
+                    try {
+                        unit = UnitExpressionEmitter.emitUnit(d.unit(), definitions, imports);
+                    } catch (GenerationException x) {
+                        throw new GenerationException(d.source(), d.line(), x.getMessage(), x);
+                    }
+                    unit = UnitExpressionEmitter.named(unit, d.symbol(), d.name(), imports);
                 }
-                unit = UnitExpressionEmitter.named(unit, d.symbol(), d.name(), imports);
             }
+            emitted.add(className + "." + e.constantName());
             out.append("\n    /** The ").append(d.name()).append(", {@code ").append(d.symbol())
                     .append("}. */\n    public static final ").append(unitClass).append('<').append(type).append("> ")
                     .append(e.constantName()).append(" =\n            ").append(unitClass).append(".unchecked(")
@@ -80,6 +87,37 @@ public final class CatalogEmitter {
 
                 """.replace("$H", join(files.stream().map(f -> "data/" + f).toList())) + imports.block()
                 + out.append("}\n");
+    }
+
+    /**
+     * A unit made by a {@code @prefixed} line, as its base constant with the prefix applied, or null if {@code d} is
+     * not one or its base is not a constant of this catalog's units that an earlier field already initialised.
+     */
+    private static String prefixed(Definition d, CatalogBuilder.Catalog catalog, Definitions definitions,
+            Set<String> emitted, Imports imports) {
+        for (Prefixed p : definitions.prefixed()) {
+            if (!p.source().equals(d.source()) || p.line() != d.line()) {
+                continue;
+            }
+            String base = catalog.units().get(p.unitSymbol());
+            boolean own = base != null && base.startsWith(catalog.className() + ".");
+            if (base == null || own && !emitted.contains(base)) {
+                return null;
+            }
+            for (String symbol : p.prefixSymbols()) {
+                if (d.symbol().equals(symbol + p.unitSymbol())) {
+                    for (MetricPrefix m : MetricPrefix.values()) {
+                        if (m.getSymbol().equals(symbol)) {
+                            return local(base, catalog.className(), imports) + ".prefix("
+                                    + imports.name("javax.measure.MetricPrefix") + "." + m.name() + ").named("
+                                    + UnitExpressionEmitter.literal(d.symbol()) + ", "
+                                    + UnitExpressionEmitter.literal(d.name()) + ")";
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**

@@ -6,6 +6,7 @@ package org.tinygears.uom.systems;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.measure.MetricPrefix;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Time;
 import org.tinygears.uom.core.BaseUnits;
@@ -54,8 +55,8 @@ public final class SI {
 
     /** The kilometre, {@code km}. */
     public static final UomUnit<Length> KILOMETRE =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
+            UomUnit.unchecked(METRE
+                    .prefix(MetricPrefix.KILO)
                     .named("km", "kilometre"));
 
     /** The units of this catalog. */

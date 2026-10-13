@@ -177,6 +177,47 @@ class CatalogEmitterTest {
     }
 
     @Test
+    void prefixedUnitIsEmittedThroughItsBase() throws Exception {
+        String text = catalog();
+        assertTrue(text.contains("KILOMETRE =\n            UomUnit.unchecked(METRE\n                    .prefix(MetricPrefix.KILO)\n"
+                + "                    .named(\"km\", \"kilometre\"));"), text);
+        assertTrue(text.contains("import javax.measure.MetricPrefix;\n"), text);
+        assertFalse(text.contains("Factor.of(1000L, 1L)"), text);
+
+        Map<String, String> sources = quantitySources();
+        sources.put("org.tinygears.uom.systems.UomSystemOfUnits", SYSTEM_STAND_IN);
+        sources.put("org.tinygears.uom.systems.SI", text);
+        try (URLClassLoader loader = InMemoryCompiler.compile(sources, tmp)) {
+            Class<?> si = loader.loadClass("org.tinygears.uom.systems.SI");
+            UomUnit<?> metre = (UomUnit<?>) si.getField("METRE").get(null);
+            UomUnit<?> km = (UomUnit<?>) si.getField("KILOMETRE").get(null);
+            assertEquals(metre.prefix(javax.measure.MetricPrefix.KILO).named("km", "kilometre"), km);
+            assertEquals("km", km.getSymbol());
+            assertEquals("kilometre", km.getName());
+        }
+    }
+
+    @Test
+    void prefixedUnitFallsBackToTheDecomposedFormWithoutAnInitialisedBase() {
+        Map<String, String> noBase = new LinkedHashMap<>(SI.units());
+        noBase.remove("m");
+        String missing = CatalogEmitter.catalog(new CatalogBuilder.Catalog("si.units", "SI", ENTRIES, noBase,
+                SI.prefixable(), SI.preferred()), DEFS);
+        assertTrue(missing.contains(".transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))"), missing);
+        assertFalse(missing.contains(".prefix("), missing);
+
+        // A field is initialised in textual order, so a base declared after its prefixed unit is not usable.
+        List<CatalogEntry> late = new java.util.ArrayList<>(ENTRIES);
+        CatalogEntry km = late.stream().filter(e -> e.constantName().equals("KILOMETRE")).findFirst().orElseThrow();
+        late.remove(km);
+        late.add(0, km);
+        String after = CatalogEmitter.catalog(new CatalogBuilder.Catalog("si.units", "SI", late, SI.units(),
+                SI.prefixable(), SI.preferred()), DEFS);
+        assertTrue(after.contains(".transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))"), after);
+        assertFalse(after.contains(".prefix("), after);
+    }
+
+    @Test
     void headerNamesTheFilesRead() {
         Definitions child = DefinitionParser.parse("b-child.units", new StringReader(
                 "@system Child\n@include z.units\n@include a.units\n"), name -> new StringReader(

@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.measure.MetricPrefix;
 import javax.measure.quantity.Acceleration;
 import javax.measure.quantity.AmountOfSubstance;
 import javax.measure.quantity.Angle;
@@ -150,26 +151,20 @@ public final class EMU {
 
     /** The milligauss, {@code mG}. */
     public static final UomUnit<MagneticFluxDensity> MILLIGAUSS =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 10000000L), Factor.ZERO))
+            UomUnit.unchecked(GAUSS
+                    .prefix(MetricPrefix.MILLI)
                     .named("mG", "milligauss"));
 
     /** The microgauss, {@code µG}. */
     public static final UomUnit<MagneticFluxDensity> MICROGAUSS =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 10000000000L), Factor.ZERO))
+            UomUnit.unchecked(GAUSS
+                    .prefix(MetricPrefix.MICRO)
                     .named("µG", "microgauss"));
 
     /** The nanogauss, {@code nG}. */
     public static final UomUnit<MagneticFluxDensity> NANOGAUSS =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 10000000000000L), Factor.ZERO))
+            UomUnit.unchecked(GAUSS
+                    .prefix(MetricPrefix.NANO)
                     .named("nG", "nanogauss"));
 
     /** The units of this catalog. */

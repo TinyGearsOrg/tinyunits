@@ -6,6 +6,7 @@ package org.tinygears.uom.systems;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.measure.MetricPrefix;
 import javax.measure.quantity.Acceleration;
 import javax.measure.quantity.AmountOfSubstance;
 import javax.measure.quantity.Angle;
@@ -138,40 +139,32 @@ public final class CGS {
 
     /** The centipoise, {@code cP}. */
     public static final UomUnit<?> CENTIPOISE =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .divide(BaseUnits.METRE)
-                    .divide(BaseUnits.SECOND)
-                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
+            UomUnit.unchecked(POISE
+                    .prefix(MetricPrefix.CENTI)
                     .named("cP", "centipoise"));
 
     /** The millipoise, {@code mP}. */
     public static final UomUnit<?> MILLIPOISE =
-            UomUnit.unchecked(BaseUnits.KILOGRAM
-                    .divide(BaseUnits.METRE)
-                    .divide(BaseUnits.SECOND)
-                    .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO))
+            UomUnit.unchecked(POISE
+                    .prefix(MetricPrefix.MILLI)
                     .named("mP", "millipoise"));
 
     /** The centistokes, {@code cSt}. */
     public static final UomUnit<?> CENTISTOKES =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .pow(2)
-                    .divide(BaseUnits.SECOND)
-                    .transform(Converters.affine(Factor.of(1L, 1000000L), Factor.ZERO))
+            UomUnit.unchecked(STOKES
+                    .prefix(MetricPrefix.CENTI)
                     .named("cSt", "centistokes"));
 
     /** The milligalileo, {@code mGal}. */
     public static final UomUnit<Acceleration> MILLIGALILEO =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 100000L), Factor.ZERO))
+            UomUnit.unchecked(GALILEO
+                    .prefix(MetricPrefix.MILLI)
                     .named("mGal", "milligalileo"));
 
     /** The microgalileo, {@code µGal}. */
     public static final UomUnit<Acceleration> MICROGALILEO =
-            UomUnit.unchecked(BaseUnits.METRE
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO))
+            UomUnit.unchecked(GALILEO
+                    .prefix(MetricPrefix.MICRO)
                     .named("µGal", "microgalileo"));
 
     /** The units of this catalog. */

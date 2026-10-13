@@ -78,13 +78,11 @@ future `to(...)` overload in unit-api. Done.
 
 ## 5. Emit prefixed catalog units through `prefix(...)`
 
-**Status:** owner-requested, not started. `@prefixed` units are generated as the decomposed
-`BaseUnits.METRE.transform(Converters.affine(Factor.of(1L, 100L), Factor.ZERO)).named("cm", "centimetre")`. Emit them as
-`<base constant>.prefix(MetricPrefix.CENTI).named("cm", "centimetre")` instead, using the shared base constant. The result
-is the same unit; the generated code states its intent and is shorter. `Definitions` already records the `@prefixed` lines.
-Needs a generator change, a test that every prefixed constant equals its prefixed base, and one regeneration.
-
-**Needed by:** nothing; do together with item 6.
+**Status:** done. `@prefixed` units are generated as `<base constant>.prefix(MetricPrefix.CENTI).named("cm", "centimetre")`
+instead of the decomposed `transform(Converters.affine(...))`. `CatalogEmitter` falls back to the decomposed form when the
+base is not a constant that an earlier field of the catalog (or another catalog) already initialises. Tests:
+`CatalogEmitterTest` (emitted text, compiled equality, both fallbacks) and
+`SystemsCatalogTest.prefixedConstantsEqualTheirPrefixedBase` (all 92 prefixed constants).
 
 ## 6. Typed `from(Quantity<?>)` on the quantity interfaces
 
