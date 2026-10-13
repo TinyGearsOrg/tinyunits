@@ -44,7 +44,9 @@ public final class UomUnitFormat implements UnitFormat {
 
     /**
      * A new format over this format's systems followed by {@code systems}, with a snapshot of this format's
-     * labels; this format is unchanged. A system already in the format is skipped.
+     * labels; this format is unchanged. A system already in the format is skipped. Not detected: a prefixed
+     * reading of a new prefixable unit that equals an existing exact symbol; the existing symbol wins and
+     * formatting still round-trips.
      *
      * @throws IllegalArgumentException when {@code systems} is empty, or a symbol of a given system resolves in
      *     the systems before it (exactly or as a prefixed form) or as a label to a different unit

@@ -4,6 +4,8 @@ package org.tinygears.uom.systems;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -68,30 +70,42 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     }
 
     /**
-     * Loads a system from a {@code .units} file in UTF-8. Includes are resolved relative to the file's directory and
-     * may not leave it (no absolute names, no {@code ..} out of it; checked on the normalized path, so symbolic
-     * links are followed). The name is the {@code @system} name, else the file name without its extension.
+     * Loads a system from a {@code .units} file in UTF-8. Every {@code @include} and {@code @extends} name, in
+     * nested files too, is resolved against the directory of this root file (one flat namespace, like the
+     * generator's data directory). A name must be relative and stay inside that directory both lexically and after
+     * resolving symbolic links (the real path of the file must lie in the real path of the directory), else it can
+     * not be included. The name is the {@code @system} name, else the file name without its extension.
      *
      * @throws IOException when the file itself can not be read ({@link java.nio.file.NoSuchFileException} if it
-     *     does not exist); errors in the content, includes too, are {@link DefinitionException}s
+     *     does not exist, {@link java.nio.charset.MalformedInputException} if it is not UTF-8); errors in the
+     *     content, includes too, are {@link DefinitionException}s
+     * @throws IllegalArgumentException when {@code file} has no file name, such as {@code /}
      * @see #load(String, Reader, DefinitionParser.Resolver)
      */
     public static UomSystemOfUnits load(Path file) throws IOException {
+        Path fileName = file.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("not a file: " + file);
+        }
         Path dir = file.toAbsolutePath().normalize().getParent();
-        String source = file.getFileName().toString();
+        String source = fileName.toString();
         DefinitionParser.Resolver resolver = name -> {
             try {
                 Path p = dir.resolve(name).normalize();
                 if (Path.of(name).isAbsolute() || !p.startsWith(dir)) {
                     throw new IOException("'" + name + "' is outside of " + dir);
                 }
-                return Files.newBufferedReader(p);
+                Path real = p.toRealPath();
+                if (!real.startsWith(dir.toRealPath())) {
+                    throw new IOException("'" + name + "' is outside of " + dir + " (symbolic link)");
+                }
+                return new StringReader(Files.readString(real));
             } catch (InvalidPathException e) {
                 throw new IOException(e.getMessage(), e);
             }
         };
         try (Reader reader = Files.newBufferedReader(file)) {
-            return load(source, withoutExtension(source), reader, resolver);
+            return load(source, withoutExtension(source), reader, once(resolver), new HashMap<>());
         } catch (UncheckedIOException e) {
             throw e.getCause();
         }
@@ -100,7 +114,8 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     /**
      * Loads a system from {@code reader} (not closed), using {@code name} as file name in messages and as the
      * system name when there is no {@code @system} line. {@code resolver} opens included and extended user files
-     * (null: none); a file named by {@code @extends} is opened again to load it as a system of its own. No built-in
+     * (null: none); it is called at most once per name and must return a fresh reader each time, which is read
+     * fully and closed here. A file named by {@code @extends} is also loaded as a system of its own. No built-in
      * files exist: {@code @include si.units} fails unless the resolver provides it.
      *
      * <p>Formulas may use the symbols {@link UomUnitFormat#standard()} resolves (not labels), and the file may not
@@ -110,13 +125,42 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * {@code @extends}-ed system's preferred unit, else {@link SI}'s. Units are {@code Unit<?>}: narrow them with
      * {@code asType}. Nothing is registered globally, except that {@code ~} lines register their alternate-unit
      * symbols in the JVM-wide registry permanently: loading the same definition again works, a different one for
-     * the same symbol is an error until the JVM restarts.
+     * the same symbol is an error until the JVM restarts. {@code @prefixed u k} checks only the generated
+     * {@code ku} against the built-in symbols, though every metric prefix on {@code u} is readable at run time; an
+     * exact built-in symbol wins over such a reading.
      *
      * @throws DefinitionException for an error in a file, with its name and line
-     * @throws UncheckedIOException when {@code reader} fails
+     * @throws UncheckedIOException when {@code reader} fails, or a reader from {@code resolver} can not be read
      */
     public static UomSystemOfUnits load(String name, Reader reader, DefinitionParser.Resolver resolver) {
-        return load(Objects.requireNonNull(name, "name"), name, Objects.requireNonNull(reader, "reader"), resolver);
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(reader, "reader");
+        return load(name, name, reader, resolver == null ? null : once(resolver), new HashMap<>());
+    }
+
+    /** Opens each name once and keeps its text, so parents shared by several files are not read again. */
+    private static DefinitionParser.Resolver once(DefinitionParser.Resolver resolver) {
+        Map<String, String> texts = new HashMap<>();
+        return name -> {
+            String text = texts.get(name);
+            if (text == null) {
+                try (Reader r = resolver.open(name)) {
+                    if (r == null) {
+                        return null;
+                    }
+                    StringWriter w = new StringWriter();
+                    try {
+                        r.transferTo(w);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException("cannot read '" + name
+                                + "': the resolver returned a failing, closed or reused reader", e);
+                    }
+                    text = w.toString();
+                }
+                texts.put(name, text);
+            }
+            return new StringReader(text);
+        };
     }
 
     private static String withoutExtension(String file) {
@@ -126,7 +170,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static UomSystemOfUnits load(String source, String defaultName, Reader reader,
-            DefinitionParser.Resolver resolver) {
+            DefinitionParser.Resolver resolver, Map<String, UomSystemOfUnits> loaded) {
         UomUnitFormat builtIn = UomUnitFormat.standard();
         Definitions d = DefinitionParser.parse(source, reader, resolver, s -> builtIn.resolve(s).orElse(null));
         String name = d.system() != null ? d.system() : defaultName;
@@ -142,11 +186,14 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         d.prefixed().stream().filter(p -> p.source().equals(source)).forEach(p -> prefixable.add(p.unitSymbol()));
         List<UomSystemOfUnits> parents = new ArrayList<>();
         for (Extends x : d.extended()) {
-            UomSystemOfUnits system;
-            try (Reader r = resolver.open(x.file())) {
-                system = load(x.file(), withoutExtension(x.file()), r, resolver);
-            } catch (IOException e) {
-                throw new DefinitionException(x.source(), x.line(), "cannot include '" + x.file() + "'", e);
+            UomSystemOfUnits system = loaded.get(x.file());
+            if (system == null) {
+                try (Reader r = resolver.open(x.file())) {
+                    system = load(x.file(), withoutExtension(x.file()), r, resolver, loaded);
+                } catch (IOException e) {
+                    throw new DefinitionException(x.source(), x.line(), "cannot include '" + x.file() + "'", e);
+                }
+                loaded.put(x.file(), system);
             }
             parents.add(system);
             for (String symbol : system.symbols()) {

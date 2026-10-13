@@ -8,18 +8,24 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -414,5 +420,130 @@ class UserUnitsTest {
         assertEquals("furlong", furlongs.getUnit().getSymbol());
         assertEquals(48.0, furlongs.getValue().doubleValue(), 1e-12);
         assertEquals(BaseUnits.METRE.getDimension(), medieval.getUnit("league").getDimension());
+    }
+
+    private static boolean link(Path link, Path target) {
+        try {
+            Files.createSymbolicLink(link, target);
+            return true;
+        } catch (IOException | UnsupportedOperationException | SecurityException e) {
+            return false;
+        }
+    }
+
+    private static void includeFails(Path root, String name) {
+        DefinitionException e = assertThrows(DefinitionException.class, () -> UomSystemOfUnits.load(root));
+        assertEquals(root.getFileName() + ":1: cannot include '" + name + "'", e.getMessage());
+    }
+
+    @Test
+    void symbolicLinksMustStayInside(@TempDir Path tmp) throws IOException {
+        Path d = Files.createDirectory(tmp.resolve("d"));
+        Files.writeString(tmp.resolve("secret.units"), "secret 2 m\n");
+        Files.writeString(d.resolve("real.units"), "inside 3 m\n");
+        assumeTrue(link(d.resolve("link.units"), Path.of("../secret.units")), "symbolic links unsupported");
+        Path main = d.resolve("main.units");
+        Files.writeString(main, "@include link.units\n");
+        includeFails(main, "link.units");
+        link(d.resolve("linkdir"), Path.of(".."));
+        Files.writeString(main, "@include linkdir/secret.units\n");
+        includeFails(main, "linkdir/secret.units");
+        link(d.resolve("c1.units"), Path.of("c2.units"));
+        link(d.resolve("c2.units"), Path.of("../secret.units"));
+        Files.writeString(main, "@include c1.units\n");
+        includeFails(main, "c1.units");
+        Files.writeString(main, "@extends link.units\n");
+        includeFails(main, "link.units");
+
+        link(d.resolve("in.units"), Path.of("real.units"));
+        link(d.resolve("c3.units"), Path.of("c4.units"));
+        Files.writeString(d.resolve("real2.units"), "inside2 5 m\n");
+        link(d.resolve("c4.units"), d.resolve("real2.units"));
+        Files.writeString(main, "@include in.units\n@include c3.units\nx 2 inside\ny 2 inside2\n");
+        UomSystemOfUnits ok = UomSystemOfUnits.load(main);
+        assertEquals(SI.METRE.multiply(6), ok.getUnit("x"));
+        assertEquals(SI.METRE.multiply(10), ok.getUnit("y"));
+    }
+
+    @Test
+    void includesResolveAgainstTheRootDirectory(@TempDir Path dir) throws IOException {
+        Files.createDirectory(dir.resolve("sub"));
+        Files.writeString(dir.resolve("main.units"), "@include sub/inner.units\nx 2 y\n");
+        Files.writeString(dir.resolve("sub/inner.units"), "@include deeper.units\ny 2 deep\n");
+        Files.writeString(dir.resolve("deeper.units"), "deep 3 m\n");
+        Files.writeString(dir.resolve("sub/deeper.units"), "deep 5 m\n");
+        assertEquals(SI.METRE.multiply(12), UomSystemOfUnits.load(dir.resolve("main.units")).getUnit("x"));
+    }
+
+    @Test
+    void pathWithoutFileNameOrMalformedText(@TempDir Path dir) throws IOException {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> UomSystemOfUnits.load(Path.of("/")));
+        assertEquals("not a file: /", e.getMessage());
+        Path bad = dir.resolve("bad.units");
+        Files.write(bad, new byte[] {'x', ' ', '2', ' ', 'm', '\n', (byte) 0xC3, (byte) 0x28, '\n'});
+        assertThrows(MalformedInputException.class, () -> UomSystemOfUnits.load(bad));
+        Files.writeString(dir.resolve("inc.units"), "@include bad.units\n");
+        DefinitionException d = assertThrows(DefinitionException.class,
+                () -> UomSystemOfUnits.load(dir.resolve("inc.units")));
+        assertEquals("inc.units:1: cannot include 'bad.units'", d.getMessage());
+        assertInstanceOf(MalformedInputException.class, d.getCause());
+    }
+
+    @Test
+    void diamondExtendsOpensEachFileOnce() {
+        Map<String, String> files = new HashMap<>();
+        int depth = 25;
+        for (int i = 1; i <= depth; i++) {
+            String next = i == depth ? "" : "@extends a" + (i + 1) + ".units\n@extends b" + (i + 1) + ".units\n";
+            files.put("x" + i + ".units", next + "ux" + i + " " + i + " m\n");
+            files.put("a" + i + ".units", "@extends x" + i + ".units\nua" + i + " 1 m\n");
+            files.put("b" + i + ".units", "@extends x" + i + ".units\nub" + i + " 1 m\n");
+        }
+        Map<String, Integer> opens = new HashMap<>();
+        DefinitionParser.Resolver counting = name -> {
+            opens.merge(name, 1, Integer::sum);
+            return files(files).open(name);
+        };
+        UomSystemOfUnits s = assertTimeoutPreemptively(Duration.ofSeconds(1), () -> UomSystemOfUnits.load("x0.units",
+                new StringReader("@extends a1.units\n@extends b1.units\nux0 1 m\n"), counting));
+        assertEquals(SI.METRE.multiply(depth), s.getUnit("ux" + depth));
+        assertEquals(1 + 3 * depth, s.symbols().size());
+        assertEquals(files.keySet(), opens.keySet());
+        assertTrue(opens.values().stream().allMatch(n -> n == 1), opens.toString());
+    }
+
+    @Test
+    void closedReaderFromResolver() {
+        StringReader used = new StringReader("x 2 m\n");
+        used.close();
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> UomSystemOfUnits.load("u.units",
+                new StringReader("@include a.units\n"), name -> used));
+        assertEquals("cannot read 'a.units': the resolver returned a failing, closed or reused reader",
+                e.getMessage());
+    }
+
+    @Test
+    void memberOfAPrefixedIncludedUnitIsPrefixable() {
+        UomSystemOfUnits s = load("@include e.units\n@member gs\n", Map.of("e.units", "gs 2 g\n@prefixed gs m\n"));
+        assertTrue(s.isPrefixable("gs"));
+        assertEquals(List.of("gs"), s.getUnits().stream().map(Unit::getSymbol).toList());
+        assertEquals(SI.GRAM.multiply(2e-6), UomUnitFormat.standard().with(s).parse("µgs"));
+    }
+
+    @Test
+    void prefixedIncludedUnitIsNotPrefixableButItsPrefixedFormIsAUnit() {
+        UomSystemOfUnits s = load("@include rods.units\n@prefixed rod k\n", Map.of("rods.units", "rod 5.5 yd\n"));
+        assertEquals(List.of("krod"), s.getUnits().stream().map(Unit::getSymbol).toList());
+        assertFalse(s.isPrefixable("rod"));
+        assertEquals(USCustomary.YARD.multiply(5500), s.getUnit("krod"));
+    }
+
+    @Test
+    void conflictWithAPurePrefixReading() {
+        UomSystemOfUnits gm = new UomSystemOfUnits("Gee", List.of(SI.GRAM.named("Gm", "gee")), Map.of(), Set.of());
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> UomUnitFormat.standard().with(gm));
+        assertEquals("symbol 'Gm' of Gee is a different unit in SI", e.getMessage());
     }
 }
