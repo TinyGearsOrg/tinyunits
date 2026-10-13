@@ -36,9 +36,10 @@ header. Generated Java files start with `// SPDX-License-Identifier: Apache-2.0`
 - `DocsSnippetsTest` runs the `units`, `units-error` and `java` blocks of `README.md`, `docs/CUSTOM-UNITS.md` and
   `SECURITY.md`: keep them true when the behaviour changes.
 - Release checks: `bash scripts/check-pom.sh` (POM metadata and release profile; `--self-test` proves its checks
-  fail), `bash scripts/check-javadoc.sh` (no javadoc warnings in the published modules) and
+  fail), `bash scripts/check-javadoc.sh` (no javadoc warnings in the published modules),
   `bash scripts/verify-release.sh` (release artifacts, reproducibility, jlink and a consumer project; uploads nothing;
-  `--self-test` proves its checks fail). [scripts/README.md](scripts/README.md) lists what each script checks.
+  `--self-test` proves its checks fail) and `bash scripts/check-workflows.sh` (the CI workflow and dependabot
+  configuration). [scripts/README.md](scripts/README.md) lists what each script checks.
 
 Before a pull request, run what the CI runs (`mvn -B verify` on JDK 21 and 25, the rest on one JDK):
 
@@ -46,8 +47,11 @@ Before a pull request, run what the CI runs (`mvn -B verify` on JDK 21 and 25, t
 mvn -B verify
 mvn -B -Pgenerate -pl uom-codegen -am process-classes
 git diff --exit-code
-bash scripts/verify-release.sh
+bash scripts/verify-release.sh --require-jlink
 ```
+
+The workflow is `.github/workflows/ci.yml`; `bash scripts/check-workflows.sh` checks that it runs exactly these
+commands, with a read-only token and no deploy step. `--require-jlink` needs a JDK that can link (Temurin can).
 
 ## Conventions
 

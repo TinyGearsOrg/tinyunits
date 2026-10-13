@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: Apache-2.0
+# Build and checks only: nothing is deployed, signed or tagged (docs/RELEASING.md); scripts/check-workflows.sh guards this.
+# The run commands equal the CI block of CONTRIBUTING.md.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build (JDK ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [21, 25]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - run: mvn -B verify
+
+  generated:
+    name: generated files up to date
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - run: mvn -B -Pgenerate -pl uom-codegen -am process-classes
+      - run: git diff --exit-code
+
+  release-check:
+    name: release check (JDK 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      # Temurin ships jmods, so jlink must not be skipped
+      - run: bash scripts/verify-release.sh --require-jlink

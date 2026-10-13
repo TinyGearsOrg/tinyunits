@@ -7,6 +7,7 @@ Release checks; none of them signs, deploys, tags or uploads anything. Run them 
 | `check-pom.sh [--self-test]` | POM metadata and the release profile against the Maven Central rules |
 | `check-javadoc.sh` | no javadoc warnings in the published modules (doclint all) |
 | `verify-release.sh [--jdk <JDK home>] [--require-jlink] [--self-test]` | the release artifacts and a consumer project, below |
+| `check-workflows.sh [--self-test]` | `.github/workflows/ci.yml` (the only workflow) and `.github/dependabot.yml`, below |
 
 ## verify-release.sh
 
@@ -39,3 +40,14 @@ the JDK 21 run is still to be done. `--self-test` builds once and asserts that e
 (missing licence, stray file, test class, manifest entry, wrong module descriptor, missing javadoc jar, extra
 artifact, `-SNAPSHOT` dependency, a differing byte, a wrong consumer output, `uom` resolved from outside the
 temporary repository). Exit status: 0 passed, 1 a check failed (with the reason).
+
+## check-workflows.sh
+
+Parses the workflow and the dependabot configuration (python3 with PyYAML) and fails when: a workflow file other than
+`ci.yml` exists; the triggers are not exactly `push` and `pull_request` (no `pull_request_target`); `permissions` is not
+exactly `contents: read` or a job sets its own; the workflow mentions `secrets`, `github.token` or `GITHUB_TOKEN`; a
+job is not `build` (matrix JDK 21 and 25), `generated` or `release-check`, lacks `timeout-minutes` or runs a deploy,
+`-Prelease`, publish, gpg, `git push`/`git tag` or `gh release` command; an action is not `actions/checkout` or
+`actions/setup-java` at a major tag, checkout keeps credentials or setup-java is not Temurin; the run commands differ
+from the CI block of `CONTRIBUTING.md`; dependabot does not update Maven and GitHub Actions weekly, grouped, with a PR
+limit. `--self-test` asserts that each of these mutations is detected.
