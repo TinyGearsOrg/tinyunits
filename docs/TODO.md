@@ -1,6 +1,6 @@
 # TODO
 
-Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), gaps against the JSR-385 reference implementation Indriya (9 to 14), the base units of a system (15), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
+Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), gaps against the JSR-385 reference implementation Indriya (9 to 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and 18), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
 
 ## 1. Offset-unit arithmetic (decision D5)
 
@@ -188,6 +188,53 @@ its catalogue and its preferred units (`@preferred Length cm`). A user may expec
   only option that makes the electromagnetic CGS formulas correct; touches the core, `asType` and equality.
 
 **Needed by:** A before 1.0; decide B and C before 1.0 or record them as out of scope.
+
+## 16. Add an AGENTS.md
+
+**Status:** not started. The repository has no `AGENTS.md`, so AI coding agents work without the project's rules. Add one at
+the root (and a `CLAUDE.md` that points to it, if wanted) as a short must-follow contract that links to `CONTRIBUTING.md`
+instead of repeating it. Candidate content, all from `CONTRIBUTING.md` and the docs:
+- Build and test: `mvn -q -B clean verify`; Java 21.
+- Generated files (`data/` is the source; never edit the generated catalogs and quantity types by hand; regenerate after
+  changing `data/` or the generator).
+- Tests: every change has tests, a bug fix a test that fails without the fix; exact assertions.
+- `ApiSurfaceTest` pins the public API (`mvn -B verify -Duom.writeApi` rewrites `docs/api/public-api.txt`);
+  `DocsSnippetsTest` runs the code blocks of the docs, so keep them true.
+- Commit prefixes (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `style:`, `build:`, `ci:`), short bodies, no emojis.
+- Git hygiene: commit only the files you changed, stage explicit paths, never push or open PRs unless asked.
+- Source files carry the `SPDX-License-Identifier: Apache-2.0` header; comments short.
+
+**Needed by:** nothing; do before accepting outside or agent contributions.
+
+## 17. Pre-commit configuration
+
+**Status:** not started. There is no `.pre-commit-config.yaml`; the checks run only in CI and by hand (`scripts/check-pom.sh`,
+`scripts/check-javadoc.sh`, `scripts/check-workflows.sh`). Add a config whose hooks are cheap and local: the formatting
+check (item 18), whitespace and end-of-file fixers, a check that generated files are not edited by hand (regenerate and
+diff, or a header check), the `scripts/check-*.sh` scripts that need no network, and a commit-message hook for the
+conventional prefixes of `CONTRIBUTING.md`. Keep `mvn clean verify` out of the hooks (too slow); CI stays the gate.
+Document the setup in `CONTRIBUTING.md` and `AGENTS.md` (item 16).
+
+**Needed by:** nothing; do together with item 18.
+
+## 18. Code formatting
+
+**Status:** not started. No formatter or style check is configured (no Spotless, Checkstyle, formatter plugin or
+`.editorconfig`); the code is formatted by convention only (4-space indent, no tabs, lines up to about 126 characters in
+the files sampled). Decide the style, apply it once in a single `style:` commit, and enforce it.
+
+**Options:**
+- **A. Spotless** with google-java-format (AOSP style for 4 spaces) or a custom Eclipse profile, run as `spotless:check` in
+  `verify` and `spotless:apply` locally.
+- **B. Checkstyle** for rules only (indent, line length, imports, no tabs); no auto-format.
+- **C. `.editorconfig` only** (indent, line length, final newline), no enforcement.
+
+**Points to settle:** the generated sources are committed and must stay byte-identical to the generator output, so either
+exclude them from the formatter or make the generator emit formatted code (the golden tests in `uom-codegen` pin its
+output); the line-length limit; whether the check fails the build or only warns. A formatting-only commit also moves
+`git blame`, so list it in `.git-blame-ignore-revs`.
+
+**Needed by:** nothing; do before accepting outside contributions.
 
 ## Release readiness
 
