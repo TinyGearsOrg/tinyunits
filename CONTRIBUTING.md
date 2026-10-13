@@ -37,7 +37,8 @@ header. Generated Java files start with `// SPDX-License-Identifier: Apache-2.0`
   `SECURITY.md`: keep them true when the behaviour changes.
 - Release checks: `bash scripts/check-pom.sh` (POM metadata and release profile; `--self-test` proves its checks
   fail), `bash scripts/check-javadoc.sh` (no javadoc warnings in the published modules) and
-  `bash scripts/verify-release.sh` (release artifacts and a consumer project; uploads nothing).
+  `bash scripts/verify-release.sh` (release artifacts, reproducibility, jlink and a consumer project; uploads nothing;
+  `--self-test` proves its checks fail). [scripts/README.md](scripts/README.md) lists what each script checks.
 
 Before a pull request, run what the CI runs (`mvn -B verify` on JDK 21 and 25, the rest on one JDK):
 

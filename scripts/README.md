@@ -1,0 +1,39 @@
+# Scripts
+
+Release checks; none of them signs, deploys, tags or uploads anything. Run them from any directory.
+
+| Script | Checks |
+|---|---|
+| `check-pom.sh [--self-test]` | POM metadata and the release profile against the Maven Central rules |
+| `check-javadoc.sh` | no javadoc warnings in the published modules (doclint all) |
+| `verify-release.sh [--jdk <JDK home>] [--self-test]` | the release artifacts and a consumer project, below |
+
+## verify-release.sh
+
+Builds a copy of the working tree (uncommitted changes included) with
+`mvn -Prelease -Dgpg.skip=true -DskipTests install` into a temporary local repository
+(`-Dmaven.repo.local`, with `~/.m2/repository` as a read-only `maven.repo.local.tail`, so it works offline when the
+plugins are cached), then:
+
+1. **Release build** as above.
+2. **Installed artifacts:** `uom-parent` (pom), `uom-core` and `uom` (pom, jar, sources and javadoc jar), exactly;
+   `uom-codegen`, `uom-tck` and `uom-examples` are installed (pom and jar) but have no sources or javadoc jar (they
+   are never deployed, see `check-pom.sh`). The jars contain `module-info.class`, `META-INF/LICENSE` (equal to
+   `LICENSE`), the manifest entries (`Implementation-Title`, `-Version`, `-Vendor`, `Build-Jdk-Spec` of the JDK) and
+   nothing else (no tests, no data files); the sources jars likewise; the javadoc jars document no internal package;
+   `jar --describe-module` gives the exact module descriptors; `check-pom.sh` passes on the installed POMs.
+3. **Reproducibility:** a second build from another directory into another repository gives byte-identical poms,
+   jars, sources and javadoc jars. Builds on different JDKs differ (`Build-Jdk-Spec`); releases use JDK 21.
+4. **Consumer** (`consumer/`): a project that depends only on `org.tinygears:uom` resolves exactly `uom`, `uom-core`
+   and `unit-api` 2.2, and runs `uom-examples`' `Examples` (copied in) on the class path and on the module path
+   (module `org.tinygears.uom.consumer`); the output must equal `consumer/expected-output.txt`, the values that
+   `ExamplesTest` pins (update both together).
+5. **jlink:** an image with `org.tinygears.uom`, the consumer and `jdk.localedata` (for the German locale example)
+   contains exactly those modules plus `java.base` and `java.measure`, and runs the consumer with the same output.
+   Reported as `SKIPPED` when the JDK cannot link (no `jmods` and a runtime image that is not linkable or was modified
+   by a distribution package).
+
+`--jdk <JDK home>` runs everything on that JDK (`JAVA_HOME`). On a JDK other than 21 the script ends with a note that
+the JDK 21 run is still to be done. `--self-test` builds once and asserts that each check fails on a mutated copy
+(missing licence, stray file, test class, manifest entry, missing javadoc jar, extra artifact, `-SNAPSHOT`
+dependency, a differing byte, a wrong consumer output). Exit status: 0 passed, 1 a check failed (with the reason).
