@@ -47,16 +47,6 @@ pick up the items marked "M3+" or "M4".
   irrational scale throws `ArithmeticException` instead of `UnconvertibleException`; a huge `BigDecimal` `toPlainString()`
   is quadratic.
 
-## Spike report
-
-- `docs/spikes/2026-tck-m1.md`: say that the 6 prefix tests exercise the API's own enums; narrow the round-trip requirement
-  to "every unit with a non-null symbol in an available `SystemOfUnits`"; the reproduce commands use a relative worktree path.
-- The spike branch `spike/tck` (bdf510a) exists only in the local worktree `/home/agentuser/tinyunits-spike`; milestone 3
-  needs that adapter, so preserve it before the worktree is removed.
-- Decisions the spike raised: is a TCK pass enough for N1 or do we add our own behaviour tests (recommended: both); the
-  provider needs a `QuantityFactory` for all 33 `javax.measure.quantity` types; catalog unit symbols must round-trip through
-  the default `UnitFormat` (ties symbol rules to the milestone 6 formatter).
-
 ## Done in milestone 2
 
 - `Factor.of(BigInteger n, BigInteger d, int piExponent, int rootIndex)` parts factory, routed through `make`.

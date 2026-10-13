@@ -1,6 +1,6 @@
 # TODO
 
-Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), gaps against the JSR-385 reference implementation Indriya (9 to 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and 18), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
+Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), gaps against the JSR-385 reference implementation Indriya (9 to 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and 18), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/follow-ups/` hold the review findings that are not tracked here.
 
 ## 1. Offset-unit arithmetic (decision D5)
 
@@ -58,7 +58,7 @@ passes (113 of 113) with it. The generated catalog already has `rad` and `sr` (`
 **Needed by:** nothing in milestone 3 any more; decide before 1.0.
 
 **Related risk, not a decision:** `asType` uses `ServiceProvider.current()`; our provider has priority 100, but a provider of
-higher priority on the class path still breaks it. Other items: `docs/superpowers/plans/2026-10-12-uom-m3-follow-ups.md`.
+higher priority on the class path still breaks it. Other items: `docs/follow-ups/2026-10-12-uom-m3-follow-ups.md`.
 
 ## 3. Offset-unit products
 
@@ -256,7 +256,7 @@ No version has been released, signed, tagged or uploaded. The release is prepare
 
 ## Milestone follow-up lists
 
-Review findings of each milestone that are not owner decisions: `docs/superpowers/plans/2026-10-12-uom-m1-follow-ups.md`
-to `2026-10-12-uom-m6-follow-ups.md`, and [2026-10-13-uom-m7-follow-ups.md](superpowers/plans/2026-10-13-uom-m7-follow-ups.md)
+Review findings of each milestone that are not owner decisions: `docs/follow-ups/2026-10-12-uom-m1-follow-ups.md`
+to `2026-10-12-uom-m6-follow-ups.md`, and [2026-10-13-uom-m7-follow-ups.md](follow-ups/2026-10-13-uom-m7-follow-ups.md)
 (release engineering, including the CI owner decisions).
 

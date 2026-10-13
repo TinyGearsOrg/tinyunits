@@ -3,7 +3,7 @@
 Findings from the per-task reviews of milestone 7 (release engineering and documentation) that were triaged as
 follow-up work or owner decisions, not merge blockers. Milestone 7 state: nothing published, tagged or signed; version
 `0.1.0-SNAPSHOT`; TCK 113 of 113 tests; 1112 tests in `mvn -q -B clean verify` (core 506, codegen 169, uom 322,
-tck 113, examples 2). "Task n" refers to `2026-10-13-uom-m7-release-engineering.md`. What the owner must do before the
+tck 113, examples 2). "Task n" refers to the milestone 7 plan, removed from the tree (see git history). What the owner must do before the
 first release is in `docs/TODO.md`, "Release readiness".
 
 ## Done by milestone 7 (from earlier follow-ups)

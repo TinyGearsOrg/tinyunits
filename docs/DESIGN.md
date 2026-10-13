@@ -179,7 +179,7 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     milestone 6). `withMathContext(mc)` (public on `AbstractDecimalQuantity`, not on the typed interfaces) changes the
     context without rounding the value; the decimal parse uses it.
   - Irrational factors (a pi or root in the converter) are best effort for decimal arithmetic; see
-    `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
+    `docs/follow-ups/2026-10-12-uom-m4-follow-ups.md`.
 - **Equality (F20).** `equals`: same implementation class, same unit, same scale, same value. `double`: `Double.compare`.
   Decimal (D4): `compareTo == 0`, so `1.0 m` equals `1.00 m`; the `MathContext` is not part of equality; `hashCode` uses
   `stripTrailingZeros()`. `LengthDouble` never equals `LengthDecimal`. `isEquivalentTo`: same value after conversion to the
@@ -355,7 +355,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 ## 6. Testing and conformance
 
 - `unit-tck` 2.2 against our provider (N1): module `uom-tck`, 113 of 113 tests pass, 0 skipped
-  (`docs/spikes/2026-tck-m3.md`). Own contract tests from the Javadoc: `QuantityContractTest`
+  (`mvn -q -B clean verify`). Own contract tests from the Javadoc: `QuantityContractTest`
   (`uom`) and the `contract` package of `uom-core`.
 - Parsed units equal generated constants; catalog round trip for every unit (N6).
 - Generator golden tests: sample inputs compile, behave, and report errors with file and line.
@@ -398,22 +398,22 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 3. SI catalog: generator for `si.units`, prefixes, the service provider, basic unit and quantity
    formats (symbols, prefixes, formulas); the TCK runs for real. Done: 33 types, 128 SI catalog
    entries, TCK 113 of 113 tests, 554 tests in `mvn -q -B clean verify`. Follow-ups:
-   `docs/superpowers/plans/2026-10-12-uom-m3-follow-ups.md`.
+   `docs/follow-ups/2026-10-12-uom-m3-follow-ups.md`.
 4. `BigDecimal`: decimal base class and the precision rule. Done: `AbstractDecimalQuantity`, `Precision`, 33 `XDecimal`
    classes (133 generated quantity files), 33 types, 128 SI catalog entries, TCK 113 of 113 tests, 708 tests in
    `mvn -q -B clean verify` (core 350, codegen 97, quantities 28, systems 119, tck 113, examples 1). Follow-ups:
-   `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
+   `docs/follow-ups/2026-10-12-uom-m4-follow-ups.md`.
 5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.toSystem(system)`. Done: `USCustomary`, `Imperial`, `CGS`,
    `ESU`, `EMU`, `Gaussian` catalogs (35, 42, 16, 22, 29, 26 distinct units, with `SI` 128), the directives `@system`,
    `@extends`, `@member`, `toSystem(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 901 tests in
    `mvn -q -B clean verify` (core 430, codegen 162, uom 195, tck 113, examples 1; counted after merging the quantities and
    systems modules into `uom`). Follow-ups:
-   `docs/superpowers/plans/2026-10-12-uom-m5-follow-ups.md`.
+   `docs/follow-ups/2026-10-12-uom-m5-follow-ups.md`.
 6. Serialization, locale-aware formats, a faithful form for offset units, decimal-preserving parse, user units at
    run time. Done: serialization proxies for units and quantities (F12), the shift grammar and offset format (F9),
    `withLocale`/`withGrouping`/`withDecimals` (F9), `UomSystemOfUnits.load`, `UomUnitFormat.with` and `resolve`
    (F17, F18), TCK 113 of 113 tests, 1070 tests in `mvn -q -B clean verify` (core 506, codegen 162, uom 288, tck 113,
-   examples 1). Follow-ups: `docs/superpowers/plans/2026-10-12-uom-m6-follow-ups.md`.
+   examples 1). Follow-ups: `docs/follow-ups/2026-10-12-uom-m6-follow-ups.md`.
 7. Release engineering: POM metadata, sources and javadoc jars, a signing profile, CI on JDK 21 and the current JDK, the
    custom-unit guide and unit table (N7), the versioning policy and public API definition (N8), a JPMS review. Done
    (prepared, nothing published): POM metadata and an inactive `release` profile (sources, javadoc, signing, Central
@@ -424,7 +424,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    the CI workflow (JDK 21 and 25) and dependabot; TCK 113 of 113 tests, 1112 tests in `mvn -q -B clean verify` (core
    506, codegen 169, uom 322, tck 113, examples 2). Not done: the repository rename and the publication itself (the
    owner's action, [TODO.md](TODO.md), "Release readiness"). Follow-ups:
-   `docs/superpowers/plans/2026-10-13-uom-m7-follow-ups.md`.
+   `docs/follow-ups/2026-10-13-uom-m7-follow-ups.md`.
 
 ## 8. Open items for the implementation plan
 

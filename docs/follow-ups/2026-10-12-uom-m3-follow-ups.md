@@ -146,7 +146,6 @@ Tracked with options in `docs/TODO.md` (the first three); the code keeps the cur
   cite `UomUnitTest.systemUnitSymbols`; a test writes the static `TestServiceProvider.SYSTEM_UNITS`.
   The `asType` unknown-type fix depends on the provider throwing `IllegalArgumentException` and looks the factory up twice.
 - The provider tests were not seen failing before the implementation (red run skipped).
-- Spike doc wording on `BaseUnits` versus `SI` is loose (`docs/spikes/2026-tck-m1.md`).
 
 ## Build
 
