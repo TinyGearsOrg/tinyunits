@@ -16,6 +16,8 @@
 
   <properties>
     <central.skipPublishing>true</central.skipPublishing>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+    <maven.source.skip>true</maven.source.skip>
   </properties>
 
   <dependencies>
@@ -47,7 +49,7 @@
           <dependency>
             <groupId>org.apache.maven.surefire</groupId>
             <artifactId>surefire-testng</artifactId>
-            <version>3.2.5</version>
+            <version>${surefire.version}</version>
           </dependency>
         </dependencies>
         <configuration>

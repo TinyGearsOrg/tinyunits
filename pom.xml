@@ -58,11 +58,12 @@
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!-- Reproducible-build timestamp of the archive entries: at each release, set it to the UTC instant
-         of the release commit (git log -1 format=%cI, as Z) in the same commit as the version change. -->
+    <!-- Reproducible-build timestamp of the archive entries. At each release, set it in the version-change
+         commit to the release date or to the committer date of the previous commit (git log -1, format %cI). -->
     <project.build.outputTimestamp>2026-10-13T00:00:00Z</project.build.outputTimestamp>
-    <!-- Central upload of a module in the release profile; the unpublished modules set it to true. -->
+    <!-- The unpublished modules set it to true; see the central-publishing configuration. -->
     <central.skipPublishing>false</central.skipPublishing>
+    <surefire.version>3.2.5</surefire.version>
   </properties>
 
   <dependencies>
@@ -91,7 +92,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>${surefire.version}</version>
           <configuration>
             <!-- class path so test-only service providers work -->
             <useModulePath>false</useModulePath>
@@ -161,6 +162,7 @@
         <executions>
           <execution>
             <id>enforce</id>
+            <phase>validate</phase>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -183,12 +185,12 @@
   </build>
 
   <profiles>
-    <!-- Release artifacts: mvn -Prelease ...; signing needs -Dgpg.skip=false, the upload is the owner's step. -->
+    <!-- Release artifacts: mvn -Prelease ...; signing needs -Dgpg.skip=false, the upload is the owner's step.
+         maven-gpg-plugin adds batch, no-tty under mvn -B and loopback pinentry when MAVEN_GPG_PASSPHRASE is set. -->
     <profile>
       <id>release</id>
       <properties>
         <gpg.skip>true</gpg.skip>
-        <gpg.pinentryMode>loopback</gpg.pinentryMode>
         <!-- Task 2 of milestone 7 fixes the javadoc warnings and sets this to true. -->
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
       </properties>
@@ -216,6 +218,7 @@
                 <configuration>
                   <doclint>all</doclint>
                   <failOnWarnings>${javadoc.failOnWarnings}</failOnWarnings>
+                  <bottom>Licensed under the Apache License, Version 2.0.</bottom>
                 </configuration>
               </execution>
             </executions>
@@ -231,12 +234,6 @@
                 </goals>
                 <configuration>
                   <skip>${gpg.skip}</skip>
-                  <!-- CI: non-interactive, passphrase from MAVEN_GPG_PASSPHRASE -->
-                  <gpgArguments>
-                    <arg>--batch</arg>
-                    <arg>--pinentry-mode</arg>
-                    <arg>${gpg.pinentryMode}</arg>
-                  </gpgArguments>
                 </configuration>
               </execution>
             </executions>
@@ -245,10 +242,21 @@
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
+            <!-- Explicit values, so -D user properties cannot widen the upload. Two independent guards keep the
+                 unpublished modules out: excludeArtifacts (holds against -Dcentral.skipPublishing=false) and
+                 their skipPublishing (holds against -DexcludeArtifacts=..., which replaces the list). -->
             <configuration>
               <publishingServerId>central</publishingServerId>
               <autoPublish>false</autoPublish>
+              <waitForPublishCompletion>false</waitForPublishCompletion>
+              <ignorePublishedComponents>false</ignorePublishedComponents>
+              <failOnBuildFailure>true</failOnBuildFailure>
               <skipPublishing>${central.skipPublishing}</skipPublishing>
+              <excludeArtifacts>
+                <artifact>uom-codegen</artifact>
+                <artifact>uom-tck</artifact>
+                <artifact>uom-examples</artifact>
+              </excludeArtifacts>
             </configuration>
           </plugin>
         </plugins>

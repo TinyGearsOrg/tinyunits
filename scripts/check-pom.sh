@@ -24,11 +24,26 @@ self_test() {
     "license|drop('pom.xml', '<licenses>', '</licenses>')|uom-parent: licenses/license/name"
     "developer-email|drop('pom.xml', '<email>', '</email>')|uom-parent: developers/developer/email"
     "deploy-version|drop_version('pom.xml', 'maven-deploy-plugin')|plugin.version' for"
-    "jar-version|drop_version('pom.xml', 'maven-jar-plugin')|maven-jar-plugin is not pinned"
+    "clean-version|drop_version('pom.xml', 'maven-clean-plugin')|maven-clean-plugin is not pinned"
     "codegen-deploy-skip|sub('uom-codegen/pom.xml', '<skip>true</skip>', '<skip>false</skip>')|uom-codegen: maven-deploy-plugin skip"
     "tck-skip-publishing|sub('uom-tck/pom.xml', '<central.skipPublishing>true<', '<central.skipPublishing>false<')|uom-tck: release: central-publishing skipPublishing"
     "enforcer-rule|drop('pom.xml', '<banDuplicatePomDependencyVersions', '/>')|enforcer rule banDuplicatePomDependencyVersions"
     "outputTimestamp|drop('pom.xml', '<project.build.outputTimestamp>', '</project.build.outputTimestamp>')|project.build.outputTimestamp"
+    "exclude-artifacts|drop('pom.xml', '<excludeArtifacts>', '</excludeArtifacts>')|central-publishing excludeArtifacts is []"
+    "exclude-tck|sub('pom.xml', '<artifact>uom-tck</artifact>', '')|central-publishing excludeArtifacts is ['uom-codegen', 'uom-examples']"
+    "ignore-published|drop('pom.xml', '<ignorePublishedComponents>', '</ignorePublishedComponents>')|central-publishing ignorePublishedComponents is ''"
+    "wait-for-publish|drop('pom.xml', '<waitForPublishCompletion>', '</waitForPublishCompletion>')|central-publishing waitForPublishCompletion is ''"
+    "fail-on-build-failure|drop('pom.xml', '<failOnBuildFailure>', '</failOnBuildFailure>')|central-publishing failOnBuildFailure is ''"
+    "auto-publish|sub('pom.xml', '<autoPublish>false<', '<autoPublish>true<')|central-publishing autoPublish is 'true'"
+    "codegen-javadoc-skip|drop('uom-codegen/pom.xml', '<maven.javadoc.skip>', '</maven.javadoc.skip>')|uom-codegen: property maven.javadoc.skip is ''"
+    "examples-source-skip|drop('uom-examples/pom.xml', '<maven.source.skip>', '</maven.source.skip>')|uom-examples: property maven.source.skip is ''"
+    "snapshot-dependency|sub('uom-core/pom.xml', '<dependencies>', '<dependencies><dependency><groupId>com.example</groupId><artifactId>x</artifactId><version>1.0-SNAPSHOT</version></dependency>')|uom-core: default: SNAPSHOT dependency com.example:x:1.0-SNAPSHOT"
+    "unresolved-expression|sub('uom/pom.xml', '<description>', '<description>\${no.such.property} ')|uom: default: unresolved expression '\${no.such.property}"
+    "doclint|drop('pom.xml', '<doclint>', '</doclint>')|maven-javadoc-plugin doclint is ''"
+    "enforcer-phase|sub('pom.xml', '<phase>validate</phase>', '<phase>none</phase>')|maven-enforcer-plugin must have one execution bound to the validate phase"
+    "manifest-vendor|drop('pom.xml', '<Implementation-Vendor>', '</Implementation-Vendor>')|uom-core: manifest entry Implementation-Vendor is ''"
+    "distribution-management|sub('pom.xml', '<issueManagement>', '<distributionManagement><repository><id>x</id><url>https://example.invalid/repo</url></repository></distributionManagement><issueManagement>')|distributionManagement must not be set"
+    "alt-deployment-property|sub('pom.xml', '<surefire.version>', '<altDeploymentRepository>x::https://example.invalid/repo</altDeploymentRepository><surefire.version>')|property altDeploymentRepository must not be set"
     "release-active|sub('pom.xml', '<id>release</id>', '<id>release</id><activation><activeByDefault>true</activeByDefault></activation>')|release profile must not have an activation"
   )
   local c name mutation expect
@@ -74,8 +89,9 @@ if [[ ${1:-} == --self-test ]]; then self_test; exit 0; fi
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-# Maven prints model warnings only at WARN level, so this run is not -q.
-if ! mvn -B -f "$ROOT/pom.xml" validate > "$tmp/validate.log" 2>&1; then
+# Maven prints model warnings only at WARN level, so this run is not -q; the enforcer runs in every
+# build and is skipped here so that the POM checks below report dependency problems precisely.
+if ! mvn -B -f "$ROOT/pom.xml" -Denforcer.skip=true validate > "$tmp/validate.log" 2>&1; then
   cat "$tmp/validate.log" >&2; fail "mvn validate failed"
 fi
 if grep -q "plugin.version' for" "$tmp/validate.log"; then
@@ -121,9 +137,10 @@ UNPUBLISHED = ['uom-codegen', 'uom-tck', 'uom-examples']
 RELEASE_ONLY = ['maven-source-plugin', 'maven-javadoc-plugin', 'maven-gpg-plugin', 'central-publishing-maven-plugin']
 
 raw = load(sys.argv[1])
+props = {e.tag: (e.text or '').strip() for e in raw.findall('properties/*')}
 pinned = {}
 for x in raw.findall('build/pluginManagement/plugins/plugin'):
-    v = text(x, 'version')
+    v = re.sub(r'\$\{([^}]+)\}', lambda m: props.get(m.group(1), m.group(0)), text(x, 'version'))
     if v and '${' not in v:
         pinned[(text(x, 'groupId') or 'org.apache.maven.plugins', text(x, 'artifactId'))] = v
 # the effective POM omits the default tag, so check it in the source
@@ -181,6 +198,8 @@ for mode, eff in (('default', default), ('release', rel)):
         enf = plugin(p, 'maven-enforcer-plugin')
         if enf is None:
             fail(a + ": maven-enforcer-plugin is not in the build")
+        if [text(e, 'phase') for e in enf.findall('executions/execution')] != ['validate']:
+            fail(a + ": maven-enforcer-plugin must have one execution bound to the validate phase")
         rules = {r.tag: r for r in enf.findall('executions/execution/configuration/rules/*')}
         if 'enforce' not in [text(g, '.') for g in enf.findall('executions/execution/goals/goal')]:
             fail(a + ": maven-enforcer-plugin has no enforce goal")
@@ -211,6 +230,42 @@ for mode, eff in (('default', default), ('release', rel)):
                                ('configuration/skipPublishing', 'true' if a in UNPUBLISHED else 'false')):
                 if text(c, path) != want:
                     fail("%s: release: central-publishing %s is '%s', expected '%s'" % (a, path.split('/')[-1], text(c, path), want))
+            # explicit values, so -D user properties cannot widen the upload
+            for param, want in (('ignorePublishedComponents', 'false'), ('waitForPublishCompletion', 'false'),
+                                ('failOnBuildFailure', 'true')):
+                if text(c, 'configuration/' + param) != want:
+                    fail("%s: release: central-publishing %s is '%s', expected '%s'" % (a, param, text(c, 'configuration/' + param), want))
+            excluded = [text(e, '.') for e in c.findall('configuration/excludeArtifacts/*')]
+            if sorted(excluded) != sorted(UNPUBLISHED):
+                fail("%s: release: central-publishing excludeArtifacts is %s, expected %s" % (a, excluded, UNPUBLISHED))
+            jd = plugin(p, 'maven-javadoc-plugin')
+            if text(jd, 'executions/execution/configuration/doclint') != 'all':
+                fail("%s: release: maven-javadoc-plugin doclint is '%s', expected 'all'" % (a, text(jd, 'executions/execution/configuration/doclint')))
+        if p.find('distributionManagement') is not None:
+            fail("%s: %s: distributionManagement must not be set (plain mvn deploy would upload)" % (a, mode))
+        for e in p.findall('properties/*'):
+            if e.tag.startswith(('altDeploymentRepository', 'altReleaseDeploymentRepository',
+                                 'altSnapshotDeploymentRepository', 'maven.deploy.')):
+                fail("%s: %s: property %s must not be set (deploy override)" % (a, mode, e.tag))
+        for prop in ('maven.javadoc.skip', 'maven.source.skip'):
+            if (text(p, 'properties/' + prop) == 'true') != (a in UNPUBLISHED):
+                fail("%s: property %s is '%s', expected %s" % (a, prop, text(p, 'properties/' + prop), 'true' if a in UNPUBLISHED else 'unset'))
+        if a in PUBLISHED:
+            for d in p.findall('dependencies/dependency'):
+                if text(d, 'version').endswith('-SNAPSHOT') and text(d, 'groupId') != 'org.tinygears':
+                    fail("%s: %s: SNAPSHOT dependency %s:%s:%s" % (a, mode, text(d, 'groupId'), text(d, 'artifactId'), text(d, 'version')))
+            # inactive profiles are kept verbatim in the effective POM
+            for e in [e for c in p if c.tag != 'profiles' for e in c.iter()]:
+                for v in [e.text or ''] + list(e.attrib.values()):
+                    if '${' in v:
+                        fail("%s: %s: unresolved expression '%s' in <%s>" % (a, mode, v.strip(), e.tag))
+        if a in ('uom-core', 'uom') and mode == 'default':
+            jar = plugin(p, 'maven-jar-plugin')
+            for entry, want in (('Implementation-Title', text(p, 'name')), ('Implementation-Version', text(p, 'version')),
+                                ('Implementation-Vendor', 'TinyGearsOrg')):
+                got = text(jar, 'configuration/archive/manifestEntries/' + entry) if jar is not None else ''
+                if got != want:
+                    fail("%s: manifest entry %s is '%s', expected '%s'" % (a, entry, got, want))
         deploy = plugin(p, 'maven-deploy-plugin')
         skip = text(deploy, 'configuration/skip') if deploy is not None else ''
         if (skip == 'true') != (a in UNPUBLISHED):
