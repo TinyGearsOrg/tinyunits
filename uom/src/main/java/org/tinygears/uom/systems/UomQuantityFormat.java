@@ -3,6 +3,8 @@
 package org.tinygears.uom.systems;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
 import java.util.HashMap;
@@ -15,6 +17,8 @@ import javax.measure.format.QuantityFormat;
 import javax.measure.spi.QuantityFactory;
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+import org.tinygears.uom.core.quantity.UntypedDecimalQuantity;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
 import org.tinygears.uom.quantity.QuantityTypes;
 
@@ -60,17 +64,19 @@ public final class UomQuantityFormat implements QuantityFormat {
     private final char group;
     private final char minus;
     private final String exponent;
+    private final MathContext decimals;
 
-    /** A ROOT format without grouping. */
+    /** A ROOT format without grouping, parsing to {@code double}. */
     public UomQuantityFormat(UomUnitFormat unitFormat) {
-        this(Objects.requireNonNull(unitFormat, "unitFormat"), Locale.ROOT, ROOT_SYMBOLS, false);
+        this(Objects.requireNonNull(unitFormat, "unitFormat"), Locale.ROOT, ROOT_SYMBOLS, false, null);
     }
 
     private UomQuantityFormat(UomUnitFormat unitFormat, Locale locale, DecimalFormatSymbols symbols,
-            boolean grouping) {
+            boolean grouping, MathContext decimals) {
         this.unitFormat = unitFormat;
         this.locale = locale;
         this.grouping = grouping;
+        this.decimals = decimals;
         this.zero = symbols.getZeroDigit();
         this.decimal = symbols.getDecimalSeparator();
         this.group = symbols.getGroupingSeparator();
@@ -88,18 +94,34 @@ public final class UomQuantityFormat implements QuantityFormat {
     }
 
     UomQuantityFormat withSymbols(Locale locale, DecimalFormatSymbols symbols) {
-        return new UomQuantityFormat(unitFormat, locale, symbols, grouping);
+        return new UomQuantityFormat(unitFormat, locale, symbols, grouping, decimals);
     }
 
     /** This format accepting (never writing) the locale's grouping separator between digits when parsing. */
     public UomQuantityFormat withGrouping(boolean grouping) {
-        return new UomQuantityFormat(this, grouping);
+        return new UomQuantityFormat(this, grouping, decimals);
     }
 
-    private UomQuantityFormat(UomQuantityFormat base, boolean grouping) {
+    /**
+     * This format parsing to decimal quantities with context {@code mc}; formatting is unchanged. The number text,
+     * read with the same locale and grouping rules, becomes {@code new BigDecimal(text)} with every digit and its
+     * scale kept, never rounded to {@code mc} ({@code 1.50 km} has scale 2). The quantity has scale
+     * {@code ABSOLUTE} and the standard type of its unit, else it is an {@link UntypedDecimalQuantity}. NaN,
+     * infinity, the forms only {@link Double#parseDouble} accepts (hexadecimal, a {@code d} or {@code f} suffix) and
+     * a value scale beyond ±100000 are {@link MeasurementParseException}s. Throws {@link ArithmeticException}, as
+     * the quantities do, if the precision of {@code mc} exceeds 100000.
+     */
+    public UomQuantityFormat withDecimals(MathContext mc) {
+        // the quantities' own precision check
+        UntypedDecimalQuantity.of(BigDecimal.ZERO, BaseUnits.ONE, Objects.requireNonNull(mc, "mc"));
+        return new UomQuantityFormat(this, grouping, mc);
+    }
+
+    private UomQuantityFormat(UomQuantityFormat base, boolean grouping, MathContext decimals) {
         this.unitFormat = base.unitFormat;
         this.locale = base.locale;
         this.grouping = grouping;
+        this.decimals = decimals;
         this.zero = base.zero;
         this.decimal = base.decimal;
         this.group = base.group;
@@ -111,28 +133,34 @@ public final class UomQuantityFormat implements QuantityFormat {
         return locale;
     }
 
+    /** The context of parsed decimal quantities, or null if parsing gives {@code double} quantities. */
+    public MathContext getDecimalContext() {
+        return decimals;
+    }
+
     /** True unless the locale is ROOT. */
     @Override
     public boolean isLocaleSensitive() {
         return !Locale.ROOT.equals(locale);
     }
 
-    /** Equal formats have the same locale symbols and grouping and the same unit format instance. */
+    /** Equal formats have the same locale symbols, grouping and decimal context and the same unit format instance. */
     @Override
     public boolean equals(Object o) {
         return o instanceof UomQuantityFormat f && f.unitFormat == unitFormat && f.locale.equals(locale)
                 && f.grouping == grouping && f.zero == zero && f.decimal == decimal && f.group == group
-                && f.minus == minus && f.exponent.equals(exponent);
+                && f.minus == minus && f.exponent.equals(exponent) && Objects.equals(f.decimals, decimals);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(System.identityHashCode(unitFormat), locale, grouping);
+        return Objects.hash(System.identityHashCode(unitFormat), locale, grouping, decimals);
     }
 
     @Override
     public String toString() {
-        return "UomQuantityFormat[locale=" + locale.toLanguageTag() + ", grouping=" + grouping + "]";
+        return "UomQuantityFormat[locale=" + locale.toLanguageTag() + ", grouping=" + grouping + ", decimals="
+                + (decimals == null ? "off" : decimals) + "]";
     }
 
     private void check() {
@@ -236,15 +264,31 @@ public final class UomQuantityFormat implements QuantityFormat {
             to++;
         }
         String token = s.substring(from, to);
-        double value;
+        double value = 0;
+        BigDecimal decimal = null;
         try {
-            value = Double.parseDouble(isLocaleSensitive() || grouping ? normalize(csq, from, to) : token);
+            String text = isLocaleSensitive() || grouping ? normalize(csq, from, to) : token;
+            if (decimals == null) {
+                value = Double.parseDouble(text);
+            } else if (text.matches("[+-]?(NaN|Infinity)")) {
+                throw new MeasurementParseException(
+                        "decimal quantities have no NaN or infinity: '" + token + "'", csq, from);
+            } else {
+                decimal = new BigDecimal(text);
+            }
         } catch (NumberFormatException e) {
             throw new MeasurementParseException(
                     token.isEmpty() ? "missing number" : "invalid number '" + token + "'", csq, from);
         }
         UomUnit<?> unit = s.substring(to).isBlank() ? BaseUnits.ONE : unitFormat.parseFrom(csq, to);
-        return create(value, unit);
+        if (decimals == null) {
+            return create(value, unit);
+        }
+        try {
+            return create(decimal, unit, decimals);
+        } catch (ArithmeticException e) {
+            throw new MeasurementParseException("invalid number '" + token + "': " + e.getMessage(), csq, from);
+        }
     }
 
     /**
@@ -327,6 +371,14 @@ public final class UomQuantityFormat implements QuantityFormat {
     private static Quantity<?> create(double value, UomUnit<?> unit) {
         QuantityFactory factory = Factories.BY_SYSTEM_UNIT.get(unit.getSystemUnit());
         return factory != null ? factory.create(value, unit) : UntypedDoubleQuantity.of(value, unit);
+    }
+
+    /** Keeps every digit of {@code value}: the factory's decimal quantity then takes {@code mc} without rounding. */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static Quantity<?> create(BigDecimal value, UomUnit<?> unit, MathContext mc) {
+        QuantityFactory factory = Factories.BY_SYSTEM_UNIT.get(unit.getSystemUnit());
+        return factory != null ? ((AbstractDecimalQuantity<?, ?>) factory.create(value, unit)).withMathContext(mc)
+                : UntypedDecimalQuantity.of(value, unit, mc);
     }
 
     /** The factory of each standard type by its system unit, built on first use. */

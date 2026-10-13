@@ -192,6 +192,22 @@ class AbstractDecimalQuantityTest {
     }
 
     @Test
+    void withMathContextKeepsTheValueExactly() {
+        TestLengthDecimalImpl q = new TestLengthDecimalImpl(
+                new BigDecimal("1.23450"), KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128);
+        MathContext three = new MathContext(3);
+        TestLengthDecimalImpl r = (TestLengthDecimalImpl) q.withMathContext(three);
+        assertEquals(new BigDecimal("1.23450"), r.getValue());
+        assertEquals(5, r.getValue().scale());
+        assertSame(KILOMETRE, r.getUnit());
+        assertSame(Quantity.Scale.RELATIVE, r.getScale());
+        assertSame(three, r.mathContext());
+        assertThrows(NullPointerException.class, () -> q.withMathContext(null));
+        assertEquals("precision out of range: 100001", assertThrows(ArithmeticException.class,
+                () -> q.withMathContext(new MathContext(100_001))).getMessage());
+    }
+
+    @Test
     void toStringUsesTheSymbol() {
         assertEquals("1.50 m", q("1.50", METRE).toString());
         assertEquals("1E+3 m", q("1E+3", METRE).toString());

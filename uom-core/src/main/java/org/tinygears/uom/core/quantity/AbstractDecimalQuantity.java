@@ -136,6 +136,15 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /**
+     * The same quantity with context {@code mc}; unlike {@link #toDecimal(MathContext)} the value is kept exactly,
+     * digits beyond the precision of {@code mc} included. Throws {@link ArithmeticException} if the precision of
+     * {@code mc} exceeds 100000.
+     */
+    public R withMathContext(MathContext mc) {
+        return create(value, unit, scale, mc);
+    }
+
+    /**
      * Adds as if both operands were in the system unit, with the result back in this unit; linear units skip the
      * system round trip. Evaluated exactly and rounded once to the lower context of the two (irrational unit
      * factors with guard digits, best effort); a {@code double} operand gives a {@code double} result. Throws

@@ -314,8 +314,11 @@ class LocaleQuantityFormatTest {
         assertFalse(de.equals(de.withSymbols(Locale.forLanguageTag("de-DE"), DecimalFormatSymbols.getInstance(Locale.UK))));
         assertFalse(de.equals("de-DE"));
         assertEquals(de.withGrouping(true), de.withGrouping(true));
-        assertEquals("UomQuantityFormat[locale=de-DE, grouping=false]", de.toString());
-        assertEquals("UomQuantityFormat[locale=und, grouping=true]", root.withGrouping(true).toString());
+        assertFalse(de.equals(de.withDecimals(MathContext.DECIMAL64)));
+        assertEquals(de.withDecimals(MathContext.DECIMAL64), root.withDecimals(MathContext.DECIMAL64).withLocale(
+                Locale.forLanguageTag("de-DE")));
+        assertEquals("UomQuantityFormat[locale=de-DE, grouping=false, decimals=off]", de.toString());
+        assertEquals("UomQuantityFormat[locale=und, grouping=true, decimals=off]", root.withGrouping(true).toString());
     }
 
     @Test
@@ -446,6 +449,36 @@ class LocaleQuantityFormatTest {
             }
         }
         assertTrue(checked >= 1000 * 40 * 4 * 2, "checked " + checked);
+        assertEquals(List.of(), failures.subList(0, Math.min(20, failures.size())), failures.size() + " failures");
+    }
+
+    @Test
+    void decimalRoundTripInEveryAvailableLocale() {
+        List<UomUnit<?>> units = List.of(SI.KILOMETRE, SI.DEGREE_CELSIUS, BaseUnits.KELVIN.shift(5), BaseUnits.ONE);
+        List<String> failures = new ArrayList<>();
+        int checked = 0;
+        for (Locale locale : Locale.getAvailableLocales()) {
+            for (boolean grouping : new boolean[] {false, true}) {
+                UomQuantityFormat f = root.withLocale(locale).withGrouping(grouping)
+                        .withDecimals(MathContext.DECIMAL64);
+                for (UomUnit<?> unit : units) {
+                    for (String s : DecimalParseTest.DECIMALS) {
+                        BigDecimal v = new BigDecimal(s);
+                        String text = f.format(UntypedDecimalQuantity.of(v, unit, MathContext.DECIMAL64));
+                        checked++;
+                        try {
+                            Quantity<?> back = f.parse(text);
+                            if (!v.equals(back.getValue()) || !unit.equals(back.getUnit())) {
+                                failures.add(locale.toLanguageTag() + " " + grouping + " " + text + " -> " + back);
+                            }
+                        } catch (RuntimeException e) {
+                            failures.add(locale.toLanguageTag() + " " + grouping + " " + text + ": " + e);
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(checked >= 1000 * 15 * 4 * 2, "checked " + checked);
         assertEquals(List.of(), failures.subList(0, Math.min(20, failures.size())), failures.size() + " failures");
     }
 
