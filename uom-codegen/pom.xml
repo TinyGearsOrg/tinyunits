@@ -78,6 +78,7 @@
                     <argument>data</argument>
                     <argument>uom/src/main/java/org/tinygears/uom/quantity</argument>
                     <argument>uom/src/main/java/org/tinygears/uom/systems</argument>
+                    <argument>docs</argument>
                   </arguments>
                 </configuration>
               </execution>
