@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+#
+# Checks the POMs against the Maven Central rules and the release setup (milestone 7, D1 and D2).
+# Usage: scripts/check-pom.sh [--self-test]
+# Requires: bash, mvn (3.9+, Maven Central reachable or plugins cached in ~/.m2), python3.
+# Exits 1 with a message on the first failed check; --self-test mutates copies of the POMs
+# and asserts that each mutation is detected.
+set -euo pipefail
+
+SCRIPT=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
+ROOT=${CHECK_POM_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}
+MODULES=(uom-core uom-codegen uom uom-tck uom-examples)
+
+fail() { echo "check-pom: FAIL: $*" >&2; exit 1; }
+
+self_test() {
+  local status out
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT
+  # name|python mutation of the copy|expected message fragment
+  local cases=(
+    "baseline||"
+    "license|drop('pom.xml', '<licenses>', '</licenses>')|uom-parent: licenses/license/name"
+    "developer-email|drop('pom.xml', '<email>', '</email>')|uom-parent: developers/developer/email"
+    "deploy-version|drop_version('pom.xml', 'maven-deploy-plugin')|plugin.version' for"
+    "jar-version|drop_version('pom.xml', 'maven-jar-plugin')|maven-jar-plugin is not pinned"
+    "codegen-deploy-skip|sub('uom-codegen/pom.xml', '<skip>true</skip>', '<skip>false</skip>')|uom-codegen: maven-deploy-plugin skip"
+    "tck-skip-publishing|sub('uom-tck/pom.xml', '<central.skipPublishing>true<', '<central.skipPublishing>false<')|uom-tck: release: central-publishing skipPublishing"
+    "enforcer-rule|drop('pom.xml', '<banDuplicatePomDependencyVersions', '/>')|enforcer rule banDuplicatePomDependencyVersions"
+    "outputTimestamp|drop('pom.xml', '<project.build.outputTimestamp>', '</project.build.outputTimestamp>')|project.build.outputTimestamp"
+    "release-active|sub('pom.xml', '<id>release</id>', '<id>release</id><activation><activeByDefault>true</activeByDefault></activation>')|release profile must not have an activation"
+  )
+  local c name mutation expect
+  for c in "${cases[@]}"; do
+    IFS='|' read -r name mutation expect <<< "$c"
+    rm -rf "$tmp/copy" && mkdir -p "$tmp/copy"
+    cp "$ROOT/pom.xml" "$tmp/copy/"
+    for m in "${MODULES[@]}"; do mkdir -p "$tmp/copy/$m" && cp "$ROOT/$m/pom.xml" "$tmp/copy/$m/"; done
+    if [[ -n $mutation ]]; then
+      python3 - "$tmp/copy" <<EOF
+import re, sys, pathlib
+root = pathlib.Path(sys.argv[1])
+def edit(f, fn):
+    p = root / f; t = p.read_text(); n = fn(t)
+    if n == t: sys.exit("self-test: mutation did not change " + f)
+    p.write_text(n)
+def drop(f, start, end):
+    edit(f, lambda t: t[:t.index(start)] + t[t.index(end, t.index(start)) + len(end):])
+def sub(f, old, new):
+    edit(f, lambda t: t.replace(old, new, 1))
+def drop_version(f, artifact):
+    edit(f, lambda t: re.sub(r'(<artifactId>' + artifact + r'</artifactId>\s*)<version>[^<]*</version>', r'\1', t, count=1))
+$mutation
+EOF
+    fi
+    set +e
+    out=$(CHECK_POM_ROOT="$tmp/copy" bash "$SCRIPT" 2>&1)
+    status=$?
+    set -e
+    if [[ $name == baseline ]]; then
+      [[ $status -eq 0 ]] || { echo "$out"; fail "self-test: unmodified copy fails (exit $status)"; }
+    else
+      [[ $status -eq 1 ]] || { echo "$out"; fail "self-test $name: expected exit 1, got $status"; }
+      [[ $out == *"$expect"* ]] || { echo "$out"; fail "self-test $name: message lacks '$expect'"; }
+    fi
+    echo "self-test $name: ok (exit $status)"
+  done
+  echo "check-pom: self-test passed"
+}
+
+if [[ ${1:-} == --self-test ]]; then self_test; exit 0; fi
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+# Maven prints model warnings only at WARN level, so this run is not -q.
+if ! mvn -B -f "$ROOT/pom.xml" validate > "$tmp/validate.log" 2>&1; then
+  cat "$tmp/validate.log" >&2; fail "mvn validate failed"
+fi
+if grep -q "plugin.version' for" "$tmp/validate.log"; then
+  grep "plugin.version' for" "$tmp/validate.log" >&2; fail "Maven warns about a missing plugin version"
+fi
+
+mvn -q -B -f "$ROOT/pom.xml" help:effective-pom -Doutput="$tmp/default.xml" > "$tmp/eff.log" 2>&1 \
+  || { cat "$tmp/eff.log" >&2; fail "help:effective-pom failed"; }
+mvn -q -B -f "$ROOT/pom.xml" -Prelease help:effective-pom -Doutput="$tmp/release.xml" > "$tmp/eff.log" 2>&1 \
+  || { cat "$tmp/eff.log" >&2; fail "help:effective-pom -Prelease failed"; }
+
+python3 - "$ROOT/pom.xml" "$tmp/default.xml" "$tmp/release.xml" <<'EOF'
+import re, sys
+import xml.etree.ElementTree as ET
+
+def fail(msg):
+    print("check-pom: FAIL: " + msg, file=sys.stderr); sys.exit(1)
+
+def load(path):
+    root = ET.parse(path).getroot()
+    for e in root.iter():
+        e.tag = e.tag.split('}', 1)[-1]
+    return root
+
+def text(e, path):
+    x = e.find(path)
+    return (x.text or '').strip() if x is not None else ''
+
+def projects(root):
+    ps = [root] if root.tag == 'project' else root.findall('project')
+    return {text(p, 'artifactId'): p for p in ps}
+
+def plugins(p):
+    return {(text(x, 'groupId') or 'org.apache.maven.plugins', text(x, 'artifactId')): x
+            for x in p.findall('build/plugins/plugin')}
+
+def plugin(p, aid):
+    return next((x for (g, a), x in plugins(p).items() if a == aid), None)
+
+REPO = 'https://github.com/TinyGearsOrg/tinyunits'
+PUBLISHED = ['uom-parent', 'uom-core', 'uom']
+UNPUBLISHED = ['uom-codegen', 'uom-tck', 'uom-examples']
+RELEASE_ONLY = ['maven-source-plugin', 'maven-javadoc-plugin', 'maven-gpg-plugin', 'central-publishing-maven-plugin']
+
+raw = load(sys.argv[1])
+pinned = {}
+for x in raw.findall('build/pluginManagement/plugins/plugin'):
+    v = text(x, 'version')
+    if v and '${' not in v:
+        pinned[(text(x, 'groupId') or 'org.apache.maven.plugins', text(x, 'artifactId'))] = v
+# the effective POM omits the default tag, so check it in the source
+if text(raw, 'scm/tag') != 'HEAD':
+    fail("uom-parent: scm/tag is '%s', expected 'HEAD'" % text(raw, 'scm/tag'))
+release = [x for x in raw.findall('profiles/profile') if text(x, 'id') == 'release']
+if not release:
+    fail("uom-parent: no profile with id 'release'")
+if release[0].find('activation') is not None:
+    fail("uom-parent: the release profile must not have an activation (it is enabled only with -Prelease)")
+
+default, rel = projects(load(sys.argv[2])), projects(load(sys.argv[3]))
+for a in PUBLISHED + UNPUBLISHED:
+    if a not in default or a not in rel:
+        fail(a + ": missing from the effective POM")
+
+expected = {
+    'url': REPO,
+    'licenses/license/name': 'Apache License, Version 2.0',
+    'licenses/license/url': 'https://www.apache.org/licenses/LICENSE-2.0.txt',
+    'licenses/license/distribution': 'repo',
+    'developers/developer/id': 'tneidhart',
+    'developers/developer/name': 'Thomas Neidhart',
+    'developers/developer/email': 'thomas.neidhart@gmail.com',
+    'scm/url': REPO,
+    'scm/connection': 'scm:git:https://github.com/TinyGearsOrg/tinyunits.git',
+    'scm/developerConnection': 'scm:git:git@github.com:TinyGearsOrg/tinyunits.git',
+    'issueManagement/system': 'GitHub',
+    'issueManagement/url': REPO + '/issues',
+}
+descriptions = set()
+for a in PUBLISHED:
+    p = default[a]
+    for f in ('name', 'description', 'inceptionYear'):
+        if not text(p, f):
+            fail(a + ": " + f + " is empty")
+    descriptions.add(text(p, 'description'))
+    for path, want in expected.items():
+        got = text(p, path)
+        if got != want:
+            fail("%s: %s is '%s', expected '%s'" % (a, path, got, want))
+if len(descriptions) != len(PUBLISHED):
+    fail("the published modules must each have their own description")
+
+for mode, eff in (('default', default), ('release', rel)):
+    for a, p in eff.items():
+        ts = text(p, 'properties/project.build.outputTimestamp')
+        if not re.fullmatch(r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ', ts):
+            fail("%s: project.build.outputTimestamp is '%s', expected an ISO-8601 instant" % (a, ts))
+        for (g, aid), x in plugins(p).items():
+            if not text(x, 'version'):
+                fail("%s: %s: plugin %s has no version" % (a, mode, aid))
+            if pinned.get((g, aid)) != text(x, 'version'):
+                fail("%s: %s: plugin %s:%s is not pinned in the pluginManagement of uom-parent" % (a, mode, g, aid))
+        enf = plugin(p, 'maven-enforcer-plugin')
+        if enf is None:
+            fail(a + ": maven-enforcer-plugin is not in the build")
+        rules = {r.tag: r for r in enf.findall('executions/execution/configuration/rules/*')}
+        if 'enforce' not in [text(g, '.') for g in enf.findall('executions/execution/goals/goal')]:
+            fail(a + ": maven-enforcer-plugin has no enforce goal")
+        for rule, version in (('requireJavaVersion', '[21,)'), ('requireMavenVersion', '[3.9,)'),
+                              ('banDuplicatePomDependencyVersions', None), ('dependencyConvergence', None)):
+            if rule not in rules:
+                fail("%s: enforcer rule %s is missing" % (a, rule))
+            if version and text(rules[rule], 'version') != version:
+                fail("%s: enforcer rule %s version is '%s', expected '%s'" % (a, rule, text(rules[rule], 'version'), version))
+        if mode == 'default':
+            for aid in RELEASE_ONLY:
+                if plugin(p, aid) is not None:
+                    fail("%s: %s is active without -Prelease" % (a, aid))
+        else:
+            for aid, goal in (('maven-source-plugin', 'jar-no-fork'), ('maven-javadoc-plugin', 'jar'),
+                              ('maven-gpg-plugin', 'sign'), ('central-publishing-maven-plugin', None)):
+                x = plugin(p, aid)
+                if x is None:
+                    fail("%s: release: %s is missing" % (a, aid))
+                if goal and goal not in [text(g, '.') for g in x.findall('executions/execution/goals/goal')]:
+                    fail("%s: release: %s has no %s goal" % (a, aid, goal))
+            gpg = plugin(p, 'maven-gpg-plugin')
+            if text(gpg, 'executions/execution/configuration/skip') != 'true':
+                fail(a + ": release: maven-gpg-plugin must be skipped unless -Dgpg.skip=false")
+            c = plugin(p, 'central-publishing-maven-plugin')
+            for path, want in (('extensions', 'true'), ('configuration/publishingServerId', 'central'),
+                               ('configuration/autoPublish', 'false'),
+                               ('configuration/skipPublishing', 'true' if a in UNPUBLISHED else 'false')):
+                if text(c, path) != want:
+                    fail("%s: release: central-publishing %s is '%s', expected '%s'" % (a, path.split('/')[-1], text(c, path), want))
+        deploy = plugin(p, 'maven-deploy-plugin')
+        skip = text(deploy, 'configuration/skip') if deploy is not None else ''
+        if (skip == 'true') != (a in UNPUBLISHED):
+            fail("%s: maven-deploy-plugin skip is '%s', expected %s" % (a, skip, 'true' if a in UNPUBLISHED else 'not true'))
+print("check-pom: OK")
+EOF

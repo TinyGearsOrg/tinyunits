@@ -12,6 +12,7 @@
 
   <artifactId>uom-core</artifactId>
   <name>uom-core</name>
+  <description>Core of uom: units, dimensions, converters, the .units parser and the quantity base classes behind the JSR-385 API.</description>
 
   <dependencies>
     <dependency>

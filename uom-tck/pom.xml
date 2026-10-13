@@ -14,6 +14,10 @@
   <artifactId>uom-tck</artifactId>
   <name>uom-tck</name>
 
+  <properties>
+    <central.skipPublishing>true</central.skipPublishing>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.tinygears</groupId>
