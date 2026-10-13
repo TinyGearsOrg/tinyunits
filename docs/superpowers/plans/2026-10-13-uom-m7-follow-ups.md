@@ -47,6 +47,8 @@ first release is in `docs/TODO.md`, "Release readiness".
 - In central-publishing-maven-plugin 0.11.0, `skipPublishing` only filters a module's artifacts; the upload mojo still
   runs on the last reactor module (`uom-examples`). Re-check on a plugin update.
 - A non-quiet build warns `JAR will be empty` for `uom-tck` (no main sources); `skipIfEmpty` breaks its install.
+- On JDK 21 the TCK also prints "No output directory specified, using <root>/target instead" and leaves an empty
+  root `target/` (ignored by `.gitignore`; final review L6, deferred).
 - On JDK 21 the TCK prints four "No audit file specified" lines; the SLF4J "No providers" lines remain (milestone 3
   item: `slf4j-nop` at test scope).
 - The Central bundle is never built locally (that needs `-Prelease deploy`, which can upload); the release-version
@@ -95,3 +97,19 @@ first release is in `docs/TODO.md`, "Release readiness".
 
 - The workflow has never run on GitHub (nothing pushed); the first push of `m7-release` starts it.
 - `check-workflows.sh` is not run by CI (adding it changes the CONTRIBUTING block the check compares) and needs PyYAML.
+
+## Final review
+
+- M1, nothing stopped `-Prelease deploy` on a SNAPSHOT: done. The release profile has an enforcer execution
+  (`requireReleaseVersion`, `requireReleaseDeps`, literal `skip=false`) bound to `deploy` and declared before the
+  Central plugin; a dead-port dry run fails at it on `0.1.0-SNAPSHOT` (even with `-Denforcer.skip=true`) and passes it
+  on a `0.1.0` copy. `check-pom.sh` guards it (seven self-test mutations).
+- L1, the POM comment claimed `-DexcludeArtifacts` replaces the configured list: corrected.
+- L2, Gaussian 26 (README) against 27 (UNITS.md): the README explains it; labelling the generated column as symbols
+  (a generator change) is open.
+- L3, `scripts/consumer` pins plugin versions outside the reactor: dependabot's Maven entry covers both directories,
+  `check-workflows.sh` requires it. Dependabot cannot resolve the consumer's `org.tinygears:uom` (not on Central).
+- L4 and L5, RELEASING wording (parent is pom-only) and the README status lines at release time: done.
+- L6, the empty root `target/` on JDK 21: deferred (see above).
+- `check-pom.sh` and `check-javadoc.sh` are not CI steps; `verify-release.sh` runs `check-pom.sh` on the installed
+  POMs and the `-Prelease` build fails on javadoc warnings.

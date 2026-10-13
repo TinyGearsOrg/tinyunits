@@ -2,7 +2,8 @@
 version: 2
 updates:
   - package-ecosystem: maven
-    directory: /
+    # scripts/consumer is a separate project that pins its own plugin versions
+    directories: ["/", "/scripts/consumer"]
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

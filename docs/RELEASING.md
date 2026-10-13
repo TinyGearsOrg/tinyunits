@@ -4,14 +4,15 @@ Instructions for the maintainer. **Not yet executed:** no version of uom has bee
 uploaded. Everything up to the upload is prepared and tested (`scripts/check-pom.sh`, `scripts/verify-release.sh`);
 the steps below that touch keys, credentials, Maven Central or tags are the maintainer's alone.
 
-Published: `org.tinygears:uom-parent` (pom), `org.tinygears:uom-core`, `org.tinygears:uom`, each with a sources and a
-javadoc jar. Not published: `uom-codegen`, `uom-tck`, `uom-examples` (deploy skipped, excluded from the Central
+Published: `org.tinygears:uom-parent` (pom only), and `org.tinygears:uom-core` and `org.tinygears:uom`, each with a
+jar, a sources jar and a javadoc jar. Not published: `uom-codegen`, `uom-tck`, `uom-examples` (deploy skipped, excluded from the Central
 bundle, `skipPublishing` set literally in their POMs).
 
-> **Warning.** `mvn -Prelease deploy` is never a dry run. The Central plugin replaces the deploy step; on a
-> `-SNAPSHOT` version it uploads to the Central snapshots repository, on a release version it uploads the bundle to
-> the Central Portal. Run it only in step 5 below, on a release version. To check the artifacts locally, use
-> `bash scripts/verify-release.sh`, which installs into a temporary local repository and uploads nothing.
+> **Warning.** `mvn -Prelease deploy` is never a dry run: on a release version it uploads the bundle to the Central
+> Portal. On a `-SNAPSHOT` version the release profile's enforcer execution (`requireReleaseVersion`,
+> `requireReleaseDeps`, not skippable with `-Denforcer.skip`) fails the build before the Central plugin runs. Run it
+> only in step 5 below. To check the artifacts locally, use `bash scripts/verify-release.sh`, which installs into a
+> temporary local repository and uploads nothing.
 
 ## One-time setup
 
@@ -69,7 +70,9 @@ Example for version `1.0.0`; the next development version is `1.0.1-SNAPSHOT`.
    mvn -B org.codehaus.mojo:versions-maven-plugin:2.23.0:set -DnewVersion=1.0.0 -DgenerateBackupPoms=false
    ```
 
-   Change the version of the dependency snippet in `README.md` by hand. In `pom.xml`, set
+   Change the version of the dependency snippet in `README.md` by hand, and its status lines: "Not released" at the
+   end of the status paragraph and "Not published yet; after `mvn -q -B install -DskipTests` in this repository" under
+   *Install*. In `pom.xml`, set
    `project.build.outputTimestamp` to the release date (or the committer date of the previous
    commit, `git log -1 --format=%cI`), as its comment says.
 2. **Verify**, with JDK 21:

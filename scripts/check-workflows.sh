@@ -49,7 +49,8 @@ self_test() {
     "central-property|sub(CI, 'run: mvn -B verify', 'run: mvn -B verify -Dcentral.skipPublishing=false')|job build runs a forbidden command"
     "jdk-outside-matrix|sub(CI, 'java-version: 21', 'java-version: 25')|job generated: java-version is 25, expected 21"
     "cache-outside-build|sub(CI, 'java-version: 21\n', 'java-version: 21\n          cache: maven\n')|job generated: setup-java must not set cache"
-    "dependabot-groups|drop(DB, '    groups:', 'patterns: [\"*\"]\n')|dependabot maven: needs directory '/', groups and open-pull-requests-limit"
+    "dependabot-groups|drop(DB, '    groups:', 'patterns: [\"*\"]\n')|dependabot maven: needs directories ['/', '/scripts/consumer'], groups and open-pull-requests-limit"
+    "dependabot-consumer|sub(DB, ', \"/scripts/consumer\"', '')|dependabot maven: needs directories ['/', '/scripts/consumer']"
     "dependabot-interval|sub(DB, 'interval: weekly', 'interval: daily')|dependabot maven: interval is 'daily', expected 'weekly'"
   )
   for c in "${cases[@]}"; do
@@ -191,7 +192,9 @@ for eco, u in sorted(updates.items()):
     interval = (u.get('schedule') or {}).get('interval')
     if interval != 'weekly':
         fail("dependabot %s: interval is '%s', expected 'weekly'" % (eco, interval))
-    if u.get('directory') != '/' or not u.get('groups') or not isinstance(u.get('open-pull-requests-limit'), int):
-        fail("dependabot %s: needs directory '/', groups and open-pull-requests-limit" % eco)
+    where = u.get('directories') if eco == 'maven' else u.get('directory')
+    want = ['/', '/scripts/consumer'] if eco == 'maven' else '/'
+    if where != want or not u.get('groups') or not isinstance(u.get('open-pull-requests-limit'), int):
+        fail("dependabot %s: needs directories %s, groups and open-pull-requests-limit" % (eco, want))
 print("check-workflows: OK")
 EOF
