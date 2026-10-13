@@ -61,7 +61,7 @@
     <!-- Reproducible-build timestamp of the archive entries. At each release, set it in the version-change
          commit to the release date or to the committer date of the previous commit (git log -1, format %cI). -->
     <project.build.outputTimestamp>2026-10-13T00:00:00Z</project.build.outputTimestamp>
-    <!-- The unpublished modules set it to true; see the central-publishing configuration. -->
+    <!-- Central upload switch of the published modules; the unpublished ones set skipPublishing literally. -->
     <central.skipPublishing>false</central.skipPublishing>
     <surefire.version>3.2.5</surefire.version>
   </properties>
@@ -242,9 +242,9 @@
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
-            <!-- Explicit values, so -D user properties cannot widen the upload. Two independent guards keep the
-                 unpublished modules out: excludeArtifacts (holds against -Dcentral.skipPublishing=false) and
-                 their skipPublishing (holds against -DexcludeArtifacts=..., which replaces the list). -->
+            <!-- Explicit values, so -D user properties cannot widen the upload. The unpublished modules are kept
+                 out by excludeArtifacts (replaceable by -DexcludeArtifacts=...) and by a literal skipPublishing
+                 in their own release profile, which no flag overrides. -->
             <configuration>
               <publishingServerId>central</publishingServerId>
               <autoPublish>false</autoPublish>

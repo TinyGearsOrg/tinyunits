@@ -26,7 +26,9 @@ self_test() {
     "deploy-version|drop_version('pom.xml', 'maven-deploy-plugin')|plugin.version' for"
     "clean-version|drop_version('pom.xml', 'maven-clean-plugin')|maven-clean-plugin is not pinned"
     "codegen-deploy-skip|sub('uom-codegen/pom.xml', '<skip>true</skip>', '<skip>false</skip>')|uom-codegen: maven-deploy-plugin skip"
-    "tck-skip-publishing|sub('uom-tck/pom.xml', '<central.skipPublishing>true<', '<central.skipPublishing>false<')|uom-tck: release: central-publishing skipPublishing"
+    "tck-skip-publishing|sub('uom-tck/pom.xml', '<skipPublishing>true<', '<skipPublishing>false<')|uom-tck: the release profile must set central-publishing skipPublishing to the literal true, found ['false']"
+    "codegen-skip-expression|sub('uom-codegen/pom.xml', '<skipPublishing>true<', '<skipPublishing>\${central.skipPublishing}<')|uom-codegen: the release profile must set central-publishing skipPublishing to the literal true"
+    "examples-no-release-profile|drop('uom-examples/pom.xml', '<profiles>', '</profiles>')|uom-examples: the release profile must set central-publishing skipPublishing to the literal true, found []"
     "enforcer-rule|drop('pom.xml', '<banDuplicatePomDependencyVersions', '/>')|enforcer rule banDuplicatePomDependencyVersions"
     "outputTimestamp|drop('pom.xml', '<project.build.outputTimestamp>', '</project.build.outputTimestamp>')|project.build.outputTimestamp"
     "exclude-artifacts|drop('pom.xml', '<excludeArtifacts>', '</excludeArtifacts>')|central-publishing excludeArtifacts is []"
@@ -104,7 +106,7 @@ mvn -q -B -f "$ROOT/pom.xml" -Prelease help:effective-pom -Doutput="$tmp/release
   || { cat "$tmp/eff.log" >&2; fail "help:effective-pom -Prelease failed"; }
 
 python3 - "$ROOT/pom.xml" "$tmp/default.xml" "$tmp/release.xml" <<'EOF'
-import re, sys
+import os, re, sys
 import xml.etree.ElementTree as ET
 
 def fail(msg):
@@ -151,6 +153,14 @@ if not release:
     fail("uom-parent: no profile with id 'release'")
 if release[0].find('activation') is not None:
     fail("uom-parent: the release profile must not have an activation (it is enabled only with -Prelease)")
+
+# a literal in each unpublished module, so no -D flag can include it in the Central bundle
+for a in UNPUBLISHED:
+    m = load(os.path.join(os.path.dirname(sys.argv[1]), a, 'pom.xml'))
+    vals = [text(x, 'configuration/skipPublishing') for pr in m.findall('profiles/profile') if text(pr, 'id') == 'release'
+            for x in pr.findall('build/plugins/plugin') if text(x, 'artifactId') == 'central-publishing-maven-plugin']
+    if vals != ['true']:
+        fail("%s: the release profile must set central-publishing skipPublishing to the literal true, found %s" % (a, vals))
 
 default, rel = projects(load(sys.argv[2])), projects(load(sys.argv[3]))
 for a in PUBLISHED + UNPUBLISHED:
