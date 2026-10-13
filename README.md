@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, seven catalogs with prefixes, `quantity.to(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29) and `Gaussian` (26); `quantity.to(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1070 tests (core 506, codegen 162, uom 288, tck 113, examples 1). Release engineering is milestone 7. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, seven catalogs with prefixes, `quantity.to(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29) and `Gaussian` (26); `quantity.to(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1112 tests (core 506, codegen 169, uom 322, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
@@ -87,6 +87,8 @@ Length run = Length.of(10, km);
 
 - `withLocale(Locale.GERMANY)` writes and reads the number in that locale (`1,5 km`); unit symbols are never localized. Grouping separators are never written and are a parse error unless `withGrouping(true)`.
 - `withDecimals(MathContext.DECIMAL64)` parses to `BigDecimal` quantities that keep every digit and the scale of the text (`1.50 km` has scale 2); the default parses to `double`.
+- A `jlink` image of an application that formats in a locale other than English needs the module
+  `jdk.localedata` (`--add-modules jdk.localedata`); without it, `Locale.GERMANY` formats `1.5 km`.
 - An offset unit without a symbol formats as a shifted formula (`SI.KELVIN.shift(5)` is `K + 5`, `5|9·K + 459.67` is the degree Fahrenheit) and parses back to an equal unit. Units with a negative or root factor, an irrational shift or a formula over 10,000 characters have no faithful form: `format` throws `IllegalArgumentException`. A glued minus before an integer (`s-1`) is an error: write `s^-1` or `s - 1`.
 
 ```java

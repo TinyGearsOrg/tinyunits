@@ -1,6 +1,6 @@
 # TODO
 
-Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
+Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks. The per-milestone follow-up lists in `docs/superpowers/plans/` hold the review findings that are not tracked here.
 
 ## 1. Offset-unit arithmetic (decision D5)
 
@@ -115,8 +115,27 @@ symbol; the formatted output then changes from `m/s^2`.
 
 **Needed by:** nothing.
 
+## Release readiness
+
+No version has been released, signed, tagged or uploaded. The release is prepared and is the owner's action
+([RELEASING.md](RELEASING.md)). Before the first release:
+
+- Enable GitHub private vulnerability reporting for the repository (`SECURITY.md` points to it), and confirm the
+  contact and the "best-effort" response wording of `SECURITY.md`.
+- Verify the Central Portal namespace `org.tinygears` (DNS TXT record of `tinygears.org`; without the domain the group
+  id changes).
+- Create the OpenPGP signing key, publish it to the key servers, and keep a backup and a revocation certificate.
+- Generate a Central Portal user token and put it into `~/.m2/settings.xml` under the server id `central` (never into
+  the repository).
+- Replace `0.1.0-SNAPSHOT` with the release version and set `project.build.outputTimestamp` (RELEASING, step 1).
+- Decide the CI items of the milestone 7 follow-ups (SHA pinning of actions, duplicate push and pull-request runs,
+  `cancel-in-progress` on `main`, job-level permissions), push the branch and see the workflow green on JDK 21 and 25.
+- Decide the repository rename; the POM's `url`, `scm` and `issueManagement` follow it.
+- Items 1 to 4 above are due before 1.0, not before a 0.x release.
+
 ## Milestone follow-up lists
 
 Review findings of each milestone that are not owner decisions: `docs/superpowers/plans/2026-10-12-uom-m1-follow-ups.md`
-to `2026-10-12-uom-m6-follow-ups.md`.
+to `2026-10-12-uom-m6-follow-ups.md`, and [2026-10-13-uom-m7-follow-ups.md](superpowers/plans/2026-10-13-uom-m7-follow-ups.md)
+(release engineering, including the CI owner decisions).
 

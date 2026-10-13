@@ -27,6 +27,7 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
   ([docs/CUSTOM-UNITS.md](docs/CUSTOM-UNITS.md)).
 - Release preparation: POM metadata, an inactive `release` profile (sources, javadoc, signing, Central upload),
   reproducible jars, the public API definition and its pin ([docs/API.md](docs/API.md)), the generated unit table
-  ([docs/UNITS.md](docs/UNITS.md)) and the user documentation.
+  ([docs/UNITS.md](docs/UNITS.md)), the user documentation, the release verification script and a CI workflow
+  (JDK 21 and 25).
 
 [Unreleased]: https://github.com/TinyGearsOrg/tinyunits/commits/main

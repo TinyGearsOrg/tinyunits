@@ -3,7 +3,8 @@
 Status: reviewed by the project owner. The design is in `DESIGN.md`. Milestones 1 to 6 are
 implemented on their branches (units core, `double` and `BigDecimal` quantities for all 33 types, the generator, the
 seven catalogs, `quantity.to(system)`, unit and quantity formats with locales and decimal parse, serialization, user
-`.units` files at run time, the service provider, the TCK passing); release engineering (milestone 7) is not.
+`.units` files at run time, the service provider, the TCK passing); milestone 7 prepared the release (POM metadata,
+release profile, API pin, documentation, release verification, CI), but nothing has been published.
 
 ## 1. Purpose
 
@@ -37,7 +38,7 @@ dynamic proxies in the picture.
 | F10 | Unit algebra per JSR-385: multiply, divide, pow, root, prefixes, shift (offset units such as degree Celsius and Fahrenheit), transform, alternate units, and base-unit decomposition. |
 | F11 | Compatibility checking: combining incompatible units fails with a clear unchecked exception naming both units. |
 | F12 | Quantities and units are immutable, thread-safe and `Serializable` (serialization done in milestone 6, through serialization proxies that re-check every invariant on read). |
-| F13 | A `module-info.java` (JPMS) for every published module. Done: `org.tinygears.uom.core` and `org.tinygears.uom`; serialization works on the module path without `opens` (tested); a JPMS review is milestone 7. |
+| F13 | A `module-info.java` (JPMS) for every published module. Done: `org.tinygears.uom.core` and `org.tinygears.uom`; serialization works on the module path without `opens` (tested). Milestone 7: module and package documentation, the exported packages pinned by `ApiSurfaceTest` (`org.tinygears.uom.core.internal` is not exported), `jar --describe-module` and a `jlink` image checked by `scripts/verify-release.sh`. |
 | F14 | ~~User-defined quantity types~~ Moved out of scope for 1.0 (see below). |
 | F15 | **Unit definitions live in text data files**, which are the single source of truth for the catalogs (F6). The file syntax is a design decision. The original uom `.units` format (GNU units style: `symbol:name formula`, `@include`, `!` base units, `~` alternate units, `a|b` fractions, affine functions) is a starting point, not a constraint. The syntax must express: symbol and name, a formula over other units, exact rational and decimal factors, offsets and affine functions, base units, alternate units, includes, comments, and (F16) an optional explicit quantity type. |
 | F16 | **Typed catalog constants are generated from the data files** (e.g. `Unit<Length> INCH`, `Unit<Energy> JOULE`). The quantity type of a unit is inferred from its dimension, and may be stated explicitly in the definition where the dimension is ambiguous (e.g. energy and torque; hertz and becquerel; gray and sievert). An ambiguous definition with no explicit type is a build error. |
@@ -84,8 +85,8 @@ dynamic proxies in the picture.
 | N4 | **Compile-time safety:** adding quantities of different types, or passing a unit of the wrong quantity to a typed factory, is a compile error wherever the standard API allows it. Where the API forces a looser parameter type (`Quantity<Length>` rather than `Length`), return types stay typed. |
 | N5 | **Diagnostics:** the generator and the parser report data-file errors with file and line (F19). |
 | N6 | **Testing:** unit tests per module, golden tests for the generator (sample inputs compile, behave, and report errors with file and line), and a property-style round-trip test over every catalog unit (convert to the system unit and back within tolerance). |
-| N7 | **Documentation:** README with a five-minute example, a guide for adding custom units, and a table of catalog units with their systems. |
-| N8 | **Release:** versioned releases on Maven Central as `org.tinygears:uom-*`, semantic versioning, a public API definition (what is stable) in the docs. |
+| N7 | **Documentation:** README with a five-minute example, a guide for adding custom units, and a table of catalog units with their systems. Status after milestone 7: done (`README.md`, `docs/CUSTOM-UNITS.md` with its snippets run by `DocsSnippetsTest`, the generated `docs/UNITS.md`). |
+| N8 | **Release:** versioned releases on Maven Central as `org.tinygears:uom-*`, semantic versioning, a public API definition (what is stable) in the docs. Status after milestone 7: semantic versioning and the API definition are in `docs/API.md` (pinned by `ApiSurfaceTest`); the Central release is prepared (`release` profile, `docs/RELEASING.md`) but not executed. |
 
 ## 5. Module layout
 
@@ -139,5 +140,8 @@ internal tool and is not.
    passing for every unit.
 4. Units can be parsed from and formatted to their symbols, and quantities are formatted. Met (milestones 3 and 6).
 5. Quantities and units survive Java serialization round trips. Met (milestone 6).
-6. The library works on the module path and on the class path, on JDK 21 and the current JDK.
-7. Artifacts are published to Maven Central with the documentation from N7.
+6. The library works on the module path and on the class path, on JDK 21 and the current JDK. Met locally (milestone 7:
+   `scripts/verify-release.sh` on Temurin 21 and JDK 25); the CI workflow runs the build on JDK 21 and 25 once the
+   branch is pushed.
+7. Artifacts are published to Maven Central with the documentation from N7. Prepared, not executed: the documentation
+   exists and the release is the owner's action (`docs/RELEASING.md`).
