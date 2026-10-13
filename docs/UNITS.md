@@ -2,7 +2,7 @@
 
 # Catalog units
 
-Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section per system. A value in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a fraction, `pi` is π). The quantity type `-` means the unit has none.
+Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section per system. A value in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a fraction, `pi` is π). The quantity type `-` means the unit has none. Alternate units (`Hz`, `Bq`, `rad`, `sr`, `Gy`, `Sv`) are their own system unit, so they show as `1 Gy` rather than `1 J/kg`.
 
 ## Systems
 
@@ -58,8 +58,8 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `ha` | hectare | Area | `10000 m²` |  |
 | `L` | litre | Volume | `0.001 m³` |  |
 | `t` | tonne | Mass | `1000 kg` |  |
-| `eV` | electronvolt | Energy | `0.0000000000000000001602176634 J` |  |
-| `Da` | dalton | Mass | `0.0000000000000000000000000016605390666 kg` |  |
+| `eV` | electronvolt | Energy | `1.602176634e-19 J` |  |
+| `Da` | dalton | Mass | `1.6605390666e-27 kg` |  |
 | `au` | astronomical unit | Length | `149597870700 m` |  |
 | `deg` | degree | Angle | `1\|180 pi rad` |  |
 | `arcmin` | arcminute | Angle | `1\|10800 pi rad` |  |
@@ -68,25 +68,25 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `cm` | centimetre | Length | `0.01 m` |  |
 | `mm` | millimetre | Length | `0.001 m` |  |
 | `µm` | micrometre | Length | `0.000001 m` |  |
-| `nm` | nanometre | Length | `0.000000001 m` |  |
-| `pm` | picometre | Length | `0.000000000001 m` |  |
+| `nm` | nanometre | Length | `1e-9 m` |  |
+| `pm` | picometre | Length | `1e-12 m` |  |
 | `mg` | milligram | Mass | `0.000001 kg` |  |
-| `µg` | microgram | Mass | `0.000000001 kg` |  |
+| `µg` | microgram | Mass | `1e-9 kg` |  |
 | `ms` | millisecond | Time | `0.001 s` |  |
 | `µs` | microsecond | Time | `0.000001 s` |  |
-| `ns` | nanosecond | Time | `0.000000001 s` |  |
-| `ps` | picosecond | Time | `0.000000000001 s` |  |
+| `ns` | nanosecond | Time | `1e-9 s` |  |
+| `ps` | picosecond | Time | `1e-12 s` |  |
 | `mA` | milliampere | ElectricCurrent | `0.001 A` |  |
 | `µA` | microampere | ElectricCurrent | `0.000001 A` |  |
 | `mK` | millikelvin | Temperature | `0.001 K` |  |
 | `µK` | microkelvin | Temperature | `0.000001 K` |  |
-| `nK` | nanokelvin | Temperature | `0.000000001 K` |  |
+| `nK` | nanokelvin | Temperature | `1e-9 K` |  |
 | `mcd` | millicandela | LuminousIntensity | `0.001 cd` |  |
 | `kcd` | kilocandela | LuminousIntensity | `1000 cd` |  |
 | `mmol` | millimole | AmountOfSubstance | `0.001 mol` |  |
 | `mkat` | millikatal | CatalyticActivity | `0.001 kat` |  |
 | `µkat` | microkatal | CatalyticActivity | `0.000001 kat` |  |
-| `nkat` | nanokatal | CatalyticActivity | `0.000000001 kat` |  |
+| `nkat` | nanokatal | CatalyticActivity | `1e-9 kat` |  |
 | `kkat` | kilokatal | CatalyticActivity | `1000 kat` |  |
 | `kHz` | kilohertz | Frequency | `1000 Hz` |  |
 | `MHz` | megahertz | Frequency | `1000000 Hz` |  |
@@ -113,22 +113,22 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `µV` | microvolt | ElectricPotential | `0.000001 V` |  |
 | `mF` | millifarad | ElectricCapacitance | `0.001 F` |  |
 | `µF` | microfarad | ElectricCapacitance | `0.000001 F` |  |
-| `nF` | nanofarad | ElectricCapacitance | `0.000000001 F` |  |
-| `pF` | picofarad | ElectricCapacitance | `0.000000000001 F` |  |
+| `nF` | nanofarad | ElectricCapacitance | `1e-9 F` |  |
+| `pF` | picofarad | ElectricCapacitance | `1e-12 F` |  |
 | `kΩ` | kiloohm | ElectricResistance | `1000 Ω` |  |
 | `MΩ` | megaohm | ElectricResistance | `1000000 Ω` |  |
 | `mS` | millisiemens | ElectricConductance | `0.001 S` |  |
 | `mWb` | milliweber | MagneticFlux | `0.001 Wb` |  |
 | `mT` | millitesla | MagneticFluxDensity | `0.001 T` |  |
 | `µT` | microtesla | MagneticFluxDensity | `0.000001 T` |  |
-| `nT` | nanotesla | MagneticFluxDensity | `0.000000001 T` |  |
+| `nT` | nanotesla | MagneticFluxDensity | `1e-9 T` |  |
 | `mH` | millihenry | ElectricInductance | `0.001 H` |  |
 | `µH` | microhenry | ElectricInductance | `0.000001 H` |  |
-| `nH` | nanohenry | ElectricInductance | `0.000000001 H` |  |
-| `keV` | kiloelectronvolt | Energy | `0.0000000000000001602176634 J` |  |
-| `MeV` | megaelectronvolt | Energy | `0.0000000000001602176634 J` |  |
-| `GeV` | gigaelectronvolt | Energy | `0.0000000001602176634 J` |  |
-| `TeV` | teraelectronvolt | Energy | `0.0000001602176634 J` |  |
+| `nH` | nanohenry | ElectricInductance | `1e-9 H` |  |
+| `keV` | kiloelectronvolt | Energy | `1.602176634e-16 J` |  |
+| `MeV` | megaelectronvolt | Energy | `1.602176634e-13 J` |  |
+| `GeV` | gigaelectronvolt | Energy | `1.602176634e-10 J` |  |
+| `TeV` | teraelectronvolt | Energy | `1.602176634e-7 J` |  |
 | `mL` | millilitre | Volume | `0.000001 m³` |  |
 | `cL` | centilitre | Volume | `0.00001 m³` |  |
 | `dL` | decilitre | Volume | `0.0001 m³` |  |
@@ -143,8 +143,8 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `mlm` | millilumen | LuminousFlux | `0.001 lm` |  |
 | `klm` | kilolumen | LuminousFlux | `1000 lm` |  |
 | `msr` | millisteradian | SolidAngle | `0.001 sr` |  |
-| `kDa` | kilodalton | Mass | `0.0000000000000000000000016605390666 kg` |  |
-| `MDa` | megadalton | Mass | `0.0000000000000000000016605390666 kg` |  |
+| `kDa` | kilodalton | Mass | `1.6605390666e-24 kg` |  |
+| `MDa` | megadalton | Mass | `1.6605390666e-21 kg` |  |
 | `kt` | kilotonne | Mass | `1000000 kg` |  |
 | `Mt` | megatonne | Mass | `1000000000 kg` |  |
 | `Gt` | gigatonne | Mass | `1000000000000 kg` |  |
@@ -241,7 +241,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | Symbol | Name | Quantity type | Factor | Offset |
 |---|---|---|---|---|
 | `dyn` | dyne | Force | `0.00001 N` |  |
-| `erg` | erg | Energy | `0.0000001 J` |  |
+| `erg` | erg | Energy | `1e-7 J` |  |
 | `Ba` | barye | Pressure | `0.1 Pa` |  |
 | `Gal` | galileo | Acceleration | `0.01 m/s^2` |  |
 | `cm²` | square centimetre | Area | `0.0001 m²` |  |
@@ -252,7 +252,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `mP` | millipoise | - | `0.0001 kg/(m·s)` |  |
 | `cSt` | centistokes | - | `0.000001 m^2/s` |  |
 | `mGal` | milligalileo | Acceleration | `0.00001 m/s^2` |  |
-| `µGal` | microgalileo | Acceleration | `0.00000001 m/s^2` |  |
+| `µGal` | microgalileo | Acceleration | `1e-8 m/s^2` |  |
 | `cm` | centimetre | Length | `0.01 m` |  |
 | `g` | gram | Mass | `0.001 kg` |  |
 | `s` | second | Time | `1 s` |  |
@@ -268,7 +268,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `statF` | statfarad | ElectricCapacitance | `25000\|22468879468420441 F` |  |
 | `statH` | stathenry | ElectricInductance | `898755178736.81764 H` |  |
 | `dyn` | dyne | Force | `0.00001 N` |  |
-| `erg` | erg | Energy | `0.0000001 J` |  |
+| `erg` | erg | Energy | `1e-7 J` |  |
 | `Ba` | barye | Pressure | `0.1 Pa` |  |
 | `Gal` | galileo | Acceleration | `0.01 m/s^2` |  |
 | `cm²` | square centimetre | Area | `0.0001 m²` |  |
@@ -279,7 +279,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `mP` | millipoise | - | `0.0001 kg/(m·s)` |  |
 | `cSt` | centistokes | - | `0.000001 m^2/s` |  |
 | `mGal` | milligalileo | Acceleration | `0.00001 m/s^2` |  |
-| `µGal` | microgalileo | Acceleration | `0.00000001 m/s^2` |  |
+| `µGal` | microgalileo | Acceleration | `1e-8 m/s^2` |  |
 | `cm` | centimetre | Length | `0.01 m` |  |
 | `g` | gram | Mass | `0.001 kg` |  |
 | `s` | second | Time | `1 s` |  |
@@ -290,19 +290,19 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 |---|---|---|---|---|
 | `abA` | abampere | ElectricCurrent | `10 A` |  |
 | `abC` | abcoulomb | ElectricCharge | `10 C` |  |
-| `abV` | abvolt | ElectricPotential | `0.00000001 V` |  |
-| `abΩ` | abohm | ElectricResistance | `0.000000001 Ω` |  |
+| `abV` | abvolt | ElectricPotential | `1e-8 V` |  |
+| `abΩ` | abohm | ElectricResistance | `1e-9 Ω` |  |
 | `abF` | abfarad | ElectricCapacitance | `1000000000 F` |  |
-| `abH` | abhenry | ElectricInductance | `0.000000001 H` |  |
+| `abH` | abhenry | ElectricInductance | `1e-9 H` |  |
 | `G` | gauss | MagneticFluxDensity | `0.0001 T` |  |
-| `Mx` | maxwell | MagneticFlux | `0.00000001 Wb` |  |
+| `Mx` | maxwell | MagneticFlux | `1e-8 Wb` |  |
 | `Gb` | gilbert | ElectricCurrent | `2.5 pi^-1 A` |  |
 | `Oe` | oersted | - | `250 pi^-1 A/m` |  |
-| `mG` | milligauss | MagneticFluxDensity | `0.0000001 T` |  |
-| `µG` | microgauss | MagneticFluxDensity | `0.0000000001 T` |  |
-| `nG` | nanogauss | MagneticFluxDensity | `0.0000000000001 T` |  |
+| `mG` | milligauss | MagneticFluxDensity | `1e-7 T` |  |
+| `µG` | microgauss | MagneticFluxDensity | `1e-10 T` |  |
+| `nG` | nanogauss | MagneticFluxDensity | `1e-13 T` |  |
 | `dyn` | dyne | Force | `0.00001 N` |  |
-| `erg` | erg | Energy | `0.0000001 J` |  |
+| `erg` | erg | Energy | `1e-7 J` |  |
 | `Ba` | barye | Pressure | `0.1 Pa` |  |
 | `Gal` | galileo | Acceleration | `0.01 m/s^2` |  |
 | `cm²` | square centimetre | Area | `0.0001 m²` |  |
@@ -313,7 +313,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `mP` | millipoise | - | `0.0001 kg/(m·s)` |  |
 | `cSt` | centistokes | - | `0.000001 m^2/s` |  |
 | `mGal` | milligalileo | Acceleration | `0.00001 m/s^2` |  |
-| `µGal` | microgalileo | Acceleration | `0.00000001 m/s^2` |  |
+| `µGal` | microgalileo | Acceleration | `1e-8 m/s^2` |  |
 | `cm` | centimetre | Length | `0.01 m` |  |
 | `g` | gram | Mass | `0.001 kg` |  |
 | `s` | second | Time | `1 s` |  |
@@ -330,7 +330,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `statF` | statfarad | ElectricCapacitance | `25000\|22468879468420441 F` |  |
 | `statH` | stathenry | ElectricInductance | `898755178736.81764 H` |  |
 | `dyn` | dyne | Force | `0.00001 N` |  |
-| `erg` | erg | Energy | `0.0000001 J` |  |
+| `erg` | erg | Energy | `1e-7 J` |  |
 | `Ba` | barye | Pressure | `0.1 Pa` |  |
 | `Gal` | galileo | Acceleration | `0.01 m/s^2` |  |
 | `cm²` | square centimetre | Area | `0.0001 m²` |  |
@@ -341,11 +341,11 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `mP` | millipoise | - | `0.0001 kg/(m·s)` |  |
 | `cSt` | centistokes | - | `0.000001 m^2/s` |  |
 | `mGal` | milligalileo | Acceleration | `0.00001 m/s^2` |  |
-| `µGal` | microgalileo | Acceleration | `0.00000001 m/s^2` |  |
+| `µGal` | microgalileo | Acceleration | `1e-8 m/s^2` |  |
 | `cm` | centimetre | Length | `0.01 m` |  |
 | `g` | gram | Mass | `0.001 kg` |  |
 | `s` | second | Time | `1 s` |  |
 | `G` | gauss | MagneticFluxDensity | `0.0001 T` |  |
-| `Mx` | maxwell | MagneticFlux | `0.00000001 Wb` |  |
+| `Mx` | maxwell | MagneticFlux | `1e-8 Wb` |  |
 | `Oe` | oersted | - | `250 pi^-1 A/m` |  |
 | `Gb` | gilbert | ElectricCurrent | `2.5 pi^-1 A` |  |

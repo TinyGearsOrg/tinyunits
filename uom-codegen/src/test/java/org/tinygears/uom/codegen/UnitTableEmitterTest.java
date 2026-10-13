@@ -55,7 +55,8 @@ class UnitTableEmitterTest {
 
                 Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section per system. A value \
                 in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a \
-                fraction, `pi` is π). The quantity type `-` means the unit has none.
+                fraction, `pi` is π). The quantity type `-` means the unit has none. Alternate units (`Hz`, `Bq`, \
+                `rad`, `sr`, `Gy`, `Sv`) are their own system unit, so they show as `1 Gy` rather than `1 J/kg`.
 
                 ## Systems
 
@@ -132,6 +133,13 @@ class UnitTableEmitterTest {
         assertEquals("| `°C` | degree Celsius | Temperature | `1 K` | `273.15` |", row("SI", "°C"));
         assertEquals("| `°F` | degree Fahrenheit | Temperature | `5\\|9 K` | `45967\\|180` |",
                 row("USCustomary", "°F"));
+        assertEquals("| `eV` | electronvolt | Energy | `1.602176634e-19 J` |  |", row("SI", "eV"));
+        assertEquals("| `keV` | kiloelectronvolt | Energy | `1.602176634e-16 J` |  |", row("SI", "keV"));
+        assertEquals("| `GeV` | gigaelectronvolt | Energy | `1.602176634e-10 J` |  |", row("SI", "GeV"));
+        assertEquals("| `Da` | dalton | Mass | `1.6605390666e-27 kg` |  |", row("SI", "Da"));
+        // plain decimals down to 1e-6, as BigDecimal.toString
+        assertEquals("| `cm³` | cubic centimetre | Volume | `0.000001 m³` |  |", row("CGS", "cm³"));
+        assertEquals("| `erg` | erg | Energy | `1e-7 J` |  |", row("CGS", "erg"));
         assertEquals("| `deg` | degree | Angle | `1\\|180 pi rad` |  |", row("SI", "deg"));
         assertEquals("| `P` | poise | - | `0.1 kg/(m·s)` |  |", row("CGS", "P"));
         // members appear in every system that lists them

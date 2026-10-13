@@ -31,7 +31,8 @@ public final class UnitTableEmitter {
 
                 Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section per system. A value \
                 in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a \
-                fraction, `pi` is π). The quantity type `-` means the unit has none.
+                fraction, `pi` is π). The quantity type `-` means the unit has none. Alternate units (`Hz`, `Bq`, \
+                `rad`, `sr`, `Gy`, `Sv`) are their own system unit, so they show as `1 Gy` rather than `1 J/kg`.
 
                 ## Systems
 
@@ -65,13 +66,16 @@ public final class UnitTableEmitter {
         return text.replace("|", "\\|");
     }
 
-    /** {@code n|d pi^k}, the rational part a terminating decimal unless the fraction is shorter. */
+    /** {@code n|d pi^k}; the rational part is a terminating decimal unless the fraction is shorter. */
     private static String number(Factor f) {
         BigInteger n = f.numerator();
         BigInteger d = f.denominator();
         String text = d.equals(BigInteger.ONE) ? n.toString() : n + "|" + d;
         try {
-            String decimal = new BigDecimal(n).divide(new BigDecimal(d)).toPlainString();
+            BigDecimal value = new BigDecimal(n).divide(new BigDecimal(d));
+            // below 1e-6 BigDecimal.toString switches to scientific notation, written like the data files (1e-7)
+            String decimal = value.abs().compareTo(BigDecimal.ONE) < 0
+                    ? value.stripTrailingZeros().toString().replace('E', 'e') : value.toPlainString();
             text = decimal.length() <= text.length() ? decimal : text;
         } catch (ArithmeticException e) {
             // non-terminating: keep the fraction
