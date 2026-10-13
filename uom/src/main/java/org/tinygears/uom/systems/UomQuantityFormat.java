@@ -69,7 +69,11 @@ public final class UomQuantityFormat implements QuantityFormat {
     private final String exponent;
     private final MathContext decimals;
 
-    /** A ROOT format without grouping, parsing to {@code double}. */
+    /**
+     * A ROOT format without grouping, parsing to {@code double}.
+     *
+     * @param unitFormat the format of the units
+     */
     public UomQuantityFormat(UomUnitFormat unitFormat) {
         this(Objects.requireNonNull(unitFormat, "unitFormat"), Locale.ROOT, ROOT_SYMBOLS, false, null);
     }
@@ -91,6 +95,9 @@ public final class UomQuantityFormat implements QuantityFormat {
     /**
      * This format with numbers in {@code locale}; throws {@link IllegalArgumentException} if the locale's number
      * symbols collide so that a number could not round trip (no available locale of JDK 25 does).
+     *
+     * @param locale the locale of the numbers
+     * @return the new format
      */
     public UomQuantityFormat withLocale(Locale locale) {
         return withSymbols(locale, DecimalFormatSymbols.getInstance(Objects.requireNonNull(locale, "locale")));
@@ -100,7 +107,12 @@ public final class UomQuantityFormat implements QuantityFormat {
         return new UomQuantityFormat(unitFormat, locale, symbols, grouping, decimals);
     }
 
-    /** This format accepting (never writing) the locale's grouping separator between digits when parsing. */
+    /**
+     * This format accepting (never writing) the locale's grouping separator between digits when parsing.
+     *
+     * @param grouping whether to accept the separator
+     * @return the new format
+     */
     public UomQuantityFormat withGrouping(boolean grouping) {
         return new UomQuantityFormat(this, grouping, decimals);
     }
@@ -114,6 +126,9 @@ public final class UomQuantityFormat implements QuantityFormat {
      * a {@code d} or {@code f} suffix) and a value scale beyond ±100000 are {@link MeasurementParseException}s,
      * reported before any unit error. Throws {@link ArithmeticException}, as the quantities do, if the precision of
      * {@code mc} exceeds 100000.
+     *
+     * @param mc the context of parsed quantities
+     * @return the new format
      */
     public UomQuantityFormat withDecimals(MathContext mc) {
         // the quantities' own precision check
@@ -133,12 +148,20 @@ public final class UomQuantityFormat implements QuantityFormat {
         this.exponent = base.exponent;
     }
 
-    /** The locale of the numbers; {@link Locale#ROOT} unless set by {@link #withLocale}. */
+    /**
+     * The locale of the numbers; {@link Locale#ROOT} unless set by {@link #withLocale}.
+     *
+     * @return the locale
+     */
     public Locale getLocale() {
         return locale;
     }
 
-    /** The context of parsed decimal quantities, or null if parsing gives {@code double} quantities. */
+    /**
+     * The context of parsed decimal quantities, or null if parsing gives {@code double} quantities.
+     *
+     * @return the context, or null
+     */
     public MathContext getDecimalContext() {
         return decimals;
     }

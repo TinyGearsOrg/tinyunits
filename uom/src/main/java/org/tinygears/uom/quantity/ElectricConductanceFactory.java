@@ -18,18 +18,35 @@ import org.tinygears.uom.core.UomUnit;
 public final class ElectricConductanceFactory
         implements QuantityFactory<javax.measure.quantity.ElectricConductance> {
 
+    /** The system unit of {@link ElectricConductance}. */
     public static final UomUnit<javax.measure.quantity.ElectricConductance> SYSTEM_UNIT =
             UomUnit.unchecked(BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(3)).divide(BaseUnits.KILOGRAM).divide(BaseUnits.METRE.pow(2)).named("S", "siemens"));
 
+    /** The only instance. */
     public static final ElectricConductanceFactory INSTANCE = new ElectricConductanceFactory();
 
     private ElectricConductanceFactory() {
     }
 
+    /**
+     * An absolute double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public ElectricConductance of(double value, Unit<javax.measure.quantity.ElectricConductance> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
+    /**
+     * A double quantity; a unit of another implementation throws UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public ElectricConductance of(double value, Unit<javax.measure.quantity.ElectricConductance> unit,
             Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricConductance> u) {
@@ -38,12 +55,25 @@ public final class ElectricConductanceFactory
         throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public ElectricConductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricConductance> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public ElectricConductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricConductance> unit,
             Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
@@ -51,7 +81,13 @@ public final class ElectricConductanceFactory
 
     /**
      * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
-     * 100000 throws ArithmeticException.
+     * 100000 throws ArithmeticException; a unit of another implementation UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the math context
+     * @return the quantity
      */
     public ElectricConductance of(BigDecimal value, Unit<javax.measure.quantity.ElectricConductance> unit,
             Quantity.Scale scale, MathContext mc) {

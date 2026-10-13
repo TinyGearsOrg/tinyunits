@@ -67,12 +67,14 @@ public final class Gaussian {
     private Gaussian() {
     }
 
+    /** The franklin, {@code Fr}. */
     public static final UomUnit<ElectricCharge> FRANKLIN =
             UomUnit.unchecked(BaseUnits.AMPERE
                     .multiply(BaseUnits.SECOND)
                     .transform(Converters.affine(Factor.of(1L, 2997924580L), Factor.ZERO))
                     .named("Fr", "franklin"));
 
+    /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS =
             List.<UomUnit<?>>of(
                     FRANKLIN,
@@ -103,6 +105,7 @@ public final class Gaussian {
                     EMU.OERSTED,
                     EMU.GILBERT);
 
+    /** The symbols that take a prefix in this system. */
     public static final Set<String> PREFIXABLE =
             Set.of(
                     "G",
@@ -112,6 +115,7 @@ public final class Gaussian {
                     "g",
                     "s");
 
+    /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED =
             Map.<Class<?>, UomUnit<?>>ofEntries(
                     Map.entry(Acceleration.class, CGS.GALILEO),
@@ -148,6 +152,7 @@ public final class Gaussian {
                     Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
                     Map.entry(Volume.class, CGS.CUBIC_CENTIMETRE));
 
+    /** This system of units. */
     public static final UomSystemOfUnits SYSTEM =
             new UomSystemOfUnits("Gaussian", UNITS, PREFERRED, PREFIXABLE);
 }

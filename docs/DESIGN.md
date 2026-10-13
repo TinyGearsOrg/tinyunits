@@ -359,12 +359,14 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   (`uom`) and the `contract` package of `uom-core`.
 - Parsed units equal generated constants; catalog round trip for every unit (N6).
 - Generator golden tests: sample inputs compile, behave, and report errors with file and line.
-- CI drift check: regenerate and fail on a non-empty `git diff`.
+- CI drift check (`.github/workflows/ci.yml`, job `generated`): regenerate and fail on a non-empty `git diff` or an
+  untracked file.
 - Semantics tests: precision mixing, equality and equivalence, alternate units, offset units,
   roots of non-perfect powers.
 - Serialization round trip (every catalog unit; 33 types x {double, decimal} x {ABSOLUTE, RELATIVE}; golden files);
   module-path and class-path runs, including fresh-JVM reads. Milestone 6 ran the full build on JDK 25 and, for the
-  locale work, on JDK 21; CI on both is milestone 7.
+  locale work, on JDK 21; since milestone 7 the CI workflow runs `mvn -B verify` on JDK 21 and 25, and
+  `scripts/verify-release.sh` checks a consumer project on the class path, the module path and in a `jlink` image.
 - **Serialization (F12, D1 of milestone 6).** Serialization proxies for `Factor`, `UomDimension`, `UnitAtom`, the
   converters, `UomUnit` and the quantity base classes. Each class returns its proxy from `writeReplace` and throws
   `InvalidObjectException("proxy required")` from `readObject`; each proxy (`serialVersionUID = 1L`) rebuilds the object
@@ -413,8 +415,16 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    (F17, F18), TCK 113 of 113 tests, 1070 tests in `mvn -q -B clean verify` (core 506, codegen 162, uom 288, tck 113,
    examples 1). Follow-ups: `docs/superpowers/plans/2026-10-12-uom-m6-follow-ups.md`.
 7. Release engineering: POM metadata, sources and javadoc jars, a signing profile, CI on JDK 21 and the current JDK, the
-   custom-unit guide and unit table (N7), the versioning policy and public API definition (N8), a JPMS review, the
-   repository rename. Publishing to Maven Central stays the owner's action.
+   custom-unit guide and unit table (N7), the versioning policy and public API definition (N8), a JPMS review. Done
+   (prepared, nothing published): POM metadata and an inactive `release` profile (sources, javadoc, signing, Central
+   upload with `autoPublish=false`), enforcer rules, reproducible jars, javadoc without warnings, the API pin
+   (`docs/api/public-api.txt`, [API.md](API.md)), the generated [UNITS.md](UNITS.md), the documentation set
+   ([CUSTOM-UNITS.md](CUSTOM-UNITS.md), [RELEASING.md](RELEASING.md), `CHANGELOG.md`, `SECURITY.md`,
+   `CONTRIBUTING.md`), `scripts/verify-release.sh` (release artifacts, reproducibility, `jlink`, a consumer project),
+   the CI workflow (JDK 21 and 25) and dependabot; TCK 113 of 113 tests, 1112 tests in `mvn -q -B clean verify` (core
+   506, codegen 169, uom 322, tck 113, examples 2). Not done: the repository rename and the publication itself (the
+   owner's action, [TODO.md](TODO.md), "Release readiness"). Follow-ups:
+   `docs/superpowers/plans/2026-10-13-uom-m7-follow-ups.md`.
 
 ## 8. Open items for the implementation plan
 
@@ -428,4 +438,6 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   owner-requested follow-ups after milestone 6.
 - The open owner decisions in `docs/TODO.md` (offset-unit arithmetic, `asType` and alternate
   units, offset-unit products).
-- Repository rename: the GitHub repository is `tinyunits`, the project is `uom`.
+- Repository rename: the GitHub repository is `tinyunits`, the project is `uom`; the POM's `url`, `scm` and
+  `issueManagement` point to `TinyGearsOrg/tinyunits` until then.
+- The first release: prepared in milestone 7, executed by the owner ([RELEASING.md](RELEASING.md)).

@@ -14,6 +14,10 @@ public final class UomFormatService implements FormatService {
     private static final UomUnitFormat UNIT_FORMAT = UomUnitFormat.standard();
     private static final UomQuantityFormat QUANTITY_FORMAT = new UomQuantityFormat(UNIT_FORMAT);
 
+    /** A service sharing the formats of all instances. */
+    public UomFormatService() {
+    }
+
     @Override
     public QuantityFormat getQuantityFormat() {
         return QUANTITY_FORMAT;

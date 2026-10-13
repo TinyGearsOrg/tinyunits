@@ -39,6 +39,9 @@ public final class SourceEmitter {
                  * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
                  * without one throws UnsupportedOperationException (the systems of this library have one for every standard
                  * type), a foreign unit UnconvertibleException.
+                 *
+                 * @param system the system of units
+                 * @return the converted quantity
                  */
                 $T to(javax.measure.spi.SystemOfUnits system);
 
@@ -51,30 +54,65 @@ public final class SourceEmitter {
                 @Override
                 $T divide(Number divisor);
 
-                /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+                /**
+                 * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
+                 *
+                 * @return the double quantity
+                 */
                 $T toDouble();
 
                 /**
                  * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
                  * 100000 throws ArithmeticException.
+                 *
+                 * @param mc the math context of the result
+                 * @return the decimal quantity
                  */
                 $T toDecimal(java.math.MathContext mc);
 
+                /**
+                 * An absolute double quantity.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @return the quantity
+                 */
                 static $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
                     return $TFactory.INSTANCE.of(value, unit);
                 }
 
+                /**
+                 * A double quantity.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @param scale the scale
+                 * @return the quantity
+                 */
                 static $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     return $TFactory.INSTANCE.of(value, unit, scale);
                 }
 
-                /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+                /**
+                 * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @return the quantity
+                 */
                 static $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
                     return $TFactory.INSTANCE.of(value, unit);
                 }
 
-                /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+                /**
+                 * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @param scale the scale
+                 * @return the quantity
+                 */
                 static $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     return $TFactory.INSTANCE.of(value, unit, scale);
@@ -83,6 +121,12 @@ public final class SourceEmitter {
                 /**
                  * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
                  * 100000 throws ArithmeticException.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @param scale the scale
+                 * @param mc the math context
+                 * @return the quantity
                  */
                 static $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
@@ -160,18 +204,35 @@ public final class SourceEmitter {
             public final class $TFactory
                     implements javax.measure.spi.QuantityFactory<javax.measure.quantity.$T> {
 
+                /** The system unit of {@link $T}. */
                 public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> SYSTEM_UNIT =
                         org.tinygears.uom.core.UomUnit.unchecked($U);
 
+                /** The only instance. */
                 public static final $TFactory INSTANCE = new $TFactory();
 
                 private $TFactory() {
                 }
 
+                /**
+                 * An absolute double quantity.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @return the quantity
+                 */
                 public $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
                     return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
                 }
 
+                /**
+                 * A double quantity; a unit of another implementation throws UnconvertibleException.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @param scale the scale
+                 * @return the quantity
+                 */
                 public $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     if (java.util.Objects.requireNonNull(unit, "unit") instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> u) {
@@ -180,12 +241,25 @@ public final class SourceEmitter {
                     throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
                 }
 
-                /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+                /**
+                 * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @return the quantity
+                 */
                 public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit) {
                     return of(value, unit, javax.measure.Quantity.Scale.ABSOLUTE);
                 }
 
-                /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+                /**
+                 * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @param scale the scale
+                 * @return the quantity
+                 */
                 public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     return of(value, unit, scale, java.math.MathContext.DECIMAL128);
@@ -193,7 +267,13 @@ public final class SourceEmitter {
 
                 /**
                  * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
-                 * 100000 throws ArithmeticException.
+                 * 100000 throws ArithmeticException; a unit of another implementation UnconvertibleException.
+                 *
+                 * @param value the value
+                 * @param unit the unit
+                 * @param scale the scale
+                 * @param mc the math context
+                 * @return the quantity
                  */
                 public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
@@ -242,12 +322,24 @@ public final class SourceEmitter {
                 private QuantityTypes() {
                 }
 
+                /**
+                 * The factory of {@code type}; a type without one throws IllegalArgumentException.
+                 *
+                 * @param <Q> the quantity type
+                 * @param type the quantity type
+                 * @return the factory
+                 */
                 @SuppressWarnings("unchecked")
                 public static <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> factory(Class<Q> type) {
                     java.util.Objects.requireNonNull(type, "type");
             $F        throw new IllegalArgumentException("no quantity factory for " + type.getName());
                 }
 
+                /**
+                 * The quantity types with a factory.
+                 *
+                 * @return the types
+                 */
                 public static java.util.Set<Class<?>> types() {
                     return TYPES;
                 }

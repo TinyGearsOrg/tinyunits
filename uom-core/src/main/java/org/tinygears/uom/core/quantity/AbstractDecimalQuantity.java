@@ -36,6 +36,9 @@ import org.tinygears.uom.core.internal.Decimals;
  * scale and context: a user subclass, or a quantity read under another top-priority provider, comes back as that
  * provider's class (so it no longer equals the original), and a provider without factories for the standard types
  * makes typed reads fail.
+ *
+ * @param <Q> the quantity type
+ * @param <R> the typed interface returned by conversions
  */
 public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
         implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
@@ -43,14 +46,23 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /** The value. */
     private final BigDecimal value;
+    /** The unit. */
     private final UomUnit<Q> unit;
+    /** The scale. */
     private final Quantity.Scale scale;
+    /** The context that rounds results. */
     private final MathContext mathContext;
 
     /**
      * Throws {@link ArithmeticException} if the scale of {@code value} exceeds 100000 in magnitude or the precision
      * of {@code mathContext} exceeds 100000.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mathContext the context that rounds results
      */
     protected AbstractDecimalQuantity(BigDecimal value, UomUnit<Q> unit, Quantity.Scale scale,
             MathContext mathContext) {
@@ -60,12 +72,32 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         this.mathContext = Precision.checked(Objects.requireNonNull(mathContext, "mathContext"));
     }
 
+    /**
+     * Creates a decimal quantity of the same typed interface.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the context
+     * @return the quantity
+     */
     protected abstract R create(BigDecimal value, UomUnit<Q> unit, Quantity.Scale scale, MathContext mc);
 
-    /** Creates the {@code double} quantity of the same typed interface. */
+    /**
+     * Creates the {@code double} quantity of the same typed interface.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     protected abstract R createDouble(double value, UomUnit<Q> unit, Quantity.Scale scale);
 
-    /** The standard quantity type of this class, looked up by {@link #to(SystemOfUnits)}; {@link Untyped} if none. */
+    /**
+     * The standard quantity type of this class, looked up by {@link #to(SystemOfUnits)}; {@link Untyped} if none.
+     *
+     * @return the quantity type
+     */
     protected abstract Class<Q> quantityType();
 
     @Override
@@ -83,7 +115,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return scale;
     }
 
-    /** The context that rounds results computed from this quantity. */
+    /**
+     * The context that rounds results computed from this quantity.
+     *
+     * @return the context
+     */
     public final MathContext mathContext() {
         return mathContext;
     }
@@ -106,6 +142,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * system without a unit for the type ({@code getUnit} returns null) throws {@link UnsupportedOperationException}.
      * Untyped quantities look up {@link Untyped}, so they throw too unless the system maps it (no system of this
      * library does); those systems have a unit for each of the 33 standard types.
+     *
+     * @param system the system of units
+     * @return the converted quantity
      */
     public R to(SystemOfUnits system) {
         Objects.requireNonNull(system, "system");
@@ -123,7 +162,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return create(value.negate(), unit, scale, mathContext);
     }
 
-    /** The same quantity as a {@code double}; a value outside the double range throws {@link ArithmeticException}. */
+    /**
+     * The same quantity as a {@code double}; a value outside the double range throws {@link ArithmeticException}.
+     *
+     * @return the double quantity
+     */
     public R toDouble() {
         return createDouble(Precision.toDouble(value), unit, scale);
     }
@@ -132,6 +175,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * The same quantity with its value rounded to {@code mc}, which becomes its context. Throws
      * {@link ArithmeticException} if the result's scale exceeds the bound of ±100000 (conversion or rounding can
      * push a value past it) or the precision of {@code mc} exceeds 100000.
+     *
+     * @param mc the context of the result
+     * @return the rounded quantity
      */
     public R toDecimal(MathContext mc) {
         return create(value.round(mc), unit, scale, mc);
@@ -141,6 +187,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * The same quantity with context {@code mc}; unlike {@link #toDecimal(MathContext)} the value is kept exactly,
      * digits beyond the precision of {@code mc} included; used by the quantity format's decimal parse. Throws
      * {@link ArithmeticException} if the precision of {@code mc} exceeds 100000.
+     *
+     * @param mc the context of the result
+     * @return the quantity with the new context
      */
     public R withMathContext(MathContext mc) {
         return create(value, unit, scale, mc);
@@ -297,18 +346,31 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * quantity through {@code ServiceProvider.current().getQuantityFactory(type)} and keeps value and context
      * unrounded. A type outside the 33 standard quantity interfaces and {@link Untyped}, an unscaled value over
      * 65536 bytes or a context precision over 100000 throws {@link java.io.NotSerializableException}.
+     *
+     * @return the proxy
+     * @throws ObjectStreamException if the quantity cannot be serialized
      */
     @Serial
     protected final Object writeReplace() throws ObjectStreamException {
         return QuantityProxy.ofDecimal(quantityType(), unit, scale, value, mathContext);
     }
 
+    /**
+     * Rejects a stream without the proxy.
+     *
+     * @param in the stream
+     * @throws InvalidObjectException always
+     */
     @Serial
     private void readObject(ObjectInputStream in) throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");
     }
 
-    /** Called instead of readObject when a stream names a subclass without this class. */
+    /**
+     * Called instead of readObject when a stream names a subclass without this class.
+     *
+     * @throws InvalidObjectException always
+     */
     @Serial
     private void readObjectNoData() throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");

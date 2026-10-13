@@ -35,6 +35,14 @@ public final class FormulaEvaluator {
         this.lookup = lookup;
     }
 
+    /**
+     * Evaluates a formula.
+     *
+     * @param formula the formula
+     * @param lookup resolves a unit symbol, null when unknown
+     * @return the unit
+     * @throws FormulaException if the formula is malformed or names an unknown unit
+     */
     public static UomUnit<?> evaluate(String formula, Function<String, UomUnit<?>> lookup)
             throws FormulaException {
         if (formula.length() > MAX_LENGTH) {

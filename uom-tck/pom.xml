@@ -14,6 +14,11 @@
   <artifactId>uom-tck</artifactId>
   <name>uom-tck</name>
 
+  <properties>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+    <maven.source.skip>true</maven.source.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.tinygears</groupId>
@@ -43,7 +48,7 @@
           <dependency>
             <groupId>org.apache.maven.surefire</groupId>
             <artifactId>surefire-testng</artifactId>
-            <version>3.2.5</version>
+            <version>${surefire.version}</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -60,4 +65,22 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- A literal, so no command-line flag can put this module into the Central bundle. -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <configuration>
+              <skipPublishing>true</skipPublishing>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

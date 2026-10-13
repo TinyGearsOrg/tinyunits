@@ -12,7 +12,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.measure.Dimension;
 
-/** Product of the seven SI base dimensions with integer exponents; serializable through a proxy. */
+/**
+ * Product of the seven SI base dimensions with integer exponents; serializable through a proxy.
+ *
+ * @param length the exponent of length
+ * @param mass the exponent of mass
+ * @param time the exponent of time
+ * @param current the exponent of electric current
+ * @param temperature the exponent of temperature
+ * @param amount the exponent of amount of substance
+ * @param luminosity the exponent of luminous intensity
+ */
 public record UomDimension(int length, int mass, int time, int current, int temperature, int amount, int luminosity)
         implements Dimension, Serializable {
 
@@ -115,12 +125,22 @@ public record UomDimension(int length, int mass, int time, int current, int temp
         return m.size() == 1 && m.containsValue(1) ? null : m;
     }
 
+    /**
+     * The serialization proxy.
+     *
+     * @return the proxy
+     */
     @Serial
     private Object writeReplace() {
         return new Proxy(exponents());
     }
 
-    // A record ignores readObject; a record read without its proxy ends here.
+    /**
+     * Rejects a stream without the proxy; a record ignores readObject, so the check is here.
+     *
+     * @return never
+     * @throws InvalidObjectException always
+     */
     @Serial
     private Object readResolve() throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");

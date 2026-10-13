@@ -18,18 +18,35 @@ import org.tinygears.uom.core.UomUnit;
 public final class EnergyFactory
         implements QuantityFactory<javax.measure.quantity.Energy> {
 
+    /** The system unit of {@link Energy}. */
     public static final UomUnit<javax.measure.quantity.Energy> SYSTEM_UNIT =
             UomUnit.unchecked(BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2)).named("J", "joule"));
 
+    /** The only instance. */
     public static final EnergyFactory INSTANCE = new EnergyFactory();
 
     private EnergyFactory() {
     }
 
+    /**
+     * An absolute double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Energy of(double value, Unit<javax.measure.quantity.Energy> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
+    /**
+     * A double quantity; a unit of another implementation throws UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Energy of(double value, Unit<javax.measure.quantity.Energy> unit,
             Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Energy> u) {
@@ -38,12 +55,25 @@ public final class EnergyFactory
         throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit,
             Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
@@ -51,7 +81,13 @@ public final class EnergyFactory
 
     /**
      * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
-     * 100000 throws ArithmeticException.
+     * 100000 throws ArithmeticException; a unit of another implementation UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the math context
+     * @return the quantity
      */
     public Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit,
             Quantity.Scale scale, MathContext mc) {

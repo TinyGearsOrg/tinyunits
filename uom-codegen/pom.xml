@@ -14,6 +14,11 @@
   <name>uom-codegen</name>
 
   <!-- Build-time tool; never published. -->
+  <properties>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+    <maven.source.skip>true</maven.source.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.tinygears</groupId>
@@ -41,6 +46,12 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -67,10 +78,26 @@
                     <argument>data</argument>
                     <argument>uom/src/main/java/org/tinygears/uom/quantity</argument>
                     <argument>uom/src/main/java/org/tinygears/uom/systems</argument>
+                    <argument>docs</argument>
                   </arguments>
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- A literal, so no command-line flag can put this module into the Central bundle. -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <configuration>
+              <skipPublishing>true</skipPublishing>
+            </configuration>
           </plugin>
         </plugins>
       </build>

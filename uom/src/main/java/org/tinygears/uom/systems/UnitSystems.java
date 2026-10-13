@@ -13,6 +13,11 @@ public final class UnitSystems {
     private UnitSystems() {
     }
 
+    /**
+     * The systems: SI, US customary, Imperial, CGS, ESU, EMU and Gaussian.
+     *
+     * @return the systems
+     */
     public static List<UomSystemOfUnits> all() {
         return List.of(SI.SYSTEM, USCustomary.SYSTEM, Imperial.SYSTEM, CGS.SYSTEM, ESU.SYSTEM, EMU.SYSTEM,
                 Gaussian.SYSTEM);

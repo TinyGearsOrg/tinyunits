@@ -18,18 +18,35 @@ import org.tinygears.uom.core.UomUnit;
 public final class ElectricPotentialFactory
         implements QuantityFactory<javax.measure.quantity.ElectricPotential> {
 
+    /** The system unit of {@link ElectricPotential}. */
     public static final UomUnit<javax.measure.quantity.ElectricPotential> SYSTEM_UNIT =
             UomUnit.unchecked(BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3)).named("V", "volt"));
 
+    /** The only instance. */
     public static final ElectricPotentialFactory INSTANCE = new ElectricPotentialFactory();
 
     private ElectricPotentialFactory() {
     }
 
+    /**
+     * An absolute double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public ElectricPotential of(double value, Unit<javax.measure.quantity.ElectricPotential> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
+    /**
+     * A double quantity; a unit of another implementation throws UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public ElectricPotential of(double value, Unit<javax.measure.quantity.ElectricPotential> unit,
             Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricPotential> u) {
@@ -38,12 +55,25 @@ public final class ElectricPotentialFactory
         throw new UnconvertibleException("foreign unit implementation: " + unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     public ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit) {
         return of(value, unit, Quantity.Scale.ABSOLUTE);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     public ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
             Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
@@ -51,7 +81,13 @@ public final class ElectricPotentialFactory
 
     /**
      * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
-     * 100000 throws ArithmeticException.
+     * 100000 throws ArithmeticException; a unit of another implementation UnconvertibleException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the math context
+     * @return the quantity
      */
     public ElectricPotential of(BigDecimal value, Unit<javax.measure.quantity.ElectricPotential> unit,
             Quantity.Scale scale, MathContext mc) {

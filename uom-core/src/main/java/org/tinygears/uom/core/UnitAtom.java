@@ -14,14 +14,28 @@ import java.util.Objects;
 /**
  * An irreducible unit: one of the SI base units or an alternate unit. Serializable through a proxy that carries
  * an alternate atom's definition; reading checks it against the registry but never registers it.
+ *
+ * @param symbol the symbol
+ * @param dimension the dimension
  */
 public record UnitAtom(String symbol, UomDimension dimension) implements Serializable {
 
+    /**
+     * Checks the components.
+     *
+     * @param symbol the symbol
+     * @param dimension the dimension
+     */
     public UnitAtom {
         Objects.requireNonNull(symbol, "symbol");
         Objects.requireNonNull(dimension, "dimension");
     }
 
+    /**
+     * The serialization proxy.
+     *
+     * @return the proxy
+     */
     @Serial
     private Object writeReplace() {
         Map<UnitAtom, Integer> definition = AlternateUnits.definition(this);
@@ -33,7 +47,12 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
                 definition.values().stream().mapToInt(Integer::intValue).toArray());
     }
 
-    // A record ignores readObject; a record read without its proxy ends here.
+    /**
+     * Rejects a stream without the proxy; a record ignores readObject, so the check is here.
+     *
+     * @return never
+     * @throws InvalidObjectException always
+     */
     @Serial
     private Object readResolve() throws InvalidObjectException {
         throw new InvalidObjectException("proxy required");

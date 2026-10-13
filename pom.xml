@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         child.project.url.inherit.append.path="false">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.tinygears</groupId>
@@ -9,6 +10,28 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>uom-parent</name>
+  <description>Parent POM of uom, a Java library of typed quantities and units of measurement implementing JSR-385.</description>
+  <url>https://github.com/TinyGearsOrg/tinyunits</url>
+  <inceptionYear>2026</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>tneidhart</id>
+      <name>Thomas Neidhart</name>
+      <email>thomas.neidhart@gmail.com</email>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+  </developers>
 
   <modules>
     <module>uom-core</module>
@@ -18,9 +41,29 @@
     <module>uom-examples</module>
   </modules>
 
+  <scm child.scm.connection.inherit.append.path="false"
+       child.scm.developerConnection.inherit.append.path="false"
+       child.scm.url.inherit.append.path="false">
+    <connection>scm:git:https://github.com/TinyGearsOrg/tinyunits.git</connection>
+    <developerConnection>scm:git:git@github.com:TinyGearsOrg/tinyunits.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/TinyGearsOrg/tinyunits</url>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/TinyGearsOrg/tinyunits/issues</url>
+  </issueManagement>
+
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Reproducible-build timestamp of the archive entries. At each release, set it in the version-change
+         commit to the release date or to the committer date of the previous commit (git log -1, format %cI). -->
+    <project.build.outputTimestamp>2026-10-13T00:00:00Z</project.build.outputTimestamp>
+    <!-- Central upload switch of the published modules; the unpublished ones set skipPublishing literally. -->
+    <central.skipPublishing>false</central.skipPublishing>
+    <surefire.version>3.2.5</surefire.version>
   </properties>
 
   <dependencies>
@@ -33,19 +76,90 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!-- the licence in every jar, as META-INF/LICENSE -->
+      <resource>
+        <directory>${project.basedir}/..</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+        </includes>
+      </resource>
+    </resources>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.13.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>${surefire.version}</version>
           <configuration>
             <!-- class path so test-only service providers work -->
             <useModulePath>false</useModulePath>
           </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.5.1</version>
+          <configuration>
+            <archive>
+              <manifestEntries>
+                <Implementation-Title>${project.name}</Implementation-Title>
+                <Implementation-Version>${project.version}</Implementation-Version>
+                <Implementation-Vendor>TinyGearsOrg</Implementation-Vendor>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.22.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-help-plugin</artifactId>
+          <version>3.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.6.3</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.4.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.12.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>3.2.8</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.11.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -54,5 +168,136 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.9,)</version>
+                </requireMavenVersion>
+                <banDuplicatePomDependencyVersions/>
+                <dependencyConvergence/>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
+
+  <profiles>
+    <!-- Release artifacts: mvn -Prelease ...; signing needs -Dgpg.skip=false, the upload is the owner's step.
+         maven-gpg-plugin adds batch, no-tty under mvn -B and loopback pinentry when MAVEN_GPG_PASSPHRASE is set. -->
+    <profile>
+      <id>release</id>
+      <properties>
+        <gpg.skip>true</gpg.skip>
+        <!-- scripts/check-javadoc.sh turns it off to count every warning -->
+        <javadoc.failOnWarnings>true</javadoc.failOnWarnings>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <!-- deploy phase, so -Prelease package/install on a SNAPSHOT still work; literal skip so that
+                   -Denforcer.skip=true cannot turn it off. Declared before the Central plugin to run first. -->
+              <execution>
+                <id>enforce-release-version</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <skip>false</skip>
+                  <rules>
+                    <requireReleaseVersion>
+                      <message>-Prelease deploy needs a release version (docs/RELEASING.md)</message>
+                    </requireReleaseVersion>
+                    <requireReleaseDeps>
+                      <message>-Prelease deploy needs release dependencies (docs/RELEASING.md)</message>
+                    </requireReleaseDeps>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <doclint>all</doclint>
+                  <failOnWarnings>${javadoc.failOnWarnings}</failOnWarnings>
+                  <bottom>Licensed under the Apache License, Version 2.0.</bottom>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <skip>${gpg.skip}</skip>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <!-- Explicit values, so -D user properties cannot widen the upload. The unpublished modules are kept
+                 out by excludeArtifacts and by a literal skipPublishing in their own release profile. -->
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>false</autoPublish>
+              <waitForPublishCompletion>false</waitForPublishCompletion>
+              <ignorePublishedComponents>false</ignorePublishedComponents>
+              <failOnBuildFailure>true</failOnBuildFailure>
+              <skipPublishing>${central.skipPublishing}</skipPublishing>
+              <excludeArtifacts>
+                <artifact>uom-codegen</artifact>
+                <artifact>uom-tck</artifact>
+                <artifact>uom-examples</artifact>
+              </excludeArtifacts>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

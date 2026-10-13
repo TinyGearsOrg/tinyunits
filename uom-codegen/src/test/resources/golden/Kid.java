@@ -80,11 +80,13 @@ public final class Kid {
     private Kid() {
     }
 
+    /** The stone, {@code st}. */
     public static final UomUnit<Mass> STONE =
             UomUnit.unchecked(BaseUnits.KILOGRAM
                     .transform(Converters.affine(Factor.of(317514659L, 50000000L), Factor.ZERO))
                     .named("st", "stone"));
 
+    /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS =
             List.<UomUnit<?>>of(
                     STONE,
@@ -96,6 +98,7 @@ public final class Kid {
                     SI.GRAM,
                     SI.JOULE);
 
+    /** The symbols that take a prefix in this system. */
     public static final Set<String> PREFIXABLE =
             Set.of(
                     "J",
@@ -104,6 +107,7 @@ public final class Kid {
                     "m",
                     "s");
 
+    /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED =
             Map.<Class<?>, UomUnit<?>>ofEntries(
                     Map.entry(Acceleration.class, AccelerationFactory.SYSTEM_UNIT),
@@ -140,6 +144,7 @@ public final class Kid {
                     Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
                     Map.entry(Volume.class, VolumeFactory.SYSTEM_UNIT));
 
+    /** This system of units. */
     public static final UomSystemOfUnits SYSTEM =
             new UomSystemOfUnits("Kid", UNITS, PREFERRED, PREFIXABLE);
 }

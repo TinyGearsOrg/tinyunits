@@ -15,13 +15,21 @@ import javax.measure.quantity.Time;
 /** The seven SI base units and the dimensionless unit one. */
 public final class BaseUnits {
 
+    /** The metre, {@code m}. */
     public static final UomUnit<Length> METRE = base("m", "metre", UomDimension.LENGTH);
+    /** The kilogram, {@code kg}. */
     public static final UomUnit<Mass> KILOGRAM = base("kg", "kilogram", UomDimension.MASS);
+    /** The second, {@code s}. */
     public static final UomUnit<Time> SECOND = base("s", "second", UomDimension.TIME);
+    /** The ampere, {@code A}. */
     public static final UomUnit<ElectricCurrent> AMPERE = base("A", "ampere", UomDimension.CURRENT);
+    /** The kelvin, {@code K}. */
     public static final UomUnit<Temperature> KELVIN = base("K", "kelvin", UomDimension.TEMPERATURE);
+    /** The mole, {@code mol}. */
     public static final UomUnit<AmountOfSubstance> MOLE = base("mol", "mole", UomDimension.AMOUNT);
+    /** The candela, {@code cd}. */
     public static final UomUnit<LuminousIntensity> CANDELA = base("cd", "candela", UomDimension.LUMINOSITY);
+    /** The dimensionless unit one, {@code 1}. */
     public static final UomUnit<Dimensionless> ONE = UomUnit.of(Map.of(), Converters.IDENTITY, "1", "one");
 
     private BaseUnits() {

@@ -26,6 +26,9 @@ public interface Time extends javax.measure.quantity.Time,
      * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
      * without one throws UnsupportedOperationException (the systems of this library have one for every standard
      * type), a foreign unit UnconvertibleException.
+     *
+     * @param system the system of units
+     * @return the converted quantity
      */
     Time to(SystemOfUnits system);
 
@@ -38,30 +41,65 @@ public interface Time extends javax.measure.quantity.Time,
     @Override
     Time divide(Number divisor);
 
-    /** The same quantity as a {@code double}; a value outside the double range throws ArithmeticException. */
+    /**
+     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
+     *
+     * @return the double quantity
+     */
     Time toDouble();
 
     /**
      * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
      * 100000 throws ArithmeticException.
+     *
+     * @param mc the math context of the result
+     * @return the decimal quantity
      */
     Time toDecimal(MathContext mc);
 
+    /**
+     * An absolute double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     static Time of(double value, Unit<javax.measure.quantity.Time> unit) {
         return TimeFactory.INSTANCE.of(value, unit);
     }
 
+    /**
+     * A double quantity.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     static Time of(double value, Unit<javax.measure.quantity.Time> unit,
             Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * An absolute decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @return the quantity
+     */
     static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit) {
         return TimeFactory.INSTANCE.of(value, unit);
     }
 
-    /** A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded. */
+    /**
+     * A decimal quantity with context {@code DECIMAL128}; the value is kept as given, not rounded.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @return the quantity
+     */
     static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit,
             Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
@@ -70,6 +108,12 @@ public interface Time extends javax.measure.quantity.Time,
     /**
      * A decimal quantity with context {@code mc}; the value is kept as given, not rounded. A precision over
      * 100000 throws ArithmeticException.
+     *
+     * @param value the value
+     * @param unit the unit
+     * @param scale the scale
+     * @param mc the math context
+     * @return the quantity
      */
     static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit,
             Quantity.Scale scale, MathContext mc) {
