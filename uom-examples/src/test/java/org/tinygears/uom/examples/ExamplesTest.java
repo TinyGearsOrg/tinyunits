@@ -27,6 +27,11 @@ class ExamplesTest {
                         "decimal equals double: false | equivalent: true | 2 equals 2.00: true"),
                 Map.entry("decimalFormat", "1.50 km | Double 1.5"),
                 Map.entry("systems", "1.0 ft = 30.48 cm | 100.0 °C = 212.0 °F | exact 212 °F"
-                        + " | 3.785411784 L vs 4.54609 L | 2.99792458E9 Fr")), Examples.all());
+                        + " | 3.785411784 L vs 4.54609 L | 2.99792458E9 Fr"),
+                Map.entry("serialization", "unit: true km/h | quantity: true 1.50 km"),
+                Map.entry("locales", "1,5 km | 1.5 km"),
+                Map.entry("offsetUnits", "K + 5 | parses back equal: true | 2·K + 136.575"),
+                Map.entry("decimalParse", "1.50 km | scale 2 | true"),
+                Map.entry("userUnits", "Medieval | 2.0 league = 9.656064 km = 48.0 furlong")), Examples.all());
     }
 }

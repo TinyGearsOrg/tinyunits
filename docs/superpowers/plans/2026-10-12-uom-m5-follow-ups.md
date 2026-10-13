@@ -91,7 +91,8 @@ Unchanged, tracked with options in `docs/TODO.md`. Two more are visible through 
 
 - The milestone 3 format items (labels per instance, `kiloohm` names, `5.0 1` for dimensionless, number grammar of the
   quantity parse) stay open as they are.
-- `UomQuantityFormat.parse` still returns `double` quantities (decimal-preserving parse: M6).
+- `UomQuantityFormat.parse` still returns `double` quantities (decimal-preserving parse: M6). Done by milestone 6
+  (Task 6): `withDecimals(MathContext)`.
 
 ## Tests and process
 

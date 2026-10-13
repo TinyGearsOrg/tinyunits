@@ -1,6 +1,6 @@
 # uom: Design
 
-Status: draft for owner review; milestones 1 to 5 are implemented (section 7). Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
+Status: draft for owner review; milestones 1 to 6 are implemented (section 7). Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
 N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven, multi-module.
 
 ## 1. Decisions
@@ -10,8 +10,8 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
 | API | Implement JSR-385 (unit-api 2.2) ourselves; no Indriya dependency (F1, F2). |
 | Typed quantities | Own typed interfaces extending the standard ones, plus generated `double` and `BigDecimal` implementations (F3 to F5). |
 | Code generation | An internal generator reads data files and writes plain Java sources, which are committed. CI fails if regenerating produces a diff. No annotation processor, no proxies. |
-| Catalogs | Text data files are the single source of truth (F15). They generate typed catalogs; parsing them at run time (F17) is not implemented yet (section 5). |
-| User extension | Users load their own `.units` files at run time and get `Unit<?>` back (F18; not implemented yet). User-defined quantity types are out of scope. |
+| Catalogs | Text data files are the single source of truth (F15). They generate typed catalogs; the same parser loads user files at run time (F17, section 5). |
+| User extension | Users load their own `.units` files at run time (`UomSystemOfUnits.load`) and get `Unit<?>` back (F18). User-defined quantity types are out of scope. |
 | Precision | The lower precision wins, symmetric (F23). |
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
 
@@ -26,13 +26,13 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
    cgs-gaussian           │        .systems    generated catalogs: SI, USCustomary, Imperial, CGS,
                           │                    ESU, EMU, Gaussian
                           │
- data/*.units ────────────┴─> planned: copied into uom as resources, parsed at run time (not done)
+ user *.units ───────────────> UomSystemOfUnits.load at run time (no built-in resources shipped)
 ```
 
 | Module | Contents | Published |
 |--------|----------|-----------|
 | `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
-| `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `UomSystemOfUnits`, `UnitSystems`), the basic unit and quantity formats, the JSR-385 `ServiceProvider`; `.units` resources are not copied yet | yes |
+| `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; no `.units` resources are shipped | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
 | `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
@@ -172,7 +172,9 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     `toDecimal(mc)` rounds to `mc`, on both implementations. `asType` keeps the receiver's `MathContext` and never changes
     the value.
   - **Factories (D11) and formats (D12).** As in section 4 item 1 and 4; `UomQuantityFormat.format` prints
-    `BigDecimal.toString()`, `parse` still returns `double` quantities (decimal-preserving parse: milestone 6).
+    `BigDecimal.toString()`; `parse` returns `double` quantities unless the format has `withDecimals` (section 5,
+    milestone 6). `withMathContext(mc)` (public on `AbstractDecimalQuantity`, not on the typed interfaces) changes the
+    context without rounding the value; the decimal parse uses it.
   - Irrational factors (a pi or root in the converter) are best effort for decimal arithmetic; see
     `docs/superpowers/plans/2026-10-12-uom-m4-follow-ups.md`.
 - **Equality (F20).** `equals`: same implementation class, same unit, same scale, same value. `double`: `Double.compare`.
@@ -192,8 +194,8 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
 
 Files live in `data/`: `quantity-types.txt` (quantity types and their system units, built from
 the standard's 33 types, no extras) and one `.units` file per unit system: `si.units`, `us-customary.units`,
-`imperial.units`, `cgs.units`, `cgs-esu.units`, `cgs-emu.units` and `cgs-gaussian.units`. Planned: copy the `.units` files into
-`uom` as resources for run-time loading (not done yet).
+`imperial.units`, `cgs.units`, `cgs-esu.units`, `cgs-emu.units` and `cgs-gaussian.units`. They are not shipped as
+resources: the catalogs are generated only, and users load their own files at run time (below).
 
 **Generator (milestones 2, 3 and 5).** `uom-codegen` (not published) reads `data/quantity-types.txt`
 and the seven `.units` files listed in `Generate.CATALOGS` (`si.units` first) and writes the sources of section 4 into
@@ -289,12 +291,28 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   Layering is by source file; files that are only `@include`d contribute no lines. `SI` itself keeps the factory system unit
   for a type without `@preferred`. Fallback units are not members: `USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but
   `getUnit("s")` is null and `getUnits()` lacks `s` (123 (system, type) pairs; SI itself for `m/s^2`, `1` and `m/s`).
-- **Run time (F17, F18).** The parser ships in `uom-core`. Through milestone 5 the library does not load `.units`
-  resources at run time: `UomUnitFormat` resolves symbols from the generated catalogs and
-  evaluates formulas with `FormulaEvaluator`. Loading user `.units` files (F18) is to do.
+- **Run time (F17, F18, D5 of milestone 6).** The parser ships in `uom-core`. `UomUnitFormat` resolves symbols from the
+  generated catalogs and evaluates formulas with `FormulaEvaluator`. User files load at run time, with no global state:
+  - `DefinitionParser.parse(source, reader, resolver, known)` looks up symbols the file does not define through
+    `known`; a file defining a symbol `known` resolves is an error (`symbol 'm' is already defined`, file and line).
+    The known lookup is `UomUnitFormat.resolve(String)`: exact catalog symbols and metric prefixes, never labels.
+  - `UomSystemOfUnits.load(String name, Reader, Resolver)` and `load(Path)` return an immutable system of the file's
+    definitions (then the `@extends`-ed systems' units, then `@member`s). Constants are `Unit<?>`. `@preferred Type
+    symbol` names one of the 33 standard types by simple name; an unlisted type falls back to the first extended
+    system's preferred unit, else `SI`'s, so `to(userSystem)` works. The name is `@system`, else the file name without
+    extension (`load(Path)`) or `name` as given (Reader variant).
+  - `load(Path)` resolves every `@include`/`@extends` name, in nested files too, against the root file's directory (one
+    flat namespace). A name must be relative and stay inside that directory lexically and by real path (symbolic links
+    resolved). The resolver is called at most once per name per `load` call; parents are cached per call. No built-in
+    files exist: `@include si.units` fails unless the user's resolver provides it.
+  - `UomUnitFormat.with(UomSystemOfUnits...)` returns a new format over the existing systems followed by the given
+    ones, labels copied. A symbol of a given system that resolves (exactly or as a prefixed form) or as a label to a
+    different unit is an `IllegalArgumentException` naming both systems; equal units are fine. Two formats can hold
+    different systems with the same symbol.
+  - Exception: `~` lines register their alternate symbols in the JVM-wide registry permanently (section 3).
 - **Prefixes.** `@prefixed` generates the curated prefixed units (`SI.KILOMETRE`). At run time
   `UomUnitFormat` also resolves a metric prefix on any unit in `SI.PREFIXABLE`, so `Mm` and `dam`
-  parse without a constant; binary prefixes (`MiB`) are not resolved yet. Only units named in a
+  parse without a constant; binary prefixes (`MiB`) are not resolved (no byte or bit units either). Only units named in a
   `@prefixed` line are in `SI.PREFIXABLE`, so only they take prefixes at run time (`Gm`, but not
   `kmin`). Prefixable symbols of all systems apply (D3). A prefixed power is written with `^`: `km^2` parses as `(km)^2`, while `km²` does not
   parse (`m²` is a symbol of its own, not a prefixable unit).
@@ -303,6 +321,31 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   foot, not the femtotonne; this is the only string that parsed in SI-only mode and now reads differently (the shadow set `{ft}`,
   pinned by a test over all strings of that form). `abH` equals `nH` and `cm³` equals `mL`: a unit with its
   own symbol formats to it (`format(EMU.ABHENRY)` is `abH`), an unnamed equal unit to the first system's symbol (`nH`).
+- **Shift grammar (D2 of milestone 6).** A formula may end in `+ n` or `- n` (top level only, never inside
+  parentheses): `expr + n` is `expr.shift(n)`, with `n` a decimal literal or an exact fraction `a|b`. Spaces are allowed
+  around the sign and the number. `+` and `-` are delimiters, so labels and data symbols containing them are rejected. A
+  `-` with no whitespace on either side followed by a plain integer (`s-1`, `kg m-3`, `m^2-1`) is an error
+  (`ambiguous 's-1': write 's^-1' for a negative exponent or 's - 1' for a shift`), because UDUNITS and CF read it as a
+  negative exponent; `K-273.15`, `K-1|3` and `K - 5` are valid. A `.units` body can therefore define `K + 273.15`.
+- **Faithful offset format.** After the label, symbol and catalog-symbol rules, `UomUnitFormat.format` writes an offset
+  unit with factor `f > 0` (no root) and offset `o` in system unit `S` as `<f-formula>·S + o/f` with spaces around the
+  sign (`K + 5`, `5|9·K + 459.67`, `2·K + 136.575`). The shift is a plain decimal when it terminates and is not longer
+  than the fraction `a|b` (ties: decimal), else the fraction (`K + 1|1024`). Every text is verified by parsing it back.
+  Four categories have no faithful form and throw `IllegalArgumentException`: a negative factor, a root factor, an
+  irrational shift `o/f` (a power of pi or a root), a formula over 10,000 characters. A brute force over every catalog
+  unit and 20,000 random units finds no mismatch.
+- **Quantity format (D3, D4 of milestone 6).** `UomQuantityFormat` is immutable: `withLocale`, `withGrouping`,
+  `withDecimals`, `getLocale`, `getDecimalContext`, `isLocaleSensitive`, value `equals`. The default is `Locale.ROOT`,
+  no grouping, `double` parse, with output identical to milestone 5. In another locale the value text is the same
+  `Double.toString`/`BigDecimal.toString` with ASCII digits, `.`, `-` and `E` mapped through `DecimalFormatSymbols`; unit
+  symbols are not localized; no grouping or bidi marks are written. Parsing accepts locale and ASCII digits, the
+  locale's decimal separator, minus sign (or `-`, `+`) and exponent separator (or `E`, `e`), skips bidi marks around
+  the number, and rejects a grouping separator unless `withGrouping(true)` (then only between digits of the integer
+  part). A locale whose symbols collide is refused by `withLocale`; every available locale of JDK 21 and 25 round
+  trips. `withDecimals(mc)` parses to typed decimal quantities through the standard factories plus `withMathContext`
+  (else `UntypedDecimalQuantity`), keeping every digit and the scale (`1.50 km` has scale 2), scale `ABSOLUTE`; NaN,
+  infinity, hex and `d`/`f` suffixes are errors, ROOT accepts ASCII digits only, and a value scale beyond ±100000 is a
+  `MeasurementParseException` checked in linear time before the unit. `UomFormatService` keeps the ROOT format.
 - **Consistency test.** `SiCatalogTest` checks every definition of `si.units` against the
   catalog; `UnitFormatTest` formats and parses every `SI.UNITS` entry back to an equal unit.
 
@@ -316,10 +359,31 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 - CI drift check: regenerate and fail on a non-empty `git diff`.
 - Semantics tests: precision mixing, equality and equivalence, alternate units, offset units,
   roots of non-perfect powers.
-- Serialization round trip; module-path and class-path runs; CI on JDK 21 and the current JDK.
-- **Serialization (F12).** A unit serializes as decomposition, converter, symbol and name;
-  alternate atoms resolve back to the registry on read. A quantity serializes as value, unit,
-  scale and `MathContext`.
+- Serialization round trip (every catalog unit; 33 types x {double, decimal} x {ABSOLUTE, RELATIVE}; golden files);
+  module-path and class-path runs, including fresh-JVM reads. Milestone 6 ran the full build on JDK 25 and, for the
+  locale work, on JDK 21; CI on both is milestone 7.
+- **Serialization (F12, D1 of milestone 6).** Serialization proxies for `Factor`, `UomDimension`, `UnitAtom`, the
+  converters, `UomUnit` and the quantity base classes. Each class returns its proxy from `writeReplace` and throws
+  `InvalidObjectException("proxy required")` from `readObject`; each proxy (`serialVersionUID = 1L`) rebuilds the object
+  through the public factories in `readResolve`, so every invariant is re-checked and any violation is an
+  `InvalidObjectException`. Proxies write values unshared with bounded lengths (at most 1000 atoms or conversion
+  steps, `NotSerializableException` on write), so the bytes depend on values only.
+  - A unit is its atoms and exponents, converter factor and offset (with the conversion steps), symbol and name; the
+    converter cache is transient. A multi-step converter is checked against its steps when they fold exactly, else by
+    a 60-digit decimal fold within 1e-40.
+  - An alternate atom carries its symbol, dimension and definition. On read the dimension must match the definition
+    and a registered symbol must have the identical definition; it resolves to the registered atom. An unregistered
+    symbol gives an equal, unregistered atom. Reading never registers (untrusted data must not bind symbols or grow the
+    registry), so a fresh JVM can read without touching `SI`.
+  - A quantity is its kind (`double` or decimal, typed or untyped), standard type (an allow-list of the 33 interfaces
+    and `Untyped`, never `Class.forName`), unit, `Scale`, value (raw bits, or unscaled bytes and scale) and
+    `MathContext`. A typed read resolves the provider first, creates through
+    `ServiceProvider.current().getQuantityFactory(type)` and restores the exact value, scale and context; a user
+    subclass reads back as the provider's class. Scale and precision beyond 100000, a unit of another dimension, an
+    unknown type or null fields are `InvalidObjectException`s.
+  - The JDK allocates stream arrays and strings before the proxies run, so untrusted streams need an
+    `ObjectInputFilter` (README). Systems, formats, services and converter caches are not serializable. The form is
+    pinned by golden files and is not promised stable before 1.0.
 
 ## 7. Milestones (each releasable as a snapshot)
 
@@ -340,15 +404,25 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
    `mvn -q -B clean verify` (core 430, codegen 162, uom 195, tck 113, examples 1; counted after merging the quantities and
    systems modules into `uom`). Follow-ups:
    `docs/superpowers/plans/2026-10-12-uom-m5-follow-ups.md`.
-6. Locale-aware formatting (and a faithful form for derived offset units), serialization, JPMS
-   polish, documentation, Maven Central release.
+6. Serialization, locale-aware formats, a faithful form for offset units, decimal-preserving parse, user units at
+   run time. Done: serialization proxies for units and quantities (F12), the shift grammar and offset format (F9),
+   `withLocale`/`withGrouping`/`withDecimals` (F9), `UomSystemOfUnits.load`, `UomUnitFormat.with` and `resolve`
+   (F17, F18), TCK 113 of 113 tests, 1065 tests in `mvn -q -B clean verify` (core 501, codegen 162, uom 288, tck 113,
+   examples 1). Follow-ups: `docs/superpowers/plans/2026-10-12-uom-m6-follow-ups.md`.
+7. Release engineering: POM metadata, sources and javadoc jars, a signing profile, CI on JDK 21 and the current JDK, the
+   custom-unit guide and unit table (N7), the versioning policy and public API definition (N8), a JPMS review, the
+   repository rename. Publishing to Maven Central stays the owner's action.
 
 ## 8. Open items for the implementation plan
 
 - Resolved in milestone 4: the decimal `equals` scale rule and the decimal `isEquivalentTo` tolerance (section 4). The
   `double` tolerance and the `Scale` rules were resolved earlier.
 - Extra quantity types for the untyped poise, stokes and oersted (`DynamicViscosity`, `KinematicViscosity`, `MagneticFieldStrength`, ...): the milestone 5 catalogs leave them untyped (D6).
-- Run-time loading of `.units` resources and user files (F17, F18): still open after milestone 5.
+- Run-time loading: user files are done (milestone 6); shipping the built-in `.units` files as resources is not
+  planned (the catalogs are generated).
+- Binary prefixes (`MiB`) in parsing and `@prefixed`, and byte and bit units: not implemented.
+- Typed `from(Quantity<?>)` on the 33 typed interfaces and `@prefixed` catalog units emitted through `prefix(...)`:
+  owner-requested follow-ups after milestone 6.
 - The open owner decisions in `docs/TODO.md` (offset-unit arithmetic, `asType` and alternate
   units, offset-unit products).
 - Repository rename: the GitHub repository is `tinyunits`, the project is `uom`.

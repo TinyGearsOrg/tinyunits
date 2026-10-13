@@ -1,8 +1,9 @@
 # uom: Requirements
 
-Status: reviewed by the project owner. The design is in `DESIGN.md`. Milestones 1 to 5 are
+Status: reviewed by the project owner. The design is in `DESIGN.md`. Milestones 1 to 6 are
 implemented on their branches (units core, `double` and `BigDecimal` quantities for all 33 types, the generator, the
-seven catalogs, `quantity.to(system)`, basic formats, the service provider, the TCK passing); the rest is not.
+seven catalogs, `quantity.to(system)`, unit and quantity formats with locales and decimal parse, serialization, user
+`.units` files at run time, the service provider, the TCK passing); release engineering (milestone 7) is not.
 
 ## 1. Purpose
 
@@ -32,17 +33,17 @@ dynamic proxies in the picture.
 | F6 | Unit catalogs (done in milestones 3 and 5: `SI` 128 distinct units, `USCustomary` 35, `Imperial` 42, `CGS` 16, `ESU` 22, `EMU` 29, `Gaussian` 26; poise, stokes and oersted are untyped units): SI (all prefixes, plus accepted non-SI units such as minute, hour, litre, tonne, electronvolt), Imperial / US customary (US and imperial gallons distinguished, international vs US survey foot distinguished), CGS mechanical, and CGS electromagnetic (ESU, EMU, Gaussian). |
 | F7 | CGS electromagnetic units are conversion conventions: a statcoulomb is a unit of `ElectricCharge` with a numeric factor to the coulomb. They are not modelled as separate dimension sets. |
 | F8 | Typed system conversion (done in milestones 3 and 5: `UomSystemOfUnits` implements `SystemOfUnits` with preferred units for all 33 types in every system; `quantity.to(system)` on every typed quantity): `quantity.to(system)` converts to the system's preferred unit for that quantity type (e.g. CGS gives centimetre for a length). A unit system maps quantity types to their preferred unit. |
-| F9 | Basic formats done in milestone 3 (`UomUnitFormat`, `UomQuantityFormat`: symbols, prefixes, formulas such as `kg·m/s^2`); locale-aware formats are milestone 6. Unit parsing and formatting (e.g. `"km/h"`, `"m/s^2"`), and quantity formatting (value plus unit symbol). |
+| F9 | Done in milestones 3 and 6 (`UomUnitFormat`, `UomQuantityFormat`: symbols, prefixes, formulas such as `kg·m/s^2`; milestone 6: locale-aware numbers through `withLocale`, a decimal-preserving parse through `withDecimals`, and a faithful text form, such as `K + 5`, for every unit with a positive factor without a root, a rational shift and a formula of at most 10,000 characters, offset units included). Unit parsing and formatting (e.g. `"km/h"`, `"m/s^2"`), and quantity formatting (value plus unit symbol). |
 | F10 | Unit algebra per JSR-385: multiply, divide, pow, root, prefixes, shift (offset units such as degree Celsius and Fahrenheit), transform, alternate units, and base-unit decomposition. |
 | F11 | Compatibility checking: combining incompatible units fails with a clear unchecked exception naming both units. |
-| F12 | Quantities and units are immutable, thread-safe and `Serializable`. |
-| F13 | A `module-info.java` (JPMS) for every published module. |
+| F12 | Quantities and units are immutable, thread-safe and `Serializable` (serialization done in milestone 6, through serialization proxies that re-check every invariant on read). |
+| F13 | A `module-info.java` (JPMS) for every published module. Done: `org.tinygears.uom.core` and `org.tinygears.uom`; serialization works on the module path without `opens` (tested); a JPMS review is milestone 7. |
 | F14 | ~~User-defined quantity types~~ Moved out of scope for 1.0 (see below). |
 | F15 | **Unit definitions live in text data files**, which are the single source of truth for the catalogs (F6). The file syntax is a design decision. The original uom `.units` format (GNU units style: `symbol:name formula`, `@include`, `!` base units, `~` alternate units, `a|b` fractions, affine functions) is a starting point, not a constraint. The syntax must express: symbol and name, a formula over other units, exact rational and decimal factors, offsets and affine functions, base units, alternate units, includes, comments, and (F16) an optional explicit quantity type. |
 | F16 | **Typed catalog constants are generated from the data files** (e.g. `Unit<Length> INCH`, `Unit<Energy> JOULE`). The quantity type of a unit is inferred from its dimension, and may be stated explicitly in the definition where the dimension is ambiguous (e.g. energy and torque; hertz and becquerel; gray and sievert). An ambiguous definition with no explicit type is a build error. |
-| F17 | Status after milestone 3: the generator and the formula evaluator share one parser, but `.units` resources are not loaded at run time; `UomUnitFormat` resolves symbols from the generated catalog. **The same definitions drive the unit parser (F9)**, so a symbol such as `"ft"` resolves to the same unit in code and in text. Whether definitions are processed at build time, at run time, or both is a design decision. |
-| F18 | Status after milestone 3: not implemented; the generator reads `data/` only. **Users can supply their own `.units` files** (extending or including the built-in ones), processed by the same generator. They can define units of the built-in quantity types only. |
-| F19 | **Definition errors are build errors with file and line:** unknown unit, duplicate symbol, circular definition, dimension mismatch, unparsable formula. |
+| F17 | Status after milestone 6: the generator, the formula evaluator and run-time loading share one parser; the built-in catalogs are generated (no `.units` resources are shipped) and `UomUnitFormat` resolves their symbols, while user files are parsed at run time (`UomSystemOfUnits.load`). **The same definitions drive the unit parser (F9)**, so a symbol such as `"ft"` resolves to the same unit in code and in text. Whether definitions are processed at build time, at run time, or both is a design decision. |
+| F18 | Status after milestone 6: done at run time. `UomSystemOfUnits.load` reads a user file whose formulas use the built-in symbols (it cannot redefine them, and `@include`/`@extends` reach user files only); `UomUnitFormat.with` adds the system to a new format; nothing is registered globally except alternate-unit symbols. **Users can supply their own `.units` files** (extending or including the built-in ones), processed by the same generator. They can define units of the built-in quantity types only. |
+| F19 | **Definition errors are build errors with file and line:** unknown unit, duplicate symbol, circular definition, dimension mismatch, unparsable formula. Done; errors in user files loaded at run time carry file and line too (`DefinitionException`). |
 | F20 | **Quantity equality.** `isEquivalentTo` follows the standard: same numerical value after conversion to the same unit, ignoring rounding errors (2 km is equivalent to 2000 m; 2 °C is equivalent to 275.15 K, not to 2 K). `equals` and `hashCode` are strict and mutually consistent: same implementation class, same unit, same scale and same value (`Double.compare` semantics for double, `compareTo == 0` for BigDecimal, so `1.0 m` equals `1.00 m`; the `MathContext` is not part of equality; settled in milestone 4). `isEquivalentTo` uses a relative tolerance of 1e-12 for `double` (asymmetric near zero for offset units, no absolute floor); for `BigDecimal` the tolerance is `10^(1-p)` relative, where `p` is the lowest non-zero precision of the two `MathContext`s (34 when both are unlimited), also with no absolute floor; against a `double` operand the `double` tolerance applies (settled in milestone 4). `equals` is deliberately not `isEquivalentTo`, because a tolerance cannot satisfy the `equals` contract. |
 | F21 | **Unit equality.** `Unit.equals` follows the examples in the standard: `getSystemUnit().equals(...)` must identify a quantity type, and alternate units differ from the unit they are derived from (`RADIAN.equals(ONE)` is false although they are compatible). Equality is structural over the system-unit decomposition and the converter, not over symbol or name. `isEquivalentTo` on units means the converter between them is the identity. |
 | F22 | **`Comparable`.** Quantities implement `Comparable<Quantity<Q>>`, because the unit-api 2.2 `Quantity` Javadoc says all implementations must be `Comparable`. Ordering is by system-unit value with `Double.compare` semantics (for `double`) and is not consistent with `equals`. |
@@ -131,12 +132,12 @@ internal tool and is not.
 ## 8. Acceptance criteria for 1.0
 
 1. A user obtains typed `double` and `BigDecimal` quantities for all built-in quantity types
-   without writing any implementation, and can add units by loading their own `.units` files.
+   without writing any implementation, and can add units by loading their own `.units` files. Met (milestones 4 and 6).
 2. Typed quantities from uom are accepted by generic JSR-385 code, and the conformance
    tests (N1) pass.
 3. All four unit systems in F6 are available as catalogs, with the round-trip test (N6)
    passing for every unit.
-4. Units can be parsed from and formatted to their symbols, and quantities are formatted.
-5. Quantities and units survive Java serialization round trips.
+4. Units can be parsed from and formatted to their symbols, and quantities are formatted. Met (milestones 3 and 6).
+5. Quantities and units survive Java serialization round trips. Met (milestone 6).
 6. The library works on the module path and on the class path, on JDK 21 and the current JDK.
 7. Artifacts are published to Maven Central with the documentation from N7.

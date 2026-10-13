@@ -2,9 +2,18 @@
 
 package org.tinygears.uom.examples;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputFilter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import javax.measure.Quantity;
 import javax.measure.Unit;
@@ -25,6 +34,9 @@ import org.tinygears.uom.systems.Gaussian;
 import org.tinygears.uom.systems.Imperial;
 import org.tinygears.uom.systems.SI;
 import org.tinygears.uom.systems.USCustomary;
+import org.tinygears.uom.systems.UomQuantityFormat;
+import org.tinygears.uom.systems.UomSystemOfUnits;
+import org.tinygears.uom.systems.UomUnitFormat;
 
 /** Usage examples; each method returns what it prints so that a test can check it. */
 public final class Examples {
@@ -135,7 +147,7 @@ public final class Examples {
                 + " | 2 equals 2.00: " + decimal.equals(scaled);
     }
 
-    /** The quantity format prints a decimal with its own digits; parsing always gives a double quantity. */
+    /** The quantity format prints a decimal with its own digits; the default parse gives a double quantity. */
     static String decimalFormat() {
         QuantityFormat format = ServiceProvider.current().getFormatService().getQuantityFormat();
         Quantity<?> parsed = format.parse("1.50 km");
@@ -155,6 +167,75 @@ public final class Examples {
                 + " | " + ElectricCharge.of(1, SI.COULOMB).to(Gaussian.SYSTEM);
     }
 
+    /** Units and quantities are Serializable; a round trip gives equal objects. */
+    static String serialization() {
+        Unit<?> unit = SI.KILOMETRE.divide(SI.HOUR);
+        Length length = Length.of(new BigDecimal("1.50"), SI.KILOMETRE);
+        return "unit: " + roundTrip(unit).equals(unit) + " " + roundTrip(unit)
+                + " | quantity: " + roundTrip(length).equals(length) + " " + roundTrip(length);
+    }
+
+    /** The filter the README recommends for streams that are not trusted. */
+    static final String SERIAL_FILTER = "maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;"
+            + "org.tinygears.uom.core.**;org.tinygears.uom.quantity.*;javax.measure.**;java.lang.*;java.math.*;!*";
+
+    private static Object roundTrip(Object value) {
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+                out.writeObject(value);
+            }
+            try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+                in.setObjectInputFilter(ObjectInputFilter.Config.createFilter(SERIAL_FILTER));
+                return in.readObject();
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /** withLocale localizes the number, never the unit symbol. */
+    static String locales() {
+        UomQuantityFormat german = new UomQuantityFormat(UomUnitFormat.standard()).withLocale(Locale.GERMANY);
+        String printed = german.format(Length.of(1.5, SI.KILOMETRE));
+        Quantity<?> parsed = german.parse(printed);
+        return printed + " | " + parsed.getValue() + " " + parsed.getUnit();
+    }
+
+    /** A shifted unit without a symbol formats as a formula that parses back to an equal unit. */
+    static String offsetUnits() {
+        UomUnitFormat format = UomUnitFormat.standard();
+        Unit<?> shifted = SI.KELVIN.shift(5);
+        String text = format.format(shifted);
+        return text + " | parses back equal: " + format.parse(text).equals(shifted)
+                + " | " + format.format(SI.DEGREE_CELSIUS.multiply(2));
+    }
+
+    /** withDecimals parses exact BigDecimal quantities: the digits and the scale of the text are kept. */
+    static String decimalParse() {
+        UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard()).withDecimals(MathContext.DECIMAL64);
+        Quantity<?> parsed = format.parse("1.50 km");
+        BigDecimal value = (BigDecimal) parsed.getValue();
+        return parsed + " | scale " + value.scale() + " | " + (parsed instanceof Length);
+    }
+
+    /** User units: a .units text loaded at run time, used in parsing and as a target system. */
+    static String userUnits() {
+        String file = """
+                @system Medieval
+                league:league   3 mi
+                furlong:furlong 220 yd
+                @preferred Length furlong
+                """;
+        UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval.units", new StringReader(file), null);
+        UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
+        Length distance = (Length) format.parse("2 league").asType(javax.measure.quantity.Length.class);
+        return medieval.getName() + " | " + distance + " = " + distance.to(SI.KILOMETRE)
+                + " = " + distance.to(medieval);
+    }
+
     static Map<String, String> all() {
         Map<String, String> out = new LinkedHashMap<>();
         out.put("basics", basics());
@@ -170,6 +251,11 @@ public final class Examples {
         out.put("decimalEquality", decimalEquality());
         out.put("decimalFormat", decimalFormat());
         out.put("systems", systems());
+        out.put("serialization", serialization());
+        out.put("locales", locales());
+        out.put("offsetUnits", offsetUnits());
+        out.put("decimalParse", decimalParse());
+        out.put("userUnits", userUnits());
         return out;
     }
 

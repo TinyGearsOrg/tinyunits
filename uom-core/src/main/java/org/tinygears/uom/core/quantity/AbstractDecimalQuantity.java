@@ -27,7 +27,8 @@ import org.tinygears.uom.core.UomUnit;
  * non-terminating quotients and irrational conversions fall back to {@code DECIMAL128} with {@code HALF_EVEN},
  * whatever the rounding mode. A {@link BigDecimal} operand value or scalar whose scale exceeds ±100000 throws
  * {@link ArithmeticException}, as does a {@link MathContext} precision over 100000 (at construction, so in
- * {@link #toDecimal(MathContext)} and every factory taking a context). Immutable.
+ * {@link #toDecimal(MathContext)} and every factory taking a context). {@link #toDecimal(MathContext)} rounds to a
+ * new context; {@link #withMathContext(MathContext)}, used by the quantity format, keeps the value exactly. Immutable.
  * <p>
  * Serializable through a proxy (see {@link #writeReplace()}); the serialized form may change before 1.0. Reading
  * rebuilds the quantity through the factory of the provider current at read time, then restores the exact value,

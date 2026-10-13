@@ -59,6 +59,8 @@ Unchanged, tracked with options in `docs/TODO.md`; decimal quantities follow the
   digit count (guard digits grow with precision, Machin series, O(n^2)): `deg.add(rad)` takes 0.15 s at 1k digits, 3.3 s at
   6k, more than 30 s at 20k; `compareTo` 24 s at 20k digits. A scale-valid `BigDecimal` can therefore still stall angle
   arithmetic. Fix by bounding the precision of operands, or capping the guard digits and documenting best effort beyond.
+  Partly done by milestone 6: pi uses the Chudnovsky series with binary splitting (200100 digits in about 1.3 s) and
+  quantity contexts are bounded at precision 100000; guard digits still grow with the operand's digit count.
 - Task 1 concerns, for the record: the converter's sticky digit needed a second limit (below the larger term's last digit)
   beyond the brief, justified by a counterexample; exact conversion results keep the scale they had before (`1E+6` m in km
   prints `1000`, not `1E+3`).
@@ -76,7 +78,8 @@ Unchanged, tracked with options in `docs/TODO.md`; decimal quantities follow the
 
 - `UomQuantityFormat.parse` always returns a `double` quantity; a decimal-preserving parse (`1.10 m` as `BigDecimal`) is
   milestone 6 (D12). `format` prints `BigDecimal.toString()`, so a decimal outside the `double` range formats fine but parses
-  back silently as `Infinity`.
+  back silently as `Infinity`. Done by milestone 6 (Task 6): `withDecimals(MathContext)` parses exact decimal quantities;
+  the default format still parses to `double`.
 - The milestone 3 format items (prefixed ohm names `kiloohm`/`megaohm` and the others in `2026-10-12-uom-m3-follow-ups.md`)
   stay open as they are; milestone 4 does not change them.
 

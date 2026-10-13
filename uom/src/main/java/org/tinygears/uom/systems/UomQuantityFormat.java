@@ -24,14 +24,15 @@ import org.tinygears.uom.quantity.QuantityTypes;
 
 /**
  * Formats a quantity as its value ({@code BigDecimal.toString()} for a decimal quantity), a space and its unit,
- * and parses the same form; parsing always gives a {@code double} quantity, so trailing zeros and digits beyond
- * double precision are not preserved. Immutable and thread-safe. An offset unit without a symbol formats as a
+ * and parses the same form; parsing gives a {@code double} quantity unless {@link #withDecimals} is set, which
+ * keeps every digit and the scale of the text. Immutable and thread-safe. An offset unit without a symbol formats as a
  * shifted formula ({@code 1.0 K + 5}); catalog offset units print their symbols.
  * Formatting throws {@link IllegalArgumentException} for a unit the unit format refuses: a negative factor, a
  * factor with a root, an irrational shift or a formula too long to parse.
  *
  * <p>The default locale is {@link Locale#ROOT}: the value text is exactly {@code Double.toString} or
- * {@code BigDecimal.toString} and parsing uses {@link Double#parseDouble}. With {@link #withLocale} only the
+ * {@code BigDecimal.toString} and parsing uses {@link Double#parseDouble} (with decimals: {@code new BigDecimal},
+ * ASCII digits only). With {@link #withLocale} only the
  * number is localized, never the unit: the same text is written with each ASCII digit, {@code .}, {@code -} and
  * {@code E} replaced by the locale's digit, decimal separator, minus sign and exponent separator of
  * {@link DecimalFormatSymbols} ({@code -1,5E10 km} in {@code de-DE}, {@code \u22121,5×10^10 km} in {@code sv-SE});
