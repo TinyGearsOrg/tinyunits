@@ -3,8 +3,8 @@
 Findings from the per-task reviews of milestone 6 (serialization, locale-aware formats, faithful offset-unit form,
 decimal-preserving parse, user units at run time) that were triaged as follow-up work, not merge blockers. Milestone 6
 state: seven systems (`SI` 128, `USCustomary` 35, `Imperial` 42, `CGS` 16, `ESU` 22, `EMU` 29, `Gaussian` 26 distinct
-units), 33 quantity types (133 generated quantity files), TCK 113 of 113 tests passing, 1068 tests in
-`mvn -q -B clean verify` (core 504, codegen 162, uom 288, tck 113, examples 1). "D1" to "D6" refer to the decisions of
+units), 33 quantity types (133 generated quantity files), TCK 113 of 113 tests passing, 1070 tests in
+`mvn -q -B clean verify` (core 506, codegen 162, uom 288, tck 113, examples 1). "D1" to "D6" refer to the decisions of
 `2026-10-12-uom-m6-serialization-formats-user-units.md` (with the amendments recorded there); "M7" refers to the
 milestones in `docs/DESIGN.md` section 7.
 
@@ -110,7 +110,10 @@ products, `to(null)`).
   padded to the context in quadratic time, and its `BigDecimal.sqrt` is slow. `Decimals.divide` (non-exported package
   `org.tinygears.uom.core.internal`) builds terminating quotients by multiplication, with results identical to
   `BigDecimal.divide` (5000 random cases in `DecimalsTest`; 30,000 conversion and arithmetic cases compared
-  digit for digit against the previous build), and pi takes its root through `BigInteger.sqrt`. On JDK 21 at
+  digit for digit against the previous build), and pi takes its root through `BigInteger.sqrt`. The helper counts
+  the divisor's factors of 5 and strips trailing zeros by powers 5^(2^m) (a logarithmic number of divisions), so huge
+  2^k or 5^k divisors stay fast (`1e100000 m / 2^65535` at `DECIMAL128`: 8 ms on JDK 21); `Factor.doubleValue` and the
+  `UNLIMITED` exact quotient of the decimal quantities use it too. On JDK 21 at
   precision 100000: `to(km)` and `multiply(1.5)` went from 2.5 s to under 5 ms, rad to degree (warm) from 2.5 s to
   40 ms, pi at 200,100 digits from 13.7 s to 2.5 s (JDK 25: 0.6 s). The timing bounds are now 120 s. Remaining caveat:
   on JDK 21 the first conversion through a pi factor at precision 100000 costs about 1 to 3 s (computing pi).

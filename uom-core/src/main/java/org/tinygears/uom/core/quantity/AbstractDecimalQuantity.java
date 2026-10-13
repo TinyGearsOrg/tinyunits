@@ -394,7 +394,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     private static BigDecimal roundOnce(BigDecimal num, BigDecimal den, MathContext mc, boolean exact) {
         if (mc.getPrecision() == 0 && exact) {
             try {
-                return num.divide(den);
+                return Decimals.divide(num, den, MathContext.UNLIMITED);
             } catch (ArithmeticException nonTerminating) {
                 // a zero den throws again below
             }

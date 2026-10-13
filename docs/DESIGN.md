@@ -410,7 +410,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 6. Serialization, locale-aware formats, a faithful form for offset units, decimal-preserving parse, user units at
    run time. Done: serialization proxies for units and quantities (F12), the shift grammar and offset format (F9),
    `withLocale`/`withGrouping`/`withDecimals` (F9), `UomSystemOfUnits.load`, `UomUnitFormat.with` and `resolve`
-   (F17, F18), TCK 113 of 113 tests, 1068 tests in `mvn -q -B clean verify` (core 504, codegen 162, uom 288, tck 113,
+   (F17, F18), TCK 113 of 113 tests, 1070 tests in `mvn -q -B clean verify` (core 506, codegen 162, uom 288, tck 113,
    examples 1). Follow-ups: `docs/superpowers/plans/2026-10-12-uom-m6-follow-ups.md`.
 7. Release engineering: POM metadata, sources and javadoc jars, a signing profile, CI on JDK 21 and the current JDK, the
    custom-unit guide and unit table (N7), the versioning policy and public API definition (N8), a JPMS review, the

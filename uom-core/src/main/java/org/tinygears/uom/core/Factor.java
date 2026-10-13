@@ -278,7 +278,8 @@ public final class Factor implements Serializable {
             int shift = Math.max(0, 56 + den.bitLength() - n.bitLength());
             BigInteger[] qr = n.shiftLeft(shift).divideAndRemainder(den);
             BigInteger q = qr[1].signum() == 0 ? qr[0] : qr[0].setBit(0);
-            double d = new BigDecimal(q).divide(new BigDecimal(BigInteger.ONE.shiftLeft(shift))).doubleValue();
+            double d = Decimals.divide(new BigDecimal(q), new BigDecimal(BigInteger.ONE.shiftLeft(shift)),
+                    MathContext.UNLIMITED).doubleValue();
             return signum() < 0 ? -d : d;
         }
         // An irrational value is never a midpoint: widen until a +-2 ulp bracket rounds to one double.

@@ -168,8 +168,8 @@ class FactorTest {
 
     @Test
     void piToTheMaximumContextPrecisionIsFast() {
-        // Precision 100000 plus guard digits, as a decimal quantity at the bound of its context needs; about 3 s on
-        // JDK 21 and 0.6 s on JDK 25, so the bound only catches a return to quadratic or worse.
+        // Precision 100000 plus guard digits, as a decimal quantity at the bound of its context needs; 2.5 s alone and
+        // 10 to 13 s under load on JDK 21, 0.6 s on JDK 25: the 120 s bound only catches quadratic or worse.
         BigDecimal pi = assertTimeoutPreemptively(Duration.ofSeconds(120),
                 () -> PI.decimalValue(new MathContext(200_100)));
         assertEquals(200_100, pi.precision());

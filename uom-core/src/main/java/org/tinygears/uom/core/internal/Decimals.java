@@ -5,6 +5,8 @@ package org.tinygears.uom.core.internal;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Decimal helpers shared by the core packages; not exported, not API. */
 public final class Decimals {
@@ -14,47 +16,65 @@ public final class Decimals {
     }
 
     /**
-     * Exactly {@code x.divide(y, mc)}. A terminating quotient is built by multiplication instead, because JDK 21
-     * strips the trailing zeros of an exact quotient padded to {@code mc} in quadratic time.
+     * Exactly {@code x.divide(y, mc)}, except at scales within about 10 of the {@code int} limits, where the JDK
+     * throws an overflow, underflow or non-terminating {@link ArithmeticException} although a correct result is
+     * representable; this method returns that result. A terminating quotient is built by multiplication instead,
+     * because JDK 21 strips the trailing zeros of an exact quotient padded to {@code mc} in quadratic time.
      */
     public static BigDecimal divide(BigDecimal x, BigDecimal y, MathContext mc) {
         BigInteger u = y.unscaledValue().abs();
         if (u.signum() == 0 || x.signum() == 0) {
             return x.divide(y, mc);
         }
-        // y = 2^i 5^j r: the quotient terminates exactly when r divides x's unscaled value.
+        // |y| = 2^i 5^j r: the quotient terminates exactly when r divides x's unscaled value.
         int i = u.getLowestSetBit();
-        BigInteger r = u.shiftRight(i);
-        int j = 0;
-        for (BigInteger[] qr = r.divideAndRemainder(FIVE); qr[1].signum() == 0; qr = r.divideAndRemainder(FIVE)) {
-            r = qr[0];
-            j++;
-        }
-        BigInteger a = x.unscaledValue();
-        if (!r.equals(BigInteger.ONE)) {
-            BigInteger[] qr = a.divideAndRemainder(r);
+        Split fives = split(u.shiftRight(i), Integer.MAX_VALUE);
+        int j = fives.count();
+        BigInteger a = x.unscaledValue().abs();
+        if (!fives.rest().equals(BigInteger.ONE)) {
+            BigInteger[] qr = a.divideAndRemainder(fives.rest());
             if (qr[1].signum() != 0) {
                 return x.divide(y, mc);
             }
             a = qr[0];
         }
-        // a / (2^i 5^j) = a 2^(k-i) 5^(k-j) / 10^k
+        // a / (2^i 5^j) = a 2^(k-i) 5^(k-j) / 10^k; strip z <= k trailing zeros, so the scale stays >= the preferred.
         int k = Math.max(i, j);
-        BigInteger q = a.shiftLeft(k - i).multiply(FIVE.pow(k - j));
-        if (y.signum() < 0) {
+        long twos = (long) a.getLowestSetBit() + k - i;
+        int cap = (int) Math.min(k, twos);
+        Split aFives = split(a, Math.max(0, cap - (k - j)));
+        int z = (int) Math.min(cap, (long) aFives.count() + k - j);
+        BigInteger q = aFives.rest().multiply(FIVE.pow(aFives.count() + k - j - z)).shiftLeft(k - i).shiftRight(z);
+        if (x.signum() * y.signum() < 0) {
             q = q.negate();
         }
-        long preferred = (long) x.scale() - y.scale();
-        long scale = preferred + k;
-        for (BigInteger[] qr = q.divideAndRemainder(BigInteger.TEN); scale > preferred && qr[1].signum() == 0;
-                qr = q.divideAndRemainder(BigInteger.TEN)) {
-            q = qr[0];
-            scale--;
-        }
+        long scale = (long) x.scale() - y.scale() + k - z;
         if (scale != (int) scale) {
             return x.divide(y, mc);
         }
         BigDecimal exact = new BigDecimal(q, (int) scale);
         return mc.getPrecision() == 0 || exact.precision() <= mc.getPrecision() ? exact : exact.round(mc);
+    }
+
+    /** {@code n = rest * 5^count} with {@code count = min(max, valuation)}, by powers 5^(2^m) from the largest down. */
+    private static Split split(BigInteger n, int max) {
+        List<BigInteger> powers = new ArrayList<>();
+        for (BigInteger p = FIVE; (1L << powers.size()) <= max && p.bitLength() <= n.bitLength(); p = p.multiply(p)) {
+            powers.add(p);
+        }
+        int count = 0;
+        for (int m = powers.size() - 1; m >= 0; m--) {
+            if ((long) count + (1L << m) <= max) {
+                BigInteger[] qr = n.divideAndRemainder(powers.get(m));
+                if (qr[1].signum() == 0) {
+                    n = qr[0];
+                    count += 1 << m;
+                }
+            }
+        }
+        return new Split(n, count);
+    }
+
+    private record Split(BigInteger rest, int count) {
     }
 }
