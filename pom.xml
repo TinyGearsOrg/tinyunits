@@ -210,6 +210,31 @@
       <build>
         <plugins>
           <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <!-- deploy phase, so -Prelease package/install on a SNAPSHOT still work; literal skip so that
+                   -Denforcer.skip=true cannot turn it off. Declared before the Central plugin to run first. -->
+              <execution>
+                <id>enforce-release-version</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <skip>false</skip>
+                  <rules>
+                    <requireReleaseVersion>
+                      <message>-Prelease deploy needs a release version (docs/RELEASING.md)</message>
+                    </requireReleaseVersion>
+                    <requireReleaseDeps>
+                      <message>-Prelease deploy needs release dependencies (docs/RELEASING.md)</message>
+                    </requireReleaseDeps>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
             <artifactId>maven-source-plugin</artifactId>
             <executions>
               <execution>
@@ -256,8 +281,7 @@
             <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
             <!-- Explicit values, so -D user properties cannot widen the upload. The unpublished modules are kept
-                 out by excludeArtifacts (replaceable by -DexcludeArtifacts=...) and by a literal skipPublishing
-                 in their own release profile, which no flag overrides. -->
+                 out by excludeArtifacts and by a literal skipPublishing in their own release profile. -->
             <configuration>
               <publishingServerId>central</publishingServerId>
               <autoPublish>false</autoPublish>

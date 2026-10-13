@@ -4,7 +4,7 @@ Release checks; none of them signs, deploys, tags or uploads anything. Run them 
 
 | Script | Checks |
 |---|---|
-| `check-pom.sh [--self-test]` | POM metadata and the release profile against the Maven Central rules |
+| `check-pom.sh [--self-test]` | POM metadata and the release profile against the Maven Central rules, including the enforcer execution that fails `-Prelease deploy` on a SNAPSHOT |
 | `check-javadoc.sh` | no javadoc warnings in the published modules (doclint all) |
 | `verify-release.sh [--jdk <JDK home>] [--require-jlink] [--self-test]` | the release artifacts and a consumer project, below |
 | `check-workflows.sh [--self-test]` | `.github/workflows/ci.yml` (the only workflow) and `.github/dependabot.yml`, below |
@@ -50,5 +50,5 @@ job is not `build` (matrix JDK 21 and 25), `generated` or `release-check`, lacks
 containing deploy, `-Prelease`, publish, central, gpg, `git push`/`git tag` or `gh release`; an action is not
 `actions/checkout` or `actions/setup-java` at a major tag, checkout keeps credentials, setup-java is not Temurin or sets
 a Maven cache outside `build`; the run commands differ from the CI block of `CONTRIBUTING.md`; dependabot does not
-update Maven and GitHub Actions weekly, grouped, with a PR limit. `--self-test` asserts that each of these mutations is
+update Maven (the root and `scripts/consumer`) and GitHub Actions weekly, grouped, with a PR limit. `--self-test` asserts that each of these mutations is
 detected.

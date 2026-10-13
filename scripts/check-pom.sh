@@ -43,7 +43,14 @@ self_test() {
     "unresolved-expression|sub('uom/pom.xml', '<description>', '<description>\${no.such.property} ')|uom: default: unresolved expression '\${no.such.property}"
     "doclint|drop('pom.xml', '<doclint>', '</doclint>')|maven-javadoc-plugin doclint is ''"
     "javadoc-fail-on-warnings|sub('pom.xml', '<javadoc.failOnWarnings>true<', '<javadoc.failOnWarnings>false<')|maven-javadoc-plugin failOnWarnings is 'false'"
-    "enforcer-phase|sub('pom.xml', '<phase>validate</phase>', '<phase>none</phase>')|maven-enforcer-plugin must have one execution bound to the validate phase"
+    "enforcer-phase|sub('pom.xml', '<phase>validate</phase>', '<phase>none</phase>')|uom-parent: default: maven-enforcer-plugin executions must be bound to validate"
+    "release-version-phase|sub('pom.xml', '<phase>deploy</phase>', '<phase>install</phase>')|the release profile must have one maven-enforcer-plugin execution bound to deploy, found 0"
+    "release-version-skip|sub('pom.xml', '<skip>false</skip>', '<skip>\${enforcer.skip}</skip>')|must set skip to the literal false, found '\${enforcer.skip}'"
+    "release-version-no-skip|sub('pom.xml', '<skip>false</skip>', '')|must set skip to the literal false, found ''"
+    "release-version-rule|drop('pom.xml', '<requireReleaseVersion>', '</requireReleaseVersion>')|lacks the rule requireReleaseVersion"
+    "release-deps-rule|drop('pom.xml', '<requireReleaseDeps>', '</requireReleaseDeps>')|lacks the rule requireReleaseDeps"
+    "release-version-order|move_enforcer_last()|must be declared before central-publishing-maven-plugin"
+    "release-version-module-override|sub('uom-core/pom.xml', '</project>', '<profiles><profile><id>release</id><build><plugins><plugin><artifactId>maven-enforcer-plugin</artifactId><executions><execution><id>enforce-release-version</id><phase>none</phase></execution></executions></plugin></plugins></build></profile></profiles></project>')|uom-core: release: maven-enforcer-plugin executions must be bound to validate and deploy"
     "manifest-vendor|drop('pom.xml', '<Implementation-Vendor>', '</Implementation-Vendor>')|uom-core: manifest entry Implementation-Vendor is ''"
     "distribution-management|sub('pom.xml', '<issueManagement>', '<distributionManagement><repository><id>x</id><url>https://example.invalid/repo</url></repository></distributionManagement><issueManagement>')|distributionManagement must not be set"
     "alt-deployment-property|sub('pom.xml', '<surefire.version>', '<altDeploymentRepository>x::https://example.invalid/repo</altDeploymentRepository><surefire.version>')|property altDeploymentRepository must not be set"
@@ -67,6 +74,12 @@ def drop(f, start, end):
     edit(f, lambda t: t[:t.index(start)] + t[t.index(end, t.index(start)) + len(end):])
 def sub(f, old, new):
     edit(f, lambda t: t.replace(old, new, 1))
+def move_enforcer_last():
+    def f(t):
+        i = t.index('<id>release</id>'); s = t.rindex('<plugin>', i, t.index('<artifactId>maven-enforcer-plugin', i))
+        e = t.index('</plugin>', s) + len('</plugin>'); block = t[s:e]; t = t[:s] + t[e:]
+        k = t.index('</plugins>', i); return t[:k] + block + t[k:]
+    edit('pom.xml', f)
 def drop_version(f, artifact):
     edit(f, lambda t: re.sub(r'(<artifactId>' + artifact + r'</artifactId>\s*)<version>[^<]*</version>', r'\1', t, count=1))
 $mutation
@@ -154,6 +167,20 @@ if not release:
     fail("uom-parent: no profile with id 'release'")
 if release[0].find('activation') is not None:
     fail("uom-parent: the release profile must not have an activation (it is enabled only with -Prelease)")
+# -Prelease deploy on a SNAPSHOT must fail before the Central plugin; a literal skip, so -Denforcer.skip cannot stop it
+guard = [e for x in release[0].findall('build/plugins/plugin') if text(x, 'artifactId') == 'maven-enforcer-plugin'
+         for e in x.findall('executions/execution') if text(e, 'phase') == 'deploy']
+if len(guard) != 1:
+    fail("uom-parent: the release profile must have one maven-enforcer-plugin execution bound to deploy, found %d" % len(guard))
+if text(guard[0], 'configuration/skip') != 'false':
+    fail("uom-parent: the release-version enforcer execution must set skip to the literal false, found '%s'"
+         % text(guard[0], 'configuration/skip'))
+for rule in ('requireReleaseVersion', 'requireReleaseDeps'):
+    if guard[0].find('configuration/rules/' + rule) is None:
+        fail("uom-parent: the release-version enforcer execution lacks the rule " + rule)
+plugin_ids = [text(x, 'artifactId') for x in release[0].findall('build/plugins/plugin')]
+if plugin_ids.index('maven-enforcer-plugin') > plugin_ids.index('central-publishing-maven-plugin'):
+    fail("uom-parent: the release-version enforcer must be declared before central-publishing-maven-plugin")
 
 # a literal in each unpublished module, so no -D flag can include it in the Central bundle
 for a in UNPUBLISHED:
@@ -209,8 +236,9 @@ for mode, eff in (('default', default), ('release', rel)):
         enf = plugin(p, 'maven-enforcer-plugin')
         if enf is None:
             fail(a + ": maven-enforcer-plugin is not in the build")
-        if [text(e, 'phase') for e in enf.findall('executions/execution')] != ['validate']:
-            fail(a + ": maven-enforcer-plugin must have one execution bound to the validate phase")
+        phases = ['validate'] if mode == 'default' else ['validate', 'deploy']
+        if sorted(text(e, 'phase') for e in enf.findall('executions/execution')) != sorted(phases):
+            fail("%s: %s: maven-enforcer-plugin executions must be bound to %s" % (a, mode, ' and '.join(phases)))
         rules = {r.tag: r for r in enf.findall('executions/execution/configuration/rules/*')}
         if 'enforce' not in [text(g, '.') for g in enf.findall('executions/execution/goals/goal')]:
             fail(a + ": maven-enforcer-plugin has no enforce goal")
