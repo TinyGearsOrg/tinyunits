@@ -156,6 +156,8 @@ class CatalogEmitterTest {
             sources.put(q + "Decimal", SourceEmitter.decimalImplementation(s));
             sources.put(q + "Factory", SourceEmitter.factory(s, DEFS));
         }
+        // The typed interfaces call QuantityTypes.narrow.
+        sources.put("org.tinygears.uom.quantity.QuantityTypes", SourceEmitter.registry(TYPES));
         return sources;
     }
 

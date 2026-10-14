@@ -31,6 +31,9 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
   another unit.
 - The arithmetic and comparison methods of the quantities throw a `NullPointerException` that names the parameter
   (`addend`, `divisor`, `that`, ...), and their Javadoc says so.
+- `Speed.from(quantity)`, and the same on every typed interface, narrows a `Quantity<?>` (a product, a parse result) to our
+  typed interface, which `asType` cannot take as its type; it narrows by dimension and refuses a quantity of another
+  implementation.
 - `SI.METRE_PER_SECOND`, `SI.METRE_PER_SECOND_SQUARED` and `SI.ONE`: the system units of `Speed`, `Acceleration` and
   `Dimensionless`, the three that had no constant in `SI`, are the same instances as the factories' units.
 - Formulas read superscript exponents (`m/s²`, `s⁻¹`, `kg·m²/s³`, `(m/s)²`; `km²` is `(km)²`) in code and in `.units`

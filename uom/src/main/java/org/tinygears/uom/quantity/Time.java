@@ -119,4 +119,19 @@ public interface Time extends javax.measure.quantity.Time,
             Quantity.Scale scale, MathContext mc) {
         return TimeFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code Time} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code Time}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code Time}, or it is not a quantity of
+     *     this implementation
+     */
+    static Time from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(Time.class, javax.measure.quantity.Time.class, quantity);
+    }
 }

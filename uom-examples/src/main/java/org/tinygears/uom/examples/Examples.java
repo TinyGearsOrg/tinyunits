@@ -98,7 +98,7 @@ public final class Examples {
     /** Derived units keep their dimension: the product of force and length is energy. */
     static String work() {
         Quantity<?> product = org.tinygears.uom.quantity.Force.of(10, SI.NEWTON).multiply(Length.of(3, SI.METRE));
-        Energy work = (Energy) product.asType(javax.measure.quantity.Energy.class);
+        Energy work = Energy.from(product);
         return work.to(SI.JOULE).getValue() + " J";
     }
 
@@ -231,7 +231,7 @@ public final class Examples {
                 """;
         UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval.units", new StringReader(file), null);
         UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
-        Length distance = (Length) format.parse("2 league").asType(javax.measure.quantity.Length.class);
+        Length distance = Length.from(format.parse("2 league"));
         return medieval.getName() + " | " + distance + " = " + distance.to(SI.KILOMETRE)
                 + " = " + distance.toSystem(medieval);
     }

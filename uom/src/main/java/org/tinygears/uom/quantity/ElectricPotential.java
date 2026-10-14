@@ -119,4 +119,19 @@ public interface ElectricPotential extends javax.measure.quantity.ElectricPotent
             Quantity.Scale scale, MathContext mc) {
         return ElectricPotentialFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code ElectricPotential} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code ElectricPotential}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code ElectricPotential}, or it is not a quantity of
+     *     this implementation
+     */
+    static ElectricPotential from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(ElectricPotential.class, javax.measure.quantity.ElectricPotential.class, quantity);
+    }
 }

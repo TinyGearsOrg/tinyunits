@@ -1,22 +1,11 @@
 # TODO
 
 Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when to revisit
-them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-09); the last version of this file with the full discussion is
-`git show 5d734d3:docs/TODO.md`. The groups: owner-requested follow-ups (6 and 7), gaps against the JSR-385 reference
+them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-10); the last version of this file with the full discussion is
+`git show 5d734d3:docs/TODO.md`. The groups: an owner-requested follow-up (7), gaps against the JSR-385 reference
 implementation Indriya (9 to 11, 13, 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and
 18), open defects and hardening carried over from the milestone reviews (21 to 32), then the steps before the first release
 ("Release readiness"). Each item says under "Needed by" what, if anything, it blocks.
-
-## 6. Typed `from(Quantity<?>)` on the quantity interfaces
-
-**Status:** owner-requested, not started. `Speed v = Speed.from(length.divide(time));` instead of
-`q.asType(javax.measure.quantity.Speed.class)`, which cannot take our interface (`T extends Quantity<T>` does not hold for it).
-Generate `static X from(Quantity<?> quantity)` on each of the 33 typed interfaces: `asType` with the standard class, then a
-cast to our interface; same exceptions as `asType`, plus `ClassCastException` for a quantity of a foreign provider. Tests for
-33 types x {double, decimal} and the errors. README note: declare units with `Unit<?>` or `var`, and why. The typed interface
-names stay as they are (owner decision, no `I` prefix).
-
-**Needed by:** nothing.
 
 ## 7. Binary prefixes and byte units
 
@@ -75,7 +64,7 @@ the rationale prominently, or offer a strict no-mixing mode (not provided today)
 **Status:** known, deferred or unchecked. Items marked "unchecked" were read from Indriya's README only.
 - User-defined quantity types: out of scope for 1.0 (REQUIREMENTS F14); Indriya supports them.
 - Typed quantity products and quotients (`Length` / `Time` returning `Speed`): out of scope; `multiply` and `divide` return
-  untyped results and need `asType` or `from` (item 6).
+  untyped results and need `asType` or `X.from` (DR-10).
 - Closed set of 33 generated quantity types.
 - Unit sets and formats beyond the seven catalogs and the standard format (for example UCUM, and unit sets of the separate
   unitsofmeasurement projects): unchecked.

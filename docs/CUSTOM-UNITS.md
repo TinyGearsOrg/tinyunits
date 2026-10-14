@@ -31,11 +31,11 @@ String text = """
 UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval.units", new StringReader(text), null);
 UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
 Quantity<?> parsed = format.parse("2 league");
-Length distance = (Length) parsed.asType(javax.measure.quantity.Length.class);
+Length distance = Length.from(parsed);
 System.out.println(medieval.getName() + " " + medieval.getUnits());  // prints: Medieval [league, furlong, rod, kleague]
 System.out.println(distance.toSystem(medieval));                          // prints: 48.0 furlong
 System.out.println(distance.to(SI.KILOMETRE));                      // prints: 9.656064 km
-System.out.println(format.parse("1 Mleague").asType(javax.measure.quantity.Length.class).to(SI.KILOMETRE));
+System.out.println(Length.from(format.parse("1 Mleague")).to(SI.KILOMETRE));
 // prints: 4828032.0 km
 ```
 

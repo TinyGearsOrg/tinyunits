@@ -119,4 +119,19 @@ public interface MagneticFlux extends javax.measure.quantity.MagneticFlux,
             Quantity.Scale scale, MathContext mc) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code MagneticFlux} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code MagneticFlux}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code MagneticFlux}, or it is not a quantity of
+     *     this implementation
+     */
+    static MagneticFlux from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(MagneticFlux.class, javax.measure.quantity.MagneticFlux.class, quantity);
+    }
 }

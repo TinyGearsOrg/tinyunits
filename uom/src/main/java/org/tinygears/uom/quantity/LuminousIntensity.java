@@ -119,4 +119,19 @@ public interface LuminousIntensity extends javax.measure.quantity.LuminousIntens
             Quantity.Scale scale, MathContext mc) {
         return LuminousIntensityFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code LuminousIntensity} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code LuminousIntensity}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code LuminousIntensity}, or it is not a quantity of
+     *     this implementation
+     */
+    static LuminousIntensity from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(LuminousIntensity.class, javax.measure.quantity.LuminousIntensity.class, quantity);
+    }
 }

@@ -119,4 +119,19 @@ public interface ElectricInductance extends javax.measure.quantity.ElectricInduc
             Quantity.Scale scale, MathContext mc) {
         return ElectricInductanceFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code ElectricInductance} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code ElectricInductance}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code ElectricInductance}, or it is not a quantity of
+     *     this implementation
+     */
+    static ElectricInductance from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(ElectricInductance.class, javax.measure.quantity.ElectricInductance.class, quantity);
+    }
 }

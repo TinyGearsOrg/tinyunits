@@ -119,4 +119,19 @@ public interface Frequency extends javax.measure.quantity.Frequency,
             Quantity.Scale scale, MathContext mc) {
         return FrequencyFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code Frequency} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code Frequency}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code Frequency}, or it is not a quantity of
+     *     this implementation
+     */
+    static Frequency from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(Frequency.class, javax.measure.quantity.Frequency.class, quantity);
+    }
 }

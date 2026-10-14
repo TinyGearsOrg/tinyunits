@@ -146,6 +146,23 @@ behaviour for users is in the linked documents. The full discussion and probe re
   (the extras), `Generate`.
 - *See.* `SiSystemUnitsTest`, `SharedUnitsTest`.
 
+**DR-10 `X.from(Quantity<?>)` narrows to the typed interface.**
+- *Decision.* Each of the 33 typed interfaces has `static X from(Quantity<?> quantity)`. It narrows as `asType` does (by
+  dimension, DR-02), returns a quantity of this implementation as it is (`Speed.from(speed)` is `speed`), keeps value, unit,
+  scale and precision, throws `ClassCastException` for another dimension or for a quantity of another implementation, and
+  `NullPointerException` for null. The logic is one package-private helper, `QuantityTypes.narrow`; the 33 methods are
+  one-liners.
+- *Why.* Our typed interface cannot be the type token of `asType` (`Speed` is not a `Quantity<Speed>`), so callers wrote
+  `(Speed) q.asType(javax.measure.quantity.Speed.class)`. In the documents 4 of 6 such uses narrow the result of
+  `UomQuantityFormat.parse` and 2 a product: expressions whose static type is the standard `Quantity<?>`.
+- *Rejected.* An instance method with an `asType`-like name on our quantities: it only works where the expression's static
+  type is ours, so it needs a new public `UomQuantity` interface and narrowed return types for `multiply`, `divide` and
+  `UomQuantityFormat.parse`, and it does not help what comes back through standard APIs. Typed products
+  (`Length.divide(Time)` returns `Speed`): needs a table of relations, out of scope.
+- *Revisit if.* Fluent chaining is wanted: add an instance method on a new `UomQuantity` additively; `from` blocks nothing.
+  Typed products, if relations between types are declared. Code: `SourceEmitter` (interface template and registry).
+- *See.* README, "Typed quantities and unit declarations"; `FromTest`.
+
 ## 2. Modules and data flow
 
 ```
@@ -244,7 +261,7 @@ Per quantity type the generator writes four files:
    `divide(Number)` (all return `Length`), `toDouble()` and `toDecimal(MathContext)` (F23, D10), and static factories
    `Length.of(double, unit)`, `Length.of(double, unit, Scale)` and, for `BigDecimal`,
    `of(BigDecimal, unit)`, `of(BigDecimal, unit, Scale)`, `of(BigDecimal, unit, Scale, MathContext)`
-   (D11), and `toSystem(SystemOfUnits)` (F8, DR-04). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
+   (D11), `toSystem(SystemOfUnits)` (F8, DR-04) and `from(Quantity<?>)` (DR-10). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
    work with any JSR-385 code (F4). The shared simple name is a deliberate trade-off: everyday
    code never mentions both types, and declaring a unit variable needs `var` or the fully
    qualified standard type.

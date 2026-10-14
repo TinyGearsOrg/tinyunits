@@ -119,4 +119,19 @@ public interface RadiationDoseAbsorbed extends javax.measure.quantity.RadiationD
             Quantity.Scale scale, MathContext mc) {
         return RadiationDoseAbsorbedFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code RadiationDoseAbsorbed} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code RadiationDoseAbsorbed}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code RadiationDoseAbsorbed}, or it is not a quantity of
+     *     this implementation
+     */
+    static RadiationDoseAbsorbed from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(RadiationDoseAbsorbed.class, javax.measure.quantity.RadiationDoseAbsorbed.class, quantity);
+    }
 }

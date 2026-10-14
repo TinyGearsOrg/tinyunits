@@ -132,6 +132,21 @@ public final class SourceEmitter {
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
                     return $TFactory.INSTANCE.of(value, unit, scale, mc);
                 }
+
+                /**
+                 * {@code quantity} as a {@code $T} of this implementation, such as the product of two quantities: the
+                 * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+                 * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+                 *
+                 * @param quantity the quantity
+                 * @return the quantity as a {@code $T}
+                 * @throws NullPointerException if {@code quantity} is null
+                 * @throws ClassCastException if its dimension is not the one of {@code $T}, or it is not a quantity of
+                 *     this implementation
+                 */
+                static $T from(javax.measure.Quantity<?> quantity) {
+                    return QuantityTypes.narrow($T.class, javax.measure.quantity.$T.class, quantity);
+                }
             }
             """;
 
@@ -333,6 +348,18 @@ public final class SourceEmitter {
                 public static <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> factory(Class<Q> type) {
                     java.util.Objects.requireNonNull(type, "type");
             $F        throw new IllegalArgumentException("no quantity factory for " + type.getName());
+                }
+
+                /** {@code quantity} narrowed by {@code asType} to {@code standard}, as the typed interface {@code ours} of it. */
+                static <S extends javax.measure.Quantity<S>, T extends javax.measure.Quantity<S>> T narrow(Class<T> ours,
+                        Class<S> standard, javax.measure.Quantity<?> quantity) {
+                    java.util.Objects.requireNonNull(quantity, "quantity");
+                    javax.measure.Quantity<S> narrowed = quantity.asType(standard);
+                    if (!ours.isInstance(narrowed)) {
+                        throw new ClassCastException((narrowed == null ? "null" : narrowed.getClass().getName())
+                                + " is not a quantity of this implementation");
+                    }
+                    return ours.cast(narrowed);
                 }
 
                 /**

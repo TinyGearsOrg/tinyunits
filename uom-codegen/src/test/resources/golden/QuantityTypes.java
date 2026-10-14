@@ -36,6 +36,18 @@ public final class QuantityTypes {
         throw new IllegalArgumentException("no quantity factory for " + type.getName());
     }
 
+    /** {@code quantity} narrowed by {@code asType} to {@code standard}, as the typed interface {@code ours} of it. */
+    static <S extends Quantity<S>, T extends Quantity<S>> T narrow(Class<T> ours,
+            Class<S> standard, Quantity<?> quantity) {
+        Objects.requireNonNull(quantity, "quantity");
+        Quantity<S> narrowed = quantity.asType(standard);
+        if (!ours.isInstance(narrowed)) {
+            throw new ClassCastException((narrowed == null ? "null" : narrowed.getClass().getName())
+                    + " is not a quantity of this implementation");
+        }
+        return ours.cast(narrowed);
+    }
+
     /**
      * The quantity types with a factory.
      *

@@ -119,4 +119,19 @@ public interface Volume extends javax.measure.quantity.Volume,
             Quantity.Scale scale, MathContext mc) {
         return VolumeFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code Volume} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code Volume}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code Volume}, or it is not a quantity of
+     *     this implementation
+     */
+    static Volume from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(Volume.class, javax.measure.quantity.Volume.class, quantity);
+    }
 }

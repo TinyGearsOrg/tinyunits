@@ -119,4 +119,19 @@ public interface Force extends javax.measure.quantity.Force,
             Quantity.Scale scale, MathContext mc) {
         return ForceFactory.INSTANCE.of(value, unit, scale, mc);
     }
+
+    /**
+     * {@code quantity} as a {@code Force} of this implementation, such as the product of two quantities: the
+     * same value, unit, scale and precision; a quantity that already is one is returned as it is. It narrows
+     * as {@code asType} does, but returns this typed interface, which {@code asType} cannot take.
+     *
+     * @param quantity the quantity
+     * @return the quantity as a {@code Force}
+     * @throws NullPointerException if {@code quantity} is null
+     * @throws ClassCastException if its dimension is not the one of {@code Force}, or it is not a quantity of
+     *     this implementation
+     */
+    static Force from(Quantity<?> quantity) {
+        return QuantityTypes.narrow(Force.class, javax.measure.quantity.Force.class, quantity);
+    }
 }
