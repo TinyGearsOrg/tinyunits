@@ -206,15 +206,23 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). Evaluated exactly and rounded once to the lower
      * context of the two (irrational unit factors with guard digits, best effort); a {@code double} operand gives
      * a {@code double} result. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
+     *
+     * @throws NullPointerException if {@code addend} is null
      */
     @Override
     public R add(Quantity<Q> addend) {
+        Objects.requireNonNull(addend, "addend");
         return combine(addend, false);
     }
 
-    /** Subtracts by the same rule as {@link #add}. */
+    /**
+     * Subtracts by the same rule as {@link #add}.
+     *
+     * @throws NullPointerException if {@code subtrahend} is null
+     */
     @Override
     public R subtract(Quantity<Q> subtrahend) {
+        Objects.requireNonNull(subtrahend, "subtrahend");
         return combine(subtrahend, true);
     }
 
@@ -222,18 +230,24 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * Multiplies by {@code multiplicand} as a decimal ({@code double} and {@code Float} as written); an offset unit
      * goes through the system unit, unless this quantity is {@code RELATIVE}, which is scaled as a plain value.
      * Evaluated exactly and rounded once to this context.
+     *
+     * @throws NullPointerException if {@code multiplicand} is null
      */
     @Override
     public R multiply(Number multiplicand) {
+        Objects.requireNonNull(multiplicand, "multiplicand");
         return scalar(Precision.toDecimal(multiplicand), false);
     }
 
     /**
      * Divides as {@link #multiply(Number)}, rounded once; an unlimited context rounds a non-terminating quotient
      * to {@code DECIMAL128}. Division by zero throws {@link ArithmeticException}.
+     *
+     * @throws NullPointerException if {@code divisor} is null
      */
     @Override
     public R divide(Number divisor) {
+        Objects.requireNonNull(divisor, "divisor");
         return scalar(Precision.toDecimal(divisor), true);
     }
 
@@ -243,9 +257,12 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * {@code double} operand; not consistent with equals. Exact for units with exact factors; irrational factors
      * are evaluated with guard digits, best effort. Against a {@code double} operand, a value of this quantity
      * outside the double range throws {@link ArithmeticException}.
+     *
+     * @throws NullPointerException if {@code that} is null
      */
     @Override
     public int compareTo(Quantity<Q> that) {
+        Objects.requireNonNull(that, "that");
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         requireCompatible(thatUnit);
         Number n = that.getValue();
@@ -272,9 +289,12 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * {@code double} rule applies, and a value of this quantity outside the double range throws
      * {@link ArithmeticException}. At precision 1 the tolerance is 10^0 (degenerate by design). Incompatible
      * dimensions give false (compareTo throws).
+     *
+     * @throws NullPointerException if {@code that} is null
      */
     @Override
     public boolean isEquivalentTo(Quantity<Q> that) {
+        Objects.requireNonNull(that, "that");
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             return false;
@@ -297,18 +317,24 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * and rounded once to the lower context of the two; the result is an {@link Untyped} quantity in the product of
      * the system units, scale {@code ABSOLUTE}. A {@code double} operand gives an {@link UntypedDoubleQuantity}.
      * Throws {@link UnconvertibleException} for a foreign unit.
+     *
+     * @throws NullPointerException if {@code multiplicand} is null
      */
     @Override
     public Quantity<?> multiply(Quantity<?> multiplicand) {
+        Objects.requireNonNull(multiplicand, "multiplicand");
         return untyped(multiplicand, false);
     }
 
     /**
      * Divides by the same rule as {@link #multiply(Quantity)}; an unlimited context rounds a non-terminating quotient
      * to {@code DECIMAL128}. Division by zero throws {@link ArithmeticException}.
+     *
+     * @throws NullPointerException if {@code divisor} is null
      */
     @Override
     public Quantity<?> divide(Quantity<?> divisor) {
+        Objects.requireNonNull(divisor, "divisor");
         return untyped(divisor, true);
     }
 

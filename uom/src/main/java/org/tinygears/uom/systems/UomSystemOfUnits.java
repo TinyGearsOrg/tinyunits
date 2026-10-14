@@ -275,6 +275,8 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     @Override
     @SuppressWarnings("unchecked")
     public <Q extends Quantity<Q>> Unit<Q> getUnit(Class<Q> type) {
+        // preferred maps each quantity interface to a unit of that type (the catalogs and load build it so); the
+        // public constructor does not check it.
         return (Unit<Q>) preferred.get(type);
     }
 

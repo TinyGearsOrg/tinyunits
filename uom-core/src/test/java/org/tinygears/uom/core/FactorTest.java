@@ -80,6 +80,37 @@ class FactorTest {
     }
 
     @Test
+    void thePartsFactoryTakesAnyPartsAndNormalizesThem() {
+        assertEquals(Factor.ofLong(2), Factor.of(BigInteger.valueOf(4), BigInteger.ONE, 0, 2));
+        assertEquals(PI, Factor.of(BigInteger.ONE, BigInteger.ONE, 2, 2));
+        // The sign stays outside the root, and the denominator is made positive.
+        assertEquals(Factor.ofLong(-2), Factor.of(BigInteger.valueOf(-4), BigInteger.ONE, 0, 2));
+        assertEquals(Factor.of(-3, 2), Factor.of(BigInteger.valueOf(6), BigInteger.valueOf(-4), 0, 1));
+        assertEquals("root index must be positive: 0", assertThrows(IllegalArgumentException.class,
+                () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, 0)).getMessage());
+        assertEquals("division by zero", assertThrows(ArithmeticException.class,
+                () -> Factor.of(BigInteger.ONE, BigInteger.ZERO, 0, 1)).getMessage());
+        assertEquals("factor too large", assertThrows(ArithmeticException.class,
+                () -> Factor.of(BigInteger.TWO.pow(70_000), BigInteger.ONE, 0, 1)).getMessage());
+    }
+
+    @Test
+    void powAndRootThrowWhereTheJavadocSays() {
+        assertEquals("exponent 1001 exceeds 1000",
+                assertThrows(ArithmeticException.class, () -> Factor.ofLong(2).pow(1001)).getMessage());
+        assertEquals("exponent -1001 exceeds 1000",
+                assertThrows(ArithmeticException.class, () -> Factor.ofLong(2).root(-1001)).getMessage());
+        assertEquals("zeroth root", assertThrows(ArithmeticException.class, () -> Factor.ofLong(2).root(0)).getMessage());
+        assertEquals("even root of a negative number",
+                assertThrows(ArithmeticException.class, () -> Factor.ofLong(-4).root(2)).getMessage());
+        assertEquals(Factor.ofLong(-2), Factor.ofLong(-8).root(3));
+        assertEquals("division by zero", assertThrows(ArithmeticException.class, () -> ZERO.pow(-1)).getMessage());
+        assertEquals("division by zero", assertThrows(ArithmeticException.class, () -> ZERO.root(-1)).getMessage());
+        assertEquals(ONE, ZERO.pow(0));
+        assertEquals(Factor.of(1, 2), Factor.ofLong(4).root(-2));
+    }
+
+    @Test
     void zeroAndLimits() {
         assertThrows(ArithmeticException.class, () -> ONE.divide(ZERO));
         assertThrows(ArithmeticException.class, () -> ZERO.pow(-1));

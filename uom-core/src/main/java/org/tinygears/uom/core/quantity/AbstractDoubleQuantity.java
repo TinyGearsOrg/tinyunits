@@ -164,9 +164,12 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * is asymmetric near zero for offset units. Two {@code RELATIVE} quantities are compared as differences (factor
      * only, no offset), otherwise as points. NaN is equivalent to nothing; incompatible dimensions give false
      * (compareTo throws). A decimal operand outside the double range throws {@link ArithmeticException}.
+     *
+     * @throws NullPointerException if {@code that} is null
      */
     @Override
     public boolean isEquivalentTo(Quantity<Q> that) {
+        Objects.requireNonNull(that, "that");
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             return false;
@@ -190,9 +193,12 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * {@code 0.0}, so {@code 0 m} is greater than {@code -0 m}, while {@code 0 °C} and {@code -0 °C} compare equal:
      * their system-unit values are both 273.15 K. A decimal operand outside the double range throws
      * {@link ArithmeticException}.
+     *
+     * @throws NullPointerException if {@code that} is null
      */
     @Override
     public int compareTo(Quantity<Q> that) {
+        Objects.requireNonNull(that, "that");
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + thatUnit);
@@ -208,15 +214,23 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * the factor only and added to this value in this unit. The result is {@code RELATIVE} only if both operands
      * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). Throws {@link UnconvertibleException} for a foreign
      * unit or incompatible dimensions.
+     *
+     * @throws NullPointerException if {@code addend} is null
      */
     @Override
     public R add(Quantity<Q> addend) {
+        Objects.requireNonNull(addend, "addend");
         return combine(addend, Double::sum);
     }
 
-    /** Subtracts by the same rule as {@link #add}. */
+    /**
+     * Subtracts by the same rule as {@link #add}.
+     *
+     * @throws NullPointerException if {@code subtrahend} is null
+     */
     @Override
     public R subtract(Quantity<Q> subtrahend) {
+        Objects.requireNonNull(subtrahend, "subtrahend");
         return combine(subtrahend, (a, b) -> a - b);
     }
 
@@ -230,15 +244,23 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * Multiplies by {@code multiplicand} as a {@code double}; an offset unit goes through the system unit, unless
      * this quantity is {@code RELATIVE}, which is scaled as a plain value. A {@link BigDecimal} or
      * {@link java.math.BigInteger} outside the {@code double} range throws {@link ArithmeticException}.
+     *
+     * @throws NullPointerException if {@code multiplicand} is null
      */
     @Override
     public R multiply(Number multiplicand) {
+        Objects.requireNonNull(multiplicand, "multiplicand");
         return scalar(Precision.toDouble(multiplicand), (a, n) -> a * n);
     }
 
-    /** Divides by {@code divisor} as {@link #multiply(Number)}; division by zero follows IEEE 754. */
+    /**
+     * Divides by {@code divisor} as {@link #multiply(Number)}; division by zero follows IEEE 754.
+     *
+     * @throws NullPointerException if {@code divisor} is null
+     */
     @Override
     public R divide(Number divisor) {
+        Objects.requireNonNull(divisor, "divisor");
         return scalar(Precision.toDouble(divisor), (a, n) -> a / n);
     }
 
@@ -246,17 +268,25 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * Multiplies the system-unit values (offsets count, except for a {@code RELATIVE} operand, which is a difference
      * and counts by its factor only); the result is an {@link Untyped} quantity in the product of the system units,
      * scale {@code ABSOLUTE}. Throws {@link UnconvertibleException} for a foreign unit.
+     *
+     * @throws NullPointerException if {@code multiplicand} is null
      */
     @Override
     public Quantity<?> multiply(Quantity<?> multiplicand) {
+        Objects.requireNonNull(multiplicand, "multiplicand");
         UomUnit<?> u = uomUnit(multiplicand.getUnit());
         return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) * systemValue(multiplicand, u),
                 unit.getSystemUnit().multiply(u.getSystemUnit()));
     }
 
-    /** Divides by the same rule as {@link #multiply(Quantity)}; division by zero follows IEEE 754. */
+    /**
+     * Divides by the same rule as {@link #multiply(Quantity)}; division by zero follows IEEE 754.
+     *
+     * @throws NullPointerException if {@code divisor} is null
+     */
     @Override
     public Quantity<?> divide(Quantity<?> divisor) {
+        Objects.requireNonNull(divisor, "divisor");
         UomUnit<?> u = uomUnit(divisor.getUnit());
         return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) / systemValue(divisor, u),
                 unit.getSystemUnit().divide(u.getSystemUnit()));

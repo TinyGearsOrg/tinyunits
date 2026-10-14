@@ -1,7 +1,7 @@
 # TODO
 
-Open work only. The item numbers are stable IDs: a gap is a decided item, recorded with its rationale and when to revisit it
-in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-07); the last version of this file with the full discussion is
+Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when to revisit
+them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-07); the last version of this file with the full discussion is
 `git show 5d734d3:docs/TODO.md`. The groups: owner-requested follow-ups (6 to 8), gaps against the JSR-385 reference
 implementation Indriya (9 to 11, 13, 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and
 18), open defects and hardening carried over from the milestone reviews (21 to 32), then the steps before the first release
@@ -294,17 +294,6 @@ stable before 1.0).
   that main code requires `java.compiler`.
 - `docs/UNITS.md` lists Gaussian as 27 rows for 26 distinct units (`Fr` and `statC`): label the generated column as
   symbols. Generated lines over 120 columns: item 18.
-
-**Needed by:** nothing.
-
-## 29. Javadoc gaps
-
-**Status:** open.
-- `add`, `multiply` and `divide` do not mention the `NullPointerException` on a null operand; use
-  `requireNonNull(that, "addend")` for readable messages.
-- `Factor.of` Javadoc says "normalized parts" although the factory normalizes any parts; the `Factor.root` sentence on its
-  exceptions ("a zero or `|n|` over 1000") is ambiguous.
-- `UomSystemOfUnits.getUnit(Class)` has a `@SuppressWarnings("unchecked")` without a rationale comment.
 
 **Needed by:** nothing.
 

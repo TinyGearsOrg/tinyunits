@@ -77,13 +77,21 @@ public final class Factor implements Serializable {
     }
 
     /**
-     * Rebuilds {@code (n/d * pi^k)^(1/r)} from normalized parts; the pow/root limit does not apply here.
+     * Builds {@code (n/d * pi^k)^(1/r)} from any parts, in normal form: the fraction is reduced to lowest terms with a
+     * positive denominator, and the root index is reduced together with the exponent of pi by every prime that divides
+     * both and for which numerator and denominator have exact roots ({@code of(4, 1, 0, 2)} equals {@code ofLong(2)},
+     * {@code of(1, 1, 2, 2)} equals {@link #PI}). The sign of the numerator stays outside the root:
+     * {@code of(-4, 1, 0, 2)} is {@code -2}. The limit on the exponent of {@link #pow} and {@link #root} does not apply
+     * here.
      *
      * @param numerator the radicand numerator {@code n}, with the sign
      * @param denominator the radicand denominator {@code d}
      * @param piExponent the exponent {@code k} of pi
      * @param rootIndex the root index {@code r}, positive
      * @return the factor
+     * @throws IllegalArgumentException if {@code rootIndex} is not positive
+     * @throws ArithmeticException if {@code denominator} is zero, or the reduced numerator or denominator has more than
+     *     65536 bits
      */
     public static Factor of(BigInteger numerator, BigInteger denominator, int piExponent, int rootIndex) {
         if (rootIndex <= 0) {
@@ -250,10 +258,12 @@ public final class Factor implements Serializable {
     }
 
     /**
-     * The {@code n}-th power; {@code |n|} over 1000 throws ArithmeticException.
+     * The {@code n}-th power.
      *
      * @param n the exponent
      * @return this to the power {@code n}
+     * @throws ArithmeticException if {@code |n|} exceeds 1000, if the result is too large, or if this is zero and
+     *     {@code n} is negative
      */
     public Factor pow(int n) {
         checkExponent(n);
@@ -267,10 +277,12 @@ public final class Factor implements Serializable {
     }
 
     /**
-     * The {@code n}-th root; a zero or {@code |n|} over 1000 and an even root of a negative value throw ArithmeticException.
+     * The {@code n}-th root, for a negative {@code n} the root of the inverse.
      *
-     * @param n the root index, negative for the root of the inverse
+     * @param n the root index
      * @return the root
+     * @throws ArithmeticException if {@code n} is zero, if {@code |n|} exceeds 1000, if {@code n} is even and this is
+     *     negative, if this is zero and {@code n} is negative, or if the result is too large
      */
     public Factor root(int n) {
         checkExponent(n);
