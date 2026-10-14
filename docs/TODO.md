@@ -24,31 +24,18 @@ guide is checked by `DocsSnippetsTest`.
 
 ## 2. `asType` and alternate units
 
-**Status:** undecided. `asType` compares the quantity's system unit with the target type's system unit by structure
-(atoms and exponents), so that Frequency (`Hz`) and Radioactivity (`Bq`) stay distinct (F21). That makes some
-dimension-correct narrowings fail with `ClassCastException`:
-- `Time.of(2, s).inverse().asType(Frequency.class)`: the source unit `1/s` has no alternate atom, the target's system unit is
-  the alternate unit `Hz`.
-- `Frequency.of(2, Hz).multiply(Time.of(3, s)).asType(Dimensionless.class)`: the source unit `Hz·s` contains the alternate
-  atom `Hz`, the target's system unit is `ONE`.
+**Status:** decided (option E, new) and implemented. `asType` compared system units structurally (atoms and exponents), which
+refused dimension-correct narrowings: `1/s` to `Frequency` and `Radioactivity`, `Hz·s` to `Dimensionless`, `rad·m` to `Length`
+(an angle times a radius), `m/m` to `Angle`. The `Unit.asType` and `Quantity.asType` Javadoc say a `ClassCastException` is
+thrown only if the dimension differs (the `Unit` Javadoc's example is `ONE.alternate("rad").asType(Angle.class)`), Indriya 2.2
+accepts all of these, and the typed factories already accepted `1/s` and `Bq` as `Frequency` units. So `UomUnit.asType` now
+compares dimensions; the quantity `asType` methods delegate to it. `Unit.equals` stays structural (F21): `Hz`, `Bq` and `1/s`
+are three units, equivalent to one another. The rules A to D of the earlier proposal were dropped: they invented a rule that
+the standard does not have.
 
-The same applies to `rad` and `sr` (Angle, SolidAngle).
+**Tests:** `AsTypeDimensionTest` (double and decimal), `UomUnitAsTypeTest`, `GeneratedQuantitiesTest.alternateUnits`.
 
-**Options for the acceptance rule** (dimensions must be equal in all of them):
-- **A. Accept when the target's system unit has no alternate atom.** Fixes `Hz·s` to Dimensionless; does not fix `1/s` to
-  Frequency.
-- **B. Accept when the source unit has no alternate atoms.** Fixes `1/s` to Frequency (and to Radioactivity: the caller
-  chooses); does not fix `Hz·s` to Dimensionless.
-- **C. Accept when either side has no alternate atoms.** Fixes both examples. Still refuses `Hz` to Radioactivity and
-  `rad` to `sr`, which is the intended distinction.
-- **D. Keep the current structural rule** and document it.
-
-**Where the code keeps today's behaviour:** `UomUnit.asType` (`uom-core`) compares the system units with `equals`. The TCK
-passes (113 of 113) with it. The generated catalog already has `rad` and `sr` (`SI.RADIAN`, `SI.STERADIAN`) as alternate units.
-
-**Needed by:** nothing in milestone 3 any more; decide before 1.0.
-
-**Related:** the provider lookup of `asType` no longer depends on which provider is current (item 12).
+**Open points:** none.
 
 ## 3. Offset-unit products
 

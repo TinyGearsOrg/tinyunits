@@ -24,6 +24,8 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
 - `Quantity.Scale.RELATIVE` quantities are differences: they convert, add, scale and compare without the offset of
   units such as °C, and a sum or difference is `RELATIVE` only if both operands are
   ([docs/OFFSET-UNITS.md](docs/OFFSET-UNITS.md)). `ABSOLUTE` quantities keep the literal `Quantity` Javadoc rule.
+- `asType` (unit and quantity) goes by dimension, as the `Unit` and `Quantity` Javadoc say, so `1/s` narrows to
+  `Frequency`, `Hz·s` to `Dimensionless` and `rad·m` to `Length`; `Unit.equals` stays structural.
 - `UomServiceProvider` is named `uom` (`ServiceProvider.of("uom")`), and `asType` and deserialization find the quantity
   factories of uom whichever provider is current ([docs/PROVIDERS.md](docs/PROVIDERS.md)).
 - Offset units take part in unit products, powers, roots and formulas by their factor only, so `°C/m` and

@@ -101,7 +101,12 @@ class GeneratedQuantitiesTest {
         Frequency freq = Frequency.of(2, HZ);
         assertEquals(2.0, Radioactivity.of(2, BQ).getValue().doubleValue());
         assertNotEquals(HZ, BQ);
-        assertThrows(ClassCastException.class, () -> freq.asType(javax.measure.quantity.Radioactivity.class));
+        // asType goes by dimension, which Hz and Bq share; the unit is kept.
+        Quantity<javax.measure.quantity.Radioactivity> asBecquerel =
+                freq.asType(javax.measure.quantity.Radioactivity.class);
+        assertEquals(2.0, asBecquerel.getValue().doubleValue());
+        assertEquals(HZ, asBecquerel.getUnit());
+        assertTrue(asBecquerel instanceof Radioactivity);
         assertTrue(((Unit) HZ).isEquivalentTo(BQ));
         assertTrue(((Unit) BQ).isEquivalentTo(HZ));
         assertTrue(((Unit) HZ).getConverterTo(BQ).isIdentity());

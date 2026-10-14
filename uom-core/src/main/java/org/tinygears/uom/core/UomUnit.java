@@ -229,6 +229,11 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return converterCache.computeIfAbsent(that, t -> t.toSystem.inverse().concatenate(toSystem));
     }
 
+    /**
+     * This unit as a unit of {@code type} if its dimension is the dimension of the type, as the {@code Unit} Javadoc
+     * says; alternate units count by dimension, so {@code 1/s} and {@code Bq} are also units of {@code Frequency}, and
+     * {@code rad·m} is a unit of {@code Length}. Throws {@link ClassCastException} if the dimensions differ.
+     */
     @Override
     public <T extends Quantity<T>> Unit<T> asType(Class<T> type) {
         QuantityFactory<T> factory;
@@ -237,7 +242,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         } catch (IllegalStateException e) {
             throw new IllegalStateException("no javax.measure ServiceProvider available", e);
         }
-        if (!getSystemUnit().equals(factory.getSystemUnit())) {
+        if (!getDimension().equals(factory.getSystemUnit().getDimension())) {
             throw new ClassCastException(this + " is not a unit of " + type.getName());
         }
         @SuppressWarnings("unchecked") // the system units match, so this unit measures T

@@ -68,9 +68,11 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
   and roots the factor exactly. A factor is `(n/d * pi^k)^(1/r)` with the sign of `n` outside
   the root, so every converter stays affine and equality is structural. Ceiling: radicals are
   only normalized to a canonical form, and `n` and `d` are capped at 65_536 bits.
-- **Typing.** `asType(Class<T>)` compares the unit's system unit with
-  `Providers.quantityFactory(type).getSystemUnit()`. This distinguishes
-  hertz from becquerel. `uom-core` holds no table of quantity types, so it asks a provider: the current one if it
+- **Typing.** `asType(Class<T>)` compares the unit's dimension with the dimension of
+  `Providers.quantityFactory(type).getSystemUnit()`, as the `Unit` and `Quantity` Javadoc say. Alternate units
+  therefore count by dimension: `1/s`, `Hz` and `Bq` are all units of `Frequency` and of `Radioactivity`, `rad·m` is a
+  unit of `Length`, and `Hz·s` is a unit of `Dimensionless`. `Unit.equals` stays structural (F21), so `Hz`, `Bq` and
+  `1/s` are still three different units, equivalent to one another. `uom-core` holds no table of quantity types, so it asks a provider: the current one if it
   implements `spi.QuantityFactories` (ours does), else ours among `ServiceProvider.available()` (found once and kept),
   else the current provider. A provider of higher priority, or one set with `setCurrent`, therefore does not break
   `asType`, the quantity `asType` or deserialization (`docs/PROVIDERS.md`). The package `org.tinygears.uom.core.spi`

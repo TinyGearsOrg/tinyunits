@@ -268,7 +268,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     /**
      * Returns this quantity if it already is a {@code type}, otherwise one created by the provider's factory; a
-     * unit that does not measure {@code type} gives {@link ClassCastException}, a type the provider has no
+     * unit whose dimension is not that of {@code type} gives {@link ClassCastException} (alternate units count by dimension), a type the provider has no
      * factory for gives {@link UnsupportedOperationException}.
      */
     @Override
