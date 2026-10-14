@@ -113,6 +113,22 @@ behaviour for users is in the linked documents. The full discussion and probe re
   and no guard); users prefer `5.0 1`. Code: `UomUnit.toString`, `getSystemUnit`, `UomUnitFormat`, `UomQuantityFormat`.
 - *See.* [PROVIDERS.md](PROVIDERS.md) (how units print); `DimensionlessTextTest`, `SystemUnitNamesTest`.
 
+**DR-08 Superscript exponents.**
+- *Decision.* A formula reads superscript digits (`⁰¹²³⁴⁵⁶⁷⁸⁹`, `⁻`) glued to a symbol, a `pi` or a `)` as an integer exponent
+  (`m/s²`, `s⁻¹`, `kg·m²/s³`, `(m/s)²`); a token that is a symbol as a whole wins (catalog `m²`, `cm²`), so `km²` is
+  `(km)^2`. Output stays ASCII (`m/s^2`) by default; `UomUnitFormat.withSuperscripts(true)` returns a format that writes
+  superscripts, and a `UomQuantityFormat` over it does too. `toString` and the standard provider format stay ASCII. An
+  exponent right after a symbol that already ends in a superscript keeps its caret (`m²^2`).
+- *Why.* Only the catalog symbols `m²`, `m³`, `cm²`, `in²`... parsed, as exact symbols, so `m²` worked and `m/s²` did not. The
+  SI reading of `km²` is `(km)^2`. Writing is a separate choice: switching the default would change every `m^2`, `s^-1` and
+  `kg·m^2/s^3` in outputs, tests and docs, and depends on a Unicode console.
+- *Rejected.* Unicode as the default output; reading only `²` and `³`; making a superscript run part of a symbol only when
+  the symbol exists (that is the exact-symbol rule, kept).
+- *Revisit if.* Users want Unicode by default (flip the default, regenerate the pinned strings), or in `toString`, or through
+  the JSR-385 `FormatService` by name (not done: the format service ignores the variant). `m²²` stays `m^22`: a
+  superscript run is one exponent. Code: `FormulaEvaluator` (`atom`, `term`), `UomUnitFormat.withSuperscripts`.
+- *See.* [CUSTOM-UNITS.md](CUSTOM-UNITS.md) (formulas); `SuperscriptTest`, `FormulaEvaluatorTest`.
+
 ## 2. Modules and data flow
 
 ```
@@ -369,7 +385,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 - **Syntax.** `symbol:name formula [Type] # comment`. Space, `*` or `·` (U+00B7) multiplies, `/`
   divides; `*`, `·` and `/` share one precedence and associate to the left; juxtaposition binds
   tighter than them, so `J / kg K` is `J / (kg K)`;
-  `^n` is an integer power, `a|b` an exact fraction, decimals are exact, parentheses group,
+  `^n`, or superscript digits glued to a symbol, a `pi` or a `)` (`m/s²`, `s⁻¹`), is an integer power, `a|b` an exact fraction, decimals are exact, parentheses group,
   `!` marks a base unit, `~` an alternate unit, `=` an affine function, `@include` includes a
   file (definitions only; every file includes `si.units`), `@preferred` sets the preferred unit of a type,
   `@prefixed <symbol> <prefix>...` generates prefixed units from metric prefix symbols. Underscores in names stand for
@@ -439,8 +455,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   `UomUnitFormat` also resolves a metric prefix on any unit in `SI.PREFIXABLE`, so `Mm` and `dam`
   parse without a constant; binary prefixes (`MiB`) are not resolved (no byte or bit units either). Only units named in a
   `@prefixed` line are in `SI.PREFIXABLE`, so only they take prefixes at run time (`Gm`, but not
-  `kmin`). Prefixable symbols of all systems apply (D3). A prefixed power is written with `^`: `km^2` parses as `(km)^2`, while `km²` does not
-  parse (`m²` is a symbol of its own, not a prefixable unit).
+  `kmin`). Prefixable symbols of all systems apply (D3). A prefixed power is `km^2` or `km²`, both `(km)^2` (`m²` is a symbol of its own, not a
+  prefixable unit, and as a whole symbol it wins over the exponent reading).
 - **Symbol resolution across systems (D7).** `UomUnitFormat.standard()` resolves labels, then exact symbols across all systems of
   `UnitSystems.all()` (SI first), then a metric prefix on a prefixable unit. Exact symbols win over prefix readings, so `ft` is the
   foot, not the femtotonne; this is the only string that parsed in SI-only mode and now reads differently (the shadow set `{ft}`,

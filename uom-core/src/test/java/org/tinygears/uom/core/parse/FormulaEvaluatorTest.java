@@ -18,6 +18,7 @@ import java.math.MathContext;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -258,6 +259,40 @@ class FormulaEvaluatorTest {
         for (String f : new String[] {"K + 273.15", "K+ 273.15", "K +273.15", " K\t+\t273.15 "}) {
             assertEquals(KELVIN.shift(273.15), eval(f), f);
         }
+    }
+
+    @Test
+    void superscriptDigitsAreExponents() throws Exception {
+        assertEquals(METRE.pow(2), eval("m²"));
+        assertEquals(METRE.divide(SECOND.pow(2)), eval("m/s²"));
+        assertEquals(SECOND.pow(-1), eval("s⁻¹"));
+        assertEquals(KILOGRAM.multiply(METRE.pow(2)).divide(SECOND.pow(3)), eval("kg·m²/s³"));
+        assertEquals(METRE.divide(SECOND).pow(2), eval("(m/s)²"));
+        assertEquals(METRE.pow(10), eval("m¹⁰"));
+        assertEquals(METRE.pow(-2), eval("m⁻²"));
+        assertEquals(METRE.pow(0).multiply(METRE), eval("m⁰ m"));
+        // A prefixed unit is raised as a whole, as with ^: km² is (km)^2.
+        assertEquals(METRE.multiply(1000).pow(2), eval("km²"));
+        assertEquals(eval("pi^2 m"), eval("pi²·m"));
+    }
+
+    @Test
+    void aSymbolThatIsAUnitAsAWholeWinsOverTheExponentReading() throws Exception {
+        UomUnit<?> own = METRE.pow(2).multiply(3);
+        Map<String, UomUnit<?>> units = new HashMap<>(UNITS);
+        units.put("m²", own);
+        assertEquals(own, FormulaEvaluator.evaluate("m²", units::get));
+        assertEquals(METRE.pow(2), FormulaEvaluator.evaluate("m^2", units::get));
+    }
+
+    @Test
+    void superscriptErrors() {
+        fails("x²", "unknown unit 'x²'", 1);
+        fails("s⁻", "unknown unit 's⁻'", 1);
+        fails("²", "unknown unit '²'", 1);
+        fails("⁻²", "unknown unit '⁻²'", 1);
+        fails("m⁹⁹⁹⁹", "exponent 9999 exceeds 1000", 2);
+        fails("(m)⁻", "exponent must be an integer", 4);
     }
 
     @Test

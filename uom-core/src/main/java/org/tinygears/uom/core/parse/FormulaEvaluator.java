@@ -18,6 +18,10 @@ import org.tinygears.uom.core.UomUnit;
  * a value {@code v} in it is {@code v + 273.15} K. The shift is top level only, never inside parentheses. A
  * {@code -} glued on both sides to a plain integer ({@code s-1}, {@code m^2-1}) is an error, since it reads as a
  * negative exponent in other notations: write {@code s^-1} or {@code s - 1}.
+ *
+ * <p>An exponent is written {@code ^n} or as superscript digits glued to what it applies to ({@code m/s²},
+ * {@code s⁻¹}, {@code (m/s)²}, {@code km²} is {@code (km)^2}). A symbol that is a unit as a whole wins over that
+ * reading, so a unit named {@code m²} stays {@code m²}.
  */
 public final class FormulaEvaluator {
     private static final int MAX_LENGTH = 10_000;
@@ -25,6 +29,8 @@ public final class FormulaEvaluator {
     private static final int MAX_DECIMAL_EXPONENT = 10_000;
     private static final String DELIMITERS = "*/·()^|=#[]!~@,+-";
     private static final String SHIFT_END = "shift is only allowed at the end of a formula";
+    private static final String SUPERSCRIPT_DIGITS = "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";
+    private static final char SUPERSCRIPT_MINUS = '\u207B';
 
     private final String s;
     private final Function<String, UomUnit<?>> lookup;
@@ -99,6 +105,12 @@ public final class FormulaEvaluator {
 
     private UomUnit<?> term(int depth) throws FormulaException {
         UomUnit<?> base = atom(depth);
+        if (pos < s.length() && isSuperscript(s.charAt(pos))) {
+            int start = pos;
+            int n = superscriptExponent(start, s.length());
+            pos = end(start);
+            return guard(start + 1, () -> base.pow(n));
+        }
         int save = pos;
         skipSpace();
         if (pos >= s.length() || s.charAt(pos) != '^') {
@@ -166,21 +178,92 @@ public final class FormulaEvaluator {
         }
         String name = s.substring(start, pos);
         if (name.equals("pi")) {
-            Factor pi = Factor.PI;
-            if (pos < s.length() && s.charAt(pos) == '|') {
-                pos++;
-                BigInteger d = integer("expected an integer after '|'");
-                pi = guard(col, () -> Factor.PI.divide(Factor.of(d, BigInteger.ONE)));
-            }
-            Factor f = pi;
-            return guard(col, () -> BaseUnits.ONE.scaledBy(f));
+            return pi(col);
         }
         UomUnit<?> unit = guard(col, () -> lookup.apply(name));
+        if (unit == null) {
+            // Not a symbol as a whole: superscript digits at its end are an exponent of the rest.
+            int run = superscriptStart(name);
+            if (run > 0) {
+                String base = name.substring(0, run);
+                pos = start + run;
+                unit = base.equals("pi") ? pi(col) : guard(col, () -> lookup.apply(base));
+            }
+        }
         if (unit == null) {
             pos = start;
             throw error("unknown unit '" + name + "'");
         }
         return unit;
+    }
+
+    /** {@code pi}, or {@code pi|d} with {@link #pos} after the {@code pi}. */
+    private UomUnit<?> pi(int col) throws FormulaException {
+        Factor pi = Factor.PI;
+        if (pos < s.length() && s.charAt(pos) == '|') {
+            pos++;
+            BigInteger d = integer("expected an integer after '|'");
+            pi = guard(col, () -> Factor.PI.divide(Factor.of(d, BigInteger.ONE)));
+        }
+        Factor f = pi;
+        return guard(col, () -> BaseUnits.ONE.scaledBy(f));
+    }
+
+    private static boolean isSuperscript(char c) {
+        return c == SUPERSCRIPT_MINUS || SUPERSCRIPT_DIGITS.indexOf(c) >= 0;
+    }
+
+    /** The index where the superscript exponent at the end of {@code name} starts, or -1 if it has none or is only one. */
+    private static int superscriptStart(String name) {
+        int i = name.length();
+        while (i > 0 && SUPERSCRIPT_DIGITS.indexOf(name.charAt(i - 1)) >= 0) {
+            i--;
+        }
+        if (i == name.length()) {
+            return -1;
+        }
+        if (i > 0 && name.charAt(i - 1) == SUPERSCRIPT_MINUS) {
+            i--;
+        }
+        return i > 0 ? i : -1;
+    }
+
+    /** The end of the run of superscript characters that starts at {@code from}. */
+    private int end(int from) {
+        int i = from;
+        while (i < s.length() && isSuperscript(s.charAt(i))) {
+            i++;
+        }
+        return i;
+    }
+
+    /** The value of the superscript exponent at {@code from} (an optional minus, then digits), which ends at the run's end. */
+    private int superscriptExponent(int from, int limit) throws FormulaException {
+        int i = from;
+        boolean negative = i < limit && s.charAt(i) == SUPERSCRIPT_MINUS;
+        if (negative) {
+            i++;
+        }
+        int digits = i;
+        int stop = end(from);
+        long value = 0;
+        for (; i < stop; i++) {
+            int digit = SUPERSCRIPT_DIGITS.indexOf(s.charAt(i));
+            if (digit < 0) {
+                pos = from;
+                throw error("exponent must be an integer");
+            }
+            value = value * 10 + digit;
+            if (value > Integer.MAX_VALUE) {
+                pos = from;
+                throw error("exponent must be an integer");
+            }
+        }
+        if (digits == i) {
+            pos = from;
+            throw error("exponent must be an integer");
+        }
+        return negative ? (int) -value : (int) value;
     }
 
     /** The trailing {@code +n} or {@code -n} at {@link #pos}; nothing may follow it. */

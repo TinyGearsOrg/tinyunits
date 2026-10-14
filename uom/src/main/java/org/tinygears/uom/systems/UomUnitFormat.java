@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
@@ -37,7 +39,12 @@ public final class UomUnitFormat implements UnitFormat {
             .sorted(Comparator.comparingInt((MetricPrefix p) -> p.getSymbol().length()).reversed())
             .toList();
 
+    private static final Pattern EXPONENT = Pattern.compile("\\^(-?)(\\d+)");
+    private static final String SUPERSCRIPT_DIGITS = "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";
+    private static final char SUPERSCRIPT_MINUS = '\u207B';
+
     private final List<UomSystemOfUnits> systems;
+    private final boolean superscripts;
     private final Map<String, UomUnit<?>> aliases = new ConcurrentHashMap<>();
     private final Map<UomUnit<?>, String> labels = new ConcurrentHashMap<>();
     // The prefixable units, and all units, of the systems by unit, built when first needed.
@@ -50,7 +57,39 @@ public final class UomUnitFormat implements UnitFormat {
      * @param systems the systems
      */
     public UomUnitFormat(List<UomSystemOfUnits> systems) {
+        this(systems, false);
+    }
+
+    private UomUnitFormat(List<UomSystemOfUnits> systems, boolean superscripts) {
         this.systems = List.copyOf(systems);
+        this.superscripts = superscripts;
+    }
+
+    /**
+     * A new format over the same systems with a snapshot of this format's labels, that writes an exponent as
+     * superscript digits ({@code m/s²}, {@code s⁻¹}) instead of {@code ^n} ({@code m/s^2}, {@code s^-1}); this format
+     * is unchanged. Parsing reads both. A {@link UomQuantityFormat} over the new format writes quantities the same
+     * way. {@code toString} of units and quantities is not affected.
+     *
+     * @param superscripts true to write superscripts, false for ASCII exponents (the default)
+     * @return the new format
+     */
+    public UomUnitFormat withSuperscripts(boolean superscripts) {
+        UomUnitFormat result = new UomUnitFormat(systems, superscripts);
+        synchronized (this) {
+            result.aliases.putAll(aliases);
+            result.labels.putAll(labels);
+        }
+        return result;
+    }
+
+    /**
+     * Whether this format writes exponents as superscript digits.
+     *
+     * @return true for superscripts, false for {@code ^n}
+     */
+    public boolean writesSuperscripts() {
+        return superscripts;
     }
 
     /**
@@ -91,7 +130,7 @@ public final class UomUnitFormat implements UnitFormat {
                 }
                 all.add(system);
             }
-            result = new UomUnitFormat(all);
+            result = new UomUnitFormat(all, superscripts);
             result.aliases.putAll(aliases);
             result.labels.putAll(labels);
         }
@@ -121,7 +160,40 @@ public final class UomUnitFormat implements UnitFormat {
      */
     @Override
     public String format(Unit<?> unit) {
-        String label = labels.get(Objects.requireNonNull(unit, "unit"));
+        String text = formatAscii(Objects.requireNonNull(unit, "unit"));
+        return superscripts ? superscript(text) : text;
+    }
+
+    /**
+     * {@code text} with each {@code ^n} written as superscript digits. One that directly follows a superscript
+     * ({@code m²^2}, the square of the catalog unit {@code m²}) stays {@code ^2}: {@code m²²} would read as
+     * {@code m^22}.
+     */
+    private static String superscript(String text) {
+        Matcher m = EXPONENT.matcher(text);
+        StringBuilder out = new StringBuilder();
+        int last = 0;
+        while (m.find()) {
+            out.append(text, last, m.start());
+            if (m.start() > 0 && isSuperscript(text.charAt(m.start() - 1))) {
+                out.append(m.group());
+            } else {
+                if (!m.group(1).isEmpty()) {
+                    out.append(SUPERSCRIPT_MINUS);
+                }
+                m.group(2).chars().forEach(c -> out.append(SUPERSCRIPT_DIGITS.charAt(c - '0')));
+            }
+            last = m.end();
+        }
+        return out.append(text, last, text.length()).toString();
+    }
+
+    private static boolean isSuperscript(char c) {
+        return c == SUPERSCRIPT_MINUS || SUPERSCRIPT_DIGITS.indexOf(c) >= 0;
+    }
+
+    private String formatAscii(Unit<?> unit) {
+        String label = labels.get(unit);
         if (label != null && parsesTo(label, unit)) {
             return label;
         }

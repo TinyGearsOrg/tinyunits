@@ -99,10 +99,11 @@ class UnitFormatTest {
     }
 
     @Test
-    void prefixedPowersUseCaret() {
+    void prefixedPowersMayUseCaretOrSuperscript() {
         assertEquals(SI.KILOMETRE.pow(2), parse("km^2"));
         assertEquals(SI.CENTIMETRE.pow(3), parse("cm^3"));
-        assertThrows(MeasurementParseException.class, () -> format.parse("km²"));
+        // km² is (km)^2; m² is a catalog symbol of its own and stays the square metre.
+        assertEquals(SI.KILOMETRE.pow(2), parse("km²"));
         assertSame(SI.SQUARE_METRE, parse("m²"));
     }
 

@@ -106,8 +106,8 @@ class QuantityTypesParserTest {
                     "types.txt:1: explicit symbol '" + symbol + "' does not evaluate to the unit");
         }
         fails("Dimensionless 1 => one:one", "types.txt:1: explicit symbol 'one' does not evaluate to the unit");
-        fails("Acceleration m / s^2 => m/s²:metre_per_second_squared",
-                "types.txt:1: explicit symbol 'm/s²' does not evaluate to the unit");
+        // m/s² reads as an exponent, so it is a valid explicit symbol for the acceleration.
+        assertEquals("m/s²", parse("Acceleration m / s^2 => m/s²:metre_per_second_squared").get(0).systemSymbol());
     }
 
     @Test

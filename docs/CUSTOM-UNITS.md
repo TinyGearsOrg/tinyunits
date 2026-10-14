@@ -117,6 +117,7 @@ formula = expr [shift]
 expr    = product {("*" | "·" | "/") product}     equal precedence, left to right
 product = term {term}                             juxtaposition: binds tighter than * · /
 term    = atom ["^" integer]                      the integer may be negative: s^-1
+        | atom superscript-integer                superscript digits glued to the atom: m², s⁻¹, (m/s)²
 atom    = number | pi ["|" digits] | symbol | "(" expr ")"
 number  = digits ["." digits] [("e" | "E") ["+" | "-"] digits]  |  digits "|" digits
 shift   = ("+" | "-") number                      only at the end, never inside parentheses
@@ -128,6 +129,21 @@ shift   = ("+" | "-") number                      only at the end, never inside 
 - Juxtaposition binds tighter than `/`, so `J / kg K` is `J / (kg K)`; `*`, `·` and `/` associate to the left, so
   `m / s * s` is `m`.
 - Spaces are optional around operators and `^`; juxtaposed symbols need one (`kgm` is one symbol).
+- An exponent is `^n` or superscript digits glued to a symbol, a `pi` or a `)`: `m/s²`, `s⁻¹`, `kg·m²/s³`, `(m/s)²`
+  (the digits `⁰¹²³⁴⁵⁶⁷⁸⁹` and `⁻`). A symbol that is a unit as a whole wins, so the catalog's `m²` and `cm²` are what
+  they are, and `km²` is `(km)^2`. Superscripts are read everywhere a formula is, also in `.units` files.
+- `UomUnitFormat` writes `^n` by default (`m/s^2`); `withSuperscripts(true)` returns a format that writes superscripts
+  (`m/s²`), also through a `UomQuantityFormat` over it. `toString` of units and quantities stays ASCII. An exponent right
+  after a symbol that already ends in a superscript keeps its caret (`m²^2`), because `m²²` would read as `m^22`.
+
+```java
+UomUnitFormat ascii = UomUnitFormat.standard();
+UomUnitFormat unicode = ascii.withSuperscripts(true);
+System.out.println(ascii.format(ascii.parse("m/s²")));          // prints: m/s^2
+System.out.println(unicode.format(ascii.parse("m/s^2")));       // prints: m/s²
+System.out.println(unicode.format(ascii.parse("kg·m²/s³")));    // prints: kg·m²/s³
+System.out.println(ascii.parse("km²").equals(ascii.parse("(km)^2")));  // prints: true
+```
 
 ```units
 @system Formulas

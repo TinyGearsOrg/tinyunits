@@ -48,6 +48,12 @@ class ShiftGrammarRegressionTest {
         }
     }
 
+    /** The legacy evaluator reads no superscript exponents; they are tested in SuperscriptTest. */
+    private static boolean superscripts(String formula) {
+        return formula.chars().anyMatch(c -> "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079\u207B"
+                .indexOf(c) >= 0);
+    }
+
     private static Outcome before(String formula) {
         return outcome(LegacyFormulaEvaluator::evaluate, formula);
     }
@@ -127,7 +133,9 @@ class ShiftGrammarRegressionTest {
         }
         assertTrue(texts.size() > 1000, "texts: " + texts.size());
         for (String t : texts) {
-            assertEquals(before(t), after(t), t);
+            if (!superscripts(t)) {
+                assertEquals(before(t), after(t), t);
+            }
         }
     }
 
@@ -188,6 +196,9 @@ class ShiftGrammarRegressionTest {
                 f.append(")".repeat(depth));
             }
             String formula = f.toString();
+            if (superscripts(formula)) {
+                continue;
+            }
             Outcome old = before(formula);
             Outcome now = after(formula);
             if (!free) {

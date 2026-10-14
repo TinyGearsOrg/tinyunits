@@ -1418,12 +1418,14 @@ org.tinygears.uom.systems UomSystemOfUnitsService member public javax.measure.sp
 org.tinygears.uom.systems UomSystemOfUnitsService member public org.tinygears.uom.systems.UomSystemOfUnitsService()
 org.tinygears.uom.systems UomSystemOfUnitsService type public final class org.tinygears.uom.systems.UomSystemOfUnitsService implements javax.measure.spi.SystemOfUnitsService
 org.tinygears.uom.systems UomUnitFormat member public boolean isLocaleSensitive()
+org.tinygears.uom.systems UomUnitFormat member public boolean writesSuperscripts()
 org.tinygears.uom.systems UomUnitFormat member public java.lang.Appendable format(javax.measure.Unit<?>,java.lang.Appendable) throws java.io.IOException
 org.tinygears.uom.systems UomUnitFormat member public java.lang.String format(javax.measure.Unit<?>)
 org.tinygears.uom.systems UomUnitFormat member public java.util.Optional<org.tinygears.uom.core.UomUnit<?>> resolve(java.lang.String)
 org.tinygears.uom.systems UomUnitFormat member public javax.measure.Unit<?> parse(java.lang.CharSequence) throws javax.measure.format.MeasurementParseException
 org.tinygears.uom.systems UomUnitFormat member public javax.measure.Unit<?> parse(java.lang.CharSequence,java.text.ParsePosition) throws javax.measure.format.MeasurementParseException
 org.tinygears.uom.systems UomUnitFormat member public org.tinygears.uom.systems.UomUnitFormat with(org.tinygears.uom.systems.UomSystemOfUnits...)
+org.tinygears.uom.systems UomUnitFormat member public org.tinygears.uom.systems.UomUnitFormat withSuperscripts(boolean)
 org.tinygears.uom.systems UomUnitFormat member public org.tinygears.uom.systems.UomUnitFormat(java.util.List<org.tinygears.uom.systems.UomSystemOfUnits>)
 org.tinygears.uom.systems UomUnitFormat member public static org.tinygears.uom.systems.UomUnitFormat standard()
 org.tinygears.uom.systems UomUnitFormat member public synchronized void label(javax.measure.Unit<?>,java.lang.String)

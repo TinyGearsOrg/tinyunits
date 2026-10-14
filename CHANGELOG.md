@@ -31,6 +31,9 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
   another unit.
 - The arithmetic and comparison methods of the quantities throw a `NullPointerException` that names the parameter
   (`addend`, `divisor`, `that`, ...), and their Javadoc says so.
+- Formulas read superscript exponents (`m/s²`, `s⁻¹`, `kg·m²/s³`, `(m/s)²`; `km²` is `(km)²`) in code and in `.units`
+  files, and `UomUnitFormat.withSuperscripts(true)` returns a format that writes them (`m/s²`) instead of `^n`. ASCII
+  stays the default ([docs/CUSTOM-UNITS.md](docs/CUSTOM-UNITS.md)).
 - `getSystemUnit()` returns a named system unit itself (`SI.NEWTON.getSystemUnit()` is `N`, not a copy labelled
   `kg·m/s^2`). A dimensionless quantity prints and formats as its number alone (`5.0`, not `5.0 1`); a number alone
   already parsed as dimensionless.

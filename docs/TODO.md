@@ -1,8 +1,8 @@
 # TODO
 
 Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when to revisit
-them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-07); the last version of this file with the full discussion is
-`git show 5d734d3:docs/TODO.md`. The groups: owner-requested follow-ups (6 to 8), gaps against the JSR-385 reference
+them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-08); the last version of this file with the full discussion is
+`git show 5d734d3:docs/TODO.md`. The groups: owner-requested follow-ups (6 and 7), gaps against the JSR-385 reference
 implementation Indriya (9 to 11, 13, 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and
 18), open defects and hardening carried over from the milestone reviews (21 to 32), then the steps before the first release
 ("Release readiness"). Each item says under "Needed by" what, if anything, it blocks.
@@ -25,14 +25,6 @@ units exist; `UomUnit.prefix(BinaryPrefix.KIBI)` works on a unit. Needs bit and 
 prefix directive and run-time resolution, and a decision whether information units belong in 1.0.
 
 **Needed by:** nothing; decide before 1.0.
-
-## 8. Superscript exponents in formulas
-
-**Status:** not implemented. The formula evaluator reads `^n` only, so the Acceleration system unit's symbol is `m/s^2` and
-`m/s²` does not parse (as a symbol, formatting that unit would fail). Reading `²` and `³` as exponents would allow the nicer
-symbol; the formatted output then changes from `m/s^2`.
-
-**Needed by:** nothing.
 
 ## 9. Java baseline
 
@@ -183,7 +175,6 @@ output); the line-length limit; whether the check fails the build or only warns.
   a throwaway quantity to check the precision; `UomQuantityFormat.MAX_SCALE` is a private copy of `Precision.MAX_SCALE`.
 - `LegacyFormulaEvaluator` (a frozen copy of the old evaluator in `uom` test sources) is the regression baseline of
   `ShiftGrammarRegressionTest`: delete it or replace it by a golden file of outcomes.
-- Superscript exponents: item 8.
 
 **Needed by:** nothing; decide before 1.0 where it changes behaviour.
 

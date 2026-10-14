@@ -146,6 +146,10 @@ class UnitFormatSystemsTest {
                 if (prefixable.contains(symbol)) {
                     continue;
                 }
+                // A prefix before a symbol with a superscript reads as a power of the prefixed rest (km² is (km)^2).
+                if (symbol.matches(".*[\u2070\u00B9\u00B2\u00B3\u2074-\u2079]$")) {
+                    continue;
+                }
                 for (MetricPrefix p : MetricPrefix.values()) {
                     String text = p.getSymbol() + symbol;
                     if (!symbols.containsKey(text)) {
