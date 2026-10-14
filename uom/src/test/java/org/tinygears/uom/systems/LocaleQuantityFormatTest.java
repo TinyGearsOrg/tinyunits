@@ -79,7 +79,7 @@ class LocaleQuantityFormatTest {
         try (InputStream in = LocaleQuantityFormatTest.class.getResourceAsStream("root-baseline.txt")) {
             expected = new String(in.readAllBytes(), StandardCharsets.UTF_8).lines().toList();
         }
-        // The baseline of milestone 5, except that a dimensionless number is written alone (docs/TODO.md, item 20).
+        // The baseline of milestone 5, except that a dimensionless number is written alone (docs/DESIGN.md DR-07).
         List<Quantity<?>> samples = baselineSamples();
         assertEquals(200, expected.size());
         for (int i = 0; i < samples.size(); i++) {

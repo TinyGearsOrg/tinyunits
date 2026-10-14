@@ -194,7 +194,7 @@ class ToSystemTest {
 
     @Test
     void aSystemMayGiveAUnitOfAnotherTypeWithTheSameDimension() {
-        // asType goes by dimension (item 2), so a system that gives becquerel for a frequency is accepted.
+        // asType goes by dimension (docs/DESIGN.md DR-02), so a system that gives becquerel for a frequency is accepted.
         SystemOfUnits becquerel = foreign(Map.of(javax.measure.quantity.Frequency.class, SI.BECQUEREL));
         Frequency f = Frequency.of(2, SI.HERTZ).toSystem(becquerel);
         assertEquals(SI.BECQUEREL, f.getUnit());

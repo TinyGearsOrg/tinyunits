@@ -61,7 +61,7 @@ class QuantityContractTest {
 
     @Test
     void twoCelsiusPlusOneCelsiusIsTheKnownDiscrepancy() {
-        // The Javadoc says 274.15 degC, its own rule gives 276.15 degC; see docs/TODO.md item 1.
+        // The Javadoc says 274.15 degC, its own rule gives 276.15 degC; see docs/DESIGN.md DR-01.
         Temperature sum = celsius(2).add(celsius(1));
         assertEquals(276.15, sum.getValue().doubleValue(), 1e-9);
         assertSame(DEGREE_CELSIUS, sum.getUnit());
@@ -118,7 +118,7 @@ class QuantityContractTest {
 
     @Test
     void subtractOffsetUnitsGoesThroughTheSystemUnit() {
-        // Literal rule, docs/TODO.md item 1: 275.15 K - 274.15 K = 1 K = -272.15 degC.
+        // Literal rule for ABSOLUTE operands, docs/DESIGN.md DR-01: 275.15 K - 274.15 K = 1 K = -272.15 degC.
         assertEquals(-272.15, celsius(2).subtract(celsius(1)).getValue().doubleValue(), 1e-9);
     }
 
@@ -141,7 +141,7 @@ class QuantityContractTest {
         Length product = Length.of(2, KILOMETRE).multiply(3);
         assertEquals(6.0, product.getValue());
         assertSame(KILOMETRE, product.getUnit());
-        // Literal rule, docs/TODO.md item 1: 275.15 K * 2 = 550.3 K = 277.15 degC.
+        // Literal rule for ABSOLUTE operands, docs/DESIGN.md DR-01: 275.15 K * 2 = 550.3 K = 277.15 degC.
         assertEquals(277.15, celsius(2).multiply(2).getValue().doubleValue(), 1e-9);
     }
 

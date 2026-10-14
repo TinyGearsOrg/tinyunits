@@ -1,69 +1,11 @@
 # TODO
 
-Open items: decisions that need the project owner (1 to 4) and owner-requested follow-ups (5 to 8), gaps against the JSR-385 reference implementation Indriya (9 to 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and 18), open defects and hardening carried over from the milestone reviews (19 to 31), then the steps before the first release ("Release readiness"). Each says under "Needed by" what, if anything, it blocks.
-
-## 1. Offset-unit arithmetic (decision D5)
-
-**Status:** decided (option D′) and implemented; documented in [OFFSET-UNITS.md](OFFSET-UNITS.md). `ABSOLUTE` quantities keep
-the literal rule of the unit-api 2.2 `Quantity` Javadoc (`2 degC + 1 degC` is 276.15 degC; the Javadoc's own example says
-274.15, which contradicts its rule). A `RELATIVE` quantity is a difference and takes no offset: `to` and `toSystem` convert
-it by the factor only, `multiply(Number)` and `divide(Number)` scale it, `add` and `subtract` take the right operand as a
-difference if either operand is `RELATIVE` (result `RELATIVE` only if both are), and `compareTo` and `isEquivalentTo`
-between two `RELATIVE` quantities compare differences. This matches Indriya 2.2 where that behaves sensibly (probed:
-the TCK does not test `Scale`). It differs on a difference minus a point, where Indriya 2.2 returned `-545.30 degC`.
-
-**Open points:**
-- A point minus a point is not returned as a `RELATIVE` quantity (option B and C, rejected: they differ from the Javadoc
-  and Indriya). The kelvin idiom in OFFSET-UNITS.md gives the difference; a helper could be added if users ask.
-- `double` arithmetic through an offset shows rounding (`20 degC - 0 degC` is -253.14999999999998); `BigDecimal` quantities
-  are exact.
-
-**Where it lives:** `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`to`, `combine`, `scalar`, `compareTo`,
-`isEquivalentTo`) with the package-private `Deltas`; tests `RelativeScaleTest` and the two `*ArithmeticTest` classes; the
-guide is checked by `DocsSnippetsTest`.
-
-## 2. `asType` and alternate units
-
-**Status:** decided (option E, new) and implemented. `asType` compared system units structurally (atoms and exponents), which
-refused dimension-correct narrowings: `1/s` to `Frequency` and `Radioactivity`, `Hz·s` to `Dimensionless`, `rad·m` to `Length`
-(an angle times a radius), `m/m` to `Angle`. The `Unit.asType` and `Quantity.asType` Javadoc say a `ClassCastException` is
-thrown only if the dimension differs (the `Unit` Javadoc's example is `ONE.alternate("rad").asType(Angle.class)`), Indriya 2.2
-accepts all of these, and the typed factories already accepted `1/s` and `Bq` as `Frequency` units. So `UomUnit.asType` now
-compares dimensions; the quantity `asType` methods delegate to it. `Unit.equals` stays structural (F21): `Hz`, `Bq` and `1/s`
-are three units, equivalent to one another. The rules A to D of the earlier proposal were dropped: they invented a rule that
-the standard does not have.
-
-**Tests:** `AsTypeDimensionTest` (double and decimal), `UomUnitAsTypeTest`, `GeneratedQuantitiesTest.alternateUnits`.
-
-**Open points:** none.
-
-## 3. Offset-unit products
-
-**Status:** decided (option B) and implemented; documented in [OFFSET-UNITS.md](OFFSET-UNITS.md). The `Unit` Javadoc says the
-interface "supports the multiplication of offsets units" (Celsius per metre is its example). A unit with an offset now
-takes part in `multiply(Unit)`, `divide(Unit)`, `pow`, `root`, `inverse` and in formulas by its factor only, so `°C/m` is
-`K/m` and `J/(kg·°C)` parses. A `RELATIVE` operand of `multiply(Quantity)`, `divide(Quantity)` and `inverse()` counts by its
-factor only (a 20 degC difference over 2 m is 10 K/m); an `ABSOLUTE` one is a point and goes through the offset (146.575 K/m).
-Indriya 2.2 creates such units but cannot convert them. The offset is dropped without a warning, which the guide states.
-
-**Where it lives:** `UomUnit.combine`, `pow` and `root`; `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`multiply`,
-`divide`, `inverse`); tests `OffsetUnitProductsTest`, `UomUnitAlgebraTest`, `UnitContractTest`, `FormulaEvaluatorTest`.
-
-## 4. Name of the system overload
-
-**Status:** decided. The typed interfaces had `to(Unit)` and `to(SystemOfUnits)`, so a bare `null` literal in `quantity.to(null)`
-was ambiguous and did not compile. The system overload is renamed `toSystem(SystemOfUnits)`, which also avoids a clash with a
-future `to(...)` overload in unit-api. Done.
-
-**Related:** `toSystem` of a `Scale.RELATIVE` quantity converts by the factor only (item 1).
-
-## 5. Emit prefixed catalog units through `prefix(...)`
-
-**Status:** done. `@prefixed` units are generated as `<base constant>.prefix(MetricPrefix.CENTI).named("cm", "centimetre")`
-instead of the decomposed `transform(Converters.affine(...))`. `CatalogEmitter` falls back to the decomposed form when the
-base is not a constant that an earlier field of the catalog (or another catalog) already initialises. Tests:
-`CatalogEmitterTest` (emitted text, compiled equality, both fallbacks) and
-`SystemsCatalogTest.prefixedConstantsEqualTheirPrefixedBase` (all 92 prefixed constants).
+Open work only. The item numbers are stable IDs: a gap is a decided item, recorded with its rationale and when to revisit it
+in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-07); the last version of this file with the full discussion is
+`git show 5d734d3:docs/TODO.md`. The groups: owner-requested follow-ups (6 to 8), gaps against the JSR-385 reference
+implementation Indriya (9 to 11, 13, 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and
+18), open defects and hardening carried over from the milestone reviews (21 to 32), then the steps before the first release
+("Release readiness"). Each item says under "Needed by" what, if anything, it blocks.
 
 ## 6. Typed `from(Quantity<?>)` on the quantity interfaces
 
@@ -74,7 +16,7 @@ cast to our interface; same exceptions as `asType`, plus `ClassCastException` fo
 33 types x {double, decimal} and the errors. README note: declare units with `Unit<?>` or `var`, and why. The typed interface
 names stay as they are (owner decision, no `I` prefix).
 
-**Needed by:** nothing; do together with item 5.
+**Needed by:** nothing.
 
 ## 7. Binary prefixes and byte units
 
@@ -121,12 +63,12 @@ only if users ask.
 
 ## 10. Behaviour comparison with Indriya
 
-**Status:** not started. Run the same probes against Indriya and record the differences: offset-unit arithmetic (item 1),
-`asType` with alternate units such as `1/s` to `Frequency` (item 2), offset-unit products (item 3), quantity and unit
-equality, `isEquivalentTo` tolerance, unit parsing and formatting of the same symbols. Users will compare against the
-reference implementation first.
+**Status:** partly done. Probes against Indriya 2.2 decided offset arithmetic (DR-01), `asType` with alternate units
+(DR-02), offset-unit products (DR-03) and the provider coexistence (DR-05); the behaviour of both libraries on the same
+classpath is a test (`ProviderCoexistenceTest`). Still to probe and record: quantity and unit `equals`, the `isEquivalentTo`
+tolerance, and unit parsing and formatting of the same symbols. Users will compare against the reference implementation first.
 
-**Needed by:** input to items 1 to 3; do before deciding them.
+**Needed by:** before 1.0.
 
 ## 11. Precision promotion rule
 
@@ -135,21 +77,6 @@ defensible but the opposite of promoting upward, and Indriya's number handling d
 the rationale prominently, or offer a strict no-mixing mode (not provided today).
 
 **Needed by:** decide before 1.0.
-
-## 12. Coexistence with other JSR-385 providers
-
-**Status:** done; documented in [PROVIDERS.md](PROVIDERS.md). `UomUnit.asType`, both quantity `asType` methods and
-deserialization used `ServiceProvider.current()`, so another provider as current (`ServiceProvider.setCurrent`, or a higher
-priority) broke them with `ClassCastException` and `InvalidObjectException`. They now go through `spi.Providers`: the current
-provider if it implements `spi.QuantityFactories`, else ours among `ServiceProvider.available()` (found once and kept),
-else the current provider (so `uom-core` works with any provider). `UomServiceProvider` implements the interface and is
-named `uom` (`toString()`), so `ServiceProvider.of("uom")` works. The priority stays 100, so uom is current next to Indriya
-2.2 (priority 10, named `Default`). The `spi` package is exported to `org.tinygears.uom` only.
-
-**Tests:** `ProvidersTest` (lookup order, no global state), `ProviderCoexistenceTest` (uom and Indriya 2.2 together, in both
-directions; Indriya is a test-scope dependency of `uom`; it fails with the old lookup), the module and API pin tests.
-
-**Open points:** quantities and units of two implementations still do not mix (`UnconvertibleException`).
 
 ## 13. Scope gaps against Indriya
 
@@ -240,54 +167,6 @@ output); the line-length limit; whether the check fails the build or only warns.
 `git blame`, so list it in `.git-blame-ignore-revs`.
 
 **Needed by:** nothing; do before accepting outside contributions.
-
-## 19. Prefix symbols and names
-
-**Status:** decided and implemented; see the Prefixes bullet of DESIGN section 3 and [CUSTOM-UNITS.md](CUSTOM-UNITS.md).
-- `UomUnit.prefix` no longer invents a symbol. It used to produce `km²`, `kmin`, `mkg`, `mmm`, `m°C` and colliding symbols
-  such as `cd` and `dam`, because the unit cannot know which units take a prefix. It now returns an unnamed unit; the parser
-  (`@prefixed`), the generated catalogs and `UomUnitFormat.resolve` name prefixed units with `named(...)`, as they already did.
-  `UomUnitFormat` writes a metric prefix on a prefixable unit (`mHz`, `pW`), and an unnamed unit prints as the standard
-  format writes it (`mHz`, `km`), else as its definition (`1000·m`; item 20).
-- The parser rejects `@prefixed` on a unit that is itself prefixed (`@prefixed kleague M` is an error), also across includes.
-- `UomUnitFormat.label` rejects a label that reads as another unit, exactly or as a metric prefix on a prefixable unit
-  (`label(SECOND, "Gm")`).
-
-**Left as documented, decided:**
-- Prefixed ohm names stay `kiloohm` and `megaohm` (names are descriptive and never parsed; the contraction `kilohm` was not
-  verified against the SI Brochure).
-- `@prefixed u k` in a user file checks only `ku` against the built-in symbols, and `UomUnitFormat.with` does not detect a
-  prefixed reading of a new prefixable unit that equals an existing exact symbol. The exact symbol wins, deterministically
-  (`ft` is the foot, not the femtotonne); detecting it would reject legitimate systems.
-
-**Tests:** `UomUnitAlgebraTest.prefix` and `anUnnamedUnitPrintsItsDefinition`, `DefinitionParserTest.prefixedErrors`,
-`UnitFormatTest.aLabelThatReadsAsAnotherUnitIsRejected`, `UnnamedUnitTextTest`, `ProvidersTest`, the guide's `units-error`
-block (`DocsSnippetsTest`).
-
-## 20. Unit identity and printing
-
-**Status:** done.
-- `getSystemUnit()` returns a unit that already is a named system unit (an identity converter and a name) itself, so
-  `SI.NEWTON.getSystemUnit()` is `N` with its name. The unit-api Javadoc does not require `this`; the gain is that the
-  symbol and name are kept and no copy is made. Any other unit gets the unscaled unit of its atoms with their label as
-  symbol (`kg·m/s^2`), so the product of two lengths is still `m^2`: a symbol built by `multiply` is not a name.
-- Unnamed units print as the standard format writes them (item 19).
-- A dimensionless quantity prints and formats as its number alone: `5.0`, not `5.0 1`, in `toString`, `UomQuantityFormat`
-  with locales and with decimals. A number alone already parsed as dimensionless, so it round-trips. A unit of dimension
-  one with its own symbol keeps it (`2.0 rad`). The baseline of `LocaleQuantityFormatTest` changed accordingly.
-- `compareTo` on `-0.0` is documented in the `AbstractDoubleQuantity.compareTo` Javadoc: `0 m` is greater than `-0 m`,
-  `0 degC` and `-0 degC` compare equal (both 273.15 K). A test pins it.
-- `toSystem` through a system that gives a unit of another quantity type with the same dimension is accepted, as item 2
-  made `asType` go by dimension; a unit of another dimension is refused. A test pins both.
-
-**Open point, related:** the checks that give an explicit type to a unit stay structural: `UomSystemOfUnits.load` (the
-`@preferred Type unit` line) and the code generator (`[Type]` and `@preferred`) require the unit's system unit to equal the
-type's, so `@preferred Frequency Bq` is an error although `asType` would accept it. Inference of a unit's type from its
-atoms must stay structural (it is how `Hz` and `Bq` are told apart); only the explicit assignments could follow the
-dimension rule.
-
-**Tests:** `SystemUnitNamesTest` (system unit), `DimensionlessTextTest`, `GeneratedQuantitiesTest.negativeZeroOrdersByTheSystemUnitValue`,
-`ToSystemTest.aSystemMayGiveAUnitOfAnotherTypeWithTheSameDimension`.
 
 ## 21. Formats and parsing
 
@@ -476,6 +355,18 @@ stable before 1.0).
 
 **Needed by:** the CI decisions before the first push of the workflow; the rest nothing.
 
+## 32. Explicit type assignments and the dimension rule
+
+**Status:** open, decision needed. `asType` goes by dimension (DR-02), but the checks that give an explicit type to a unit
+stay structural: `UomSystemOfUnits.load` (the `@preferred Type unit` line of a user file) and the code generator (`[Type]` and
+`@preferred`) require the unit's system unit to equal the type's. So `@preferred Frequency Bq` is an error although
+`asType` would accept it. Inferring a unit's type from its atoms must stay structural (it is how `Hz` and `Bq` are told
+apart); only the explicit assignments could follow the dimension rule.
+
+**Options:** keep the explicit assignments structural and document it; or accept any unit of the dimension.
+
+**Needed by:** decide before 1.0.
+
 ## Release readiness
 
 No version has been released, signed, tagged or uploaded. The release is prepared and is the owner's action
@@ -492,4 +383,3 @@ No version has been released, signed, tagged or uploaded. The release is prepare
 - Decide the CI items of item 31 (SHA pinning of actions, duplicate push and pull-request runs, `cancel-in-progress` on
   `main`, job-level permissions), push the branch and see the workflow green on JDK 21 and 25.
 - Decide the repository rename; the POM's `url`, `scm` and `issueManagement` follow it.
-- Item 2 above is due before 1.0, not before a 0.x release.
