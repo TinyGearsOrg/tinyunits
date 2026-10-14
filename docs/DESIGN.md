@@ -1,6 +1,6 @@
 # uom: Design
 
-Status: draft for owner review; milestones 1 to 7 are implemented (section 7), and the decisions taken since are recorded in section 1. Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
+Status: implemented, nothing published yet; the decisions taken are recorded in section 1. Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
 N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven, multi-module.
 
 ## 1. Decisions
@@ -211,7 +211,7 @@ Per quantity type the generator writes four files:
    `divide(Number)` (all return `Length`), `toDouble()` and `toDecimal(MathContext)` (F23, D10), and static factories
    `Length.of(double, unit)`, `Length.of(double, unit, Scale)` and, for `BigDecimal`,
    `of(BigDecimal, unit)`, `of(BigDecimal, unit, Scale)`, `of(BigDecimal, unit, Scale, MathContext)`
-   (D11). Milestone 5 adds `toSystem(SystemOfUnits)` (F8, D5). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
+   (D11), and `toSystem(SystemOfUnits)` (F8, DR-04). Units stay `Unit<javax.measure.quantity.Length>`, so our quantities
    work with any JSR-385 code (F4). The shared simple name is a deliberate trade-off: everyday
    code never mentions both types, and declaring a unit variable needs `var` or the fully
    qualified standard type.
@@ -228,9 +228,9 @@ Per quantity type the generator writes four files:
    conflicting registration breaks only its own type. `UomServiceProvider` uses it.
 
 The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four per type plus
-`QuantityTypes`; 100 before milestone 4). No extra types were added in milestone 5.
+`QuantityTypes`).
 
-- **`toSystem(SystemOfUnits)` (F8, D5 of milestone 5).** The base classes implement `R toSystem(SystemOfUnits)` once, as
+- **`toSystem(SystemOfUnits)` (F8, DR-04).** The base classes implement `R toSystem(SystemOfUnits)` once, as
   `to(system.getUnit(quantityType()))`, through the generated hook `protected abstract Class<Q> quantityType()` (the
   standard interface of the type, `Untyped` for untyped quantities). Scale and `MathContext` are kept. A `null` unit from the
   system (and any untyped quantity) throws `UnsupportedOperationException("system N has no unit for type T")`; a unit of
@@ -261,7 +261,7 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
   Decimal quantities carry a `MathContext`, default `DECIMAL128`; `getValue()` is a `BigDecimal` (decimal) or a
   `Double`. Every computed result (conversion, arithmetic, `toDecimal`) is rounded to the result context, so `DECIMAL32`
   `1.23456789 m + 0 m` is `1.234568 m`; creation and `negate` keep the value as given. `UNLIMITED` is exact where the
-  result terminates and falls back to `DECIMAL128` otherwise. Details (milestone 4, D2 to D11):
+  result terminates and falls back to `DECIMAL128` otherwise. Details (D2 to D11):
   - **Operand kinds (D2).** `Byte`, `Short`, `Integer`, `Long`, `BigInteger`, `AtomicInteger` and `AtomicLong` are exact
     and never lower the precision; `BigDecimal` is decimal; `Double`, `Float` and any other `Number` count as `double`.
     A foreign `BigDecimal` value has no context and counts as unlimited.
@@ -295,8 +295,7 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     `toDecimal(mc)` rounds to `mc`, on both implementations. `asType` keeps the receiver's `MathContext` and never changes
     the value.
   - **Factories (D11) and formats (D12).** As in section 4 item 1 and 4; `UomQuantityFormat.format` prints
-    `BigDecimal.toString()`; `parse` returns `double` quantities unless the format has `withDecimals` (section 5,
-    milestone 6). `withMathContext(mc)` (public on `AbstractDecimalQuantity`, not on the typed interfaces) changes the
+    `BigDecimal.toString()`; `parse` returns `double` quantities unless the format has `withDecimals` (section 5). `withMathContext(mc)` (public on `AbstractDecimalQuantity`, not on the typed interfaces) changes the
     context without rounding the value; the decimal parse uses it.
   - Irrational factors (a pi or root in the converter) are best effort for decimal arithmetic; see
     `docs/TODO.md` (item 22).
@@ -320,7 +319,7 @@ the standard's 33 types, no extras) and one `.units` file per unit system: `si.u
 `imperial.units`, `cgs.units`, `cgs-esu.units`, `cgs-emu.units` and `cgs-gaussian.units`. They are not shipped as
 resources: the catalogs are generated only, and users load their own files at run time (below).
 
-**Generator (milestones 2, 3 and 5).** `uom-codegen` (not published) reads `data/quantity-types.txt`
+**Generator.** `uom-codegen` (not published) reads `data/quantity-types.txt`
 and the seven `.units` files listed in `Generate.CATALOGS` (`si.units` first) and writes the sources of section 4 into
 `uom/src/main/java/org/tinygears/uom/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
 `CGS`, `ESU`, `EMU`, `Gaussian`) into `uom/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
@@ -328,7 +327,7 @@ file missing from the list is caught by the data-versus-list test, not by the ge
 three arguments: `<dataDir> <quantitiesOut> <systemsOut>`.
 
 - `data/si.units` holds the SI definitions (BIPM SI Brochure, 9th edition) and the curated
-  `@prefixed` lines; it replaced the milestone 2 bootstrap set `base.units` and yields 128
+  `@prefixed` lines; it yields 128
   catalog entries, declared in `SI` as typed constants (`SI.METRE`, `SI.KILOMETRE`).
 - The other files (values authored from NIST SP 811, the SI Brochure and Jackson, not copied from other catalogs): `us-customary.units`
   (`@system USCustomary`; international and survey foot, US gallon, `lb`, `lbf`, `psi`, `BTU_IT`, `hp`, `°F`, `°R`, 35 distinct units),
@@ -374,7 +373,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   `!` marks a base unit, `~` an alternate unit, `=` an affine function, `@include` includes a
   file (definitions only; every file includes `si.units`), `@preferred` sets the preferred unit of a type,
   `@prefixed <symbol> <prefix>...` generates prefixed units from metric prefix symbols. Underscores in names stand for
-  spaces. Milestone 5 adds `@system Name` (once per catalog file: names the class and the system; a Java identifier),
+  spaces. `@system Name` (once per catalog file: names the class and the system; a Java identifier),
   `@extends file` (implies `@include`; the units of that file and, transitively, of the files it extends become members, and
   its `@preferred` lines are inherited) and `@member symbol...` (units of an included file that become members without a
   new constant; a unit defined in the root file itself is an error).
@@ -417,7 +416,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   Layering is by source file; files that are only `@include`d contribute no lines. `SI` itself keeps the factory system unit
   for a type without `@preferred`. Fallback units are not members: `USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but
   `getUnit("s")` is null and `getUnits()` lacks `s` (123 (system, type) pairs; SI itself for `m/s^2`, `1` and `m/s`).
-- **Run time (F17, F18, D5 of milestone 6).** The parser ships in `uom-core`. `UomUnitFormat` resolves symbols from the
+- **Run time (F17, F18, D5).** The parser ships in `uom-core`. `UomUnitFormat` resolves symbols from the
   generated catalogs and evaluates formulas with `FormulaEvaluator`. User files load at run time, with no global state:
   - `DefinitionParser.parse(source, reader, resolver, known)` looks up symbols the file does not define through
     `known`; a file defining a symbol `known` resolves is an error (`symbol 'm' is already defined`, file and line).
@@ -447,7 +446,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   foot, not the femtotonne; this is the only string that parsed in SI-only mode and now reads differently (the shadow set `{ft}`,
   pinned by a test over all strings of that form). `abH` equals `nH` and `cm³` equals `mL`: a unit with its
   own symbol formats to it (`format(EMU.ABHENRY)` is `abH`), an unnamed equal unit to the first system's symbol (`nH`).
-- **Shift grammar (D2 of milestone 6).** A formula may end in `+ n` or `- n` (top level only, never inside
+- **Shift grammar (D2).** A formula may end in `+ n` or `- n` (top level only, never inside
   parentheses): `expr + n` is `expr.shift(n)`, with `n` a decimal literal or an exact fraction `a|b`. Spaces are allowed
   around the sign and the number. `+` and `-` are delimiters, so labels and data symbols containing them are rejected. A
   `-` with no whitespace on either side followed by a plain integer (`s-1`, `kg m-3`, `m^2-1`) is an error
@@ -460,9 +459,9 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   Four categories have no faithful form and throw `IllegalArgumentException`: a negative factor, a root factor, an
   irrational shift `o/f` (a power of pi or a root), a formula over 10,000 characters. A brute force over every catalog
   unit and 20,000 random units finds no mismatch.
-- **Quantity format (D3, D4 of milestone 6).** `UomQuantityFormat` is immutable: `withLocale`, `withGrouping`,
+- **Quantity format (D3, D4).** `UomQuantityFormat` is immutable: `withLocale`, `withGrouping`,
   `withDecimals`, `getLocale`, `getDecimalContext`, `isLocaleSensitive`, value `equals`. The default is `Locale.ROOT`,
-  no grouping, `double` parse, with output identical to milestone 5. In another locale the value text is the same
+  no grouping, `double` parse. In another locale the value text is the same
   `Double.toString`/`BigDecimal.toString` with ASCII digits, `.`, `-` and `E` mapped through `DecimalFormatSymbols`; unit
   symbols are not localized; no grouping or bidi marks are written. Parsing accepts locale and ASCII digits, the
   locale's decimal separator, minus sign (or `-`, `+`) and exponent separator (or `E`, `e`), skips bidi marks around
@@ -487,10 +486,9 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 - Semantics tests: precision mixing, equality and equivalence, alternate units, offset units,
   roots of non-perfect powers.
 - Serialization round trip (every catalog unit; 33 types x {double, decimal} x {ABSOLUTE, RELATIVE}; golden files);
-  module-path and class-path runs, including fresh-JVM reads. Milestone 6 ran the full build on JDK 25 and, for the
-  locale work, on JDK 21; since milestone 7 the CI workflow runs `mvn -B verify` on JDK 21 and 25, and
+  module-path and class-path runs, including fresh-JVM reads. The CI workflow runs `mvn -B verify` on JDK 21 and 25, and
   `scripts/verify-release.sh` checks a consumer project on the class path, the module path and in a `jlink` image.
-- **Serialization (F12, D1 of milestone 6).** Serialization proxies for `Factor`, `UomDimension`, `UnitAtom`, the
+- **Serialization (F12, D1).** Serialization proxies for `Factor`, `UomDimension`, `UnitAtom`, the
   converters, `UomUnit` and the quantity base classes. Each class returns its proxy from `writeReplace` and throws
   `InvalidObjectException("proxy required")` from `readObject`; each proxy (`serialVersionUID = 1L`) rebuilds the object
   through the public factories in `readResolve`, so every invariant is re-checked and any violation is an
@@ -513,43 +511,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
     `ObjectInputFilter` (README). Systems, formats, services and converter caches are not serializable. The form is
     pinned by golden files and is not promised stable before 1.0.
 
-## 7. Milestones (each releasable as a snapshot)
-
-1. Core and parser, plus the TCK spike.
-2. Quantities for `double`: base class, generator for quantity types, a handful of types end
-   to end.
-3. SI catalog: generator for `si.units`, prefixes, the service provider, basic unit and quantity
-   formats (symbols, prefixes, formulas); the TCK runs for real. Done: 33 types, 128 SI catalog
-   entries, TCK 113 of 113 tests, 554 tests in `mvn -q -B clean verify`. Follow-ups:
-   `docs/TODO.md`.
-4. `BigDecimal`: decimal base class and the precision rule. Done: `AbstractDecimalQuantity`, `Precision`, 33 `XDecimal`
-   classes (133 generated quantity files), 33 types, 128 SI catalog entries, TCK 113 of 113 tests, 708 tests in
-   `mvn -q -B clean verify` (core 350, codegen 97, quantities 28, systems 119, tck 113, examples 1). Follow-ups:
-   `docs/TODO.md`.
-5. Other systems: Imperial/US customary, CGS, CGS electromagnetic; `quantity.toSystem(system)`. Done: `USCustomary`, `Imperial`, `CGS`,
-   `ESU`, `EMU`, `Gaussian` catalogs (35, 42, 16, 22, 29, 26 distinct units, with `SI` 128), the directives `@system`,
-   `@extends`, `@member`, `toSystem(SystemOfUnits)`, 33 types (133 generated quantity files), TCK 113 of 113 tests, 901 tests in
-   `mvn -q -B clean verify` (core 430, codegen 162, uom 195, tck 113, examples 1; counted after merging the quantities and
-   systems modules into `uom`). Follow-ups:
-   `docs/TODO.md`.
-6. Serialization, locale-aware formats, a faithful form for offset units, decimal-preserving parse, user units at
-   run time. Done: serialization proxies for units and quantities (F12), the shift grammar and offset format (F9),
-   `withLocale`/`withGrouping`/`withDecimals` (F9), `UomSystemOfUnits.load`, `UomUnitFormat.with` and `resolve`
-   (F17, F18), TCK 113 of 113 tests, 1070 tests in `mvn -q -B clean verify` (core 506, codegen 162, uom 288, tck 113,
-   examples 1). Follow-ups: `docs/TODO.md`.
-7. Release engineering: POM metadata, sources and javadoc jars, a signing profile, CI on JDK 21 and the current JDK, the
-   custom-unit guide and unit table (N7), the versioning policy and public API definition (N8), a JPMS review. Done
-   (prepared, nothing published): POM metadata and an inactive `release` profile (sources, javadoc, signing, Central
-   upload with `autoPublish=false`), enforcer rules, reproducible jars, javadoc without warnings, the API pin
-   (`docs/api/public-api.txt`, [API.md](API.md)), the generated [UNITS.md](UNITS.md), the documentation set
-   ([CUSTOM-UNITS.md](CUSTOM-UNITS.md), [RELEASING.md](RELEASING.md), `CHANGELOG.md`, `SECURITY.md`,
-   `CONTRIBUTING.md`), `scripts/verify-release.sh` (release artifacts, reproducibility, `jlink`, a consumer project),
-   the CI workflow (JDK 21 and 25) and dependabot; TCK 113 of 113 tests, 1112 tests in `mvn -q -B clean verify` (core
-   506, codegen 169, uom 322, tck 113, examples 2). Not done: the repository rename and the publication itself (the
-   owner's action, [TODO.md](TODO.md), "Release readiness"). Follow-ups:
-   `docs/TODO.md`.
-
-## 8. Open items
+## 7. Open items
 
 Open work, with its options, is in [TODO.md](TODO.md); the decisions taken so far, with when to revisit them, are the records of
 section 1. The repository rename and the first release are the owner's steps (TODO.md, "Release readiness").
