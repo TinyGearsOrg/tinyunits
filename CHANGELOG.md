@@ -29,6 +29,9 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
   times a unit (`1000·min`), and an unnamed unit prints as the format writes it (`mHz`, `km`), else as its definition (`1000·m`) instead of its system
   label. The parser rejects `@prefixed` on a prefixed unit, and `UomUnitFormat.label` rejects a label that reads as
   another unit.
+- `getSystemUnit()` returns a named system unit itself (`SI.NEWTON.getSystemUnit()` is `N`, not a copy labelled
+  `kg·m/s^2`). A dimensionless quantity prints and formats as its number alone (`5.0`, not `5.0 1`); a number alone
+  already parsed as dimensionless.
 - `asType` (unit and quantity) goes by dimension, as the `Unit` and `Quantity` Javadoc say, so `1/s` narrows to
   `Frequency`, `Hz·s` to `Dimensionless` and `rad·m` to `Length`; `Unit.equals` stays structural.
 - `UomServiceProvider` is named `uom` (`ServiceProvider.of("uom")`), and `asType` and deserialization find the quantity

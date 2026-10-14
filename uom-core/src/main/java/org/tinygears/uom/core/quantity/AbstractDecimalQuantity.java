@@ -526,6 +526,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     @Override
     public String toString() {
         String symbol = unit.getSymbol();
-        return value + " " + (symbol != null ? symbol : unit.toString());
+        String text = symbol != null ? symbol : unit.toString();
+        // A dimensionless number is written alone, as UomQuantityFormat parses it.
+        return text.equals("1") ? String.valueOf(value) : value + " " + text;
     }
 }

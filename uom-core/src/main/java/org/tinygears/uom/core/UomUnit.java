@@ -138,8 +138,16 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return dimension;
     }
 
+    /**
+     * This unit if it already is a named system unit (it keeps its symbol and name: {@code N}, not
+     * {@code kg·m/s^2}), else the unscaled unit of the same atoms, whose symbol is the label of the atoms. A symbol
+     * built from other units ({@code m·m}) is not a name, so the product of two lengths is {@code m^2}.
+     */
     @Override
     public UomUnit<Q> getSystemUnit() {
+        if (toSystem.isIdentity() && name != null) {
+            return this;
+        }
         return new UomUnit<>(atoms, Converters.IDENTITY, systemLabel(), null);
     }
 

@@ -50,7 +50,9 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
 - **Unit.** One implementation class holding a system-unit decomposition (a map from atoms to
   integer exponents; atoms are the seven base units and the alternate units), a converter to
   that system unit, and a symbol and name. `getSystemUnit()` is the same decomposition with an
-  identity converter.
+  identity converter: the unit itself if it already is a named system unit (`N` keeps its symbol and name), else a new
+  unit whose symbol is the label of the atoms (`kg·m/s^2`, `m^2`). A dimensionless quantity prints as its number alone
+  (`5.0`), which `UomQuantityFormat.parse` reads back as dimensionless.
   - `equals` compares decomposition and converter, ignoring symbol and name (F21), so
     `RADIAN != ONE` and `METRE.divide(SECOND)` equals the `m/s` constant. `isEquivalentTo`
     means same dimension and an identity converter between the two units; alternate atoms may

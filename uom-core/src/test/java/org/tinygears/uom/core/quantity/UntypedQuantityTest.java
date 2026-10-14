@@ -80,7 +80,7 @@ class UntypedQuantityTest {
 
     @Test
     void resultUnitsPrintNormalized() {
-        assertEquals("0.5 1", q(2, METRE).divide(q(4, METRE)).toString());
+        assertEquals("0.5", q(2, METRE).divide(q(4, METRE)).toString());
         assertEquals("4.0 m^2", q(2, METRE).multiply(q(2, METRE)).toString());
         assertEquals("5.0 m/s", q(10, METRE).divide(q(2, SECOND)).toString());
         assertEquals("8.0 m^3", q(2, METRE).multiply(q(2, METRE)).multiply(q(2, METRE)).toString());

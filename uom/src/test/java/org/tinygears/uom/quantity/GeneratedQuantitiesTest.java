@@ -124,6 +124,16 @@ class GeneratedQuantitiesTest {
     }
 
     @Test
+    void negativeZeroOrdersByTheSystemUnitValue() {
+        // Double.compare puts -0.0 below 0.0, so 0 m is greater than -0 m; 0 degC and -0 degC are both 273.15 K.
+        assertTrue(Length.of(0.0, METRE).compareTo(Length.of(-0.0, METRE)) > 0);
+        assertEquals(0, Temperature.of(0.0, org.tinygears.uom.systems.SI.DEGREE_CELSIUS)
+                .compareTo(Temperature.of(-0.0, org.tinygears.uom.systems.SI.DEGREE_CELSIUS)));
+        assertTrue(Length.of(0.0, METRE).isEquivalentTo(Length.of(-0.0, METRE)));
+        assertNotEquals(Length.of(0.0, METRE), Length.of(-0.0, METRE));
+    }
+
+    @Test
     void equalsCompareToString() {
         assertEquals(LengthFactory.INSTANCE.of(2, METRE), LengthFactory.INSTANCE.create(2, METRE));
         assertTrue(Length.of(1, KILOMETRE).compareTo(Length.of(999, METRE)) > 0);

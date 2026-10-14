@@ -266,18 +266,28 @@ block (`DocsSnippetsTest`).
 
 ## 20. Unit identity and printing
 
-**Status:** open, except the printing of unnamed units, which is done: `UomUnit.toString()` prints the standard format's text
-(`mHz`, `km`), else the definition (`1000·m`, `5|9·K + 45967|100`), instead of the system label (item 19). The first item below and the `compareTo` note are confirmed on the current build; the others come from the milestone reviews.
-- `getSystemUnit()` of a unit returns an equal unit with a null name, not `this` as the Javadoc says. Return `this` when
-  the converter is the identity and the symbol is not null.
-- Dimensionless quantities format as `5.0 1` (the symbol of `ONE` is `1`) in `toString` and `UomQuantityFormat`. Decide
-  whether to print `5.0` alone and parse it back.
-- `compareTo` orders `-0.0` by unit: `0 m` against `-0 m` is 1, `0 degC` against `-0 degC` is 0. Note it in the `compareTo`
-  Javadoc.
-- `toSystem` through a foreign `SystemOfUnits`: a unit of another quantity type with the same dimension is
-  accepted silently (only a different dimension gives `UnconvertibleException`).
+**Status:** done.
+- `getSystemUnit()` returns a unit that already is a named system unit (an identity converter and a name) itself, so
+  `SI.NEWTON.getSystemUnit()` is `N` with its name. The unit-api Javadoc does not require `this`; the gain is that the
+  symbol and name are kept and no copy is made. Any other unit gets the unscaled unit of its atoms with their label as
+  symbol (`kg·m/s^2`), so the product of two lengths is still `m^2`: a symbol built by `multiply` is not a name.
+- Unnamed units print as the standard format writes them (item 19).
+- A dimensionless quantity prints and formats as its number alone: `5.0`, not `5.0 1`, in `toString`, `UomQuantityFormat`
+  with locales and with decimals. A number alone already parsed as dimensionless, so it round-trips. A unit of dimension
+  one with its own symbol keeps it (`2.0 rad`). The baseline of `LocaleQuantityFormatTest` changed accordingly.
+- `compareTo` on `-0.0` is documented in the `AbstractDoubleQuantity.compareTo` Javadoc: `0 m` is greater than `-0 m`,
+  `0 degC` and `-0 degC` compare equal (both 273.15 K). A test pins it.
+- `toSystem` through a system that gives a unit of another quantity type with the same dimension is accepted, as item 2
+  made `asType` go by dimension; a unit of another dimension is refused. A test pins both.
 
-**Needed by:** before 1.0.
+**Open point, related:** the checks that give an explicit type to a unit stay structural: `UomSystemOfUnits.load` (the
+`@preferred Type unit` line) and the code generator (`[Type]` and `@preferred`) require the unit's system unit to equal the
+type's, so `@preferred Frequency Bq` is an error although `asType` would accept it. Inference of a unit's type from its
+atoms must stay structural (it is how `Hz` and `Bq` are told apart); only the explicit assignments could follow the
+dimension rule.
+
+**Tests:** `SystemUnitNamesTest` (system unit), `DimensionlessTextTest`, `GeneratedQuantitiesTest.negativeZeroOrdersByTheSystemUnitValue`,
+`ToSystemTest.aSystemMayGiveAUnitOfAnotherTypeWithTheSameDimension`.
 
 ## 21. Formats and parsing
 

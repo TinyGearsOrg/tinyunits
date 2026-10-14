@@ -26,6 +26,7 @@ import org.tinygears.uom.core.quantity.UntypedDecimalQuantity;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
 import org.tinygears.uom.quantity.ElectricCharge;
 import org.tinygears.uom.quantity.Force;
+import org.tinygears.uom.quantity.Frequency;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Mass;
 import org.tinygears.uom.quantity.Pressure;
@@ -189,6 +190,21 @@ class ToSystemTest {
         assertThrows(UnconvertibleException.class, () -> Length.of(1, SI.METRE).toSystem(withAlien));
         assertThrows(UnconvertibleException.class, () -> Length.of(BigDecimal.ONE, SI.METRE).toSystem(withAlien));
         assertThrows(NullPointerException.class, () -> Length.of(1, SI.METRE).toSystem(null));
+    }
+
+    @Test
+    void aSystemMayGiveAUnitOfAnotherTypeWithTheSameDimension() {
+        // asType goes by dimension (item 2), so a system that gives becquerel for a frequency is accepted.
+        SystemOfUnits becquerel = foreign(Map.of(javax.measure.quantity.Frequency.class, SI.BECQUEREL));
+        Frequency f = Frequency.of(2, SI.HERTZ).toSystem(becquerel);
+        assertEquals(SI.BECQUEREL, f.getUnit());
+        assertEquals(2.0, f.getValue().doubleValue());
+        Frequency d = Frequency.of(new BigDecimal("2"), SI.HERTZ).toSystem(becquerel);
+        assertEquals(SI.BECQUEREL, d.getUnit());
+        assertExact("2", d);
+        // A unit of another dimension is still refused.
+        SystemOfUnits metres = foreign(Map.of(javax.measure.quantity.Frequency.class, SI.METRE));
+        assertThrows(UnconvertibleException.class, () -> Frequency.of(2, SI.HERTZ).toSystem(metres));
     }
 
     @Test

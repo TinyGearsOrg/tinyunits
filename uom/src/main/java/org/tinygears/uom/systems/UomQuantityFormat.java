@@ -233,7 +233,9 @@ public final class UomQuantityFormat implements QuantityFormat {
         if (isLocaleSensitive() && !value.endsWith("NaN") && !value.endsWith("Infinity")) {
             value = localize(value);
         }
-        return value + " " + unitFormat.format(quantity.getUnit());
+        String unit = unitFormat.format(quantity.getUnit());
+        // A number alone is dimensionless when parsed (parse).
+        return unit.equals("1") ? value : value + " " + unit;
     }
 
     /** Maps the ASCII number text character by character; the digits are never rounded. */

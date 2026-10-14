@@ -79,6 +79,7 @@ class LocaleQuantityFormatTest {
         try (InputStream in = LocaleQuantityFormatTest.class.getResourceAsStream("root-baseline.txt")) {
             expected = new String(in.readAllBytes(), StandardCharsets.UTF_8).lines().toList();
         }
+        // The baseline of milestone 5, except that a dimensionless number is written alone (docs/TODO.md, item 20).
         List<Quantity<?>> samples = baselineSamples();
         assertEquals(200, expected.size());
         for (int i = 0; i < samples.size(); i++) {
@@ -438,7 +439,7 @@ class LocaleQuantityFormatTest {
                             Quantity<?> back = f.parse(text);
                             if (Double.doubleToRawLongBits(back.getValue().doubleValue())
                                     != Double.doubleToRawLongBits(v) || !unit.equals(back.getUnit())
-                                    || !text.endsWith(" " + unitText)) {
+                                    || !(unitText.equals("1") ? !text.contains(" ") : text.endsWith(" " + unitText))) {
                                 failures.add(locale.toLanguageTag() + " " + grouping + " " + text + " -> " + back);
                             }
                         } catch (RuntimeException e) {

@@ -186,7 +186,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     /**
      * Compares the system-unit values with {@link Double#compare}, or, if both are {@code RELATIVE}, the system-unit
-     * differences (factor only); not consistent with equals. A decimal operand outside the double range throws
+     * differences (factor only); not consistent with equals. {@code Double.compare} puts {@code -0.0} below
+     * {@code 0.0}, so {@code 0 m} is greater than {@code -0 m}, while {@code 0 °C} and {@code -0 °C} compare equal:
+     * their system-unit values are both 273.15 K. A decimal operand outside the double range throws
      * {@link ArithmeticException}.
      */
     @Override
@@ -391,6 +393,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     @Override
     public String toString() {
         String symbol = unit.getSymbol();
-        return value + " " + (symbol != null ? symbol : unit.toString());
+        String text = symbol != null ? symbol : unit.toString();
+        // A dimensionless number is written alone, as UomQuantityFormat parses it.
+        return text.equals("1") ? String.valueOf(value) : value + " " + text;
     }
 }
