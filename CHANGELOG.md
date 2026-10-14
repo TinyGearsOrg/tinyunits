@@ -31,6 +31,8 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
   another unit.
 - The arithmetic and comparison methods of the quantities throw a `NullPointerException` that names the parameter
   (`addend`, `divisor`, `that`, ...), and their Javadoc says so.
+- `SI.METRE_PER_SECOND`, `SI.METRE_PER_SECOND_SQUARED` and `SI.ONE`: the system units of `Speed`, `Acceleration` and
+  `Dimensionless`, the three that had no constant in `SI`, are the same instances as the factories' units.
 - Formulas read superscript exponents (`m/s²`, `s⁻¹`, `kg·m²/s³`, `(m/s)²`; `km²` is `(km)²`) in code and in `.units`
   files, and `UomUnitFormat.withSuperscripts(true)` returns a format that writes them (`m/s²`) instead of `^n`. ASCII
   stays the default ([docs/CUSTOM-UNITS.md](docs/CUSTOM-UNITS.md)).

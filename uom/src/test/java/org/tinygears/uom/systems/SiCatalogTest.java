@@ -112,11 +112,13 @@ class SiCatalogTest {
 
     @Test
     void constantsArePublicStaticFinal() throws Exception {
+        // The system units without a definition (m/s) are constants of the class, not units of the system.
+        Set<String> withoutDefinition = Set.of("METRE_PER_SECOND", "METRE_PER_SECOND_SQUARED", "ONE");
         int units = 0;
         for (Field f : SI.class.getDeclaredFields()) {
             int m = f.getModifiers();
             assertTrue(Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m), f.getName());
-            if (f.getType() == UomUnit.class) {
+            if (f.getType() == UomUnit.class && !withoutDefinition.contains(f.getName())) {
                 units++;
                 assertSame(SI.SYSTEM.getUnit(((UomUnit<?>) f.get(null)).getSymbol()), f.get(null), f.getName());
             }

@@ -113,7 +113,10 @@ public final class Generate {
         files.put("QuantityTypes.java", SourceEmitter.registry(specs));
         Map<String, String> systems = new TreeMap<>();
         Map<String, CatalogBuilder.Catalog> catalogs = CatalogBuilder.catalogs(parsed, specs);
-        catalogs.forEach((file, c) -> systems.put(c.className() + ".java", CatalogEmitter.catalog(c, parsed.get(file))));
+        // The first catalog (SI) also gets a constant for each system unit that has no definition (m/s).
+        List<QuantityTypeSpec> unnamed = specs.stream().filter(QuantityTypeSpec::explicit).toList();
+        catalogs.forEach((file, c) -> systems.put(c.className() + ".java", CatalogEmitter.catalog(c, parsed.get(file),
+                file.equals(CATALOGS.get(0)) ? unnamed : List.of())));
         return new Output(Collections.unmodifiableMap(files), Collections.unmodifiableMap(systems),
                 Map.of("UNITS.md", UnitTableEmitter.table(catalogs, specs)));
     }

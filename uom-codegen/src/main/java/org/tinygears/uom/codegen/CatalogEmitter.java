@@ -4,6 +4,7 @@ package org.tinygears.uom.codegen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
@@ -22,8 +23,17 @@ public final class CatalogEmitter {
 
     /** The catalog class source; {@code definitions} is the parse of the catalog's file. */
     public static String catalog(CatalogBuilder.Catalog catalog, Definitions definitions) {
+        return catalog(catalog, definitions, List.of());
+    }
+
+    /**
+     * The catalog class source with, after its units, a constant for the system unit of each of {@code extras}: quantity
+     * types whose system unit has a symbol that no definition can carry ({@code m/s}). It is the factory's own unit.
+     */
+    public static String catalog(CatalogBuilder.Catalog catalog, Definitions definitions,
+            List<QuantityTypeSpec> extras) {
         String className = catalog.className();
-        Imports imports = new Imports(PACKAGE, taken(catalog));
+        Imports imports = new Imports(PACKAGE, taken(catalog, extras));
         String unitClass = imports.name("org.tinygears.uom.core.UomUnit");
         List<String> files = dataFiles(catalog.file(), definitions);
         StringBuilder out = new StringBuilder("""
@@ -57,6 +67,17 @@ public final class CatalogEmitter {
                     .append("}. */\n    public static final ").append(unitClass).append('<').append(type).append("> ")
                     .append(e.constantName()).append(" =\n            ").append(unitClass).append(".unchecked(")
                     .append(wrap(unit)).append(");\n");
+        }
+        for (QuantityTypeSpec t : extras) {
+            String constant = constantName(t);
+            if (catalog.entries().stream().anyMatch(e -> e.constantName().equals(constant))) {
+                throw new GenerationException(t.source(), t.line(), "duplicate constant name '" + constant + "'");
+            }
+            out.append("\n    /** The ").append(t.systemName()).append(", {@code ").append(t.systemSymbol())
+                    .append("}, the system unit of ").append(t.name()).append(". */\n    public static final ")
+                    .append(unitClass).append('<').append(imports.name("javax.measure.quantity." + t.name()))
+                    .append("> ").append(constant).append(" =\n            ").append(unitClass).append(".unchecked(")
+                    .append(imports.name("org.tinygears.uom.quantity." + t.name() + "Factory")).append(".SYSTEM_UNIT);\n");
         }
         String list = imports.name("java.util.List");
         out.append("\n    /** The units of this catalog. */\n    public static final ").append(list).append('<').append(unitClass).append("<?>> UNITS =\n")
@@ -124,13 +145,19 @@ public final class CatalogEmitter {
      * The simple names a catalog declares or uses from its own package: its class, its fields and the catalog
      * classes it references ({@code SI.METRE}). A field also shadows a type in {@code Map.entry(...)}.
      */
-    private static Set<String> taken(CatalogBuilder.Catalog catalog) {
+    private static Set<String> taken(CatalogBuilder.Catalog catalog, List<QuantityTypeSpec> extras) {
         Set<String> taken = new TreeSet<>(List.of(catalog.className(), "UNITS", "PREFIXABLE", "PREFERRED", "SYSTEM"));
         catalog.entries().forEach(e -> taken.add(e.constantName()));
+        extras.forEach(t -> taken.add(constantName(t)));
         Stream.concat(catalog.units().values().stream(), catalog.preferred().values().stream())
                 .filter(r -> r.indexOf('.') == r.lastIndexOf('.'))
                 .forEach(r -> taken.add(r.substring(0, r.indexOf('.'))));
         return taken;
+    }
+
+    /** The constant of a system unit named by its type's line: {@code metre per second} is {@code METRE_PER_SECOND}. */
+    private static String constantName(QuantityTypeSpec t) {
+        return t.systemName().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]", "_");
     }
 
     /** The catalog file, the other files its parse read (sorted), then the quantity types file. */

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
@@ -215,6 +216,26 @@ class CatalogEmitterTest {
                 SI.prefixable(), SI.preferred()), DEFS);
         assertTrue(after.contains(".transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))"), after);
         assertFalse(after.contains(".prefix("), after);
+    }
+
+    @Test
+    void aSystemUnitWithoutADefinitionGetsAConstant() {
+        List<QuantityTypeSpec> extras = QuantityTypesParser.parse("types.txt",
+                new StringReader("Speed m / s => m/s:metre_per_second\n"), DEFS);
+        String text = CatalogEmitter.catalog(SI, DEFS, extras);
+        assertTrue(text.contains("/** The metre per second, {@code m/s}, the system unit of Speed. */"), text);
+        assertTrue(text.contains("public static final UomUnit<Speed> METRE_PER_SECOND =\n"
+                + "            UomUnit.unchecked(SpeedFactory.SYSTEM_UNIT);"), text);
+        assertTrue(text.contains("import org.tinygears.uom.quantity.SpeedFactory;\n"), text);
+        assertEquals(List.of(), ImportCheck.problems(text, Set.of()));
+        // It is a constant of the class only, not one of its units, and only when asked for.
+        assertFalse(text.contains("UNITS =\n            List.<UomUnit<?>>of(\n                    METRE_PER_SECOND"), text);
+        assertFalse(catalog().contains("METRE_PER_SECOND"));
+        // A name that a definition already has is refused.
+        QuantityTypeSpec clash = new QuantityTypeSpec("Speed", "m / s", BaseUnits.METRE.divide(BaseUnits.SECOND),
+                "m/s", "metre", "types.txt", 1, true);
+        assertEquals("types.txt:1: duplicate constant name 'METRE'", assertThrows(GenerationException.class,
+                () -> CatalogEmitter.catalog(SI, DEFS, List.of(clash))).getMessage());
     }
 
     @Test

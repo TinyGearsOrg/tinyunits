@@ -1,7 +1,7 @@
 # TODO
 
 Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when to revisit
-them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-08); the last version of this file with the full discussion is
+them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-09); the last version of this file with the full discussion is
 `git show 5d734d3:docs/TODO.md`. The groups: owner-requested follow-ups (6 and 7), gaps against the JSR-385 reference
 implementation Indriya (9 to 11, 13, 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and
 18), open defects and hardening carried over from the milestone reviews (21 to 32), then the steps before the first release

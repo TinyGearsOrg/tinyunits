@@ -1197,6 +1197,7 @@ org.tinygears.uom.systems Imperial type public final class org.tinygears.uom.sys
 org.tinygears.uom.systems SI member public static final java.util.List<org.tinygears.uom.core.UomUnit<?>> UNITS
 org.tinygears.uom.systems SI member public static final java.util.Map<java.lang.Class<?>, org.tinygears.uom.core.UomUnit<?>> PREFERRED
 org.tinygears.uom.systems SI member public static final java.util.Set<java.lang.String> PREFIXABLE
+org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Acceleration> METRE_PER_SECOND_SQUARED
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> MILLIMOLE
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> MOLE
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> ARCMINUTE
@@ -1211,6 +1212,7 @@ org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.U
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> MICROKATAL
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> MILLIKATAL
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> NANOKATAL
+org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Dimensionless> ONE
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> FARAD
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> MICROFARAD
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> MILLIFARAD
@@ -1307,6 +1309,7 @@ org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.U
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> MEGABECQUEREL
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> MILLISTERADIAN
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> STERADIAN
+org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Speed> METRE_PER_SECOND
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> DEGREE_CELSIUS
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> KELVIN
 org.tinygears.uom.systems SI member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> MICROKELVIN

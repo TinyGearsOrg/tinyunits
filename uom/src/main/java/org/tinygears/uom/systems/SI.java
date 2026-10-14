@@ -800,6 +800,18 @@ public final class SI {
                     .prefix(MetricPrefix.GIGA)
                     .named("Gt", "gigatonne"));
 
+    /** The metre per second squared, {@code m/s^2}, the system unit of Acceleration. */
+    public static final UomUnit<Acceleration> METRE_PER_SECOND_SQUARED =
+            UomUnit.unchecked(AccelerationFactory.SYSTEM_UNIT);
+
+    /** The one, {@code 1}, the system unit of Dimensionless. */
+    public static final UomUnit<Dimensionless> ONE =
+            UomUnit.unchecked(DimensionlessFactory.SYSTEM_UNIT);
+
+    /** The metre per second, {@code m/s}, the system unit of Speed. */
+    public static final UomUnit<Speed> METRE_PER_SECOND =
+            UomUnit.unchecked(SpeedFactory.SYSTEM_UNIT);
+
     /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS =
             List.<UomUnit<?>>of(

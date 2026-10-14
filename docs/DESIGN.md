@@ -129,6 +129,23 @@ behaviour for users is in the linked documents. The full discussion and probe re
   superscript run is one exponent. Code: `FormulaEvaluator` (`atom`, `term`), `UomUnitFormat.withSuperscripts`.
 - *See.* [CUSTOM-UNITS.md](CUSTOM-UNITS.md) (formulas); `SuperscriptTest`, `FormulaEvaluatorTest`.
 
+**DR-09 System units as constants of `SI`.**
+- *Decision.* The system unit of every quantity type is a public constant of `SI`, the same instance as the factory's
+  (`SI.WATT == PowerFactory.SYSTEM_UNIT`). The three that no `si.units` line can define, because their symbol has a `/` or is
+  `1`, are generated from `quantity-types.txt` as `SI.METRE_PER_SECOND`, `SI.METRE_PER_SECOND_SQUARED` and `SI.ONE`; they are
+  constants of the class, not units of the system (`SI.UNITS` keeps its 128). Spelling is `METRE`, as everywhere in the catalog.
+- *Why.* 30 of the 33 types already had one, but `Speed`, `Acceleration` and `Dimensionless` had none, so `SI.METRE_PER_SECOND`
+  did not exist. The data is single-sourced (`si.units` and `quantity-types.txt`); only the generated Java expression of a
+  unit sits in the factory, and `SI` refers to it.
+- *Rejected.* Making the factories refer to `SI` (the reverse): `SI.PREFERRED` is built from the factory units, so a factory
+  initialised first would read a null `SI` field, and `quantity` would depend on `systems`, which depends on `quantity`
+  already. American spellings (`METER`): a second spelling of about 130 constants. Putting the three into `SI.UNITS`: a symbol
+  with `/` cannot be looked up as a symbol.
+- *Revisit if.* The factories should own nothing: make `SI.PREFERRED` and the other catalogs use `SI` constants, then point the
+  factories at `SI`, and resolve the initialisation order with a test that touches each class first. Code: `CatalogEmitter`
+  (the extras), `Generate`.
+- *See.* `SiSystemUnitsTest`, `SharedUnitsTest`.
+
 ## 2. Modules and data flow
 
 ```

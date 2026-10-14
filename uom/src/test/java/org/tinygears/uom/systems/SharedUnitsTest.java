@@ -82,18 +82,21 @@ class SharedUnitsTest {
                     }
                     String where = catalog.getSimpleName() + "." + f.getName();
                     assertSame(unit, constant, where);
-                    assertSame(unit, system.getUnit(constant.getSymbol()), where);
+                    // A constant for a system unit without a definition (m/s) is no unit of the system.
+                    if (system.getUnits().contains(constant)) {
+                        assertSame(unit, system.getUnit(constant.getSymbol()), where);
+                    }
                     if (catalog == SI.class) {
                         siTypes.add(type.getSimpleName());
                     }
                 }
             }
         }
-        assertEquals(30, siTypes.size(), siTypes.toString());
+        assertEquals(33, siTypes.size(), siTypes.toString());
         Set<String> withoutConstant = new TreeSet<>();
         QuantityTypes.types().forEach(t -> withoutConstant.add(t.getSimpleName()));
         withoutConstant.removeAll(siTypes);
-        assertEquals(Set.of("Acceleration", "Dimensionless", "Speed"), withoutConstant);
+        assertEquals(Set.of(), withoutConstant);
     }
 
     @Test
