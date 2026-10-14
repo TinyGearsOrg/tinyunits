@@ -34,11 +34,23 @@ class UnnamedUnitTextTest {
     }
 
     @Test
-    void aUnitThatTakesNoPrefixKeepsItsDefinition() {
-        // min and day are not prefixable, km² is not a prefix on a unit, and an offset unit is not prefixed.
-        assertEquals("60000·s", FORMAT.format(SI.MINUTE.prefix(MetricPrefix.KILO)));
+    void aUnitThatTakesNoPrefixIsAPowerOfTenTimesAUnit() {
+        // min is not prefixable and km² is no prefix on a unit: 1000 times the unit says what they are.
+        assertEquals("1000·min", FORMAT.format(SI.MINUTE.prefix(MetricPrefix.KILO)));
+        assertEquals("1000000·min", FORMAT.format(SI.MINUTE.prefix(MetricPrefix.MEGA)));
+        assertEquals("10·min", FORMAT.format(SI.MINUTE.multiply(10)));
+        assertEquals("100·h", FORMAT.format(SI.HOUR.multiply(100)));
+        assertEquals("1000·m²", FORMAT.format(SI.SQUARE_METRE.prefix(MetricPrefix.KILO)));
+        assertEquals("10·kW", FORMAT.format(SI.WATT.multiply(10_000)));
+    }
+
+    @Test
+    void otherFactorsKeepTheirDefinition() {
+        // Only multiples by 10, 100, ... are written as a multiple of a unit: 864 s is a hundredth of a day.
         assertEquals("864·s", FORMAT.format(SI.DAY.prefix(MetricPrefix.CENTI)));
-        assertEquals("1000·m^2", FORMAT.format(SI.SQUARE_METRE.prefix(MetricPrefix.KILO)));
+        assertEquals("420·s", FORMAT.format(SI.MINUTE.multiply(7)));
+        assertEquals("3|50000·s", FORMAT.format(SI.MINUTE.prefix(MetricPrefix.MICRO)));
+        // An offset unit is not prefixed and not a multiple.
         String celsius = FORMAT.format(SI.DEGREE_CELSIUS.prefix(MetricPrefix.MILLI));
         assertFalse(celsius.contains("m°C"), celsius);
         assertEquals(SI.DEGREE_CELSIUS.prefix(MetricPrefix.MILLI), FORMAT.parse(celsius));
@@ -77,7 +89,8 @@ class UnnamedUnitTextTest {
         assertEquals("mHz", SI.HERTZ.prefix(MetricPrefix.MILLI).toString());
         assertEquals("km", SI.METRE.multiply(1000).toString());
         assertEquals("K + 5", SI.KELVIN.shift(5).toString());
-        assertEquals("1000·m^2", SI.SQUARE_METRE.prefix(MetricPrefix.KILO).toString());
+        assertEquals("1000·m²", SI.SQUARE_METRE.prefix(MetricPrefix.KILO).toString());
+        assertEquals("1000·min", SI.MINUTE.prefix(MetricPrefix.KILO).toString());
         assertEquals("km", SI.KILOMETRE.toString());
         // The format has no text for a negative factor, so the definition is printed.
         assertEquals("-2·m", SI.METRE.multiply(-2).toString());

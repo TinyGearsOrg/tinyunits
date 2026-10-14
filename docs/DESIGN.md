@@ -81,7 +81,9 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
   collisions are known to a system (`@prefixed`, `UomSystemOfUnits.isPrefixable`), so the parser, the generated catalogs
   and `UomUnitFormat.resolve` name the unit with `named(symbol, name)`. `UomUnitFormat.format` also writes a metric
   prefix on a prefixable unit of the systems that reads back as the unit (`mHz`, `pW`; an index of the prefixable
-  units, 24 lookups). An unnamed unit prints as the standard format writes it (`mHz`, `km`), through the `spi.UnitTexts`
+  units, 24 lookups), or a power of ten from 10 up times a unit of the systems (`1000·min`, `1000·m²`; fractions such as
+  `864·s` for a hundredth of a day stay in system units). An unnamed unit prints as the standard format writes it
+  (`mHz`, `km`, `1000·min`), through the `spi.UnitTexts`
   hook that the provider implements (`toString` never throws and guards against re-entry); with no such provider,
   or no text for the unit, it prints its definition (`1000·m`, `5|9·K + 45967|100`), not a system label. The parser
   rejects `@prefixed` on a unit that is itself prefixed.

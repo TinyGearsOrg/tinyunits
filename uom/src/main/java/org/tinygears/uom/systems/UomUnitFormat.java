@@ -32,6 +32,7 @@ import org.tinygears.uom.core.parse.FormulaException;
  */
 public final class UomUnitFormat implements UnitFormat {
     private static final String EXCLUDED = "*/()^|=#[]!~@,·+-";
+    private static final int MAX_POWER = 30;
     private static final List<MetricPrefix> PREFIXES = Arrays.stream(MetricPrefix.values())
             .sorted(Comparator.comparingInt((MetricPrefix p) -> p.getSymbol().length()).reversed())
             .toList();
@@ -39,8 +40,9 @@ public final class UomUnitFormat implements UnitFormat {
     private final List<UomSystemOfUnits> systems;
     private final Map<String, UomUnit<?>> aliases = new ConcurrentHashMap<>();
     private final Map<UomUnit<?>, String> labels = new ConcurrentHashMap<>();
-    // The prefixable units of the systems by unit, built when first needed.
+    // The prefixable units, and all units, of the systems by unit, built when first needed.
     private volatile Map<UomUnit<?>, String> prefixable;
+    private volatile Map<UomUnit<?>, String> symbols;
 
     /**
      * A format over {@code systems}, in lookup order.
@@ -107,8 +109,8 @@ public final class UomUnitFormat implements UnitFormat {
 
     /**
      * The first of these texts that parses back to an equal unit: the label, the symbol, the symbol of an equal
-     * unit of the systems, a metric prefix on a prefixable unit of the systems ({@code mHz}, {@code pW}), an exact
-     * formula such as {@code 1|1000·m/s}. An offset unit with factor {@code f} and
+     * unit of the systems, a metric prefix on a prefixable unit of the systems ({@code mHz}, {@code pW}), a power of ten from
+     * 10 up times a unit of the systems ({@code 1000·min}), an exact formula such as {@code 1|1000·m/s}. An offset unit with factor {@code f} and
      * offset {@code o} formats as the formula of {@code f} shifted by {@code o/f}: a plain decimal if it terminates
      * and is not longer than the exact fraction, else the fraction: {@code K + 5}, {@code 5|9·K + 459.67},
      * {@code 7|9·K - 1|3}, {@code K + 1|1024}.
@@ -139,6 +141,10 @@ public final class UomUnitFormat implements UnitFormat {
         String prefixed = prefixed(u);
         if (prefixed != null) {
             return prefixed;
+        }
+        String multiple = multiple(u);
+        if (multiple != null) {
+            return multiple;
         }
         Factor f = u.toSystemConverter().factor();
         Factor offset = u.toSystemConverter().offset();
@@ -176,6 +182,39 @@ public final class UomUnitFormat implements UnitFormat {
             }
         }
         return null;
+    }
+
+    /** {@code 1000·min}: a power of ten from 10 up times a unit of the systems that reads back as {@code u}. */
+    private String multiple(UomUnit<?> u) {
+        if (!u.toSystemConverter().isLinear() || u.toSystemConverter().factor().signum() <= 0) {
+            return null;
+        }
+        Map<UomUnit<?>, String> units = symbols();
+        Factor ten = Factor.ofLong(10);
+        for (int n = 1; n <= MAX_POWER; n++) {
+            Factor power = ten.pow(n);
+            String symbol = units.get(u.transform(Converters.scale(Factor.ONE.divide(power))));
+            if (symbol != null && parsesTo(formula(power, symbol), u)) {
+                return formula(power, symbol);
+            }
+        }
+        return null;
+    }
+
+    private Map<UomUnit<?>, String> symbols() {
+        Map<UomUnit<?>, String> units = symbols;
+        if (units == null) {
+            units = new HashMap<>();
+            for (UomSystemOfUnits system : systems) {
+                for (Unit<?> known : system.getUnits()) {
+                    if (known.getSymbol() != null) {
+                        units.putIfAbsent((UomUnit<?>) known, known.getSymbol());
+                    }
+                }
+            }
+            symbols = units;
+        }
+        return units;
     }
 
     private Map<UomUnit<?>, String> prefixable() {
