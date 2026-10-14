@@ -19,13 +19,14 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.format.QuantityFormat;
 import javax.measure.format.UnitFormat;
-import javax.measure.quantity.Speed;
 import javax.measure.spi.FormatService;
 import javax.measure.spi.ServiceProvider;
 import org.tinygears.uom.quantity.ElectricCharge;
 import org.tinygears.uom.quantity.Energy;
+import org.tinygears.uom.quantity.Force;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Mass;
+import org.tinygears.uom.quantity.Speed;
 import org.tinygears.uom.quantity.Temperature;
 import org.tinygears.uom.quantity.Time;
 import org.tinygears.uom.quantity.Volume;
@@ -53,11 +54,10 @@ public final class Examples {
         return total + " = " + inMetres;
     }
 
-    /** Dividing quantities gives a quantity in system units; asType gives it its type back. */
+    /** Dividing quantities gives a quantity in system units; Speed.from gives it its type back. */
     static String speed() {
-        Quantity<?> ratio = Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR));
-        Quantity<Speed> speed = ratio.asType(Speed.class);
-        return speed.getValue() + " " + speed.getUnit();
+        Speed speed = Speed.from(Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR)));
+        return speed.getValue() + " " + speed.to(SI.METRE_PER_SECOND).getUnit();
     }
 
     /** Offset units: Celsius to kelvin and back. */
@@ -97,7 +97,7 @@ public final class Examples {
 
     /** Derived units keep their dimension: the product of force and length is energy. */
     static String work() {
-        Quantity<?> product = org.tinygears.uom.quantity.Force.of(10, SI.NEWTON).multiply(Length.of(3, SI.METRE));
+        Quantity<?> product = Force.of(10, SI.NEWTON).multiply(Length.of(3, SI.METRE));
         Energy work = Energy.from(product);
         return work.to(SI.JOULE).getValue() + " J";
     }
