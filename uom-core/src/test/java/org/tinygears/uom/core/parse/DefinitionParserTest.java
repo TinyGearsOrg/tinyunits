@@ -343,6 +343,10 @@ class DefinitionParserTest {
         fails(PREFIX_BASE + "@prefixed # nothing\n", "test.units:9: expected '@prefixed unit prefix...'");
         fails(PREFIX_BASE + "@prefixed °C k\n", "test.units:9: unit '°C' can not be prefixed");
         fails(PREFIX_BASE + "@prefixed m k k\n", "test.units:9: duplicate symbol 'km'");
+        // A prefixed unit is not prefixed again (km would give kkm), also if it came from an included file.
+        fails(PREFIX_BASE + "@prefixed m k\n@prefixed km M\n", "test.units:10: unit 'km' is already prefixed");
+        fails("@include a\n@prefixed km M\n", Map.of("a", PREFIX_BASE + "@prefixed m k\n"),
+                "test.units:2: unit 'km' is already prefixed");
         fails(PREFIX_BASE + "km 1000 m\n@prefixed m k\n", "test.units:10: duplicate symbol 'km'");
         fails(PREFIX_BASE + "@prefixed m k\nkm 1000 m\n", "test.units:10: duplicate symbol 'km'");
         fails("@prefixed m k\nm:metre !L\n", "test.units:1: unknown unit 'm'");

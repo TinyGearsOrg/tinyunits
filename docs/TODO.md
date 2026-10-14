@@ -243,31 +243,31 @@ output); the line-length limit; whether the check fails the build or only warns.
 
 ## 19. Prefix symbols and names
 
-**Status:** open defects, confirmed on the current build (`SI.SQUARE_METRE.prefix(KILO)` is labelled `km²`, `SI.DAY.prefix(CENTI)` is `cd`).
-- `UomUnit.prefix` builds misleading symbols: `km²` reads (km)² but is 10^3 m², and `kmin`, `kkm` appear. A prefix on a
-  non-prefixable or exponent-bearing symbol should give a null symbol.
-- Prefixed symbols can collide with another unit (`cd` is the candela, `SI.METRE.prefix(ATTO).prefix(DECI)` is `dam`);
-  `UomUnitFormat.format` only guards with a verification parse.
-- A unit that is already prefixed can be prefixed again in the data (`@prefixed km k` gives `kkm`): reject in the parser or
-  document it.
-- Prefixed ohm names are `kiloohm` and `megaohm`; the SI Brochure contracts them to `kilohm` and `megohm`. Decide whether
-  `@prefixed` applies the SI elisions.
-- A label that equals a prefix reading is accepted (`label(SECOND, "Gm")`, then `Gm` parses as seconds): reject labels that
-  `lookup` already resolves. In user files `@prefixed u k` checks only `ku` against the built-in symbols although every
-  metric prefix on `u` is readable at run time, and `with()` does not detect a prefixed reading that equals an existing
-  exact symbol (the exact symbol wins).
+**Status:** decided and implemented; see the Prefixes bullet of DESIGN section 3 and [CUSTOM-UNITS.md](CUSTOM-UNITS.md).
+- `UomUnit.prefix` no longer invents a symbol. It used to produce `km²`, `kmin`, `mkg`, `mmm`, `m°C` and colliding symbols
+  such as `cd` and `dam`, because the unit cannot know which units take a prefix. It now returns an unnamed unit; the parser
+  (`@prefixed`), the generated catalogs and `UomUnitFormat.resolve` name prefixed units with `named(...)`, as they already did.
+  An unnamed unit prints its definition (`1000·m`; item 20).
+- The parser rejects `@prefixed` on a unit that is itself prefixed (`@prefixed kleague M` is an error), also across includes.
+- `UomUnitFormat.label` rejects a label that reads as another unit, exactly or as a metric prefix on a prefixable unit
+  (`label(SECOND, "Gm")`).
 
-**Needed by:** decide before 1.0.
+**Left as documented, decided:**
+- Prefixed ohm names stay `kiloohm` and `megaohm` (names are descriptive and never parsed; the contraction `kilohm` was not
+  verified against the SI Brochure).
+- `@prefixed u k` in a user file checks only `ku` against the built-in symbols, and `UomUnitFormat.with` does not detect a
+  prefixed reading of a new prefixable unit that equals an existing exact symbol. The exact symbol wins, deterministically
+  (`ft` is the foot, not the femtotonne); detecting it would reject legitimate systems.
+
+**Tests:** `UomUnitAlgebraTest.prefix` and `anUnnamedUnitPrintsItsDefinition`, `DefinitionParserTest.prefixedErrors`,
+`UnitFormatTest.aLabelThatReadsAsAnotherUnitIsRejected`, the guide's `units-error` block (`DocsSnippetsTest`).
 
 ## 20. Unit identity and printing
 
-**Status:** open. The first two items below and the `compareTo` note are confirmed on the current build; the others come from the milestone reviews.
+**Status:** open, except the printing of unnamed units, which is done: `UomUnit.toString()` prints the definition (`1000·m`,
+`5|9·K + 45967|100`) instead of the system label (item 19). The first item below and the `compareTo` note are confirmed on the current build; the others come from the milestone reviews.
 - `getSystemUnit()` of a unit returns an equal unit with a null name, not `this` as the Javadoc says. Return `this` when
   the converter is the identity and the symbol is not null.
-- An unlabelled scaled or shifted unit prints with the system label: `Length.of(2, METRE.multiply(1000))` prints `2.0 m`,
-  and `100 degC` built by shifting prints `100.0 K` (`AbstractDoubleQuantity.toString` uses `unit.toString()`). Print
-  through `UomUnitFormat` or a label rule, and assert the full text in `AbstractDoubleQuantityTest` (it only checks
-  `startsWith("1.5 ")`).
 - Dimensionless quantities format as `5.0 1` (the symbol of `ONE` is `1`) in `toString` and `UomQuantityFormat`. Decide
   whether to print `5.0` alone and parse it back.
 - `compareTo` orders `-0.0` by unit: `0 m` against `-0 m` is 1, `0 degC` against `-0 degC` is 0. Note it in the `compareTo`

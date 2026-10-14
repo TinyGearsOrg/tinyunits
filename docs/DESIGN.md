@@ -77,6 +77,11 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
   else the current provider. A provider of higher priority, or one set with `setCurrent`, therefore does not break
   `asType`, the quantity `asType` or deserialization (`docs/PROVIDERS.md`). The package `org.tinygears.uom.core.spi`
   is exported to `org.tinygears.uom` only. Our provider has priority 100 and the name `uom`.
+- **Prefixes.** `prefix(Prefix)` scales by the prefix value and returns an unnamed unit. Prefixability and symbol
+  collisions are known to a system (`@prefixed`, `UomSystemOfUnits.isPrefixable`), so the parser, the generated catalogs
+  and `UomUnitFormat.resolve` name the unit with `named(symbol, name)`. An unnamed unit prints its definition
+  (`1000·m`, `5|9·K + 45967|100`), not a system label. The parser rejects `@prefixed` on a unit that is itself
+  prefixed.
 - **Caching.** Each unit caches its converter to a given target unit in a small per-unit map
   (N3). Units created on the fly take their cache with them, so no weak references.
 - **Out of scope:** non-affine converters such as logarithmic units.

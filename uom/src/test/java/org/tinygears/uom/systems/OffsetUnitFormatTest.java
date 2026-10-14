@@ -249,7 +249,7 @@ class OffsetUnitFormatTest {
                 try {
                     u = randomOp(u, catalog, random);
                 } catch (RuntimeException e) {
-                    // offset units have no products or powers; some roots and factors do not exist
+                    // some roots and factors do not exist
                 }
             }
             units.add(u);
@@ -263,7 +263,7 @@ class OffsetUnitFormatTest {
                 text = FORMAT.format(unit);
             } catch (IllegalArgumentException e) {
                 Refusal why = reason(unit);
-                if (why == null || !e.getMessage().startsWith("unit can not be formatted: " + unit + " (factor ")) {
+                if (why == null || !e.getMessage().startsWith("unit can not be formatted: " + unit.getSystemUnit() + " (factor ")) {
                     bad.add("refused " + unit.toSystemConverter() + ": " + e.getMessage());
                 } else {
                     refused.merge(why, 1, Integer::sum);

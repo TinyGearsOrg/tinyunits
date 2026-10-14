@@ -61,6 +61,7 @@ public final class DefinitionParser {
     private final List<Definition> definitions = new ArrayList<>();
     private final List<Preferred> preferred = new ArrayList<>();
     private final List<Prefixed> prefixed = new ArrayList<>();
+    private final Set<String> prefixedSymbols = new HashSet<>();
     private String system;
     private final List<Extends> extended = new ArrayList<>();
     private final List<Member> members = new ArrayList<>();
@@ -227,6 +228,9 @@ public final class DefinitionParser {
         }
         Definition base = definitions.stream().filter(d -> d.symbol().equals(w[1])).findFirst().orElseThrow(
                 () -> new DefinitionException(src, ln, "unknown unit '" + w[1] + "'", null));
+        if (prefixedSymbols.contains(w[1])) {
+            throw new DefinitionException(src, ln, "unit '" + w[1] + "' is already prefixed", null);
+        }
         if (!base.unit().toSystemConverter().isLinear()) {
             throw new DefinitionException(src, ln, "unit '" + w[1] + "' can not be prefixed", null);
         }
@@ -241,6 +245,7 @@ public final class DefinitionParser {
             String name = prefix.getName().toLowerCase(Locale.ROOT) + base.name();
             UomUnit<?> unit = base.unit().prefix(prefix).named(symbol, name);
             units.put(symbol, unit);
+            prefixedSymbols.add(symbol);
             definitions.add(new Definition(symbol, name, unit, null, base.explicitType(), src, ln));
         }
         prefixed.add(new Prefixed(base.symbol(), symbols, src, ln));

@@ -301,7 +301,7 @@ class UnitFormatTest {
             } else if (unit.toSystemConverter().factor().signum() < 0) {
                 branch = "refused";
                 IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> format.format(unit));
-                assertTrue(e.getMessage().startsWith("unit can not be formatted: " + unit + " (factor "));
+                assertTrue(e.getMessage().startsWith("unit can not be formatted: " + unit.getSystemUnit() + " (factor "));
                 branches.merge(branch, 1, Integer::sum);
                 continue;
             } else {
@@ -335,15 +335,19 @@ class UnitFormatTest {
     }
 
     @Test
-    void symbolShadowedByALabelIsNotUsed() {
+    void aLabelThatReadsAsAnotherUnitIsRejected() {
         UomUnitFormat f = UomUnitFormat.standard();
         UomUnit<?> furlong = SI.METRE.multiply(201.168);
-        f.label(furlong, "Gm");
-        assertEquals("Gm", f.format(furlong));
-        UomUnit<?> gigametre = (UomUnit<?>) format.parse("Gm");
-        assertEquals("Gm", gigametre.getSymbol());
-        assertEquals("1000000000·m", f.format(gigametre));
-        assertEquals(gigametre, f.parse(f.format(gigametre)));
+        // "Gm" is the gigametre as a metric prefix on a prefixable unit, "km" an exact symbol.
+        IllegalArgumentException prefixed = assertThrows(IllegalArgumentException.class, () -> f.label(furlong, "Gm"));
+        assertEquals("label 'Gm' is the symbol of gigametre", prefixed.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> f.label(furlong, "km"));
+        assertEquals("25146|125·m", f.format(furlong), "an unlabelled unit is still formatted by its definition");
+        // The unit that a label reads as may carry it.
+        UomUnit<?> gigametre = (UomUnit<?>) f.parse("Gm");
+        f.label(gigametre, "Gm");
+        assertEquals("Gm", f.format(gigametre));
+        assertEquals(gigametre, f.parse("Gm"));
     }
 
     @Test

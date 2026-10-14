@@ -142,7 +142,7 @@ public final class UomUnitFormat implements UnitFormat {
             }
         }
         throw new IllegalArgumentException(
-                "unit can not be formatted: " + unit + " (factor " + f + ", offset " + offset + ")");
+                "unit can not be formatted: " + shown(u) + " (factor " + f + ", offset " + offset + ")");
     }
 
     private boolean parsesTo(String text, Unit<?> unit) {
@@ -151,6 +151,11 @@ public final class UomUnitFormat implements UnitFormat {
         } catch (FormulaException e) {
             return false;
         }
+    }
+
+    /** The symbol of {@code unit}, or the label of its system unit if it has none (not its definition). */
+    private static String shown(UomUnit<?> unit) {
+        return unit.getSymbol() != null ? unit.getSymbol() : unit.getSystemUnit().toString();
     }
 
     /** {@code n|d·pi^k·label}; juxtaposition binds tighter than the left-associative {@code ·} and {@code /}. */
@@ -281,7 +286,7 @@ public final class UomUnitFormat implements UnitFormat {
 
     /**
      * Adds {@code label} as an alias that parses to {@code unit} and formats it; a previous holder of the
-     * same label loses it. Rejects labels that would not parse back or that name a different catalog unit.
+     * same label loses it. Rejects labels that would not parse back or that name a different unit of the systems, exactly or as a metric prefix on a prefixable unit.
      */
     @Override
     public synchronized void label(Unit<?> unit, String label) {
@@ -294,11 +299,10 @@ public final class UomUnitFormat implements UnitFormat {
                 || label.chars().anyMatch(c -> Character.isWhitespace(c) || EXCLUDED.indexOf(c) >= 0)) {
             throw new IllegalArgumentException("invalid label: '" + label + "'");
         }
-        for (UomSystemOfUnits system : systems) {
-            Optional<UomUnit<?>> existing = system.lookup(label);
-            if (existing.isPresent() && !existing.get().equals(u)) {
-                throw new IllegalArgumentException("label '" + label + "' is the symbol of " + existing.get().getName());
-            }
+        // An exact symbol, or a metric prefix on a prefixable unit ("Gm" is the gigametre, not a label for seconds).
+        Found existing = resolve(systems, label);
+        if (existing != null && !existing.unit().equals(u)) {
+            throw new IllegalArgumentException("label '" + label + "' is the symbol of " + existing.unit().getName());
         }
         UomUnit<?> previous = aliases.put(label, u);
         if (previous != null && !previous.equals(u)) {

@@ -243,7 +243,7 @@ class UnitContractTest {
     void prefixScalesByThePrefixValue() {
         UomUnit<?> km = METRE.prefix(MetricPrefix.KILO);
         assertEquals(METRE.multiply(1000), km);
-        assertEquals("km", km.getSymbol());
+        assertNull(km.getSymbol());
         assertEquals(METRE.multiply(1024), METRE.prefix(BinaryPrefix.KIBI));
     }
 

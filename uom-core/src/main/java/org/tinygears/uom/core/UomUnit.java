@@ -188,9 +188,31 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return Objects.hash(atoms, toSystem);
     }
 
+    /** The symbol, or for an unnamed unit its definition: {@code 1|1000·m} or {@code 5|9·K + 45967|100}. */
     @Override
     public String toString() {
-        return symbol != null ? symbol : systemLabel();
+        return symbol != null ? symbol : definition();
+    }
+
+    /** {@code f·S + s}: the factor {@code f} and the shift {@code s = offset / f} of the converter to the system unit {@code S}. */
+    private String definition() {
+        String system = systemLabel();
+        if (toSystem.isIdentity()) {
+            return system;
+        }
+        String f = text(toSystem.factor());
+        StringBuilder out = new StringBuilder(f.equals("1") ? system : f + "·" + system);
+        if (!toSystem.isLinear()) {
+            Factor shift = toSystem.offset().divide(toSystem.factor());
+            out.append(shift.signum() < 0 ? " - " : " + ").append(text(shift.signum() < 0 ? shift.negate() : shift));
+        }
+        return out.toString();
+    }
+
+    /** An exact fraction as {@code n|d}, any other factor as {@link Factor#toString()}. */
+    private static String text(Factor f) {
+        String t = f.toString();
+        return t.matches("-?\\d+(/\\d+)?") ? t.replace('/', '|') : t;
     }
 
     /** Same dimension and an identity converter; alternate atoms may differ, so rad is equivalent to one. */
@@ -309,12 +331,15 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return new UomUnit<>(atoms, c, null, null);
     }
 
+    /**
+     * This unit scaled by the value of {@code prefix}, without a symbol or name: whether a prefix applies to a unit
+     * ({@code km} but not {@code kmin} or {@code km²}) and whether the result collides with another symbol is
+     * known to a system of units, not to the unit. Name the result with {@link #named}, or let a system
+     * ({@code @prefixed}) or {@code UomUnitFormat} resolve it.
+     */
     @Override
     public UomUnit<Q> prefix(Prefix prefix) {
-        Factor f = Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent());
-        UomUnit<Q> u = transform(Converters.scale(f));
-        // A prefix on a compound symbol would bind to its first atom only.
-        return symbol == null || !symbol.equals(group(symbol, "·/^")) ? u : u.named(prefix.getSymbol() + symbol, null);
+        return transform(Converters.scale(Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent())));
     }
 
     /**

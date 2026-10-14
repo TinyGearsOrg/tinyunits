@@ -294,7 +294,19 @@ flash:flash_rate ~ 1/s     # dimension 1/s, but its own atom: not the hertz
 Defines the prefixed units (`@prefixed league k` adds `kleague`, named `kiloleague`) and makes the unit prefixable:
 in a format with the system every metric prefix on it parses (`Mleague`, as in the first example). The unit must be
 defined in the user files and be linear; the prefixes are the JSR-385 metric prefix symbols (`µ` is the micro sign
-U+00B5).
+U+00B5). A prefixed unit is not prefixed again:
+
+```units-error
+league:league 3 mi
+@prefixed league k
+@prefixed kleague M
+# error: example.units:3: unit 'kleague' is already prefixed
+```
+
+`UomUnitFormat.label` rejects a label that already reads as another unit, exactly or as a prefix on a prefixable unit
+(`Gm` is the gigametre). In code, `Unit.prefix` only scales: the result has no symbol, because whether a prefix applies
+(`km`, but not `kmin` or `km²`) and what else the symbol means is known to a system, not to the unit; a system names
+the units of its `@prefixed` lines and a format reads a prefix on a prefixable symbol.
 
 ## Errors
 

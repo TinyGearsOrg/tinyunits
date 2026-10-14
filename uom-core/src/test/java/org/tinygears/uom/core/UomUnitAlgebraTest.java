@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.lang.reflect.Proxy;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
 import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
 import javax.measure.Unit;
@@ -127,12 +128,35 @@ class UomUnitAlgebraTest {
     void prefix() {
         UomUnit<Length> km = METRE.prefix(MetricPrefix.KILO);
         assertTrue(km.isEquivalentTo(METRE.multiply(1000)));
-        assertEquals("km", km.getSymbol());
+        assertEquals(METRE.multiply(1000), km);
         assertTrue(METRE.prefix(MetricPrefix.MICRO).isEquivalentTo(METRE.divide(1_000_000)));
         UomUnit<Length> kibimetre = METRE.prefix(BinaryPrefix.KIBI);
         assertTrue(kibimetre.isEquivalentTo(METRE.multiply(1024)));
-        assertEquals("Kim", kibimetre.getSymbol());
-        assertNull(METRE.multiply(2).prefix(MetricPrefix.KILO).getSymbol());
+        // A prefix does not name a unit: only a system knows which units take it and what else the symbol means.
+        for (UomUnit<?> u : List.of(km, kibimetre, METRE.multiply(2).prefix(MetricPrefix.KILO),
+                METRE.pow(2).prefix(MetricPrefix.KILO), KILOGRAM.prefix(MetricPrefix.MILLI),
+                METRE.prefix(MetricPrefix.ATTO).prefix(MetricPrefix.DECI), KELVIN.shift(273.15).prefix(MetricPrefix.MILLI))) {
+            assertNull(u.getSymbol(), u.toString());
+            assertNull(u.getName(), u.toString());
+        }
+        UomUnit<Length> named = km.named("km", "kilometre");
+        assertEquals("km", named.getSymbol());
+        assertEquals(km, named);
+    }
+
+    @Test
+    void anUnnamedUnitPrintsItsDefinition() {
+        assertEquals("m", METRE.multiply(1).toString());
+        assertEquals("1000·m", METRE.prefix(MetricPrefix.KILO).toString());
+        assertEquals("1|1000·m", METRE.divide(1000).toString());
+        assertEquals("18|5·m/s", METRE.divide(SECOND).multiply(3.6).toString());
+        assertEquals("1000·1/s", SECOND.inverse().multiply(1000).toString());
+        assertEquals("K + 5", KELVIN.shift(5).toString());
+        assertEquals("K - 5", KELVIN.shift(-5).toString());
+        assertEquals("K + 5463|20", KELVIN.shift(273.15).toString());
+        assertEquals("5|9·K + 45967|100", KELVIN.multiply(5).divide(9).shift(459.67).toString());
+        assertEquals("1*pi^1·m", METRE.scaledBy(Factor.PI).toString());
+        assertEquals("km", METRE.prefix(MetricPrefix.KILO).named("km", "kilometre").toString());
     }
 
     @Test
@@ -152,7 +176,7 @@ class UomUnitAlgebraTest {
         assertEquals("(m/s)^2", METRE.divide(SECOND).pow(2).getSymbol());
         assertEquals("m/(m/s)", METRE.divide(METRE.divide(SECOND)).getSymbol());
         assertNull(METRE.pow(2).prefix(MetricPrefix.KILO).getSymbol());
-        assertEquals("km", METRE.prefix(MetricPrefix.KILO).getSymbol());
+        assertNull(METRE.prefix(MetricPrefix.KILO).getSymbol());
         assertEquals("kg·m/s^2", KILOGRAM.multiply(METRE).divide(SECOND.pow(2)).getSymbol());
         assertEquals("(m/s)·kg", METRE.divide(SECOND).multiply(KILOGRAM).getSymbol());
         assertEquals("(m^2)^2", METRE.pow(2).pow(2).getSymbol());
