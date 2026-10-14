@@ -42,7 +42,7 @@ import org.tinygears.uom.systems.UomSystemOfUnits;
  */
 class DocsSnippetsTest {
     private static final List<Path> DOCS = List.of(Path.of("../README.md"), Path.of("../docs/CUSTOM-UNITS.md"),
-            Path.of("../docs/OFFSET-UNITS.md"), Path.of("../SECURITY.md"));
+            Path.of("../docs/OFFSET-UNITS.md"), Path.of("../docs/PROVIDERS.md"), Path.of("../SECURITY.md"));
     private static final String IMPORTS = "import java.io.*; import java.math.*; import java.nio.file.*;"
             + " import java.util.*; import javax.measure.*; import org.tinygears.uom.quantity.*;"
             + " import org.tinygears.uom.systems.*;\n";

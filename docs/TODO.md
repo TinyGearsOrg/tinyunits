@@ -48,8 +48,7 @@ passes (113 of 113) with it. The generated catalog already has `rad` and `sr` (`
 
 **Needed by:** nothing in milestone 3 any more; decide before 1.0.
 
-**Related risk, not a decision:** `asType` uses `ServiceProvider.current()`; our provider has priority 100, but a provider of
-higher priority on the class path still breaks it.
+**Related:** the provider lookup of `asType` no longer depends on which provider is current (item 12).
 
 ## 3. Offset-unit products
 
@@ -152,14 +151,18 @@ the rationale prominently, or offer a strict no-mixing mode (not provided today)
 
 ## 12. Coexistence with other JSR-385 providers
 
-**Status:** open risk. `UomUnit.asType` uses `ServiceProvider.current()`; a provider of higher priority on the class path
-(Indriya, for example) breaks it (item 2, related risk). Decide whether `asType` and the formats should avoid the global
-lookup, and test a class path that holds both implementations. The lookups are in `UomUnit.asType`, `AbstractDoubleQuantity`
-and `AbstractDecimalQuantity`. Related: `ServiceProvider.of("uom")` throws "No Measurement ServiceProvider uom found",
-because unit-api 2.2 takes the name from `@Named` (jakarta or javax inject) or from `toString()`, and the provider has
-neither; pick a name and expose it (an overridden `toString()` avoids a new dependency).
+**Status:** done; documented in [PROVIDERS.md](PROVIDERS.md). `UomUnit.asType`, both quantity `asType` methods and
+deserialization used `ServiceProvider.current()`, so another provider as current (`ServiceProvider.setCurrent`, or a higher
+priority) broke them with `ClassCastException` and `InvalidObjectException`. They now go through `spi.Providers`: the current
+provider if it implements `spi.QuantityFactories`, else ours among `ServiceProvider.available()` (found once and kept),
+else the current provider (so `uom-core` works with any provider). `UomServiceProvider` implements the interface and is
+named `uom` (`toString()`), so `ServiceProvider.of("uom")` works. The priority stays 100, so uom is current next to Indriya
+2.2 (priority 10, named `Default`). The `spi` package is exported to `org.tinygears.uom` only.
 
-**Needed by:** decide before 1.0.
+**Tests:** `ProvidersTest` (lookup order, no global state), `ProviderCoexistenceTest` (uom and Indriya 2.2 together, in both
+directions; Indriya is a test-scope dependency of `uom`; it fails with the old lookup), the module and API pin tests.
+
+**Open points:** quantities and units of two implementations still do not mix (`UnconvertibleException`).
 
 ## 13. Scope gaps against Indriya
 

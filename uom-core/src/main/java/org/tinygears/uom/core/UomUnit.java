@@ -26,7 +26,8 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.UnconvertibleException;
 import javax.measure.UnitConverter;
-import javax.measure.spi.ServiceProvider;
+import javax.measure.spi.QuantityFactory;
+import org.tinygears.uom.core.spi.Providers;
 
 /**
  * A product of atoms with integer exponents, an affine converter to the system unit, and labels. Serializable
@@ -230,13 +231,13 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     @Override
     public <T extends Quantity<T>> Unit<T> asType(Class<T> type) {
-        ServiceProvider provider;
+        QuantityFactory<T> factory;
         try {
-            provider = ServiceProvider.current();
+            factory = Providers.quantityFactory(type);
         } catch (IllegalStateException e) {
             throw new IllegalStateException("no javax.measure ServiceProvider available", e);
         }
-        if (!getSystemUnit().equals(provider.getQuantityFactory(type).getSystemUnit())) {
+        if (!getSystemUnit().equals(factory.getSystemUnit())) {
             throw new ClassCastException(this + " is not a unit of " + type.getName());
         }
         @SuppressWarnings("unchecked") // the system units match, so this unit measures T

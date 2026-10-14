@@ -27,6 +27,8 @@ Within them, these are stable:
 
 - `org.tinygears.uom.core.internal`: it is not exported; its public classes are public only for the other packages
   of `uom-core` and may change in any release.
+- `org.tinygears.uom.core.spi`: it is exported to the module `org.tinygears.uom` only; it is the hook that the
+  provider implements, and may change in any release.
 - the generator internals (`uom-codegen`), and the unpublished modules `uom-tck` and `uom-examples`;
 - test helpers;
 - the symbols of units outside the catalogs, such as the formula `UomUnitFormat` writes for an unnamed unit

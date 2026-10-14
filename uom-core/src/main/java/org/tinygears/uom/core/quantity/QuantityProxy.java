@@ -54,8 +54,8 @@ import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
 import javax.measure.spi.QuantityFactory;
-import javax.measure.spi.ServiceProvider;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.spi.Providers;
 
 /**
  * Serialized form of a quantity: kind, type name, unit, scale and the exact value (raw {@code double} bits, or the
@@ -314,7 +314,7 @@ final class QuantityProxy implements Serializable {
     private QuantityFactory<?> factory() throws InvalidObjectException {
         QuantityFactory<?> f;
         try {
-            f = ServiceProvider.current().getQuantityFactory((Class) typeClass);
+            f = Providers.quantityFactory((Class) typeClass);
         } catch (IllegalArgumentException | UnsupportedOperationException e) {
             throw invalid("no quantity factory for " + type, e);
         } catch (RuntimeException | ServiceConfigurationError e) {

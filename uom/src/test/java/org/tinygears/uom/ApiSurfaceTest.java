@@ -64,10 +64,14 @@ class ApiSurfaceTest {
     @Test
     void internalPackageIsNotExported() throws Exception {
         ModuleReference core = module(UomUnit.class);
-        Set<String> exported = core.descriptor().exports().stream().map(ModuleDescriptor.Exports::source)
-                .collect(Collectors.toSet());
+        Set<String> exported = core.descriptor().exports().stream().filter(e -> !e.isQualified())
+                .map(ModuleDescriptor.Exports::source).collect(Collectors.toSet());
         assertEquals(Set.of("org.tinygears.uom.core", "org.tinygears.uom.core.parse",
                 "org.tinygears.uom.core.quantity"), exported);
+        // The spi package is exported to uom only: its provider implements QuantityFactories.
+        assertEquals(Set.of("org.tinygears.uom"), core.descriptor().exports().stream()
+                .filter(e -> e.source().equals("org.tinygears.uom.core.spi")).findFirst().orElseThrow().targets());
+        assertTrue(core.descriptor().exports().stream().noneMatch(e -> e.source().endsWith(".internal")));
         assertTrue(core.descriptor().packages().contains("org.tinygears.uom.core.internal"));
         assertTrue(core.descriptor().opens().isEmpty());
         ModuleReference uom = module(UomServiceProvider.class);
@@ -78,15 +82,20 @@ class ApiSurfaceTest {
     }
 
     @Test
-    void onlyTheInternalPackageHasPublicTypesOutsideTheExports() throws Exception {
+    void onlyTheInternalAndSpiPackagesHavePublicTypesOutsideTheExports() throws Exception {
         List<String> hidden = new ArrayList<>();
         for (ModuleReference m : List.of(module(UomUnit.class), module(UomServiceProvider.class))) {
             surface(m).stream().filter(l -> l.contains(" hidden ")).forEach(hidden::add);
         }
         assertFalse(hidden.isEmpty());
         for (String line : hidden) {
-            assertTrue(line.startsWith("org.tinygears.uom.core.internal "), line);
+            assertTrue(line.startsWith("org.tinygears.uom.core.internal ") || line.startsWith("org.tinygears.uom.core.spi "),
+                    line);
         }
+        // The spi package is exported to uom only and holds exactly the provider hook.
+        assertEquals(List.of("org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.Providers",
+                "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.QuantityFactories"),
+                hidden.stream().filter(l -> l.startsWith("org.tinygears.uom.core.spi ")).sorted().toList());
     }
 
     /** The module whose class path entry holds {@code c}. */

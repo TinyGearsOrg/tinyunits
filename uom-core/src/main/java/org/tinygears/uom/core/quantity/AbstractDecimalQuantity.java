@@ -14,12 +14,12 @@ import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
-import javax.measure.spi.ServiceProvider;
 import javax.measure.spi.SystemOfUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.internal.Decimals;
+import org.tinygears.uom.core.spi.Providers;
 
 /**
  * Base class of the generated {@link BigDecimal} quantities; {@code R} is the typed interface returned by
@@ -337,7 +337,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         }
         QuantityFactory<T> factory;
         try {
-            factory = ServiceProvider.current().getQuantityFactory(type);
+            factory = Providers.quantityFactory(type);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedOperationException("no quantity factory for " + type.getName(), e);
         }
@@ -355,7 +355,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Writes the type, unit, scale, the value's unscaled bytes and scale, and the context; reading creates the
-     * quantity through {@code ServiceProvider.current().getQuantityFactory(type)} and keeps value and context
+     * quantity through the factory of this implementation's provider and keeps value and context
      * unrounded. A type outside the 33 standard quantity interfaces and {@link Untyped}, an unscaled value over
      * 65536 bytes or a context precision over 100000 throws {@link java.io.NotSerializableException}.
      *

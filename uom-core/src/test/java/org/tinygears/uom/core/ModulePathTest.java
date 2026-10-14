@@ -37,6 +37,8 @@ class ModulePathTest {
                 "exports org.tinygears.uom.core.quantity"),
                 out.lines().map(String::strip).filter(l -> l.startsWith("exports ")).sorted().toList(), out);
         assertTrue(out.contains("contains org.tinygears.uom.core.internal"), out);
+        // The spi package is exported to uom only (its provider implements the interface), not to everyone.
+        assertTrue(out.contains("qualified exports org.tinygears.uom.core.spi to org.tinygears.uom"), out);
         assertTrue(out.contains("requires java.measure transitive"), out);
     }
 

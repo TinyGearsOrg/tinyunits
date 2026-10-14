@@ -15,10 +15,10 @@ import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
-import javax.measure.spi.ServiceProvider;
 import javax.measure.spi.SystemOfUnits;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.spi.Providers;
 
 /**
  * Base class of the generated {@code double} quantities; {@code R} is the typed interface returned by
@@ -278,7 +278,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         }
         QuantityFactory<T> factory;
         try {
-            factory = ServiceProvider.current().getQuantityFactory(type);
+            factory = Providers.quantityFactory(type);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedOperationException("no quantity factory for " + type.getName(), e);
         }
@@ -293,7 +293,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     /**
      * Writes the type, unit, scale and raw value bits; reading creates the quantity through
-     * {@code ServiceProvider.current().getQuantityFactory(type)}. A type outside the 33 standard quantity
+     * the factory of this implementation's provider. A type outside the 33 standard quantity
      * interfaces and {@link Untyped} throws {@link java.io.NotSerializableException}.
      *
      * @return the proxy

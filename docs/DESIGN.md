@@ -69,9 +69,12 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
   the root, so every converter stays affine and equality is structural. Ceiling: radicals are
   only normalized to a canonical form, and `n` and `d` are capped at 65_536 bits.
 - **Typing.** `asType(Class<T>)` compares the unit's system unit with
-  `ServiceProvider.current().getQuantityFactory(type).getSystemUnit()`. This distinguishes
-  hertz from becquerel. `uom-core` holds no table of quantity types. Our provider has priority
-  100, so `current()` selects it unless a provider of higher priority is on the class path.
+  `Providers.quantityFactory(type).getSystemUnit()`. This distinguishes
+  hertz from becquerel. `uom-core` holds no table of quantity types, so it asks a provider: the current one if it
+  implements `spi.QuantityFactories` (ours does), else ours among `ServiceProvider.available()` (found once and kept),
+  else the current provider. A provider of higher priority, or one set with `setCurrent`, therefore does not break
+  `asType`, the quantity `asType` or deserialization (`docs/PROVIDERS.md`). The package `org.tinygears.uom.core.spi`
+  is exported to `org.tinygears.uom` only. Our provider has priority 100 and the name `uom`.
 - **Caching.** Each unit caches its converter to a given target unit in a small per-unit map
   (N3). Units created on the fly take their cache with them, so no weak references.
 - **Out of scope:** non-affine converters such as logarithmic units.
@@ -127,7 +130,7 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
   `UntypedDoubleQuantity` or `UntypedDecimalQuantity` (phantom type `Untyped`) whose unit is built from the system units of
   the operands, scale `ABSOLUTE`. `asType(Class)` returns `this` when the quantity is already
   of that type; otherwise it narrows through
-  `ServiceProvider.current().getQuantityFactory(type)` and the unit's `asType`.
+  `Providers.quantityFactory(type)` (the factory of our provider) and the unit's `asType`.
 - **Offset units (F24).** Arithmetic on `ABSOLUTE` quantities follows the `Quantity` Javadoc literally: operands are
   taken to the system unit, combined, and the result converted back to the left operand's unit;
   linear units skip the round trip. `negate` is `-getValue()` in the same unit.
@@ -388,7 +391,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   - A quantity is its kind (`double` or decimal, typed or untyped), standard type (an allow-list of the 33 interfaces
     and `Untyped`, never `Class.forName`), unit, `Scale`, value (raw bits, or unscaled bytes and scale) and
     `MathContext`. A typed read resolves the provider first, creates through
-    `ServiceProvider.current().getQuantityFactory(type)` and restores the exact value, scale and context; a user
+    `Providers.quantityFactory(type)` and restores the exact value, scale and context; a user
     subclass reads back as the provider's class. Scale and precision beyond 100000, a unit of another dimension, an
     unknown type or null fields are `InvalidObjectException`s.
   - The JDK allocates stream arrays and strings before the proxies run, so untrusted streams need an
