@@ -188,10 +188,30 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         return Objects.hash(atoms, toSystem);
     }
 
-    /** The symbol, or for an unnamed unit its definition: {@code 1|1000·m} or {@code 5|9·K + 45967|100}. */
+    // Guards the provider's format from printing the unit it is formatting again.
+    private static final ThreadLocal<Boolean> PRINTING = ThreadLocal.withInitial(() -> false);
+
+    /**
+     * The symbol, or for an unnamed unit its text in the standard format of the provider of this implementation
+     * ({@code mHz}, {@code km}), or without one its definition: {@code 1|1000·m} or {@code 5|9·K + 45967|100}.
+     */
     @Override
     public String toString() {
-        return symbol != null ? symbol : definition();
+        if (symbol != null) {
+            return symbol;
+        }
+        if (!PRINTING.get()) {
+            PRINTING.set(true);
+            try {
+                String text = Providers.unitText(this);
+                if (text != null) {
+                    return text;
+                }
+            } finally {
+                PRINTING.set(false);
+            }
+        }
+        return definition();
     }
 
     /** {@code f·S + s}: the factor {@code f} and the shift {@code s = offset / f} of the converter to the system unit {@code S}. */

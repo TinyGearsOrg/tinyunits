@@ -3,22 +3,27 @@
 package org.tinygears.uom.core.spi;
 
 import java.util.List;
+import java.util.Map;
+import java.util.ServiceConfigurationError;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import javax.measure.Quantity;
+import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
 
 /**
- * Finds the quantity factories of this implementation: those of the current provider if it is ours, else those of
- * ours among the available providers, else the current provider's. Not exported, not API.
+ * Finds what the provider of this implementation offers the core: its quantity factories ({@link QuantityFactories}) and
+ * the text of its units ({@link UnitTexts}), without depending on which provider is current. Not exported, not API.
  */
 public final class Providers {
     private static final Providers DEFAULT = new Providers(ServiceProvider::current, ServiceProvider::available);
+    private static final Object NONE = new Object();
 
     private final Supplier<ServiceProvider> current;
     private final Supplier<List<ServiceProvider>> available;
-    // available() builds new providers on every call, so the one found is kept.
-    private volatile QuantityFactories found;
+    // available() builds new providers on every call, so the one found for a role is kept.
+    private final Map<Class<?>, Object> found = new ConcurrentHashMap<>();
 
     Providers(Supplier<ServiceProvider> current, Supplier<List<ServiceProvider>> available) {
         this.current = current;
@@ -26,7 +31,8 @@ public final class Providers {
     }
 
     /**
-     * The factory for {@code type}.
+     * The factory for {@code type}: of the current provider if it is ours, else of ours among the available
+     * providers, else of the current provider.
      *
      * @param <Q> the quantity type
      * @param type the quantity type
@@ -37,20 +43,51 @@ public final class Providers {
         return DEFAULT.factory(type);
     }
 
+    /**
+     * The text of {@code unit} from our provider, if there is one and it has a text; never throws.
+     *
+     * @param unit the unit
+     * @return the text, or null
+     */
+    public static String unitText(Unit<?> unit) {
+        return DEFAULT.text(unit);
+    }
+
     <Q extends Quantity<Q>> QuantityFactory<Q> factory(Class<Q> type) {
         ServiceProvider provider = current.get();
         if (provider instanceof QuantityFactories ours) {
             return ours.getQuantityFactory(type);
         }
-        QuantityFactories ours = found;
-        if (ours == null) {
-            for (ServiceProvider candidate : available.get()) {
-                if (candidate instanceof QuantityFactories f) {
-                    found = ours = f;
-                    break;
-                }
+        QuantityFactories ours = scan(QuantityFactories.class, false);
+        return ours != null ? ours.getQuantityFactory(type) : provider.getQuantityFactory(type);
+    }
+
+    String text(Unit<?> unit) {
+        try {
+            UnitTexts texts = scan(UnitTexts.class, true);
+            return texts == null ? null : texts.unitText(unit);
+        } catch (RuntimeException | ServiceConfigurationError e) {
+            // A unit prints even if no provider is available or one fails.
+            return null;
+        }
+    }
+
+    /** Ours among the available providers for {@code role}; a miss is kept too if {@code keepMiss}. */
+    private <T> T scan(Class<T> role, boolean keepMiss) {
+        Object kept = found.get(role);
+        if (kept != null) {
+            return kept == NONE ? null : role.cast(kept);
+        }
+        T ours = null;
+        for (ServiceProvider candidate : available.get()) {
+            if (role.isInstance(candidate)) {
+                ours = role.cast(candidate);
+                break;
             }
         }
-        return ours != null ? ours.getQuantityFactory(type) : provider.getQuantityFactory(type);
+        if (ours != null || keepMiss) {
+            found.put(role, ours != null ? ours : NONE);
+        }
+        return ours;
     }
 }

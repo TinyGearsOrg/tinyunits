@@ -9,6 +9,7 @@ import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -19,6 +20,7 @@ import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.format.UnitFormat;
+import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.FormulaEvaluator;
@@ -37,6 +39,8 @@ public final class UomUnitFormat implements UnitFormat {
     private final List<UomSystemOfUnits> systems;
     private final Map<String, UomUnit<?>> aliases = new ConcurrentHashMap<>();
     private final Map<UomUnit<?>, String> labels = new ConcurrentHashMap<>();
+    // The prefixable units of the systems by unit, built when first needed.
+    private volatile Map<UomUnit<?>, String> prefixable;
 
     /**
      * A format over {@code systems}, in lookup order.
@@ -103,7 +107,8 @@ public final class UomUnitFormat implements UnitFormat {
 
     /**
      * The first of these texts that parses back to an equal unit: the label, the symbol, the symbol of an equal
-     * unit of the systems, an exact formula such as {@code 1|1000·m/s}. An offset unit with factor {@code f} and
+     * unit of the systems, a metric prefix on a prefixable unit of the systems ({@code mHz}, {@code pW}), an exact
+     * formula such as {@code 1|1000·m/s}. An offset unit with factor {@code f} and
      * offset {@code o} formats as the formula of {@code f} shifted by {@code o/f}: a plain decimal if it terminates
      * and is not longer than the exact fraction, else the fraction: {@code K + 5}, {@code 5|9·K + 459.67},
      * {@code 7|9·K - 1|3}, {@code K + 1|1024}.
@@ -131,6 +136,10 @@ public final class UomUnitFormat implements UnitFormat {
         if (!(unit instanceof UomUnit<?> u)) {
             throw new IllegalArgumentException("unit can not be formatted: " + unit);
         }
+        String prefixed = prefixed(u);
+        if (prefixed != null) {
+            return prefixed;
+        }
         Factor f = u.toSystemConverter().factor();
         Factor offset = u.toSystemConverter().offset();
         Factor shift = shiftOf(f, offset);
@@ -151,6 +160,38 @@ public final class UomUnitFormat implements UnitFormat {
         } catch (FormulaException e) {
             return false;
         }
+    }
+
+    /** {@code mHz} or {@code pW}: a metric prefix on a prefixable unit of the systems that reads back as {@code u}. */
+    private String prefixed(UomUnit<?> u) {
+        if (!u.toSystemConverter().isLinear() || u.toSystemConverter().factor().signum() <= 0) {
+            return null;
+        }
+        Map<UomUnit<?>, String> units = prefixable();
+        for (MetricPrefix prefix : PREFIXES) {
+            Factor value = Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent());
+            String symbol = units.get(u.transform(Converters.scale(Factor.ONE.divide(value))));
+            if (symbol != null && parsesTo(prefix.getSymbol() + symbol, u)) {
+                return prefix.getSymbol() + symbol;
+            }
+        }
+        return null;
+    }
+
+    private Map<UomUnit<?>, String> prefixable() {
+        Map<UomUnit<?>, String> units = prefixable;
+        if (units == null) {
+            units = new HashMap<>();
+            for (UomSystemOfUnits system : systems) {
+                for (Unit<?> known : system.getUnits()) {
+                    if (known.getSymbol() != null && system.isPrefixable(known.getSymbol())) {
+                        units.putIfAbsent((UomUnit<?>) known, known.getSymbol());
+                    }
+                }
+            }
+            prefixable = units;
+        }
+        return units;
     }
 
     /** The symbol of {@code unit}, or the label of its system unit if it has none (not its definition). */

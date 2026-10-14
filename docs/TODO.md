@@ -247,7 +247,8 @@ output); the line-length limit; whether the check fails the build or only warns.
 - `UomUnit.prefix` no longer invents a symbol. It used to produce `km²`, `kmin`, `mkg`, `mmm`, `m°C` and colliding symbols
   such as `cd` and `dam`, because the unit cannot know which units take a prefix. It now returns an unnamed unit; the parser
   (`@prefixed`), the generated catalogs and `UomUnitFormat.resolve` name prefixed units with `named(...)`, as they already did.
-  An unnamed unit prints its definition (`1000·m`; item 20).
+  `UomUnitFormat` writes a metric prefix on a prefixable unit (`mHz`, `pW`), and an unnamed unit prints as the standard
+  format writes it (`mHz`, `km`), else as its definition (`1000·m`; item 20).
 - The parser rejects `@prefixed` on a unit that is itself prefixed (`@prefixed kleague M` is an error), also across includes.
 - `UomUnitFormat.label` rejects a label that reads as another unit, exactly or as a metric prefix on a prefixable unit
   (`label(SECOND, "Gm")`).
@@ -260,12 +261,13 @@ output); the line-length limit; whether the check fails the build or only warns.
   (`ft` is the foot, not the femtotonne); detecting it would reject legitimate systems.
 
 **Tests:** `UomUnitAlgebraTest.prefix` and `anUnnamedUnitPrintsItsDefinition`, `DefinitionParserTest.prefixedErrors`,
-`UnitFormatTest.aLabelThatReadsAsAnotherUnitIsRejected`, the guide's `units-error` block (`DocsSnippetsTest`).
+`UnitFormatTest.aLabelThatReadsAsAnotherUnitIsRejected`, `UnnamedUnitTextTest`, `ProvidersTest`, the guide's `units-error`
+block (`DocsSnippetsTest`).
 
 ## 20. Unit identity and printing
 
-**Status:** open, except the printing of unnamed units, which is done: `UomUnit.toString()` prints the definition (`1000·m`,
-`5|9·K + 45967|100`) instead of the system label (item 19). The first item below and the `compareTo` note are confirmed on the current build; the others come from the milestone reviews.
+**Status:** open, except the printing of unnamed units, which is done: `UomUnit.toString()` prints the standard format's text
+(`mHz`, `km`), else the definition (`1000·m`, `5|9·K + 45967|100`), instead of the system label (item 19). The first item below and the `compareTo` note are confirmed on the current build; the others come from the milestone reviews.
 - `getSystemUnit()` of a unit returns an equal unit with a null name, not `this` as the Javadoc says. Return `this` when
   the converter is the identity and the symbol is not null.
 - Dimensionless quantities format as `5.0 1` (the symbol of `ONE` is `1`) in `toString` and `UomQuantityFormat`. Decide

@@ -263,6 +263,7 @@ org.tinygears.uom.core.quantity UntypedDoubleQuantity member public static org.t
 org.tinygears.uom.core.quantity UntypedDoubleQuantity type public final class org.tinygears.uom.core.quantity.UntypedDoubleQuantity extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<org.tinygears.uom.core.quantity.Untyped, org.tinygears.uom.core.quantity.Untyped> implements org.tinygears.uom.core.quantity.Untyped
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.Providers
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.QuantityFactories
+org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitTexts
 org.tinygears.uom module exports org.tinygears.uom.quantity
 org.tinygears.uom module exports org.tinygears.uom.systems
 org.tinygears.uom module provides javax.measure.spi.ServiceProvider with [org.tinygears.uom.systems.UomServiceProvider]
@@ -1394,10 +1395,11 @@ org.tinygears.uom.systems UomQuantityFormat type public final class org.tinygear
 org.tinygears.uom.systems UomServiceProvider member public <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> getQuantityFactory(java.lang.Class<Q>)
 org.tinygears.uom.systems UomServiceProvider member public int getPriority()
 org.tinygears.uom.systems UomServiceProvider member public java.lang.String toString()
+org.tinygears.uom.systems UomServiceProvider member public java.lang.String unitText(javax.measure.Unit<?>)
 org.tinygears.uom.systems UomServiceProvider member public javax.measure.spi.FormatService getFormatService()
 org.tinygears.uom.systems UomServiceProvider member public javax.measure.spi.SystemOfUnitsService getSystemOfUnitsService()
 org.tinygears.uom.systems UomServiceProvider member public org.tinygears.uom.systems.UomServiceProvider()
-org.tinygears.uom.systems UomServiceProvider type public final class org.tinygears.uom.systems.UomServiceProvider extends javax.measure.spi.ServiceProvider implements org.tinygears.uom.core.spi.QuantityFactories
+org.tinygears.uom.systems UomServiceProvider type public final class org.tinygears.uom.systems.UomServiceProvider extends javax.measure.spi.ServiceProvider implements org.tinygears.uom.core.spi.QuantityFactories, org.tinygears.uom.core.spi.UnitTexts
 org.tinygears.uom.systems UomSystemOfUnits member public <Q extends javax.measure.Quantity<Q>> javax.measure.Unit<Q> getUnit(java.lang.Class<Q>)
 org.tinygears.uom.systems UomSystemOfUnits member public boolean isPrefixable(java.lang.String)
 org.tinygears.uom.systems UomSystemOfUnits member public java.lang.String getName()

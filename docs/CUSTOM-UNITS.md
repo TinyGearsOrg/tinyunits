@@ -306,7 +306,8 @@ league:league 3 mi
 `UomUnitFormat.label` rejects a label that already reads as another unit, exactly or as a prefix on a prefixable unit
 (`Gm` is the gigametre). In code, `Unit.prefix` only scales: the result has no symbol, because whether a prefix applies
 (`km`, but not `kmin` or `km²`) and what else the symbol means is known to a system, not to the unit; a system names
-the units of its `@prefixed` lines and a format reads a prefix on a prefixable symbol.
+the units of its `@prefixed` lines and a format reads and writes a prefix on a prefixable symbol: an unnamed
+`SI.HERTZ.prefix(MetricPrefix.MILLI)` prints and formats as `mHz`.
 
 ## Errors
 
