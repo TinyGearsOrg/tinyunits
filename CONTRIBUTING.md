@@ -11,6 +11,8 @@ mvn -q -B clean verify
 This builds the five modules and runs every test, the JSR-385 TCK included. The modules are described in
 [README.md](README.md); the design is in [docs/DESIGN.md](docs/DESIGN.md).
 
+AI coding agents follow [AGENTS.md](AGENTS.md) (`CLAUDE.md` links to it).
+
 ## Generated files
 
 The typed quantities in `uom/src/main/java/org/tinygears/uom/quantity`, the catalogs `SI`, `USCustomary`,
@@ -33,8 +35,9 @@ header. Generated Java files start with `// SPDX-License-Identifier: Apache-2.0`
 - Tests assert exact values (exact strings, exact counts), not just "not null" or "contains".
 - `ApiSurfaceTest` pins the public API to `docs/api/public-api.txt`. A deliberate API change rewrites the file with
   `mvn -B verify -Duom.writeApi`, and its diff is part of the change ([docs/API.md](docs/API.md)).
-- `DocsSnippetsTest` runs the `units`, `units-error` and `java` blocks of `README.md`, `docs/CUSTOM-UNITS.md` and
-  `SECURITY.md`: keep them true when the behaviour changes.
+- `DocsSnippetsTest` runs the `units`, `units-error` and `java` blocks of `README.md`, `docs/CUSTOM-UNITS.md`,
+  `docs/OFFSET-UNITS.md`, `docs/PROVIDERS.md`, `docs/INDRIYA.md` and `SECURITY.md`: keep them true when the behaviour
+  changes.
 - Release checks: `bash scripts/check-pom.sh` (POM metadata and release profile; `--self-test` proves its checks
   fail), `bash scripts/check-javadoc.sh` (no javadoc warnings in the published modules),
   `bash scripts/verify-release.sh` (release artifacts, reproducibility, jlink and a consumer project; uploads nothing;

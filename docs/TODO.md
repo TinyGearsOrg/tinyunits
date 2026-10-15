@@ -3,9 +3,9 @@
 Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when
 to revisit them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-14); the last version of this file with the full
 discussion is `git show 5d734d3:docs/TODO.md`. The groups: gaps against the JSR-385 reference implementation Indriya
-(10, 13, 14), an AGENTS.md (16), pre-commit and formatting (17 and 18), open defects and hardening carried over from the
-milestone reviews (21 to 32), then the steps before the first release ("Release readiness"). Each item says under
-"Needed by" what, if anything, it blocks.
+(10, 13, 14), pre-commit and formatting (17 and 18), open defects and hardening carried over from the milestone reviews
+(21 to 32), then the steps before the first release ("Release readiness"). Each item says under "Needed by" what, if
+anything, it blocks.
 
 ## 10. Behaviour comparison with Indriya
 
@@ -47,23 +47,6 @@ first second implementation. Re-run the TCK in CI and publish the result rather 
 
 **Needed by:** before the first release announcement.
 
-## 16. Add an AGENTS.md
-
-**Status:** not started. The repository has no `AGENTS.md`, so AI coding agents work without the project's rules. Add one at
-the root (and a `CLAUDE.md` that points to it, if wanted) as a short must-follow contract that links to `CONTRIBUTING.md`
-instead of repeating it. Candidate content, all from `CONTRIBUTING.md` and the docs:
-- Build and test: `mvn -q -B clean verify`; Java 17 or later.
-- Generated files (`data/` is the source; never edit the generated catalogs and quantity types by hand; regenerate after
-  changing `data/` or the generator).
-- Tests: every change has tests, a bug fix a test that fails without the fix; exact assertions.
-- `ApiSurfaceTest` pins the public API (`mvn -B verify -Duom.writeApi` rewrites `docs/api/public-api.txt`);
-  `DocsSnippetsTest` runs the code blocks of the docs, so keep them true.
-- Commit prefixes (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `style:`, `build:`, `ci:`), short bodies, no emojis.
-- Git hygiene: commit only the files you changed, stage explicit paths, never push or open PRs unless asked.
-- Source files carry the `SPDX-License-Identifier: Apache-2.0` header; comments short.
-
-**Needed by:** nothing; do before accepting outside or agent contributions.
-
 ## 17. Pre-commit configuration
 
 **Status:** not started. There is no `.pre-commit-config.yaml`; the checks run only in CI and by hand (`scripts/check-pom.sh`,
@@ -71,7 +54,7 @@ instead of repeating it. Candidate content, all from `CONTRIBUTING.md` and the d
 check (item 18), whitespace and end-of-file fixers, a check that generated files are not edited by hand (regenerate and
 diff, or a header check), the `scripts/check-*.sh` scripts that need no network, and a commit-message hook for the
 conventional prefixes of `CONTRIBUTING.md`. Keep `mvn clean verify` out of the hooks (too slow); CI stays the gate.
-Document the setup in `CONTRIBUTING.md` and `AGENTS.md` (item 16).
+Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 **Needed by:** nothing; do together with item 18.
 

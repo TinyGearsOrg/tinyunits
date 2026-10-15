@@ -71,6 +71,7 @@ Java 17 or later. Not published yet; after `mvn -q -B install -DskipTests` in th
 - [SECURITY.md](SECURITY.md): serialization filter, reporting a vulnerability.
 - [CHANGELOG.md](CHANGELOG.md): changes per release.
 - [CONTRIBUTING.md](CONTRIBUTING.md): build, regeneration, tests, conventions.
+- [AGENTS.md](AGENTS.md): the rules for AI coding agents (`CLAUDE.md` links to it).
 - [docs/RELEASING.md](docs/RELEASING.md): the release procedure (for the maintainer).
 - [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md), [docs/DESIGN.md](docs/DESIGN.md) and [docs/TODO.md](docs/TODO.md):
   requirements, design and open decisions.
