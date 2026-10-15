@@ -1,10 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -35,7 +39,9 @@ import javax.measure.quantity.MagneticFluxDensity;
 import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.DefinitionParser;
@@ -45,37 +51,77 @@ import org.tinygears.uom.core.parse.Member;
 import org.tinygears.uom.core.parse.Preferred;
 import org.tinygears.uom.core.parse.Prefixed;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 /** Each system agrees with its data file, resolved here independently of the generator (D2 to D4). */
 class SystemsCatalogTest {
     private static final Path DATA = Path.of("../data");
-    private static final List<String> TYPES = List.of("Acceleration", "AmountOfSubstance", "Angle", "Area",
-            "CatalyticActivity", "Dimensionless", "ElectricCapacitance", "ElectricCharge", "ElectricConductance",
-            "ElectricCurrent", "ElectricInductance", "ElectricPotential", "ElectricResistance", "Energy", "Force",
-            "Frequency", "Illuminance", "Length", "LuminousFlux", "LuminousIntensity", "MagneticFlux",
-            "MagneticFluxDensity", "Mass", "Power", "Pressure", "RadiationDoseAbsorbed", "RadiationDoseEffective",
-            "Radioactivity", "SolidAngle", "Speed", "Temperature", "Time", "Volume");
+    private static final List<String> TYPES = List.of(
+            "Acceleration",
+            "AmountOfSubstance",
+            "Angle",
+            "Area",
+            "CatalyticActivity",
+            "Dimensionless",
+            "ElectricCapacitance",
+            "ElectricCharge",
+            "ElectricConductance",
+            "ElectricCurrent",
+            "ElectricInductance",
+            "ElectricPotential",
+            "ElectricResistance",
+            "Energy",
+            "Force",
+            "Frequency",
+            "Illuminance",
+            "Length",
+            "LuminousFlux",
+            "LuminousIntensity",
+            "MagneticFlux",
+            "MagneticFluxDensity",
+            "Mass",
+            "Power",
+            "Pressure",
+            "RadiationDoseAbsorbed",
+            "RadiationDoseEffective",
+            "Radioactivity",
+            "SolidAngle",
+            "Speed",
+            "Temperature",
+            "Time",
+            "Volume");
 
     /** Data file, system and generated unit list, in {@link UnitSystems#all()} order. */
-    record Catalog(String file, String name, UomSystemOfUnits system, List<UomUnit<?>> units, Set<String> prefixable) {
-    }
+    record Catalog(String file, String name, UomSystemOfUnits system, List<UomUnit<?>> units, Set<String> prefixable) {}
 
     static final List<Catalog> CATALOGS = List.of(
             new Catalog("si.units", "SI", SI.SYSTEM, SI.UNITS, SI.PREFIXABLE),
-            new Catalog("us-customary.units", "USCustomary", USCustomary.SYSTEM, USCustomary.UNITS,
+            new Catalog(
+                    "us-customary.units",
+                    "USCustomary",
+                    USCustomary.SYSTEM,
+                    USCustomary.UNITS,
                     USCustomary.PREFIXABLE),
             new Catalog("imperial.units", "Imperial", Imperial.SYSTEM, Imperial.UNITS, Imperial.PREFIXABLE),
             new Catalog("cgs.units", "CGS", CGS.SYSTEM, CGS.UNITS, CGS.PREFIXABLE),
             new Catalog("cgs-esu.units", "ESU", ESU.SYSTEM, ESU.UNITS, ESU.PREFIXABLE),
             new Catalog("cgs-emu.units", "EMU", EMU.SYSTEM, EMU.UNITS, EMU.PREFIXABLE),
             new Catalog("cgs-gaussian.units", "Gaussian", Gaussian.SYSTEM, Gaussian.UNITS, Gaussian.PREFIXABLE),
-            new Catalog("information.units", "Information", Information.SYSTEM, Information.UNITS,
+            new Catalog(
+                    "information.units",
+                    "Information",
+                    Information.SYSTEM,
+                    Information.UNITS,
                     Information.PREFIXABLE));
 
     static final Map<String, Definitions> PARSED = load();
 
     private static Map<String, Definitions> load() {
         Map<String, Definitions> parsed = new HashMap<>();
-        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(DATA.resolve(name),
+        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(
+                DATA.resolve(name),
                 StandardCharsets.UTF_8);
         for (Catalog c : CATALOGS) {
             try (Reader in = resolver.open(c.file())) {
@@ -184,10 +230,14 @@ class SystemsCatalogTest {
 
     @Test
     void noLeaks() {
-        assertEquals(Set.of("cm", "g", "s"), CGS.UNITS.stream().map(UomUnit::getSymbol)
-                .filter(s -> SI.SYSTEM.getUnit(s) != null).collect(Collectors.toSet()));
-        assertEquals(Set.of(), Gaussian.UNITS.stream().map(UomUnit::getSymbol).filter(s -> s.startsWith("ab"))
-                .collect(Collectors.toSet()));
+        assertEquals(
+                Set.of("cm", "g", "s"),
+                CGS.UNITS.stream().map(UomUnit::getSymbol)
+                        .filter(s -> SI.SYSTEM.getUnit(s) != null).collect(Collectors.toSet()));
+        assertEquals(
+                Set.of(),
+                Gaussian.UNITS.stream().map(UomUnit::getSymbol).filter(s -> s.startsWith("ab"))
+                        .collect(Collectors.toSet()));
         assertEquals(Set.of(), Imperial.UNITS.stream().filter(u -> SI.UNITS.contains(u)).collect(Collectors.toSet()));
         assertSame(SI.CENTIMETRE, Gaussian.SYSTEM.getUnit("cm"));
         assertSame(Gaussian.FRANKLIN, Gaussian.SYSTEM.getUnit("Fr"));
@@ -228,8 +278,9 @@ class SystemsCatalogTest {
                 UomUnit<?> base = (UomUnit<?>) c.system().getUnit(p.unitSymbol());
                 for (String symbol : p.prefixSymbols()) {
                     expected++;
-                    Prefix prefix = Stream.<Prefix>concat(Arrays.stream(MetricPrefix.values()),
-                                    Arrays.stream(BinaryPrefix.values()))
+                    Prefix prefix = Stream.<Prefix>concat(
+                            Arrays.stream(MetricPrefix.values()),
+                            Arrays.stream(BinaryPrefix.values()))
                             .filter(m -> m.getSymbol().equals(symbol)).findFirst().orElseThrow();
                     String unitSymbol = symbol + p.unitSymbol();
                     UomUnit<?> found = (UomUnit<?>) c.system().getUnit(unitSymbol);
@@ -254,7 +305,7 @@ class SystemsCatalogTest {
         assertEquals(33, TYPES.size());
         for (Catalog c : CATALOGS) {
             for (String name : TYPES) {
-                @SuppressWarnings({"unchecked", "rawtypes"})
+                @SuppressWarnings({ "unchecked", "rawtypes" })
                 Class<Q> type = (Class) Class.forName("javax.measure.quantity." + name);
                 Unit<?> actual = c.system().getUnit(type);
                 assertNotNull(actual, c.name() + " " + name);

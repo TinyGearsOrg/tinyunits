@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.parse;
 
@@ -23,9 +31,12 @@ import javax.measure.Prefix;
  */
 public record Prefixed(String unitSymbol, List<String> prefixSymbols, String source, int line) {
     /** The metric and binary prefixes by symbol; the two families share no symbol. */
-    static final Map<String, Prefix> PREFIXES = Stream.concat(Arrays.stream(MetricPrefix.values()),
-            Arrays.stream(BinaryPrefix.values())).collect(Collectors.toUnmodifiableMap(Prefix::getSymbol,
-            Function.identity()));
+    static final Map<String, Prefix> PREFIXES = Stream.concat(
+            Arrays.stream(MetricPrefix.values()),
+            Arrays.stream(BinaryPrefix.values())).collect(
+                    Collectors.toUnmodifiableMap(
+                            Prefix::getSymbol,
+                            Function.identity()));
 
     /**
      * Copies the prefix list.

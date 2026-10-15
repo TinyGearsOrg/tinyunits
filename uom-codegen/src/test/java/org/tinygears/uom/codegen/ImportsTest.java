@@ -1,11 +1,20 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ImportsTest {
     @Test
@@ -16,7 +25,8 @@ class ImportsTest {
         assertEquals("BigDecimal", imports.name("java.math.BigDecimal"));
         assertEquals("Set", imports.name("java.util.Set"));
         assertEquals("Quantity", imports.name("javax.measure.Quantity"));
-        assertEquals("import java.math.BigDecimal;\nimport java.util.Set;\nimport javax.measure.Quantity;\n\n",
+        assertEquals(
+                "import java.math.BigDecimal;\nimport java.util.Set;\nimport javax.measure.Quantity;\n\n",
                 imports.block());
     }
 
@@ -49,24 +59,33 @@ class ImportsTest {
     @Test
     void javadocOnlyClassStaysQualifiedAndIsNotImported() {
         Imports imports = new Imports("p", List.of());
-        assertEquals("/** {@link java.util.Map} and {@link Set}, // java.util.List */\nSet s;",
-                imports.resolve("/** {@link java.util.Map} and {@link java.util.Set}, // java.util.List */\n"
-                        + "java.util.Set s;"));
-        assertEquals("// Map\nMap m; /* Map */", imports.resolve("// java.util.Map\njava.util.Map m; "
-                + "/* java.util.Map */"));
+        assertEquals(
+                "/** {@link java.util.Map} and {@link Set}, // java.util.List */\nSet s;",
+                imports.resolve(
+                        "/** {@link java.util.Map} and {@link java.util.Set}, // java.util.List */\n"
+                                + "java.util.Set s;"));
+        assertEquals(
+                "// Map\nMap m; /* Map */",
+                imports.resolve(
+                        "// java.util.Map\njava.util.Map m; "
+                                + "/* java.util.Map */"));
         assertEquals("import java.util.Map;\nimport java.util.Set;\n\n", imports.block());
     }
 
     @Test
     void resolveShortensQualifiedClassNames() {
         Imports imports = new Imports("org.tinygears.uom.quantity", List.of("Length"));
-        assertEquals("Unit<javax.measure.quantity.Length> u = Objects.requireNonNull(x);\n"
-                + "Quantity.Scale s = Quantity.Scale.ABSOLUTE; MathContext m = MathContext.DECIMAL128; Length l;",
-                imports.resolve("javax.measure.Unit<javax.measure.quantity.Length> u = "
-                        + "java.util.Objects.requireNonNull(x);\njavax.measure.Quantity.Scale s = "
-                        + "javax.measure.Quantity.Scale.ABSOLUTE; java.math.MathContext m = "
-                        + "java.math.MathContext.DECIMAL128; Length l;"));
-        assertEquals("import java.math.MathContext;\nimport java.util.Objects;\nimport javax.measure.Quantity;\n"
-                + "import javax.measure.Unit;\n\n", imports.block());
+        assertEquals(
+                "Unit<javax.measure.quantity.Length> u = Objects.requireNonNull(x);\n"
+                        + "Quantity.Scale s = Quantity.Scale.ABSOLUTE; MathContext m = MathContext.DECIMAL128; Length l;",
+                imports.resolve(
+                        "javax.measure.Unit<javax.measure.quantity.Length> u = "
+                                + "java.util.Objects.requireNonNull(x);\njavax.measure.Quantity.Scale s = "
+                                + "javax.measure.Quantity.Scale.ABSOLUTE; java.math.MathContext m = "
+                                + "java.math.MathContext.DECIMAL128; Length l;"));
+        assertEquals(
+                "import java.math.MathContext;\nimport java.util.Objects;\nimport javax.measure.Quantity;\n"
+                        + "import javax.measure.Unit;\n\n",
+                imports.block());
     }
 }

@@ -1,6 +1,25 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.IntFunction;
+import java.util.function.Supplier;
+import javax.measure.MeasurementException;
+import javax.measure.Unit;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,16 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.ONE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
-import javax.measure.MeasurementException;
-import javax.measure.Unit;
-import org.junit.jupiter.api.Test;
 
 class AlternateUnitsTest {
 
@@ -43,7 +52,7 @@ class AlternateUnitsTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void equivalenceIgnoresAlternateAtoms() {
         UomUnit rad = ONE.alternate("rad");
         UomUnit perSecond = (UomUnit) ONE.divide(SECOND);

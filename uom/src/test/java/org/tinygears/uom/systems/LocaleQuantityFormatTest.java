@@ -1,14 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,11 +28,21 @@ import java.util.concurrent.Future;
 import javax.measure.Quantity;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.quantity.Length;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.UntypedDecimalQuantity;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LocaleQuantityFormatTest {
     private static final UomUnitFormat UNITS = UomUnitFormat.standard();
@@ -40,12 +50,37 @@ class LocaleQuantityFormatTest {
 
     /** 100 double and 100 decimal quantities; their ROOT text is pinned in root-baseline.txt (from a315721). */
     static List<Quantity<?>> baselineSamples() {
-        List<UomUnit<?>> units = List.of(SI.KILOMETRE, SI.DEGREE_CELSIUS, SI.MICROMETRE, SI.OHM,
-                BaseUnits.KELVIN.shift(5), BaseUnits.ONE, SI.METRE.multiply(2), (UomUnit<?>) UNITS.parse("km/h"));
+        List<UomUnit<?>> units = List.of(
+                SI.KILOMETRE,
+                SI.DEGREE_CELSIUS,
+                SI.MICROMETRE,
+                SI.OHM,
+                BaseUnits.KELVIN.shift(5),
+                BaseUnits.ONE,
+                SI.METRE.multiply(2),
+                (UomUnit<?>) UNITS.parse("km/h"));
         List<Quantity<?>> samples = new ArrayList<>();
-        double[] doubles = {0.0, -0.0, 1.0, -1.0, 0.1, 0.5, 1.0 / 3, 1e10, 1e22, 1e-7, 1e-3, 1e7, 123456789.125,
-            Double.MIN_VALUE, Double.MAX_VALUE, Double.MIN_NORMAL, Double.NaN, Double.POSITIVE_INFINITY,
-            Double.NEGATIVE_INFINITY, -1234.5};
+        double[] doubles = {
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            0.1,
+            0.5,
+            1.0 / 3,
+            1e10,
+            1e22,
+            1e-7,
+            1e-3,
+            1e7,
+            123456789.125,
+            Double.MIN_VALUE,
+            Double.MAX_VALUE,
+            Double.MIN_NORMAL,
+            Double.NaN,
+            Double.POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY,
+            -1234.5 };
         Random random = new Random(20261012);
         List<Double> values = new ArrayList<>();
         for (double d : doubles) {
@@ -58,8 +93,17 @@ class LocaleQuantityFormatTest {
         for (int i = 0; i < 100; i++) {
             samples.add(UntypedDoubleQuantity.of(values.get(i), units.get(i % units.size())));
         }
-        String[] decimals = {"1E+3", "1.50", "-0.000", "0E-10", "123456789.125", "1E-7", "-1E+10", "0.1",
-            "-12345678901234567890.5", "3.14159265358979323846264338327950288"};
+        String[] decimals = {
+            "1E+3",
+            "1.50",
+            "-0.000",
+            "0E-10",
+            "123456789.125",
+            "1E-7",
+            "-1E+10",
+            "0.1",
+            "-12345678901234567890.5",
+            "3.14159265358979323846264338327950288" };
         List<BigDecimal> bds = new ArrayList<>();
         for (String s : decimals) {
             bds.add(new BigDecimal(s));
@@ -97,7 +141,9 @@ class LocaleQuantityFormatTest {
 
     private static void assertParses(UomQuantityFormat format, String text, double value, UomUnit<?> unit) {
         Quantity<?> q = format.parse(text);
-        assertEquals(Double.doubleToRawLongBits(value), Double.doubleToRawLongBits(q.getValue().doubleValue()),
+        assertEquals(
+                Double.doubleToRawLongBits(value),
+                Double.doubleToRawLongBits(q.getValue().doubleValue()),
                 text + " gave " + q.getValue());
         assertEquals(unit, q.getUnit(), text);
     }
@@ -222,12 +268,14 @@ class LocaleQuantityFormatTest {
         assertEquals("१२३.५ km", hi.format(km(123.5)));
         assertParses(hi, "१२३.५ km", 123.5, SI.KILOMETRE);
         assertParses(hi, "123.5 km", 123.5, SI.KILOMETRE);
-        assertEquals("१.२३E+५ km",
+        assertEquals(
+                "१.२३E+५ km",
                 hi.format(UntypedDecimalQuantity.of(new BigDecimal("1.23E+5"), SI.KILOMETRE, MathContext.DECIMAL64)));
         String pi = "3.14159265358979323846264338327950288";
         StringBuilder devanagari = new StringBuilder();
         pi.chars().forEach(c -> devanagari.append(c == '.' ? '.' : (char) (c - '0' + 0x0966)));
-        assertEquals(devanagari + " km",
+        assertEquals(
+                devanagari + " km",
                 hi.format(UntypedDecimalQuantity.of(new BigDecimal(pi), SI.KILOMETRE, MathContext.UNLIMITED)));
         assertParses(hi, devanagari + " km", Math.PI, SI.KILOMETRE);
     }
@@ -251,13 +299,19 @@ class LocaleQuantityFormatTest {
         assertFails(fa, "۱×10^۱۰ km", "invalid number '۱×10^۱۰'", 0);
         assertEquals("1,0Е-7 km", in("uk-UA").format(km(1e-7)));
         assertParses(in("uk-UA"), "1,0Е-7 km", 1e-7, SI.KILOMETRE);
-        assertEquals("1E+3 km", in("de-DE").format(
-                UntypedDecimalQuantity.of(new BigDecimal("1E+3"), SI.KILOMETRE, MathContext.DECIMAL64)));
-        assertEquals("1×10^+3 km", sv.format(
-                UntypedDecimalQuantity.of(new BigDecimal("1E+3"), SI.KILOMETRE, MathContext.DECIMAL64)));
+        assertEquals(
+                "1E+3 km",
+                in("de-DE").format(
+                        UntypedDecimalQuantity.of(new BigDecimal("1E+3"), SI.KILOMETRE, MathContext.DECIMAL64)));
+        assertEquals(
+                "1×10^+3 km",
+                sv.format(
+                        UntypedDecimalQuantity.of(new BigDecimal("1E+3"), SI.KILOMETRE, MathContext.DECIMAL64)));
         assertParses(sv, "1×10^+3 km", 1000, SI.KILOMETRE);
-        assertEquals("\u22121,50 km", sv.format(
-                UntypedDecimalQuantity.of(new BigDecimal("-1.50"), SI.KILOMETRE, MathContext.DECIMAL64)));
+        assertEquals(
+                "\u22121,50 km",
+                sv.format(
+                        UntypedDecimalQuantity.of(new BigDecimal("-1.50"), SI.KILOMETRE, MathContext.DECIMAL64)));
     }
 
     /** The JDK's DecimalFormat writes a bidi mark (Cf) before the minus sign in these locales. */
@@ -274,7 +328,7 @@ class LocaleQuantityFormatTest {
         assertFails(in("he-IL"), "1\u200E.5 km", "invalid number '1\u200E.5'", 0);
         // ROOT keeps Double.parseDouble, which rejects the marks
         assertThrows(MeasurementParseException.class, () -> root.parse("\u200E-1.5 km"));
-        for (String tag : new String[] {"he-IL", "ar-EG", "ar-SA", "fa", "ps-AF", "ur-IN", "ckb", "lrc", "mzn"}) {
+        for (String tag : new String[] { "he-IL", "ar-EG", "ar-SA", "fa", "ps-AF", "ur-IN", "ckb", "lrc", "mzn" }) {
             Locale locale = Locale.forLanguageTag(tag);
             String jdk = java.text.NumberFormat.getInstance(locale).format(-1.5);
             assertParses(root.withLocale(locale), jdk + " km", -1.5, SI.KILOMETRE);
@@ -312,12 +366,15 @@ class LocaleQuantityFormatTest {
         assertFalse(de.equals(de.withGrouping(true)));
         assertFalse(de.equals(in("de-AT")));
         assertFalse(root.equals(new UomQuantityFormat(UomUnitFormat.standard())));
-        assertFalse(de.equals(de.withSymbols(Locale.forLanguageTag("de-DE"), DecimalFormatSymbols.getInstance(Locale.UK))));
+        assertFalse(
+                de.equals(de.withSymbols(Locale.forLanguageTag("de-DE"), DecimalFormatSymbols.getInstance(Locale.UK))));
         assertFalse(de.equals("de-DE"));
         assertEquals(de.withGrouping(true), de.withGrouping(true));
         assertFalse(de.equals(de.withDecimals(MathContext.DECIMAL64)));
-        assertEquals(de.withDecimals(MathContext.DECIMAL64), root.withDecimals(MathContext.DECIMAL64).withLocale(
-                Locale.forLanguageTag("de-DE")));
+        assertEquals(
+                de.withDecimals(MathContext.DECIMAL64),
+                root.withDecimals(MathContext.DECIMAL64).withLocale(
+                        Locale.forLanguageTag("de-DE")));
         assertEquals("UomQuantityFormat[locale=de-DE, grouping=false, decimals=off]", de.toString());
         assertEquals("UomQuantityFormat[locale=und, grouping=true, decimals=off]", root.withGrouping(true).toString());
     }
@@ -334,7 +391,7 @@ class LocaleQuantityFormatTest {
 
     @Test
     void nanAndInfinityKeepTheirRootText() {
-        for (String tag : new String[] {"de-DE", "sv-SE", "fa", "ar-EG"}) {
+        for (String tag : new String[] { "de-DE", "sv-SE", "fa", "ar-EG" }) {
             UomQuantityFormat f = in(tag);
             assertEquals("NaN km", f.format(km(Double.NaN)), tag);
             assertEquals("Infinity km", f.format(km(Double.POSITIVE_INFINITY)), tag);
@@ -351,7 +408,7 @@ class LocaleQuantityFormatTest {
     @Test
     void unitSymbolsNeverChange() {
         List<UomUnit<?>> units = List.of(SI.DEGREE_CELSIUS, SI.MICROMETRE, SI.OHM, BaseUnits.KELVIN.shift(5));
-        for (String tag : new String[] {"de-DE", "fr-FR", "ar-EG", "fa", "hi-IN-u-nu-deva", "sv-SE", "ja-JP"}) {
+        for (String tag : new String[] { "de-DE", "fr-FR", "ar-EG", "fa", "hi-IN-u-nu-deva", "sv-SE", "ja-JP" }) {
             for (UomUnit<?> unit : units) {
                 Quantity<?> q = UntypedDoubleQuantity.of(2.5, unit);
                 String text = in(tag).format(q);
@@ -384,7 +441,8 @@ class LocaleQuantityFormatTest {
         assertFails(de, "1,5 foo", "unknown unit 'foo'", 4);
 
         ParsePosition pos = new ParsePosition(3);
-        MeasurementParseException e = assertThrows(MeasurementParseException.class,
+        MeasurementParseException e = assertThrows(
+                MeasurementParseException.class,
                 () -> de.parse("x: -1.234,5 km", pos));
         assertEquals(5, e.getPosition());
         assertEquals(5, pos.getErrorIndex());
@@ -412,11 +470,47 @@ class LocaleQuantityFormatTest {
     }
 
     static double[] roundTripValues() {
-        return new double[] {0.0, -0.0, 1.0, -1.0, 0.5, -0.5, 0.1, -0.1, 1.0 / 3, -2.0 / 3, 1e22, -1e22, 1e-22,
-            1e10, 1e-7, 1e7, 1e-3, 123456789.125, -123456789.125, Double.MIN_VALUE, -Double.MIN_VALUE,
-            Double.MAX_VALUE, -Double.MAX_VALUE, Double.MIN_NORMAL, 1e300, -1e-300, 42.0, 1234.5, -1234.5,
-            0.30000000000000004, 9007199254740993.0, 6.02214076e23, 1.602176634e-19, 299792458.0, 2.5e-5,
-            Math.PI, -Math.E, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY};
+        return new double[] {
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            0.5,
+            -0.5,
+            0.1,
+            -0.1,
+            1.0 / 3,
+            -2.0 / 3,
+            1e22,
+            -1e22,
+            1e-22,
+            1e10,
+            1e-7,
+            1e7,
+            1e-3,
+            123456789.125,
+            -123456789.125,
+            Double.MIN_VALUE,
+            -Double.MIN_VALUE,
+            Double.MAX_VALUE,
+            -Double.MAX_VALUE,
+            Double.MIN_NORMAL,
+            1e300,
+            -1e-300,
+            42.0,
+            1234.5,
+            -1234.5,
+            0.30000000000000004,
+            9007199254740993.0,
+            6.02214076e23,
+            1.602176634e-19,
+            299792458.0,
+            2.5e-5,
+            Math.PI,
+            -Math.E,
+            Double.NaN,
+            Double.POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY };
     }
 
     @Test
@@ -427,7 +521,7 @@ class LocaleQuantityFormatTest {
         List<String> failures = new ArrayList<>();
         int checked = 0;
         for (Locale locale : Locale.getAvailableLocales()) {
-            for (boolean grouping : new boolean[] {false, true}) {
+            for (boolean grouping : new boolean[] { false, true }) {
                 UomQuantityFormat f = root.withLocale(locale).withGrouping(grouping);
                 for (UomUnit<?> unit : units) {
                     String unitText = UNITS.format(unit);
@@ -437,8 +531,8 @@ class LocaleQuantityFormatTest {
                         checked++;
                         try {
                             Quantity<?> back = f.parse(text);
-                            if (Double.doubleToRawLongBits(back.getValue().doubleValue())
-                                    != Double.doubleToRawLongBits(v) || !unit.equals(back.getUnit())
+                            if (Double.doubleToRawLongBits(back.getValue().doubleValue()) != Double
+                                    .doubleToRawLongBits(v) || !unit.equals(back.getUnit())
                                     || !(unitText.equals("1") ? !text.contains(" ") : text.endsWith(" " + unitText))) {
                                 failures.add(locale.toLanguageTag() + " " + grouping + " " + text + " -> " + back);
                             }
@@ -459,7 +553,7 @@ class LocaleQuantityFormatTest {
         List<String> failures = new ArrayList<>();
         int checked = 0;
         for (Locale locale : Locale.getAvailableLocales()) {
-            for (boolean grouping : new boolean[] {false, true}) {
+            for (boolean grouping : new boolean[] { false, true }) {
                 UomQuantityFormat f = root.withLocale(locale).withGrouping(grouping)
                         .withDecimals(MathContext.DECIMAL64);
                 for (UomUnit<?> unit : units) {
@@ -489,11 +583,13 @@ class LocaleQuantityFormatTest {
         DecimalFormatSymbols same = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         same.setGroupingSeparator(',');
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, same));
-        assertEquals("locale x-test cannot round trip numbers: decimal separator ',' equals grouping separator",
+        assertEquals(
+                "locale x-test cannot round trip numbers: decimal separator ',' equals grouping separator",
                 e.getMessage());
         DecimalFormatSymbols digitMinus = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         digitMinus.setMinusSign('7');
-        assertEquals("locale x-test cannot round trip numbers: minus sign '7' is a letter, digit, space, format mark or plus",
+        assertEquals(
+                "locale x-test cannot round trip numbers: minus sign '7' is a letter, digit, space, format mark or plus",
                 assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, digitMinus)).getMessage());
         DecimalFormatSymbols letterDecimal = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         letterDecimal.setDecimalSeparator('E');
@@ -506,8 +602,11 @@ class LocaleQuantityFormatTest {
         assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, plusDecimal));
         DecimalFormatSymbols digitExponent = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         digitExponent.setExponentSeparator("10^");
-        assertEquals("locale x-test cannot round trip numbers: exponent separator '10^' starts with a digit, sign"
-                + " or separator", assertThrows(IllegalArgumentException.class,
+        assertEquals(
+                "locale x-test cannot round trip numbers: exponent separator '10^' starts with a digit, sign"
+                        + " or separator",
+                assertThrows(
+                        IllegalArgumentException.class,
                         () -> root.withSymbols(x, digitExponent)).getMessage());
         DecimalFormatSymbols emptyExponent = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         emptyExponent.setExponentSeparator("");
@@ -518,11 +617,13 @@ class LocaleQuantityFormatTest {
         DecimalFormatSymbols markMinus = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         markMinus.setMinusSign('\u200E');
         assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, markMinus));
-        for (char c : new char[] {',', '.'}) {
+        for (char c : new char[] { ',', '.' }) {
             DecimalFormatSymbols separatorMinus = DecimalFormatSymbols.getInstance(Locale.GERMANY);
             separatorMinus.setMinusSign(c);
-            assertEquals("locale x-test cannot round trip numbers: minus sign '" + c + "' collides with a separator",
-                    assertThrows(IllegalArgumentException.class,
+            assertEquals(
+                    "locale x-test cannot round trip numbers: minus sign '" + c + "' collides with a separator",
+                    assertThrows(
+                            IllegalArgumentException.class,
                             () -> root.withSymbols(x, separatorMinus)).getMessage());
         }
         DecimalFormatSymbols dashGroup = DecimalFormatSymbols.getInstance(Locale.GERMANY);
@@ -533,20 +634,25 @@ class LocaleQuantityFormatTest {
         dashDecimal.setMinusSign('\u2212');
         dashDecimal.setDecimalSeparator('-');
         assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, dashDecimal));
-        for (String first : new String[] {",10^", ".10^", "-10^", "+10^", "\u221210^"}) {
+        for (String first : new String[] { ",10^", ".10^", "-10^", "+10^", "\u221210^" }) {
             DecimalFormatSymbols bad = DecimalFormatSymbols.getInstance(Locale.GERMANY);
             bad.setMinusSign('\u2212');
             bad.setExponentSeparator(first);
-            assertEquals("locale x-test cannot round trip numbers: exponent separator '" + first
-                    + "' starts with a digit, sign or separator", assertThrows(IllegalArgumentException.class,
-                            () -> root.withSymbols(x, bad)).getMessage(), first);
+            assertEquals(
+                    "locale x-test cannot round trip numbers: exponent separator '" + first
+                            + "' starts with a digit, sign or separator",
+                    assertThrows(
+                            IllegalArgumentException.class,
+                            () -> root.withSymbols(x, bad)).getMessage(),
+                    first);
         }
         DecimalFormatSymbols arabicDigitExponent = DecimalFormatSymbols.getInstance(Locale.forLanguageTag("ar-EG"));
         arabicDigitExponent.setExponentSeparator("\u0661x");
         assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, arabicDigitExponent));
         DecimalFormatSymbols badZero = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         badZero.setZeroDigit('a');
-        assertEquals("locale x-test cannot round trip numbers: zero digit 'a' does not start a digit run",
+        assertEquals(
+                "locale x-test cannot round trip numbers: zero digit 'a' does not start a digit run",
                 assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, badZero)).getMessage());
     }
 
@@ -564,7 +670,8 @@ class LocaleQuantityFormatTest {
                     for (int i = 0; i < 5000; i++) {
                         double v = Double.longBitsToDouble(random.nextLong());
                         double back = fa.parse(fa.format(km(v))).getValue().doubleValue();
-                        if (Double.isNaN(v) ? !Double.isNaN(back)
+                        if (Double.isNaN(v)
+                                ? !Double.isNaN(back)
                                 : Double.doubleToRawLongBits(back) != Double.doubleToRawLongBits(v)) {
                             failures++;
                         }
@@ -583,7 +690,7 @@ class LocaleQuantityFormatTest {
     /** The compiled classes reference no rounding formatter (DecimalFormatSymbols only). */
     @Test
     void noNumberFormatInTheImplementation() throws IOException {
-        for (String name : new String[] {"UomQuantityFormat.class", "UomQuantityFormat$Factories.class"}) {
+        for (String name : new String[] { "UomQuantityFormat.class", "UomQuantityFormat$Factories.class" }) {
             String bytes;
             try (InputStream in = UomQuantityFormat.class.getResourceAsStream(name)) {
                 bytes = new String(in.readAllBytes(), StandardCharsets.ISO_8859_1);

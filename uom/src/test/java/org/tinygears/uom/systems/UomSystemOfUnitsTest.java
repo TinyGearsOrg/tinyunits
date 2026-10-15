@@ -1,8 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,13 +21,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.measure.MetricPrefix;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Time;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.UomDimension;
-import javax.measure.MetricPrefix;
+import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class UomSystemOfUnitsTest {
 
@@ -100,7 +110,8 @@ class UomSystemOfUnitsTest {
 
     @Test
     void duplicateSymbolIsRejected() {
-        var e = assertThrows(IllegalArgumentException.class,
+        var e = assertThrows(
+                IllegalArgumentException.class,
                 () -> new UomSystemOfUnits("D", List.of(M, BaseUnits.SECOND.named("m", "other")), Map.of(), Set.of()));
         assertEquals("duplicate unit symbol: m", e.getMessage());
     }
@@ -108,7 +119,8 @@ class UomSystemOfUnitsTest {
     @Test
     void unitWithoutSymbolIsRejected() {
         var unit = BaseUnits.METRE.multiply(3);
-        var e = assertThrows(IllegalArgumentException.class,
+        var e = assertThrows(
+                IllegalArgumentException.class,
                 () -> new UomSystemOfUnits("D", List.of(unit), Map.of(), Set.of()));
         assertEquals("unit without a symbol: " + unit, e.getMessage());
     }
@@ -116,37 +128,58 @@ class UomSystemOfUnitsTest {
     @Test
     void emptySymbolIsRejected() {
         var unit = BaseUnits.METRE.named("", "empty");
-        var e = assertThrows(IllegalArgumentException.class,
+        var e = assertThrows(
+                IllegalArgumentException.class,
                 () -> new UomSystemOfUnits("D", List.of(unit), Map.of(), Set.of()));
         assertEquals("unit without a symbol: " + unit, e.getMessage());
     }
 
     @Test
     void unknownPrefixableSymbolIsRejected() {
-        var e = assertThrows(IllegalArgumentException.class,
+        var e = assertThrows(
+                IllegalArgumentException.class,
                 () -> new UomSystemOfUnits("D", List.of(M), Map.of(), Set.of("zz")));
         assertEquals("prefixable symbol is not a unit symbol: zz", e.getMessage());
-        e = assertThrows(IllegalArgumentException.class,
+        e = assertThrows(
+                IllegalArgumentException.class,
                 () -> new UomSystemOfUnits("D", List.of(M), Map.of(), Set.of(), Set.of("zz")));
         assertEquals("prefixable symbol is not a unit symbol: zz", e.getMessage());
     }
 
     @Test
     void nullsAreRejected() {
-        assertEquals("name", assertThrows(NullPointerException.class,
-                () -> new UomSystemOfUnits(null, List.of(), Map.of(), Set.of())).getMessage());
-        assertEquals("units", assertThrows(NullPointerException.class,
-                () -> new UomSystemOfUnits("n", null, Map.of(), Set.of())).getMessage());
-        assertEquals("preferred", assertThrows(NullPointerException.class,
-                () -> new UomSystemOfUnits("n", List.of(), null, Set.of())).getMessage());
-        assertEquals("prefixable", assertThrows(NullPointerException.class,
-                () -> new UomSystemOfUnits("n", List.of(), Map.of(), null)).getMessage());
-        assertEquals("binaryPrefixable", assertThrows(NullPointerException.class,
-                () -> new UomSystemOfUnits("n", List.of(), Map.of(), Set.of(), null)).getMessage());
+        assertEquals(
+                "name",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> new UomSystemOfUnits(null, List.of(), Map.of(), Set.of())).getMessage());
+        assertEquals(
+                "units",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> new UomSystemOfUnits("n", null, Map.of(), Set.of())).getMessage());
+        assertEquals(
+                "preferred",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> new UomSystemOfUnits("n", List.of(), null, Set.of())).getMessage());
+        assertEquals(
+                "prefixable",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> new UomSystemOfUnits("n", List.of(), Map.of(), null)).getMessage());
+        assertEquals(
+                "binaryPrefixable",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> new UomSystemOfUnits("n", List.of(), Map.of(), Set.of(), null)).getMessage());
         var withNull = new ArrayList<UomUnit<?>>();
         withNull.add(null);
-        assertEquals("unit", assertThrows(NullPointerException.class,
-                () -> new UomSystemOfUnits("n", withNull, Map.of(), Set.of())).getMessage());
+        assertEquals(
+                "unit",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> new UomSystemOfUnits("n", withNull, Map.of(), Set.of())).getMessage());
     }
 
     @Test

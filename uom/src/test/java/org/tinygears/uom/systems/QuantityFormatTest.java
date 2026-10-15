@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -19,10 +20,19 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Frequency;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class QuantityFormatTest {
     private final UomUnitFormat units = UomUnitFormat.standard();
@@ -92,7 +102,8 @@ class QuantityFormatTest {
         assertEquals(7, pos.getIndex());
 
         ParsePosition bad = new ParsePosition(3);
-        MeasurementParseException e = assertThrows(MeasurementParseException.class,
+        MeasurementParseException e = assertThrows(
+                MeasurementParseException.class,
                 () -> format.parse("x: 2 kgg", bad));
         assertEquals(5, e.getPosition());
         assertEquals(5, bad.getErrorIndex());
@@ -128,7 +139,8 @@ class QuantityFormatTest {
         Quantity<?> shifted = UntypedDoubleQuantity.of(1, BaseUnits.KELVIN.shift(5));
         assertEquals("1.0 K + 5", format.format(shifted));
         assertEquals(BaseUnits.KELVIN.shift(5), format.parse("1.0 K + 5").getUnit());
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> format.format(UntypedDoubleQuantity.of(1, BaseUnits.KELVIN.multiply(-1))));
     }
 

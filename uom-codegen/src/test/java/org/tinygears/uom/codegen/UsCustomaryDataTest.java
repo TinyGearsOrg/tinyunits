@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -21,8 +23,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
@@ -31,6 +35,12 @@ import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Extends;
 import org.tinygears.uom.core.parse.Preferred;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UsCustomaryDataTest {
     private static final Path DATA = Path.of("../data");
@@ -64,7 +74,8 @@ class UsCustomaryDataTest {
     }
 
     private static Definitions parse(String file) throws IOException {
-        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(DATA.resolve(name),
+        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(
+                DATA.resolve(name),
                 StandardCharsets.UTF_8);
         try (Reader in = resolver.open(file)) {
             return DefinitionParser.parse(file, in, resolver);
@@ -183,7 +194,8 @@ class UsCustomaryDataTest {
         assertFactor("BTU_IT", "J", new BigDecimal("1055.05585262"));
         Factor btuTh = exact(new BigDecimal("453.59237").multiply(new BigDecimal("4.184"))).multiply(Factor.of(5, 9));
         assertFactor("BTU_th", "J", btuTh);
-        assertEquals(new BigDecimal("1054.350264488889"),
+        assertEquals(
+                new BigDecimal("1054.350264488889"),
                 unit("BTU_th").toSystemConverter().factor().decimalValue(new MathContext(16)));
         UomUnit<?> mps = unit("m").divide(unit("s"));
         assertEquals(mps, unit("mph").getSystemUnit());
@@ -206,13 +218,26 @@ class UsCustomaryDataTest {
 
     @Test
     void types() {
-        Map<String, String> expected = Map.ofEntries(Map.entry("ft", "Length"), Map.entry("ft_US", "Length"),
-                Map.entry("nmi", "Length"), Map.entry("ac", "Area"), Map.entry("ft²", "Area"),
-                Map.entry("gal_US", "Volume"), Map.entry("gal_UK", "Volume"), Map.entry("lb", "Mass"),
-                Map.entry("st", "Mass"), Map.entry("lbf", "Force"), Map.entry("psi", "Pressure"),
-                Map.entry("hp", "Power"), Map.entry("hp_M", "Power"), Map.entry("BTU_IT", "Energy"),
-                Map.entry("BTU_th", "Energy"), Map.entry("mph", "Speed"), Map.entry("kn", "Speed"),
-                Map.entry("°F", "Temperature"), Map.entry("°R", "Temperature"));
+        Map<String, String> expected = Map.ofEntries(
+                Map.entry("ft", "Length"),
+                Map.entry("ft_US", "Length"),
+                Map.entry("nmi", "Length"),
+                Map.entry("ac", "Area"),
+                Map.entry("ft²", "Area"),
+                Map.entry("gal_US", "Volume"),
+                Map.entry("gal_UK", "Volume"),
+                Map.entry("lb", "Mass"),
+                Map.entry("st", "Mass"),
+                Map.entry("lbf", "Force"),
+                Map.entry("psi", "Pressure"),
+                Map.entry("hp", "Power"),
+                Map.entry("hp_M", "Power"),
+                Map.entry("BTU_IT", "Energy"),
+                Map.entry("BTU_th", "Energy"),
+                Map.entry("mph", "Speed"),
+                Map.entry("kn", "Speed"),
+                Map.entry("°F", "Temperature"),
+                Map.entry("°R", "Temperature"));
         expected.forEach((symbol, type) -> assertEquals(type, ukEntries.get(symbol).quantityType(), symbol));
         for (Definition d : uk.definitions()) {
             if (!d.source().equals("si.units")) {
@@ -248,9 +273,27 @@ class UsCustomaryDataTest {
         assertEquals("Imperial", uk.system());
         assertEquals(List.of("us-customary.units"), uk.extended().stream().map(Extends::file).toList());
         assertEquals(UK, uk.extended().get(0).source());
-        Map<String, String> usPreferred = Map.of("Length", "ft", "Area", "ft²", "Volume", "gal_US",
-                "Mass", "lb", "Force", "lbf", "Pressure", "psi", "Energy", "BTU_IT", "Power", "hp",
-                "Speed", "mph", "Temperature", "°F");
+        Map<String, String> usPreferred = Map.of(
+                "Length",
+                "ft",
+                "Area",
+                "ft²",
+                "Volume",
+                "gal_US",
+                "Mass",
+                "lb",
+                "Force",
+                "lbf",
+                "Pressure",
+                "psi",
+                "Energy",
+                "BTU_IT",
+                "Power",
+                "hp",
+                "Speed",
+                "mph",
+                "Temperature",
+                "°F");
         assertEquals(usPreferred, preferred(us, US));
         assertEquals(usPreferred, preferred(uk, US));
         assertEquals(Map.of("Volume", "gal_UK"), preferred(uk, UK));

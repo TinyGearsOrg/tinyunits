@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
@@ -17,19 +18,27 @@ import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 class AbstractDecimalQuantityTest {
 
     private static final UomUnit<Length> METRE = BaseUnits.METRE;
     private static final UomUnit<Length> KILOMETRE = BaseUnits.METRE.multiply(1000);
     private static final UomUnit<Length> INCH = BaseUnits.METRE.multiply(new BigDecimal("0.0254"));
-    private static final UomUnit<Length> CELSIUS =
-            UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
-    private static final UomUnit<Length> FAHRENHEIT =
-            UomUnit.unchecked(BaseUnits.KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67")));
+    private static final UomUnit<Length> CELSIUS = UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
+    private static final UomUnit<Length> FAHRENHEIT = UomUnit
+            .unchecked(BaseUnits.KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67")));
 
     private static TestLengthDecimalImpl q(String value, UomUnit<Length> unit) {
         return new TestLengthDecimalImpl(new BigDecimal(value), unit);
@@ -42,13 +51,18 @@ class AbstractDecimalQuantityTest {
     @SuppressWarnings("unchecked")
     private static Unit<Length> foreignUnit() {
         return (Unit<Length>) Proxy.newProxyInstance(
-                AbstractDecimalQuantityTest.class.getClassLoader(), new Class<?>[] {Unit.class}, (p, m, a) -> null);
+                AbstractDecimalQuantityTest.class.getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
     }
 
     @Test
     void accessors() {
         TestLengthDecimalImpl q = new TestLengthDecimalImpl(
-                new BigDecimal("1.50"), KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL32);
+                new BigDecimal("1.50"),
+                KILOMETRE,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL32);
         assertEquals(new BigDecimal("1.50"), q.getValue());
         assertSame(KILOMETRE, q.getUnit());
         assertSame(Quantity.Scale.RELATIVE, q.getScale());
@@ -89,7 +103,10 @@ class AbstractDecimalQuantityTest {
     @Test
     void toKeepsScaleAndContext() {
         TestLengthDecimalImpl q = new TestLengthDecimalImpl(
-                new BigDecimal("1"), KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL32);
+                new BigDecimal("1"),
+                KILOMETRE,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL32);
         TestLengthDecimalImpl r = (TestLengthDecimalImpl) q.to(METRE);
         assertSame(Quantity.Scale.RELATIVE, r.getScale());
         assertSame(MathContext.DECIMAL32, r.mathContext());
@@ -129,8 +146,13 @@ class AbstractDecimalQuantityTest {
         assertNotEquals(q("1", KILOMETRE), q("1", METRE));
         assertNotEquals(q("1000", METRE), q("1", KILOMETRE));
         assertNotEquals(q("1", METRE), q("2", METRE));
-        assertNotEquals(q("1", METRE), new TestLengthDecimalImpl(
-                BigDecimal.ONE, METRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128));
+        assertNotEquals(
+                q("1", METRE),
+                new TestLengthDecimalImpl(
+                        BigDecimal.ONE,
+                        METRE,
+                        Quantity.Scale.RELATIVE,
+                        MathContext.DECIMAL128));
         assertNotEquals(q("1.5", METRE), new TestLengthImpl(1.5, METRE));
         assertNotEquals(new TestLengthImpl(1.5, METRE), q("1.5", METRE));
         assertNotEquals(q("1", METRE), null);
@@ -158,7 +180,10 @@ class AbstractDecimalQuantityTest {
     @Test
     void negate() {
         TestLengthDecimalImpl q = new TestLengthDecimalImpl(
-                new BigDecimal("1.5"), KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL32);
+                new BigDecimal("1.5"),
+                KILOMETRE,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL32);
         TestLengthDecimalImpl n = (TestLengthDecimalImpl) q.negate();
         assertEquals(new BigDecimal("-1.5"), n.getValue());
         assertSame(KILOMETRE, n.getUnit());
@@ -194,7 +219,10 @@ class AbstractDecimalQuantityTest {
     @Test
     void withMathContextKeepsTheValueExactly() {
         TestLengthDecimalImpl q = new TestLengthDecimalImpl(
-                new BigDecimal("1.23450"), KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128);
+                new BigDecimal("1.23450"),
+                KILOMETRE,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL128);
         MathContext three = new MathContext(3);
         TestLengthDecimalImpl r = (TestLengthDecimalImpl) q.withMathContext(three);
         assertEquals(new BigDecimal("1.23450"), r.getValue());
@@ -203,8 +231,11 @@ class AbstractDecimalQuantityTest {
         assertSame(Quantity.Scale.RELATIVE, r.getScale());
         assertSame(three, r.mathContext());
         assertThrows(NullPointerException.class, () -> q.withMathContext(null));
-        assertEquals("precision out of range: 100001", assertThrows(ArithmeticException.class,
-                () -> q.withMathContext(new MathContext(100_001))).getMessage());
+        assertEquals(
+                "precision out of range: 100001",
+                assertThrows(
+                        ArithmeticException.class,
+                        () -> q.withMathContext(new MathContext(100_001))).getMessage());
     }
 
     @Test

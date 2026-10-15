@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
 
@@ -15,6 +23,7 @@ import javax.measure.Quantity;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.format.QuantityFormat;
 import javax.measure.spi.QuantityFactory;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
@@ -78,8 +87,13 @@ public final class UomQuantityFormat implements QuantityFormat {
         this(Objects.requireNonNull(unitFormat, "unitFormat"), Locale.ROOT, ROOT_SYMBOLS, false, null);
     }
 
-    private UomQuantityFormat(UomUnitFormat unitFormat, Locale locale, DecimalFormatSymbols symbols,
-            boolean grouping, MathContext decimals) {
+    private UomQuantityFormat(
+            UomUnitFormat unitFormat,
+            Locale locale,
+            DecimalFormatSymbols symbols,
+            boolean grouping,
+            MathContext decimals
+    ) {
         this.unitFormat = unitFormat;
         this.locale = locale;
         this.grouping = grouping;
@@ -188,8 +202,12 @@ public final class UomQuantityFormat implements QuantityFormat {
     @Override
     public String toString() {
         return "UomQuantityFormat[locale=" + locale.toLanguageTag() + ", grouping=" + grouping + ", decimals="
-                + (decimals == null ? "off" : decimals.equals(MathContext.UNLIMITED) ? "unlimited"
-                        : decimals.getPrecision() + "/" + decimals.getRoundingMode()) + "]";
+                + (decimals == null
+                        ? "off"
+                        : decimals.equals(MathContext.UNLIMITED)
+                                ? "unlimited"
+                                : decimals.getPrecision() + "/" + decimals.getRoundingMode())
+                + "]";
     }
 
     private void check() {
@@ -306,18 +324,25 @@ public final class UomQuantityFormat implements QuantityFormat {
                 String unsigned = text.startsWith("+") || text.startsWith("-") ? text.substring(1) : text;
                 if (unsigned.equals("NaN") || unsigned.equals("Infinity")) {
                     throw new MeasurementParseException(
-                            "decimal quantities have no NaN or infinity: '" + token + "'", csq, from);
+                            "decimal quantities have no NaN or infinity: '" + token + "'",
+                            csq,
+                            from);
                 }
                 long scale = scaleOf(text);
                 if (scale > MAX_SCALE || scale < -MAX_SCALE) {
-                    throw new MeasurementParseException("invalid number '" + token + "': scale out of range"
-                            + (scale == Long.MAX_VALUE || scale == Long.MIN_VALUE ? "" : ": " + scale), csq, from);
+                    throw new MeasurementParseException(
+                            "invalid number '" + token + "': scale out of range"
+                                    + (scale == Long.MAX_VALUE || scale == Long.MIN_VALUE ? "" : ": " + scale),
+                            csq,
+                            from);
                 }
                 decimal = new BigDecimal(text);
             }
         } catch (NumberFormatException e) {
             throw new MeasurementParseException(
-                    token.isEmpty() ? "missing number" : "invalid number '" + token + "'", csq, from);
+                    token.isEmpty() ? "missing number" : "invalid number '" + token + "'",
+                    csq,
+                    from);
         }
         UomUnit<?> unit = s.substring(to).isBlank() ? BaseUnits.ONE : unitFormat.parseFrom(csq, to);
         if (decimals == null) {
@@ -417,8 +442,11 @@ public final class UomQuantityFormat implements QuantityFormat {
                     throw new MeasurementParseException("grouping separator not allowed: '" + c + "'", csq, i);
                 }
                 if (exponentPart || fraction) {
-                    throw new MeasurementParseException("grouping separator not allowed "
-                            + (exponentPart ? "in the exponent" : "after the decimal separator"), csq, i);
+                    throw new MeasurementParseException(
+                            "grouping separator not allowed "
+                                    + (exponentPart ? "in the exponent" : "after the decimal separator"),
+                            csq,
+                            i);
                 }
                 if (i == from || !isDigit(s.charAt(i - 1)) || i + 1 >= to || !isDigit(s.charAt(i + 1))) {
                     throw new MeasurementParseException("grouping separator not between digits", csq, i);
@@ -453,17 +481,18 @@ public final class UomQuantityFormat implements QuantityFormat {
         return c == minus || c == '-' || c == '+';
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Quantity<?> create(double value, UomUnit<?> unit) {
         QuantityFactory factory = Factories.BY_SYSTEM_UNIT.get(unit.getSystemUnit());
         return factory != null ? factory.create(value, unit) : UntypedDoubleQuantity.of(value, unit);
     }
 
     /** Keeps every digit of {@code value}: the factory's decimal quantity then takes {@code mc} without rounding. */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Quantity<?> create(BigDecimal value, UomUnit<?> unit, MathContext mc) {
         QuantityFactory factory = Factories.BY_SYSTEM_UNIT.get(unit.getSystemUnit());
-        return factory != null ? ((AbstractDecimalQuantity<?, ?>) factory.create(value, unit)).withMathContext(mc)
+        return factory != null
+                ? ((AbstractDecimalQuantity<?, ?>) factory.create(value, unit)).withMathContext(mc)
                 : UntypedDecimalQuantity.of(value, unit, mc);
     }
 
@@ -474,7 +503,7 @@ public final class UomQuantityFormat implements QuantityFormat {
         private Factories() {
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         private static Map<UomUnit<?>, QuantityFactory<?>> build() {
             Map<UomUnit<?>, QuantityFactory<?>> map = new HashMap<>();
             for (Class<?> type : QuantityTypes.types()) {

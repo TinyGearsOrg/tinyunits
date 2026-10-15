@@ -1,11 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -23,8 +26,10 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
@@ -33,14 +38,47 @@ import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Prefixed;
 import org.tinygears.uom.quantity.QuantityTypes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /** The generated catalog agrees with {@code data/si.units} (F17). */
 class SiCatalogTest {
-    private static final List<String> TYPES = List.of("Acceleration", "AmountOfSubstance", "Angle", "Area",
-            "CatalyticActivity", "Dimensionless", "ElectricCapacitance", "ElectricCharge", "ElectricConductance",
-            "ElectricCurrent", "ElectricInductance", "ElectricPotential", "ElectricResistance", "Energy", "Force",
-            "Frequency", "Illuminance", "Length", "LuminousFlux", "LuminousIntensity", "MagneticFlux",
-            "MagneticFluxDensity", "Mass", "Power", "Pressure", "RadiationDoseAbsorbed", "RadiationDoseEffective",
-            "Radioactivity", "SolidAngle", "Speed", "Temperature", "Time", "Volume");
+    private static final List<String> TYPES = List.of(
+            "Acceleration",
+            "AmountOfSubstance",
+            "Angle",
+            "Area",
+            "CatalyticActivity",
+            "Dimensionless",
+            "ElectricCapacitance",
+            "ElectricCharge",
+            "ElectricConductance",
+            "ElectricCurrent",
+            "ElectricInductance",
+            "ElectricPotential",
+            "ElectricResistance",
+            "Energy",
+            "Force",
+            "Frequency",
+            "Illuminance",
+            "Length",
+            "LuminousFlux",
+            "LuminousIntensity",
+            "MagneticFlux",
+            "MagneticFluxDensity",
+            "Mass",
+            "Power",
+            "Pressure",
+            "RadiationDoseAbsorbed",
+            "RadiationDoseEffective",
+            "Radioactivity",
+            "SolidAngle",
+            "Speed",
+            "Temperature",
+            "Time",
+            "Volume");
 
     private static Definitions defs;
 
@@ -71,7 +109,7 @@ class SiCatalogTest {
         assertEquals(BaseUnits.KELVIN, SI.SYSTEM.getUnit(Temperature.class));
         assertEquals(33, TYPES.size());
         for (String name : TYPES) {
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             Class<Q> type = (Class) Class.forName("javax.measure.quantity." + name);
             Unit<?> preferred = SI.SYSTEM.getUnit(type);
             assertNotNull(preferred, name);

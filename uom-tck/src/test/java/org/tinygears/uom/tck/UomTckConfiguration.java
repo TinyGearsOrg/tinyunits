@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.tck;
 
@@ -11,6 +19,9 @@ import javax.measure.UnitConverter;
 import javax.measure.format.QuantityFormat;
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.QuantityFactory;
+
+import tech.units.tck.util.ServiceConfiguration;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
@@ -20,10 +31,9 @@ import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.systems.SI;
 import org.tinygears.uom.systems.UomQuantityFormat;
 import org.tinygears.uom.systems.UomUnitFormat;
-import tech.units.tck.util.ServiceConfiguration;
 
 /** Tells the JSR-385 TCK which uom classes, units, converters and formats to test. */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class UomTckConfiguration implements ServiceConfiguration {
 
     @Override
@@ -60,19 +70,38 @@ public final class UomTckConfiguration implements ServiceConfiguration {
 
     @Override
     public Collection<? extends Unit<?>> getUnits4Test() {
-        return List.of(SI.METRE, SI.KILOGRAM, SI.SECOND, SI.AMPERE, SI.KELVIN, SI.MOLE, SI.CANDELA, BaseUnits.ONE,
-                SI.KILOMETRE, SI.DEGREE_CELSIUS, SI.NEWTON, SI.METRE.divide(SI.SECOND));
+        return List.of(
+                SI.METRE,
+                SI.KILOGRAM,
+                SI.SECOND,
+                SI.AMPERE,
+                SI.KELVIN,
+                SI.MOLE,
+                SI.CANDELA,
+                BaseUnits.ONE,
+                SI.KILOMETRE,
+                SI.DEGREE_CELSIUS,
+                SI.NEWTON,
+                SI.METRE.divide(SI.SECOND));
     }
 
     @Override
     public Collection<Dimension> getBaseDimensions() {
-        return List.of(UomDimension.LENGTH, UomDimension.MASS, UomDimension.TIME, UomDimension.CURRENT,
-                UomDimension.TEMPERATURE, UomDimension.AMOUNT, UomDimension.LUMINOSITY);
+        return List.of(
+                UomDimension.LENGTH,
+                UomDimension.MASS,
+                UomDimension.TIME,
+                UomDimension.CURRENT,
+                UomDimension.TEMPERATURE,
+                UomDimension.AMOUNT,
+                UomDimension.LUMINOSITY);
     }
 
     @Override
     public Collection<UnitConverter> getUnitConverters4Test() {
-        return List.of(Converters.IDENTITY, Converters.scale(Factor.ofLong(1000)),
+        return List.of(
+                Converters.IDENTITY,
+                Converters.scale(Factor.ofLong(1000)),
                 Converters.shift(Factor.ofLong(273)));
     }
 

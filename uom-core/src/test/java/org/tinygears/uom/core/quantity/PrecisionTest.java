@@ -1,10 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -12,16 +16,34 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.quantity.Precision.Kind;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PrecisionTest {
 
     private static final class Custom extends Number {
-        @Override public int intValue() { return 1; }
-        @Override public long longValue() { return 1; }
-        @Override public float floatValue() { return 1; }
-        @Override public double doubleValue() { return 1; }
+        @Override
+        public int intValue() {
+            return 1;
+        }
+        @Override
+        public long longValue() {
+            return 1;
+        }
+        @Override
+        public float floatValue() {
+            return 1;
+        }
+        @Override
+        public double doubleValue() {
+            return 1;
+        }
     }
 
     @Test
@@ -48,7 +70,8 @@ class PrecisionTest {
     void toDoubleRejectsOutOfRangeDecimals() {
         assertThrows(ArithmeticException.class, () -> Precision.toDouble(new BigDecimal("1e400")));
         assertThrows(ArithmeticException.class, () -> Precision.toDouble(new BigDecimal("-1e400")));
-        assertEquals("value out of double range: precision 1, scale -400",
+        assertEquals(
+                "value out of double range: precision 1, scale -400",
                 assertThrows(ArithmeticException.class, () -> Precision.toDouble(new BigDecimal("1e400")))
                         .getMessage());
         assertEquals(0.0, Precision.toDouble(new BigDecimal("1e-400")));
@@ -57,7 +80,8 @@ class PrecisionTest {
 
     @Test
     void toDoubleRejectsOutOfRangeIntegers() {
-        assertEquals("value out of double range: bit length 1329",
+        assertEquals(
+                "value out of double range: bit length 1329",
                 assertThrows(ArithmeticException.class, () -> Precision.toDouble(BigInteger.TEN.pow(400)))
                         .getMessage());
         assertThrows(ArithmeticException.class, () -> Precision.toDouble(BigInteger.TEN.pow(400).negate()));
@@ -80,8 +104,11 @@ class PrecisionTest {
         assertEquals(new BigDecimal("3.4028235E38"), Precision.toDecimal(Float.MAX_VALUE));
         BigDecimal b = new BigDecimal("1.50");
         assertSame(b, Precision.toDecimal(b));
-        assertEquals("scale out of range: 100001", assertThrows(ArithmeticException.class,
-                () -> Precision.toDecimal(BigDecimal.ONE.scaleByPowerOfTen(-100_001))).getMessage());
+        assertEquals(
+                "scale out of range: 100001",
+                assertThrows(
+                        ArithmeticException.class,
+                        () -> Precision.toDecimal(BigDecimal.ONE.scaleByPowerOfTen(-100_001))).getMessage());
         assertThrows(ArithmeticException.class, () -> Precision.toDecimal(Double.NaN));
         assertThrows(ArithmeticException.class, () -> Precision.toDecimal(Double.POSITIVE_INFINITY));
         assertThrows(ArithmeticException.class, () -> Precision.toDecimal(Double.NEGATIVE_INFINITY));

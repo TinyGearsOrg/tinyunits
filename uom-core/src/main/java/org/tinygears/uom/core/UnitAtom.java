@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
 
@@ -43,7 +51,10 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
         if (definition == null || definition.equals(Map.of(this, 1))) {
             return new Proxy(symbol, dimension, null, null);
         }
-        return new Proxy(symbol, dimension, definition.keySet().toArray(UnitAtom[]::new),
+        return new Proxy(
+                symbol,
+                dimension,
+                definition.keySet().toArray(UnitAtom[]::new),
                 definition.values().stream().mapToInt(Integer::intValue).toArray());
     }
 
@@ -101,11 +112,13 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
             try {
                 Objects.requireNonNull(symbol, "null symbol");
                 Objects.requireNonNull(dimension, "null dimension");
-                Map<UnitAtom, Integer> definition = definitionAtoms == null && definitionExponents == null ? null
+                Map<UnitAtom, Integer> definition = definitionAtoms == null && definitionExponents == null
+                        ? null
                         : UomUnit.atomMap(definitionAtoms, definitionExponents);
                 return AlternateUnits.restore(symbol, dimension, definition);
             } catch (RuntimeException e) {
-                throw (InvalidObjectException) new InvalidObjectException("invalid unit atom: " + e.getMessage()).initCause(e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid unit atom: " + e.getMessage())
+                        .initCause(e);
             }
         }
     }

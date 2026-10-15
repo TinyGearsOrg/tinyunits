@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
 
@@ -9,15 +17,20 @@ import javax.measure.MeasurementException;
 /** Registry of atom symbols, so each symbol names one definition. */
 final class AlternateUnits {
 
-    private record Registered(UnitAtom atom, Map<UnitAtom, Integer> definition) {
-    }
+    private record Registered(UnitAtom atom, Map<UnitAtom, Integer> definition) {}
 
     // The only global state in the units core.
     private static final Map<String, Registered> REGISTRY = new ConcurrentHashMap<>();
 
     static {
-        for (UomUnit<?> base : new UomUnit<?>[] {BaseUnits.METRE, BaseUnits.KILOGRAM, BaseUnits.SECOND,
-                BaseUnits.AMPERE, BaseUnits.KELVIN, BaseUnits.MOLE, BaseUnits.CANDELA}) {
+        for (UomUnit<?> base : new UomUnit<?>[] {
+            BaseUnits.METRE,
+            BaseUnits.KILOGRAM,
+            BaseUnits.SECOND,
+            BaseUnits.AMPERE,
+            BaseUnits.KELVIN,
+            BaseUnits.MOLE,
+            BaseUnits.CANDELA }) {
             UnitAtom atom = base.atoms().keySet().iterator().next();
             REGISTRY.put(atom.symbol(), new Registered(atom, base.atoms()));
         }
@@ -53,8 +66,9 @@ final class AlternateUnits {
         if (definition != null) {
             UomUnit<?> unit = UomUnit.of(definition, Converters.IDENTITY, null, null);
             if (!unit.getDimension().equals(dimension)) {
-                throw new MeasurementException("dimension " + dimension + " of " + symbol
-                        + " does not match its definition " + unit.getDimension());
+                throw new MeasurementException(
+                        "dimension " + dimension + " of " + symbol
+                                + " does not match its definition " + unit.getDimension());
             }
             atoms = unit.atoms();
         }

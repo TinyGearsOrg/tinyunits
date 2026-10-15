@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
 
@@ -54,6 +62,7 @@ import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
 import javax.measure.spi.QuantityFactory;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.spi.Providers;
 
@@ -77,15 +86,44 @@ final class QuantityProxy implements Serializable {
     private static final String VALUE_TOO_LARGE = "invalid quantity: value too large";
 
     /** Types by name, so a stream never makes the reader load a class it names. */
-    private static final Map<String, Class<?>> TYPES = Stream.of(Acceleration.class, AmountOfSubstance.class,
-            Angle.class, Area.class, CatalyticActivity.class, Dimensionless.class, ElectricCapacitance.class,
-            ElectricCharge.class, ElectricConductance.class, ElectricCurrent.class, ElectricInductance.class,
-            ElectricPotential.class, ElectricResistance.class, Energy.class, Force.class, Frequency.class,
-            Illuminance.class, Length.class, LuminousFlux.class, LuminousIntensity.class, MagneticFlux.class,
-            MagneticFluxDensity.class, Mass.class, Power.class, Pressure.class, RadiationDoseAbsorbed.class,
-            RadiationDoseEffective.class, Radioactivity.class, SolidAngle.class, Speed.class, Temperature.class,
-            Time.class, Volume.class, Untyped.class).collect(Collectors.toUnmodifiableMap(Class::getName,
-                    Function.identity()));
+    private static final Map<String, Class<?>> TYPES = Stream.of(
+            Acceleration.class,
+            AmountOfSubstance.class,
+            Angle.class,
+            Area.class,
+            CatalyticActivity.class,
+            Dimensionless.class,
+            ElectricCapacitance.class,
+            ElectricCharge.class,
+            ElectricConductance.class,
+            ElectricCurrent.class,
+            ElectricInductance.class,
+            ElectricPotential.class,
+            ElectricResistance.class,
+            Energy.class,
+            Force.class,
+            Frequency.class,
+            Illuminance.class,
+            Length.class,
+            LuminousFlux.class,
+            LuminousIntensity.class,
+            MagneticFlux.class,
+            MagneticFluxDensity.class,
+            Mass.class,
+            Power.class,
+            Pressure.class,
+            RadiationDoseAbsorbed.class,
+            RadiationDoseEffective.class,
+            Radioactivity.class,
+            SolidAngle.class,
+            Speed.class,
+            Temperature.class,
+            Time.class,
+            Volume.class,
+            Untyped.class).collect(
+                    Collectors.toUnmodifiableMap(
+                            Class::getName,
+                            Function.identity()));
 
     private transient String kind;
     private transient String type;
@@ -99,8 +137,17 @@ final class QuantityProxy implements Serializable {
     private transient Class<?> typeClass;
     private transient QuantityFactory<?> factory;
 
-    QuantityProxy(String kind, String type, UomUnit<?> unit, String scale, long bits, byte[] unscaled,
-            int decimalScale, int precision, String roundingMode) {
+    QuantityProxy(
+            String kind,
+            String type,
+            UomUnit<?> unit,
+            String scale,
+            long bits,
+            byte[] unscaled,
+            int decimalScale,
+            int precision,
+            String roundingMode
+    ) {
         this.kind = kind;
         this.type = type;
         this.unit = unit;
@@ -115,12 +162,25 @@ final class QuantityProxy implements Serializable {
     static QuantityProxy ofDouble(Class<?> type, UomUnit<?> unit, Quantity.Scale scale, double value)
             throws NotSerializableException {
         String name = typeName(type);
-        return new QuantityProxy(type == Untyped.class ? UNTYPED_DOUBLE : DOUBLE, name, unit, scale.name(),
-                Double.doubleToRawLongBits(value), null, 0, 0, null);
+        return new QuantityProxy(
+                type == Untyped.class ? UNTYPED_DOUBLE : DOUBLE,
+                name,
+                unit,
+                scale.name(),
+                Double.doubleToRawLongBits(value),
+                null,
+                0,
+                0,
+                null);
     }
 
-    static QuantityProxy ofDecimal(Class<?> type, UomUnit<?> unit, Quantity.Scale scale, BigDecimal value,
-            MathContext mc) throws NotSerializableException {
+    static QuantityProxy ofDecimal(
+            Class<?> type,
+            UomUnit<?> unit,
+            Quantity.Scale scale,
+            BigDecimal value,
+            MathContext mc
+    ) throws NotSerializableException {
         String name = typeName(type);
         byte[] b = value.unscaledValue().toByteArray();
         if (b.length > MAX_VALUE_BYTES) {
@@ -129,8 +189,16 @@ final class QuantityProxy implements Serializable {
         if (mc.getPrecision() > Precision.MAX_PRECISION) {
             throw new NotSerializableException("invalid quantity: precision out of range: " + mc.getPrecision());
         }
-        return new QuantityProxy(type == Untyped.class ? UNTYPED_DECIMAL : DECIMAL, name, unit, scale.name(), 0, b,
-                value.scale(), mc.getPrecision(), mc.getRoundingMode().name());
+        return new QuantityProxy(
+                type == Untyped.class ? UNTYPED_DECIMAL : DECIMAL,
+                name,
+                unit,
+                scale.name(),
+                0,
+                b,
+                value.scale(),
+                mc.getPrecision(),
+                mc.getRoundingMode().name());
     }
 
     /** Refuses a type the reader would reject, so the failure is at the writing end. */
@@ -306,11 +374,12 @@ final class QuantityProxy implements Serializable {
         if (mc != null && q instanceof AbstractDecimalQuantity<?, ?> d) {
             return d.with((BigDecimal) value, unit, s, mc);
         }
-        throw invalid("the factory for " + type + " created " + (q == null ? "null" : q.getClass().getName())
-                + ", not a " + kind + " quantity of this implementation");
+        throw invalid(
+                "the factory for " + type + " created " + (q == null ? "null" : q.getClass().getName())
+                        + ", not a " + kind + " quantity of this implementation");
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"}) // typeClass is one of the quantity interfaces
+    @SuppressWarnings({ "unchecked", "rawtypes" }) // typeClass is one of the quantity interfaces
     private QuantityFactory<?> factory() throws InvalidObjectException {
         QuantityFactory<?> f;
         try {
@@ -327,7 +396,7 @@ final class QuantityProxy implements Serializable {
         return f;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"}) // the unit's dimension matches the factory's system unit
+    @SuppressWarnings({ "unchecked", "rawtypes" }) // the unit's dimension matches the factory's system unit
     private Quantity<?> create(QuantityFactory factory, Number value, Quantity.Scale s) {
         return factory.create(value, (Unit) unit, s);
     }

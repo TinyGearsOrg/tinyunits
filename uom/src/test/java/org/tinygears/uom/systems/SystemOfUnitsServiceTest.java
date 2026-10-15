@@ -1,16 +1,25 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.List;
 import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
 import javax.measure.spi.SystemOfUnitsService;
+
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 class SystemOfUnitsServiceTest {
     private final SystemOfUnitsService service = new UomSystemOfUnitsService();
@@ -41,11 +50,19 @@ class SystemOfUnitsServiceTest {
 
     @Test
     void available() {
-        List<UomSystemOfUnits> all = List.of(SI.SYSTEM, USCustomary.SYSTEM, Imperial.SYSTEM, CGS.SYSTEM, ESU.SYSTEM,
-                EMU.SYSTEM, Gaussian.SYSTEM, Information.SYSTEM);
+        List<UomSystemOfUnits> all = List.of(
+                SI.SYSTEM,
+                USCustomary.SYSTEM,
+                Imperial.SYSTEM,
+                CGS.SYSTEM,
+                ESU.SYSTEM,
+                EMU.SYSTEM,
+                Gaussian.SYSTEM,
+                Information.SYSTEM);
         assertEquals(all, List.copyOf(service.getAvailableSystemsOfUnits()));
         assertEquals(all, UnitSystems.all());
-        assertEquals(List.of("SI", "USCustomary", "Imperial", "CGS", "ESU", "EMU", "Gaussian", "Information"),
+        assertEquals(
+                List.of("SI", "USCustomary", "Imperial", "CGS", "ESU", "EMU", "Gaussian", "Information"),
                 service.getAvailableSystemsOfUnits().stream().map(s -> s.getName()).toList());
     }
 

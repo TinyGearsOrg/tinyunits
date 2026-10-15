@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.examples;
 
@@ -21,6 +29,7 @@ import javax.measure.format.QuantityFormat;
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.FormatService;
 import javax.measure.spi.ServiceProvider;
+
 import org.tinygears.uom.quantity.Dimensionless;
 import org.tinygears.uom.quantity.ElectricCharge;
 import org.tinygears.uom.quantity.Energy;
@@ -133,8 +142,12 @@ public final class Examples {
         Length precise = Length.of(new BigDecimal("1.23456789"), SI.METRE);
         Length rounded = precise.toDecimal(new MathContext(4));
         Length viaFactory = Length.of(
-                new BigDecimal("1.23456789"), SI.METRE, Quantity.Scale.ABSOLUTE, MathContext.DECIMAL32);
-        return rounded + " | " + viaFactory.divide(3) + " | " + precise.toDouble().getValue().getClass().getSimpleName();
+                new BigDecimal("1.23456789"),
+                SI.METRE,
+                Quantity.Scale.ABSOLUTE,
+                MathContext.DECIMAL32);
+        return rounded + " | " + viaFactory.divide(3) + " | "
+                + precise.toDouble().getValue().getClass().getSimpleName();
     }
 
     /** Strict equals separates the precisions; isEquivalentTo compares what they measure. */

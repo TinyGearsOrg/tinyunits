@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
 
@@ -12,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Objects;
+
 import org.tinygears.uom.core.internal.Decimals;
 
 /**
@@ -406,12 +415,14 @@ public final class Factor implements Serializable {
             int shift = Math.max(0, 56 + den.bitLength() - n.bitLength());
             BigInteger[] qr = n.shiftLeft(shift).divideAndRemainder(den);
             BigInteger q = qr[1].signum() == 0 ? qr[0] : qr[0].setBit(0);
-            double d = Decimals.divide(new BigDecimal(q), new BigDecimal(BigInteger.ONE.shiftLeft(shift)),
+            double d = Decimals.divide(
+                    new BigDecimal(q),
+                    new BigDecimal(BigInteger.ONE.shiftLeft(shift)),
                     MathContext.UNLIMITED).doubleValue();
             return signum() < 0 ? -d : d;
         }
         // An irrational value is never a midpoint: widen until a +-2 ulp bracket rounds to one double.
-        for (int p = 25; ; p *= 2) {
+        for (int p = 25;; p *= 2) {
             BigDecimal x = decimalValue(new MathContext(p));
             BigDecimal err = x.ulp().multiply(BigDecimal.valueOf(2));
             double lo = x.subtract(err).doubleValue();
@@ -451,8 +462,10 @@ public final class Factor implements Serializable {
             BigInteger[] pqt = chudnovsky(0, p / 14 + 2);
             // The truncated root rounded HALF_UP is the correctly rounded root (irrational: never a tie), and
             // BigInteger.sqrt is twice as fast as BigDecimal.sqrt on JDK 21.
-            BigDecimal root = new BigDecimal(BigInteger.valueOf(10_005).multiply(BigInteger.TEN.pow(2 * (p + 10)))
-                    .sqrt(), p + 10).round(mc);
+            BigDecimal root = new BigDecimal(
+                    BigInteger.valueOf(10_005).multiply(BigInteger.TEN.pow(2 * (p + 10)))
+                            .sqrt(),
+                    p + 10).round(mc);
             BigDecimal pi = new BigDecimal(pqt[1].multiply(BigInteger.valueOf(426_880)))
                     .multiply(root, mc).divide(new BigDecimal(pqt[2]), mc);
             return pi.round(new MathContext(p));
@@ -471,25 +484,28 @@ public final class Factor implements Serializable {
         PI_CACHE.clear();
     }
 
-    private static final BigInteger CHUDNOVSKY_C3_24 = BigInteger.valueOf(640_320).pow(3).divide(BigInteger.valueOf(24));
+    private static final BigInteger CHUDNOVSKY_C3_24 = BigInteger.valueOf(640_320).pow(3)
+            .divide(BigInteger.valueOf(24));
 
     /** P, Q and T of the Chudnovsky series over terms {@code [a, b)}. */
     private static BigInteger[] chudnovsky(long a, long b) {
         if (b - a == 1) {
             if (a == 0) {
-                return new BigInteger[] {BigInteger.ONE, BigInteger.ONE, BigInteger.valueOf(13_591_409)};
+                return new BigInteger[] { BigInteger.ONE, BigInteger.ONE, BigInteger.valueOf(13_591_409) };
             }
             BigInteger p = BigInteger.valueOf(6 * a - 5).multiply(BigInteger.valueOf(2 * a - 1))
                     .multiply(BigInteger.valueOf(6 * a - 1));
             BigInteger q = BigInteger.valueOf(a).pow(3).multiply(CHUDNOVSKY_C3_24);
             BigInteger t = p.multiply(BigInteger.valueOf(13_591_409 + 545_140_134 * a));
-            return new BigInteger[] {p, q, a % 2 == 0 ? t : t.negate()};
+            return new BigInteger[] { p, q, a % 2 == 0 ? t : t.negate() };
         }
         long m = (a + b) / 2;
         BigInteger[] l = chudnovsky(a, m);
         BigInteger[] r = chudnovsky(m, b);
-        return new BigInteger[] {l[0].multiply(r[0]), l[1].multiply(r[1]),
-                l[2].multiply(r[1]).add(l[0].multiply(r[2]))};
+        return new BigInteger[] {
+            l[0].multiply(r[0]),
+            l[1].multiply(r[1]),
+            l[2].multiply(r[1]).add(l[0].multiply(r[2])) };
     }
 
     /** r-th root of a > 0 by Newton iteration from a double-precision guess. */
@@ -589,7 +605,8 @@ public final class Factor implements Serializable {
                 }
                 return of(numerator, denominator, piExponent, rootIndex);
             } catch (RuntimeException e) {
-                throw (InvalidObjectException) new InvalidObjectException("invalid factor: " + e.getMessage()).initCause(e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid factor: " + e.getMessage())
+                        .initCause(e);
             }
         }
     }

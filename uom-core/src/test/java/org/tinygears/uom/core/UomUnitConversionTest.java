@@ -1,6 +1,26 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.measure.IncommensurableException;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.quantity.Length;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,21 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.measure.IncommensurableException;
-import javax.measure.Unit;
-import javax.measure.UnconvertibleException;
-import javax.measure.quantity.Length;
-import org.junit.jupiter.api.Test;
-
 class UomUnitConversionTest {
 
-    private static final UomUnit<Length> KILOMETRE =
-            UomUnit.of(METRE.atoms(), Converters.scale(Factor.ofLong(1000)), "km", "kilometre");
+    private static final UomUnit<Length> KILOMETRE = UomUnit
+            .of(METRE.atoms(), Converters.scale(Factor.ofLong(1000)), "km", "kilometre");
 
     @Test
     void kilometreToMetre() {
@@ -48,16 +57,18 @@ class UomUnitConversionTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void mismatchedDimensionThrowsUnconvertible() {
         assertThrows(UnconvertibleException.class, () -> METRE.getConverterTo((Unit) SECOND));
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void foreignUnitIsRejected() {
         Unit<Length> foreign = (Unit<Length>) java.lang.reflect.Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class<?>[] {Unit.class}, (p, m, a) -> null);
+                getClass().getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
         assertThrows(UnconvertibleException.class, () -> METRE.getConverterTo(foreign));
         assertThrows(UnconvertibleException.class, () -> METRE.getConverterToAny(foreign));
         assertFalse(METRE.isEquivalentTo(foreign));
@@ -78,7 +89,7 @@ class UomUnitConversionTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void failuresAreNotCached() {
         assertThrows(UnconvertibleException.class, () -> METRE.getConverterTo((Unit) SECOND));
         assertThrows(UnconvertibleException.class, () -> METRE.getConverterTo((Unit) SECOND));

@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
 
@@ -14,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.measure.UnitConverter;
+
 import org.tinygears.uom.core.internal.Decimals;
 
 /**
@@ -73,7 +82,9 @@ final class AffineConverter implements UomConverter, Serializable {
         }
         List<UnitConverter> all = new ArrayList<>(steps);
         all.addAll(o.getConversionSteps());
-        return new AffineConverter(factor.multiply(o.factor()), factor.multiply(o.offset()).add(offset),
+        return new AffineConverter(
+                factor.multiply(o.factor()),
+                factor.multiply(o.offset()).add(offset),
                 List.copyOf(all));
     }
 
@@ -114,12 +125,17 @@ final class AffineConverter implements UomConverter, Serializable {
             int guard = mc.getPrecision() + d.precision() + 1;
             // Exact quotients take the scale of the sum aligned to scale max(value scale, 0); the zero-term and
             // negative-scale adjustments reproduce it without the alignment.
-            BigDecimal n = b.signum() == 0 ? t
-                    : t.signum() == 0 ? b.setScale(Math.max(0, Math.min(t.scale(), guard)))
-                    : addFar(t, b, guard);
+            BigDecimal n = b.signum() == 0
+                    ? t
+                    : t.signum() == 0
+                            ? b.setScale(Math.max(0, Math.min(t.scale(), guard)))
+                            : addFar(t, b, guard);
             BigDecimal q = Decimals.divide(n, d, mc);
-            return q.scale() >= 0 ? q : q.signum() == 0 ? BigDecimal.ZERO
-                    : q.setScale(Math.min(0, q.scale() + mc.getPrecision() - q.precision()));
+            return q.scale() >= 0
+                    ? q
+                    : q.signum() == 0
+                            ? BigDecimal.ZERO
+                            : q.setScale(Math.min(0, q.scale() + mc.getPrecision() - q.precision()));
         }
         // Best effort for irrational coefficients: the product's relative error is independent of the
         // value's magnitude, so guard digits only cover cancellation against the offset.
@@ -243,7 +259,8 @@ final class AffineConverter implements UomConverter, Serializable {
                 // Validated above; the package-private constructor keeps the stored values and the step list.
                 return new AffineConverter(factor, offset, List.copyOf(steps));
             } catch (RuntimeException e) {
-                throw (InvalidObjectException) new InvalidObjectException("invalid converter: " + e.getMessage()).initCause(e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid converter: " + e.getMessage())
+                        .initCause(e);
             }
         }
 
@@ -255,8 +272,9 @@ final class AffineConverter implements UomConverter, Serializable {
             List<Factor> all = new ArrayList<>(List.of(factor, offset));
             all.addAll(List.of(stepFactors));
             all.addAll(List.of(stepOffsets));
-            if (all.stream().anyMatch(x -> x.numerator().bitLength() > MAX_DECIMAL_BITS
-                    || x.denominator().bitLength() > MAX_DECIMAL_BITS)) {
+            if (all.stream().anyMatch(
+                    x -> x.numerator().bitLength() > MAX_DECIMAL_BITS
+                            || x.denominator().bitLength() > MAX_DECIMAL_BITS)) {
                 return true;
             }
             try {

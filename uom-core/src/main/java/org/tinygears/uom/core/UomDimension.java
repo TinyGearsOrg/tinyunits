@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
 
@@ -24,7 +32,9 @@ import javax.measure.Dimension;
  * @param luminosity the exponent of luminous intensity
  */
 public record UomDimension(int length, int mass, int time, int current, int temperature, int amount, int luminosity)
-        implements Dimension, Serializable {
+        implements
+            Dimension,
+            Serializable {
 
     public static final UomDimension NONE = new UomDimension(0, 0, 0, 0, 0, 0, 0);
     public static final UomDimension LENGTH = new UomDimension(1, 0, 0, 0, 0, 0, 0);
@@ -37,10 +47,10 @@ public record UomDimension(int length, int mass, int time, int current, int temp
 
     private static final String SYMBOLS = "LMTIΘNJ";
 
-    private static final UomDimension[] BASES = {LENGTH, MASS, TIME, CURRENT, TEMPERATURE, AMOUNT, LUMINOSITY};
+    private static final UomDimension[] BASES = { LENGTH, MASS, TIME, CURRENT, TEMPERATURE, AMOUNT, LUMINOSITY };
 
     private int[] exponents() {
-        return new int[] {length, mass, time, current, temperature, amount, luminosity};
+        return new int[] { length, mass, time, current, temperature, amount, luminosity };
     }
 
     private static UomDimension of(int[] e) {

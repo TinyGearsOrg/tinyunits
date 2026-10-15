@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
 
@@ -22,10 +30,11 @@ import java.util.stream.Collectors;
 import javax.measure.IncommensurableException;
 import javax.measure.Prefix;
 import javax.measure.Quantity;
-import javax.measure.Unit;
 import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
 import javax.measure.UnitConverter;
 import javax.measure.spi.QuantityFactory;
+
 import org.tinygears.uom.core.spi.Providers;
 
 /**
@@ -50,8 +59,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     /** Hash of the atoms and the converter; units are cache keys, so it is computed once. */
     private final transient int hash;
     /** Converters to the most recently used targets; bounded, so the targets are not all kept alive. */
-    private final transient BoundedCache<UomUnit<?>, UomConverter> converterCache =
-            new BoundedCache<>(CONVERTER_CACHE_SIZE);
+    private final transient BoundedCache<UomUnit<?>, UomConverter> converterCache = new BoundedCache<>(
+            CONVERTER_CACHE_SIZE);
 
     private UomUnit(Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
         this.atoms = atoms;
@@ -89,7 +98,11 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      * @return the unit
      */
     public static <Q extends Quantity<Q>> UomUnit<Q> of(
-            Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
+            Map<UnitAtom, Integer> atoms,
+            UomConverter toSystem,
+            String symbol,
+            String name
+    ) {
         Objects.requireNonNull(toSystem, "toSystem");
         Map<UnitAtom, Integer> normalized = new LinkedHashMap<>();
         atoms.entrySet().stream()
@@ -181,8 +194,10 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             return null;
         }
         Map<UomUnit<?>, Integer> m = new LinkedHashMap<>();
-        atoms.forEach((atom, n) -> m.put(
-                new UomUnit<>(Map.of(atom, 1), Converters.IDENTITY, atom.symbol(), null), n));
+        atoms.forEach(
+                (atom, n) -> m.put(
+                        new UomUnit<>(Map.of(atom, 1), Converters.IDENTITY, atom.symbol(), null),
+                        n));
         return Collections.unmodifiableMap(m);
     }
 
@@ -251,7 +266,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     /** Same dimension and an identity converter; alternate atoms may differ, so rad is equivalent to one. */
     @Override
     public boolean isEquivalentTo(Unit<Q> that) {
-        return Objects.requireNonNull(that, "that") instanceof UomUnit<?> u && isCompatible(u) && converterTo(u).isIdentity();
+        return Objects.requireNonNull(that, "that") instanceof UomUnit<?> u && isCompatible(u)
+                && converterTo(u).isIdentity();
     }
 
     @Override
@@ -400,7 +416,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         Factor f = quotient
                 ? toSystem.factor().divide(that.toSystem.factor())
                 : toSystem.factor().multiply(that.toSystem.factor());
-        String s = symbol == null || that.symbol == null ? null
+        String s = symbol == null || that.symbol == null
+                ? null
                 : group(symbol, "/") + (quotient ? "/" + group(that.symbol, "·/") : "·" + group(that.symbol, "/"));
         return of(m, Converters.scale(f), s, null);
     }
@@ -449,8 +466,12 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      */
     @Serial
     private Object writeReplace() {
-        return new Proxy(atoms.keySet().toArray(UnitAtom[]::new),
-                atoms.values().stream().mapToInt(Integer::intValue).toArray(), toSystem, symbol, name);
+        return new Proxy(
+                atoms.keySet().toArray(UnitAtom[]::new),
+                atoms.values().stream().mapToInt(Integer::intValue).toArray(),
+                toSystem,
+                symbol,
+                name);
     }
 
     /**
@@ -529,7 +550,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
                 }
                 return of(atomMap(atoms, exponents), toSystem, symbol, name);
             } catch (RuntimeException e) {
-                throw (InvalidObjectException) new InvalidObjectException("invalid unit: " + e.getMessage()).initCause(e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid unit: " + e.getMessage())
+                        .initCause(e);
             }
         }
     }
@@ -554,7 +576,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         if (!Double.isFinite(d)) {
             throw new IllegalArgumentException("not a finite number: " + n);
         }
-        String text = n instanceof Float f ? new BigDecimal(Float.toString(f)).toPlainString()
+        String text = n instanceof Float f
+                ? new BigDecimal(Float.toString(f)).toPlainString()
                 : BigDecimal.valueOf(d).toPlainString();
         return Factor.decimal(text);
     }

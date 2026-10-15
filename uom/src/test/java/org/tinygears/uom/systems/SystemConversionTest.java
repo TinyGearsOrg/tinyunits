@@ -1,10 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -13,7 +17,9 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
@@ -33,6 +39,10 @@ import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.quantity.Speed;
 import org.tinygears.uom.quantity.Temperature;
 import org.tinygears.uom.quantity.Volume;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Physics checks whose expected values are derived here from first principles, not from catalog units. */
 class SystemConversionTest {
@@ -57,7 +67,8 @@ class SystemConversionTest {
 
         static Rat of(String decimal) {
             BigDecimal v = new BigDecimal(decimal);
-            return v.scale() >= 0 ? new Rat(v.unscaledValue(), BigInteger.TEN.pow(v.scale()))
+            return v.scale() >= 0
+                    ? new Rat(v.unscaledValue(), BigInteger.TEN.pow(v.scale()))
                     : new Rat(v.unscaledValue().multiply(BigInteger.TEN.pow(-v.scale())), BigInteger.ONE);
         }
 
@@ -87,7 +98,7 @@ class SystemConversionTest {
 
         boolean terminates() {
             BigInteger r = d;
-            for (int p : new int[] {2, 5}) {
+            for (int p : new int[] { 2, 5 }) {
                 while (r.mod(BigInteger.valueOf(p)).signum() == 0) {
                     r = r.divide(BigInteger.valueOf(p));
                 }
@@ -105,7 +116,7 @@ class SystemConversionTest {
     /** Speed of light in cm/s. */
     private static final Rat C_CM = Rat.of(29979245800L, 1);
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Rat ratio(Unit<?> from, Unit<?> to) {
         Factor f = ((UomUnit) from).getConverterTo((Unit) to).factor();
         assertTrue(f.isExact() && f.piExponent() == 0, from + " to " + to);
@@ -113,7 +124,8 @@ class SystemConversionTest {
     }
 
     private static Quantity<?> to(Quantity<?> q, SystemOfUnits system) {
-        return q instanceof AbstractDoubleQuantity<?, ?> d ? (Quantity<?>) d.toSystem(system)
+        return q instanceof AbstractDoubleQuantity<?, ?> d
+                ? (Quantity<?>) d.toSystem(system)
                 : (Quantity<?>) ((AbstractDecimalQuantity<?, ?>) q).toSystem(system);
     }
 
@@ -129,26 +141,39 @@ class SystemConversionTest {
 
     @Test
     void ergFromChargeTimesPotential() {
-        assertEquals(Rat.of(1, 1), ratio(ESU.STATCOULOMB.multiply(ESU.STATVOLT).asType(javax.measure.quantity.Energy.class),
-                CGS.ERG));
-        assertEquals(Rat.of(1, 1), ratio(EMU.ABCOULOMB.multiply(EMU.ABVOLT).asType(javax.measure.quantity.Energy.class),
-                CGS.ERG));
+        assertEquals(
+                Rat.of(1, 1),
+                ratio(
+                        ESU.STATCOULOMB.multiply(ESU.STATVOLT).asType(javax.measure.quantity.Energy.class),
+                        CGS.ERG));
+        assertEquals(
+                Rat.of(1, 1),
+                ratio(
+                        EMU.ABCOULOMB.multiply(EMU.ABVOLT).asType(javax.measure.quantity.Energy.class),
+                        CGS.ERG));
         Energy e = (Energy) ElectricCharge.of(BigDecimal.ONE, ESU.STATCOULOMB)
-                .multiply(ElectricPotential.of(BigDecimal.ONE, ESU.STATVOLT)).asType(javax.measure.quantity.Energy.class);
+                .multiply(ElectricPotential.of(BigDecimal.ONE, ESU.STATVOLT))
+                .asType(javax.measure.quantity.Energy.class);
         assertValue("1", e.to(CGS.ERG));
         Energy f = (Energy) ElectricCharge.of(BigDecimal.ONE, EMU.ABCOULOMB)
                 .multiply(ElectricPotential.of(BigDecimal.ONE, EMU.ABVOLT)).asType(javax.measure.quantity.Energy.class);
         assertValue("1", f.to(CGS.ERG));
         // double path
-        Energy d = (Energy) ElectricCharge.of(1.0, EMU.ABCOULOMB).multiply(ElectricPotential
-                .of(1.0, EMU.ABVOLT)).asType(javax.measure.quantity.Energy.class);
+        Energy d = (Energy) ElectricCharge.of(1.0, EMU.ABCOULOMB).multiply(
+                ElectricPotential
+                        .of(1.0, EMU.ABVOLT))
+                .asType(javax.measure.quantity.Energy.class);
         assertEquals(1.0, d.to(CGS.ERG).getValue().doubleValue(), 1e-12);
     }
 
     @Test
     void gaussTimesSquareCentimetreIsMaxwell() {
-        assertEquals(Rat.of(1, 1), ratio(EMU.GAUSS.multiply(CGS.SQUARE_CENTIMETRE)
-                .asType(javax.measure.quantity.MagneticFlux.class), EMU.MAXWELL));
+        assertEquals(
+                Rat.of(1, 1),
+                ratio(
+                        EMU.GAUSS.multiply(CGS.SQUARE_CENTIMETRE)
+                                .asType(javax.measure.quantity.MagneticFlux.class),
+                        EMU.MAXWELL));
         MagneticFlux m = (MagneticFlux) MagneticFluxDensity.of(BigDecimal.ONE, EMU.GAUSS)
                 .multiply(Area.of(BigDecimal.ONE, CGS.SQUARE_CENTIMETRE))
                 .asType(javax.measure.quantity.MagneticFlux.class);
@@ -222,7 +247,8 @@ class SystemConversionTest {
         // 75 kgf m/s
         assertEquals(Rat.of("735.49875"), Rat.of(75, 1).mul(G0));
         assertValue("735.49875", Power.of(BigDecimal.ONE, USCustomary.METRIC_HORSEPOWER, ABS, UNL).to(SI.WATT));
-        assertValue("1055.05585262",
+        assertValue(
+                "1055.05585262",
                 Energy.of(BigDecimal.ONE, USCustomary.BRITISH_THERMAL_UNIT_IT, ABS, UNL).to(SI.JOULE));
     }
 
@@ -233,11 +259,13 @@ class SystemConversionTest {
         Pressure pa = Pressure.of(BigDecimal.ONE, USCustomary.POUND_FORCE_PER_SQUARE_INCH, ABS, UNL).to(SI.PASCAL);
         assertRatValue(psi, pa);
         assertEquals(new BigDecimal("6894.757293168361336722673445346891"), pa.getValue());
-        assertEquals(6894.757293168,
+        assertEquals(
+                6894.757293168,
                 Pressure.of(1.0, USCustomary.POUND_FORCE_PER_SQUARE_INCH).to(SI.PASCAL).getValue().doubleValue(),
                 1e-9);
         // 1852 m per 3600 s
-        Speed v = Speed.of(BigDecimal.ONE, USCustomary.KNOT, ABS, UNL).to(SI.SYSTEM.getUnit(javax.measure.quantity.Speed.class));
+        Speed v = Speed.of(BigDecimal.ONE, USCustomary.KNOT, ABS, UNL)
+                .to(SI.SYSTEM.getUnit(javax.measure.quantity.Speed.class));
         assertRatValue(Rat.of(463, 900), v);
     }
 
@@ -251,19 +279,27 @@ class SystemConversionTest {
         assertEquals(Rat.of(5, 9), ratio(USCustomary.DEGREE_FAHRENHEIT, SI.KELVIN));
         Temperature k = Temperature.of(BigDecimal.ZERO, USCustomary.DEGREE_FAHRENHEIT, ABS, UNL).to(SI.KELVIN);
         assertEquals(new BigDecimal("2298.35").divide(new BigDecimal(9), MathContext.DECIMAL128), k.getValue());
-        assertEquals(255.37222222222222,
-                Temperature.of(0.0, USCustomary.DEGREE_FAHRENHEIT).to(SI.KELVIN).getValue().doubleValue(), 1e-12);
-        assertValue("0", Temperature.of(new BigDecimal("-459.67"), USCustomary.DEGREE_FAHRENHEIT, ABS, UNL).to(SI.KELVIN));
+        assertEquals(
+                255.37222222222222,
+                Temperature.of(0.0, USCustomary.DEGREE_FAHRENHEIT).to(SI.KELVIN).getValue().doubleValue(),
+                1e-12);
+        assertValue(
+                "0",
+                Temperature.of(new BigDecimal("-459.67"), USCustomary.DEGREE_FAHRENHEIT, ABS, UNL).to(SI.KELVIN));
         assertValue("0", Temperature.of(BigDecimal.ZERO, USCustomary.DEGREE_RANKINE, ABS, UNL).to(SI.KELVIN));
-        assertValue("273.15", Temperature.of(new BigDecimal("491.67"), USCustomary.DEGREE_RANKINE, ABS, UNL).to(SI.KELVIN));
-        assertValue("100", Temperature.of(new BigDecimal("212"), USCustomary.DEGREE_FAHRENHEIT, ABS, UNL)
-                .to(SI.DEGREE_CELSIUS));
+        assertValue(
+                "273.15",
+                Temperature.of(new BigDecimal("491.67"), USCustomary.DEGREE_RANKINE, ABS, UNL).to(SI.KELVIN));
+        assertValue(
+                "100",
+                Temperature.of(new BigDecimal("212"), USCustomary.DEGREE_FAHRENHEIT, ABS, UNL)
+                        .to(SI.DEGREE_CELSIUS));
     }
 
     // (b) round trips
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void everySystemRoundTripsThroughSi() {
         for (UomSystemOfUnits system : UnitSystems.all()) {
             for (Class<?> type : QuantityTypes.types()) {
@@ -281,13 +317,16 @@ class SystemConversionTest {
                 UomConverter c = u.getConverterTo(s);
                 boolean rational = c.factor().isExact() && c.offset().isExact()
                         && c.factor().piExponent() == 0 && c.offset().piExponent() == 0;
-                Rat mid = !rational ? null : Rat.of("7.25").mul(new Rat(c.factor().numerator(), c.factor().denominator()))
-                        .add(new Rat(c.offset().numerator(), c.offset().denominator()));
+                Rat mid = !rational
+                        ? null
+                        : Rat.of("7.25").mul(new Rat(c.factor().numerator(), c.factor().denominator()))
+                                .add(new Rat(c.offset().numerator(), c.offset().denominator()));
                 Quantity d = to(to(f.create(new BigDecimal("7.25"), u), SI.SYSTEM), system);
                 assertSame(u, d.getUnit(), where);
                 BigDecimal got = (BigDecimal) d.getValue();
                 // exact only when the intermediate fits DECIMAL128's 34 digits
-                if (rational && mid.terminates() && new BigDecimal(mid.n()).divide(new BigDecimal(mid.d())).precision() <= 34) {
+                if (rational && mid.terminates()
+                        && new BigDecimal(mid.n()).divide(new BigDecimal(mid.d())).precision() <= 34) {
                     assertEquals(0, new BigDecimal("7.25").compareTo(got), where + ": " + got);
                 } else {
                     // two DECIMAL128 roundings give at most about 1e-33 relative (observed max 1e-33)

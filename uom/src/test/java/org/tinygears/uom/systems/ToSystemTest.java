@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
@@ -17,7 +19,9 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
@@ -35,16 +39,25 @@ import org.tinygears.uom.quantity.Temperature;
 import org.tinygears.uom.quantity.Time;
 import org.tinygears.uom.quantity.Volume;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class ToSystemTest {
 
     private static Quantity<?> to(Quantity<?> q, SystemOfUnits system) {
-        return q instanceof AbstractDoubleQuantity<?, ?> d ? (Quantity<?>) d.toSystem(system)
+        return q instanceof AbstractDoubleQuantity<?, ?> d
+                ? (Quantity<?>) d.toSystem(system)
                 : (Quantity<?>) ((AbstractDecimalQuantity<?, ?>) q).toSystem(system);
     }
 
     private static SystemOfUnits foreign(Map<Class<?>, Unit<?>> units) {
-        return (SystemOfUnits) Proxy.newProxyInstance(ToSystemTest.class.getClassLoader(),
-                new Class<?>[] {SystemOfUnits.class}, (p, m, a) -> switch (m.getName()) {
+        return (SystemOfUnits) Proxy.newProxyInstance(
+                ToSystemTest.class.getClassLoader(),
+                new Class<?>[] { SystemOfUnits.class },
+                (p, m, a) -> switch (m.getName()) {
                     case "getName" -> "Foreign";
                     case "getUnit" -> a[0] instanceof Class<?> c ? units.get(c) : null;
                     default -> throw new UnsupportedOperationException(m.getName());
@@ -56,7 +69,7 @@ class ToSystemTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void everyTypeInEverySystem() {
         assertEquals(8, UnitSystems.all().size());
         assertEquals(33, QuantityTypes.types().size());
@@ -66,7 +79,8 @@ class ToSystemTest {
                 UomUnit target = (UomUnit) system.getUnit((Class) type);
                 assertNotNull(target, system.getName() + " " + type.getSimpleName());
                 // a source unit that is not the system unit, so a wrong conversion shows in the value
-                UomUnit src = type == javax.measure.quantity.Temperature.class ? SI.DEGREE_CELSIUS
+                UomUnit src = type == javax.measure.quantity.Temperature.class
+                        ? SI.DEGREE_CELSIUS
                         : ((UomUnit) f.getSystemUnit()).multiply(2.5);
                 UomConverter c = src.getConverterTo(target);
                 String where = system.getName() + " " + type.getSimpleName();
@@ -162,7 +176,8 @@ class ToSystemTest {
         Volume d = Volume.of(1, SI.LITRE).toSystem(Imperial.SYSTEM);
         assertSame(Imperial.GALLON_UK, d.getUnit());
         assertEquals(1 / 4.54609, d.getValue().doubleValue(), 1e-12);
-        assertEquals(BigDecimal.ONE.divide(new BigDecimal("4.54609"), MathContext.DECIMAL128),
+        assertEquals(
+                BigDecimal.ONE.divide(new BigDecimal("4.54609"), MathContext.DECIMAL128),
                 Volume.of(BigDecimal.ONE, SI.LITRE).toSystem(Imperial.SYSTEM).getValue());
     }
 
@@ -170,22 +185,36 @@ class ToSystemTest {
     void untypedQuantitiesHaveNoSystemUnit() {
         String message = "system SI has no unit for type Untyped";
         Quantity<?> speed = Length.of(1, SI.METRE).divide(Time.of(1, SI.SECOND));
-        assertEquals(message, assertThrows(UnsupportedOperationException.class,
-                () -> ((UntypedDoubleQuantity) speed).toSystem(SI.SYSTEM)).getMessage());
+        assertEquals(
+                message,
+                assertThrows(
+                        UnsupportedOperationException.class,
+                        () -> ((UntypedDoubleQuantity) speed).toSystem(SI.SYSTEM)).getMessage());
         Quantity<?> decimal = Length.of(BigDecimal.ONE, SI.METRE).divide(Time.of(BigDecimal.ONE, SI.SECOND));
-        assertEquals(message, assertThrows(UnsupportedOperationException.class,
-                () -> ((UntypedDecimalQuantity) decimal).toSystem(SI.SYSTEM)).getMessage());
+        assertEquals(
+                message,
+                assertThrows(
+                        UnsupportedOperationException.class,
+                        () -> ((UntypedDecimalQuantity) decimal).toSystem(SI.SYSTEM)).getMessage());
     }
 
     @Test
     void foreignSystems() {
         SystemOfUnits empty = foreign(Map.of());
-        assertEquals("system Foreign has no unit for type Length", assertThrows(UnsupportedOperationException.class,
-                () -> Length.of(1, SI.METRE).toSystem(empty)).getMessage());
-        assertEquals("system Foreign has no unit for type Mass", assertThrows(UnsupportedOperationException.class,
-                () -> Mass.of(BigDecimal.ONE, SI.KILOGRAM).toSystem(empty)).getMessage());
-        Unit<?> alien = (Unit<?>) Proxy.newProxyInstance(ToSystemTest.class.getClassLoader(),
-                new Class<?>[] {Unit.class}, (p, m, a) -> m.getName().equals("toString") ? "alien" : null);
+        assertEquals(
+                "system Foreign has no unit for type Length",
+                assertThrows(
+                        UnsupportedOperationException.class,
+                        () -> Length.of(1, SI.METRE).toSystem(empty)).getMessage());
+        assertEquals(
+                "system Foreign has no unit for type Mass",
+                assertThrows(
+                        UnsupportedOperationException.class,
+                        () -> Mass.of(BigDecimal.ONE, SI.KILOGRAM).toSystem(empty)).getMessage());
+        Unit<?> alien = (Unit<?>) Proxy.newProxyInstance(
+                ToSystemTest.class.getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> m.getName().equals("toString") ? "alien" : null);
         SystemOfUnits withAlien = foreign(Map.of(javax.measure.quantity.Length.class, alien));
         assertThrows(UnconvertibleException.class, () -> Length.of(1, SI.METRE).toSystem(withAlien));
         assertThrows(UnconvertibleException.class, () -> Length.of(BigDecimal.ONE, SI.METRE).toSystem(withAlien));
@@ -209,7 +238,10 @@ class ToSystemTest {
 
     @Test
     void scaleAndContextAreKept() {
-        Length rel = Length.of(new BigDecimal("1.23456789"), USCustomary.FOOT, Quantity.Scale.RELATIVE,
+        Length rel = Length.of(
+                new BigDecimal("1.23456789"),
+                USCustomary.FOOT,
+                Quantity.Scale.RELATIVE,
                 MathContext.DECIMAL32).toSystem(SI.SYSTEM);
         // 0.376296292872 rounded to seven digits
         assertEquals(new BigDecimal("0.3762963"), rel.getValue());

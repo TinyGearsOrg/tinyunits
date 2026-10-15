@@ -1,9 +1,18 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.parse;
 
 import java.math.BigInteger;
 import java.util.function.Supplier;
+
 import org.tinygears.uom.core.Factor;
 
 /** Parses a function of {@code x} such as {@code (x - 32) * 5|9} and reduces it to {@code a*x + b}. */
@@ -76,7 +85,9 @@ final class AffineFunction {
                     if (!l.a.isZero() && !r.a.isZero()) {
                         throw new FormulaException("function is not affine", col);
                     }
-                    left = guard(col, () -> new AffineFunction(l.a.multiply(r.b).add(r.a.multiply(l.b)), l.b.multiply(r.b)));
+                    left = guard(
+                            col,
+                            () -> new AffineFunction(l.a.multiply(r.b).add(r.a.multiply(l.b)), l.b.multiply(r.b)));
                 } else {
                     if (!r.a.isZero()) {
                         throw new FormulaException("function is not affine", col);

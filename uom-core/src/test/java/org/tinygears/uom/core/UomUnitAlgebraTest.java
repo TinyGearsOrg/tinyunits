@@ -1,6 +1,29 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
+
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.measure.BinaryPrefix;
+import javax.measure.MetricPrefix;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.UnitConverter;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Temperature;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -10,20 +33,6 @@ import static org.tinygears.uom.core.BaseUnits.KELVIN;
 import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
-
-import java.math.BigDecimal;
-import java.lang.reflect.Proxy;
-import java.math.BigInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.List;
-import javax.measure.BinaryPrefix;
-import javax.measure.MetricPrefix;
-import javax.measure.Unit;
-import javax.measure.UnconvertibleException;
-import javax.measure.UnitConverter;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Temperature;
-import org.junit.jupiter.api.Test;
 
 class UomUnitAlgebraTest {
 
@@ -36,7 +45,8 @@ class UomUnitAlgebraTest {
 
     @Test
     void composition() {
-        assertEquals(KILOGRAM.multiply(METRE).divide(SECOND).divide(SECOND),
+        assertEquals(
+                KILOGRAM.multiply(METRE).divide(SECOND).divide(SECOND),
                 KILOGRAM.multiply(METRE).divide(SECOND.pow(2)));
         assertEquals(METRE, METRE.pow(2).root(2));
         assertEquals(BaseUnits.ONE.divide(METRE), METRE.inverse());
@@ -133,9 +143,14 @@ class UomUnitAlgebraTest {
         UomUnit<Length> kibimetre = METRE.prefix(BinaryPrefix.KIBI);
         assertTrue(kibimetre.isEquivalentTo(METRE.multiply(1024)));
         // A prefix does not name a unit: only a system knows which units take it and what else the symbol means.
-        for (UomUnit<?> u : List.of(km, kibimetre, METRE.multiply(2).prefix(MetricPrefix.KILO),
-                METRE.pow(2).prefix(MetricPrefix.KILO), KILOGRAM.prefix(MetricPrefix.MILLI),
-                METRE.prefix(MetricPrefix.ATTO).prefix(MetricPrefix.DECI), KELVIN.shift(273.15).prefix(MetricPrefix.MILLI))) {
+        for (UomUnit<?> u : List.of(
+                km,
+                kibimetre,
+                METRE.multiply(2).prefix(MetricPrefix.KILO),
+                METRE.pow(2).prefix(MetricPrefix.KILO),
+                KILOGRAM.prefix(MetricPrefix.MILLI),
+                METRE.prefix(MetricPrefix.ATTO).prefix(MetricPrefix.DECI),
+                KELVIN.shift(273.15).prefix(MetricPrefix.MILLI))) {
             assertNull(u.getSymbol(), u.toString());
             assertNull(u.getName(), u.toString());
         }
@@ -185,6 +200,6 @@ class UomUnitAlgebraTest {
     }
 
     private static <T> T foreign(Class<T> type) {
-        return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, (p, m, a) -> null));
+        return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] { type }, (p, m, a) -> null));
     }
 }

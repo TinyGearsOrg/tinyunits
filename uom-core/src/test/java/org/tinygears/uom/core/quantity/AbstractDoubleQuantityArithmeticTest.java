@@ -1,11 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -14,10 +17,17 @@ import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AbstractDoubleQuantityArithmeticTest {
 
@@ -131,10 +141,13 @@ class AbstractDoubleQuantityArithmeticTest {
     void foreignQuantityFails() {
         @SuppressWarnings("unchecked")
         Unit<Length> foreignUnit = (Unit<Length>) Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class<?>[] {Unit.class}, (p, m, a) -> null);
+                getClass().getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
         @SuppressWarnings("unchecked")
         Quantity<Length> foreign = (Quantity<Length>) Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class<?>[] {Quantity.class},
+                getClass().getClassLoader(),
+                new Class<?>[] { Quantity.class },
                 (p, m, a) -> switch (m.getName()) {
                     case "getValue" -> 1.0;
                     case "getUnit" -> foreignUnit;
@@ -201,20 +214,60 @@ class AbstractDoubleQuantityArithmeticTest {
 
     /** A Quantity from another implementation that uses a UomUnit. */
     private record ForeignLength(double value, Unit<Length> unit) implements Quantity<Length> {
-        @Override public Number getValue() { return value; }
-        @Override public Unit<Length> getUnit() { return unit; }
-        @Override public Scale getScale() { return Scale.ABSOLUTE; }
-        @Override public Quantity<Length> add(Quantity<Length> addend) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Length> subtract(Quantity<Length> s) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<?> divide(Quantity<?> divisor) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Length> divide(Number divisor) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<?> multiply(Quantity<?> m) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Length> multiply(Number m) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<?> inverse() { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Length> negate() { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Length> to(Unit<Length> u) { throw new UnsupportedOperationException(); }
-        @Override public boolean isEquivalentTo(Quantity<Length> that) { throw new UnsupportedOperationException(); }
-        @Override public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
+        @Override
+        public Number getValue() {
+            return value;
+        }
+        @Override
+        public Unit<Length> getUnit() {
+            return unit;
+        }
+        @Override
+        public Scale getScale() {
+            return Scale.ABSOLUTE;
+        }
+        @Override
+        public Quantity<Length> add(Quantity<Length> addend) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Length> subtract(Quantity<Length> s) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<?> divide(Quantity<?> divisor) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Length> divide(Number divisor) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<?> multiply(Quantity<?> m) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Length> multiply(Number m) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<?> inverse() {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Length> negate() {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Length> to(Unit<Length> u) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public boolean isEquivalentTo(Quantity<Length> that) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
             throw new UnsupportedOperationException();
         }
     }

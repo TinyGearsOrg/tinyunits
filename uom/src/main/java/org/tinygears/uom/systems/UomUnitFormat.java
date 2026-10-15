@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
 
@@ -25,6 +33,7 @@ import javax.measure.Prefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.format.UnitFormat;
+
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
@@ -40,8 +49,9 @@ import org.tinygears.uom.core.parse.FormulaException;
 public final class UomUnitFormat implements UnitFormat {
     private static final String EXCLUDED = "*/()^|=#[]!~@,·+-";
     private static final int MAX_POWER = 30;
-    private static final List<Prefix> PREFIXES = Stream.<Prefix>concat(Arrays.stream(MetricPrefix.values()),
-                    Arrays.stream(BinaryPrefix.values()))
+    private static final List<Prefix> PREFIXES = Stream.<Prefix>concat(
+            Arrays.stream(MetricPrefix.values()),
+            Arrays.stream(BinaryPrefix.values()))
             .sorted(Comparator.comparingInt((Prefix p) -> p.getSymbol().length()).reversed())
             .toList();
 
@@ -125,13 +135,15 @@ public final class UomUnitFormat implements UnitFormat {
                     UomUnit<?> unit = system.lookup(symbol).orElseThrow();
                     UomUnit<?> label = aliases.get(symbol);
                     if (label != null && !label.equals(unit)) {
-                        throw new IllegalArgumentException("symbol '" + symbol + "' of " + system.getName()
-                                + " is the label of " + label);
+                        throw new IllegalArgumentException(
+                                "symbol '" + symbol + "' of " + system.getName()
+                                        + " is the label of " + label);
                     }
                     Found other = resolve(all, symbol);
                     if (other != null && !other.unit().equals(unit)) {
-                        throw new IllegalArgumentException("symbol '" + symbol + "' of " + system.getName()
-                                + " is a different unit in " + other.system().getName());
+                        throw new IllegalArgumentException(
+                                "symbol '" + symbol + "' of " + system.getName()
+                                        + " is a different unit in " + other.system().getName());
                     }
                 }
                 all.add(system);
@@ -416,8 +428,7 @@ public final class UomUnitFormat implements UnitFormat {
         return found == null ? Optional.empty() : Optional.of(found.unit());
     }
 
-    private record Found(UomSystemOfUnits system, UomUnit<?> unit) {
-    }
+    private record Found(UomSystemOfUnits system, UomUnit<?> unit) {}
 
     private static Found resolve(List<UomSystemOfUnits> systems, String symbol) {
         for (UomSystemOfUnits system : systems) {
@@ -434,8 +445,11 @@ public final class UomUnitFormat implements UnitFormat {
                     Optional<UomUnit<?>> unit = system.lookup(rest);
                     if (takes(system, rest, prefix) && unit.isPresent()) {
                         UomUnit<?> u = unit.get();
-                        return new Found(system, u.prefix(prefix).named(symbol,
-                                prefix.getName().toLowerCase(Locale.ROOT) + u.getName()));
+                        return new Found(
+                                system,
+                                u.prefix(prefix).named(
+                                        symbol,
+                                        prefix.getName().toLowerCase(Locale.ROOT) + u.getName()));
                     }
                 }
             }

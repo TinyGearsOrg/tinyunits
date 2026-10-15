@@ -1,16 +1,21 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import javax.measure.Unit;
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.ServiceProvider;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.quantity.Acceleration;
@@ -20,6 +25,11 @@ import org.tinygears.uom.quantity.DimensionlessFactory;
 import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.quantity.Speed;
 import org.tinygears.uom.quantity.SpeedFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /** Every factory system unit has a symbol and a name; naming does not change formatting. */
 class SystemUnitNamesTest {
@@ -46,7 +56,7 @@ class SystemUnitNamesTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void everySystemUnitIsNamedAndRoundTrips() {
         assertEquals(33, QuantityTypes.types().size());
         for (Class<?> type : QuantityTypes.types()) {
@@ -80,7 +90,9 @@ class SystemUnitNamesTest {
         assertEquals("10.0 m/s", Speed.of(10, SpeedFactory.SYSTEM_UNIT).toString());
         assertEquals("9.81 m/s^2", Acceleration.of(9.81, AccelerationFactory.SYSTEM_UNIT).toString());
         assertEquals("0.5", Dimensionless.of(0.5, DimensionlessFactory.SYSTEM_UNIT).toString());
-        assertEquals("10.0 m/s", ServiceProvider.current().getFormatService().getQuantityFormat()
-                .format(Speed.of(10, SpeedFactory.SYSTEM_UNIT)));
+        assertEquals(
+                "10.0 m/s",
+                ServiceProvider.current().getFormatService().getQuantityFormat()
+                        .format(Speed.of(10, SpeedFactory.SYSTEM_UNIT)));
     }
 }

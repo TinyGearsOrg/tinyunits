@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
 
@@ -16,6 +24,7 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
+
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.spi.Providers;
@@ -39,7 +48,10 @@ import org.tinygears.uom.core.spi.Providers;
  * @param <R> the typed interface returned by conversions
  */
 public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
-        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
+        implements
+            Quantity<Q>,
+            Comparable<Quantity<Q>>,
+            Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -135,8 +147,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         Objects.requireNonNull(system, "system");
         Unit<Q> target = system.getUnit(quantityType());
         if (target == null) {
-            throw new UnsupportedOperationException("system " + system.getName() + " has no unit for type "
-                    + quantityType().getSimpleName());
+            throw new UnsupportedOperationException(
+                    "system " + system.getName() + " has no unit for type "
+                            + quantityType().getSimpleName());
         }
         return to(target);
     }
@@ -214,7 +227,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
             return d.compareTo(that);
         }
         boolean deltas = Deltas.both(scale, that.getScale());
-        return Double.compare(systemValue(value, unit, deltas),
+        return Double.compare(
+                systemValue(value, unit, deltas),
                 systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas));
     }
 
@@ -289,7 +303,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         if (promotes(multiplicand)) {
             return promoted(multiplicand).multiply(multiplicand);
         }
-        return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) * systemValue(multiplicand, u),
+        return untyped(
+                systemValue(value, unit, scale == Quantity.Scale.RELATIVE) * systemValue(multiplicand, u),
                 unit.getSystemUnit().multiply(u.getSystemUnit()));
     }
 
@@ -305,7 +320,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         if (promotes(divisor)) {
             return promoted(divisor).divide(divisor);
         }
-        return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) / systemValue(divisor, u),
+        return untyped(
+                systemValue(value, unit, scale == Quantity.Scale.RELATIVE) / systemValue(divisor, u),
                 unit.getSystemUnit().divide(u.getSystemUnit()));
     }
 
@@ -394,7 +410,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     private static double systemValue(Quantity<?> quantity, UomUnit<?> unit) {
-        return systemValue(Precision.toDouble(quantity.getValue()), unit,
+        return systemValue(
+                Precision.toDouble(quantity.getValue()),
+                unit,
                 quantity.getScale() == Quantity.Scale.RELATIVE);
     }
 

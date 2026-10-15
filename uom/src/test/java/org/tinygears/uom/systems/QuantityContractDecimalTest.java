@@ -1,6 +1,29 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import javax.measure.Quantity;
+import javax.measure.quantity.Speed;
+
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+import org.tinygears.uom.quantity.Angle;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.Temperature;
+import org.tinygears.uom.quantity.Time;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,19 +41,6 @@ import static org.tinygears.uom.systems.SI.MILLISECOND;
 import static org.tinygears.uom.systems.SI.RADIAN;
 import static org.tinygears.uom.systems.SI.SECOND;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import javax.measure.Quantity;
-import javax.measure.quantity.Speed;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.core.Factor;
-import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
-import org.tinygears.uom.quantity.Angle;
-import org.tinygears.uom.quantity.Length;
-import org.tinygears.uom.quantity.Temperature;
-import org.tinygears.uom.quantity.Time;
-
 /** The unit-api 2.2 {@link Quantity} Javadoc clauses for decimal quantities, plus exact conversions. */
 class QuantityContractDecimalTest {
 
@@ -38,8 +48,8 @@ class QuantityContractDecimalTest {
     }
 
     private static final UomUnit<javax.measure.quantity.Length> INCH = CENTIMETRE.multiply(new BigDecimal("2.54"));
-    private static final UomUnit<javax.measure.quantity.Temperature> DEGREE_FAHRENHEIT =
-            KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67"));
+    private static final UomUnit<javax.measure.quantity.Temperature> DEGREE_FAHRENHEIT = KELVIN.multiply(5).divide(9)
+            .shift(new BigDecimal("459.67"));
 
     private static BigDecimal d(String v) {
         return new BigDecimal(v);

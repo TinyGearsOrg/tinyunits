@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
 
@@ -15,6 +23,7 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
+
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
@@ -44,7 +53,10 @@ import org.tinygears.uom.core.spi.Providers;
  * @param <R> the typed interface returned by conversions
  */
 public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
-        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
+        implements
+            Quantity<Q>,
+            Comparable<Quantity<Q>>,
+            Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -67,8 +79,12 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * @param scale the scale
      * @param mathContext the context that rounds results
      */
-    protected AbstractDecimalQuantity(BigDecimal value, UomUnit<Q> unit, Quantity.Scale scale,
-            MathContext mathContext) {
+    protected AbstractDecimalQuantity(
+            BigDecimal value,
+            UomUnit<Q> unit,
+            Quantity.Scale scale,
+            MathContext mathContext
+    ) {
         this.value = Precision.checked(Objects.requireNonNull(value, "value"));
         this.unit = Objects.requireNonNull(unit, "unit");
         this.scale = Objects.requireNonNull(scale, "scale");
@@ -139,8 +155,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     public R to(Unit<Q> unit) {
         UomUnit<Q> target = uomUnit(unit);
         UomConverter c = this.unit.getConverterTo(target);
-        return create((scale == Quantity.Scale.RELATIVE ? Deltas.converter(c) : c).convert(value, mathContext),
-                target, scale, mathContext);
+        return create(
+                (scale == Quantity.Scale.RELATIVE ? Deltas.converter(c) : c).convert(value, mathContext),
+                target,
+                scale,
+                mathContext);
     }
 
     /**
@@ -157,8 +176,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         Objects.requireNonNull(system, "system");
         Unit<Q> target = system.getUnit(quantityType());
         if (target == null) {
-            throw new UnsupportedOperationException("system " + system.getName() + " has no unit for type "
-                    + quantityType().getSimpleName());
+            throw new UnsupportedOperationException(
+                    "system " + system.getName() + " has no unit for type "
+                            + quantityType().getSimpleName());
         }
         return to(target);
     }
@@ -347,8 +367,10 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     @Override
     public Quantity<?> inverse() {
         Ratio a = system(value, unit, guardDigits(mathContext, BigDecimal.ONE), scale == Quantity.Scale.RELATIVE);
-        return UntypedDecimalQuantity.of(roundOnce(a.den, a.num, mathContext, a.exact),
-                unit.getSystemUnit().inverse().getSystemUnit(), mathContext);
+        return UntypedDecimalQuantity.of(
+                roundOnce(a.den, a.num, mathContext, a.exact),
+                unit.getSystemUnit().inverse().getSystemUnit(),
+                mathContext);
     }
 
     /**
@@ -373,7 +395,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         Quantity<T> q = factory.create(value, typed, scale);
         // with returns the factory's typed interface, which is a Quantity<T>.
         return q instanceof AbstractDecimalQuantity<?, ?> d
-                ? (Quantity<T>) d.with(value, uomUnit(typed), scale, mathContext) : q;
+                ? (Quantity<T>) d.with(value, uomUnit(typed), scale, mathContext)
+                : q;
     }
 
     /** A quantity of this class with the given value, unit, scale and context, unrounded. */
@@ -427,7 +450,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         Ratio sb = system(b, thatUnit, digits, that.getScale() == Quantity.Scale.RELATIVE);
         BigDecimal num = divide ? sa.num.multiply(sb.den) : sa.num.multiply(sb.num);
         BigDecimal den = divide ? sa.den.multiply(sb.num) : sa.den.multiply(sb.den);
-        UomUnit<?> product = divide ? unit.getSystemUnit().divide(thatUnit.getSystemUnit())
+        UomUnit<?> product = divide
+                ? unit.getSystemUnit().divide(thatUnit.getSystemUnit())
                 : unit.getSystemUnit().multiply(thatUnit.getSystemUnit());
         return UntypedDecimalQuantity.of(roundOnce(num, den, mc, sa.exact && sb.exact), product.getSystemUnit(), mc);
     }
@@ -437,7 +461,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         UomConverter c = delta ? Deltas.converter(u.toSystemConverter()) : u.toSystemConverter();
         Ratio f = Ratio.of(c.factor(), digits);
         Ratio o = Ratio.of(c.offset(), digits);
-        return new Ratio(plus(v.multiply(f.num).multiply(o.den), o.num.multiply(f.den)), f.den.multiply(o.den),
+        return new Ratio(
+                plus(v.multiply(f.num).multiply(o.den), o.num.multiply(f.den)),
+                f.den.multiply(o.den),
                 f.exact && o.exact);
     }
 
@@ -447,7 +473,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
             return mathContext;
         }
         // A foreign BigDecimal has no context and counts as unlimited.
-        return Precision.lower(mathContext,
+        return Precision.lower(
+                mathContext,
                 that instanceof AbstractDecimalQuantity<?, ?> d ? d.mathContext : MathContext.UNLIMITED);
     }
 
@@ -458,7 +485,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         Number n = that.getValue();
         MathContext mc = contextWith(that);
         UomConverter ta = unit.toSystemConverter();
-        UomConverter tb = Deltas.isDelta(scale, that.getScale()) ? Deltas.converter(thatUnit.toSystemConverter())
+        UomConverter tb = Deltas.isDelta(scale, that.getScale())
+                ? Deltas.converter(thatUnit.toSystemConverter())
                 : thatUnit.toSystemConverter();
         BigDecimal b = Precision.toDecimal(n);
         int digits = guardDigits(mc, b);
@@ -467,13 +495,17 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         BigDecimal term = plus(b.multiply(f.num).multiply(o.den), o.num.multiply(f.den));
         BigDecimal ad = value.multiply(f.den).multiply(o.den);
         BigDecimal num = plus(ad, subtract ? term.negate() : term);
-        return create(roundOnce(num, f.den.multiply(o.den), mc, f.exact && o.exact), unit,
-                Deltas.scale(scale, that.getScale()), mc);
+        return create(
+                roundOnce(num, f.den.multiply(o.den), mc, f.exact && o.exact),
+                unit,
+                Deltas.scale(scale, that.getScale()),
+                mc);
     }
 
     /** {@code r = a·s + q·(s - 1)} with {@code q = oa/fa} (or {@code 1/s} to divide), as one exact quotient. */
     private R scalar(BigDecimal s, boolean divide) {
-        UomConverter ta = scale == Quantity.Scale.RELATIVE ? Deltas.converter(unit.toSystemConverter())
+        UomConverter ta = scale == Quantity.Scale.RELATIVE
+                ? Deltas.converter(unit.toSystemConverter())
                 : unit.toSystemConverter();
         Ratio q = Ratio.of(ta.offset().divide(ta.factor()), guardDigits(mathContext, s));
         BigDecimal aq = plus(value.multiply(q.den), q.num);
@@ -511,7 +543,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     private record Ratio(BigDecimal num, BigDecimal den, boolean exact) {
 
         static Ratio of(Factor f, int digits) {
-            return f.isExact() ? new Ratio(new BigDecimal(f.numerator()), new BigDecimal(f.denominator()), true)
+            return f.isExact()
+                    ? new Ratio(new BigDecimal(f.numerator()), new BigDecimal(f.denominator()), true)
                     : new Ratio(f.decimalValue(new MathContext(digits)), BigDecimal.ONE, false);
         }
     }

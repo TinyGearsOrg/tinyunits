@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -23,12 +25,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
 import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Member;
 import org.tinygears.uom.core.parse.Preferred;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CatalogBuilderTest {
     // 18 lines; error cases append at line 19.
@@ -95,8 +105,27 @@ class CatalogBuilderTest {
     @Test
     void resolvesTypesAndNames() {
         List<CatalogEntry> entries = build(BASE);
-        assertEquals(List.of("m", "kg", "s", "A", "K", "mol", "cd", "rad", "Hz", "Bq", "N", "J", "°C", "min", "au",
-                "x", "km", "kHz"), entries.stream().map(e -> e.definition().symbol()).toList());
+        assertEquals(
+                List.of(
+                        "m",
+                        "kg",
+                        "s",
+                        "A",
+                        "K",
+                        "mol",
+                        "cd",
+                        "rad",
+                        "Hz",
+                        "Bq",
+                        "N",
+                        "J",
+                        "°C",
+                        "min",
+                        "au",
+                        "x",
+                        "km",
+                        "kHz"),
+                entries.stream().map(e -> e.definition().symbol()).toList());
         Map<String, CatalogEntry> e = bySymbol(entries);
         assertEquals("METRE", e.get("m").constantName());
         assertEquals("Length", e.get("m").quantityType());
@@ -145,13 +174,18 @@ class CatalogBuilderTest {
     @Test
     void systemUnitWithAnotherSymbolOrNameFails() {
         Definitions d = defs(BASE + "v:metre_per_second m / s\n");
-        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt", new StringReader(TYPES + "Speed m / s\n"), d);
-        fails(() -> CatalogBuilder.build(d, types), 19,
+        List<QuantityTypeSpec> types = QuantityTypesParser
+                .parse("types.txt", new StringReader(TYPES + "Speed m / s\n"), d);
+        fails(
+                () -> CatalogBuilder.build(d, types),
+                19,
                 "unit 'v' (metre per second) is the system unit of Speed, which types.txt:10 defines as an unnamed unit");
         List<QuantityTypeSpec> renamed = new ArrayList<>(types(defs(BASE)));
         QuantityTypeSpec length = renamed.get(0);
         renamed.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "m", "meter", "types.txt", 1, false));
-        fails(() -> CatalogBuilder.build(defs(BASE), renamed), 1,
+        fails(
+                () -> CatalogBuilder.build(defs(BASE), renamed),
+                1,
                 "unit 'm' (metre) is the system unit of Length, which types.txt:1 defines as 'm' (meter)");
     }
 
@@ -159,8 +193,12 @@ class CatalogBuilderTest {
     @Test
     void unitsEqualToAnExplicitlyNamedSystemUnitKeepTheirOwnUnit() {
         Definitions d = defs(BASE + "mps:metre_per_second m / s\ngee:gee m / s^2\n");
-        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt", new StringReader(TYPES
-                + "Speed m / s => m/s:metre_per_second\nAcceleration m / s^2 => m/s^2:metre_per_second_squared\n"), d);
+        List<QuantityTypeSpec> types = QuantityTypesParser.parse(
+                "types.txt",
+                new StringReader(
+                        TYPES
+                                + "Speed m / s => m/s:metre_per_second\nAcceleration m / s^2 => m/s^2:metre_per_second_squared\n"),
+                d);
         Map<String, CatalogEntry> e = bySymbol(CatalogBuilder.build(d, types));
         assertEquals("Speed", e.get("mps").quantityType());
         assertNull(e.get("mps").shared());
@@ -174,31 +212,44 @@ class CatalogBuilderTest {
         List<QuantityTypeSpec> types = new ArrayList<>(types(defs(BASE)));
         QuantityTypeSpec length = types.get(0);
         types.set(0, new QuantityTypeSpec("Length", "m", length.systemUnit(), "M", "metre", "types.txt", 1, false));
-        fails(() -> CatalogBuilder.build(defs(BASE), types), 1,
+        fails(
+                () -> CatalogBuilder.build(defs(BASE), types),
+                1,
                 "unit 'm' (metre) is the system unit of Length, which types.txt:1 defines as 'M' (metre)");
     }
 
     // The first entry is decided across catalogs in generation order, so a later catalog's alias keeps its unit.
     @Test
     void aliasInALaterCatalogKeepsItsOwnUnit() {
-        Map<String, String> files = Map.of("a.units", BASE + "@system A\n",
-                "b.units", "@system B\n@include a.units\nmtr:metre_alias m\n");
+        Map<String, String> files = Map.of(
+                "a.units",
+                BASE + "@system A\n",
+                "b.units",
+                "@system B\n@include a.units\nmtr:metre_alias m\n");
         Map<String, Definitions> parsed = new LinkedHashMap<>();
         for (String f : List.of("a.units", "b.units")) {
-            parsed.put(f, DefinitionParser.parse(f, new StringReader(files.get(f)),
-                    name -> new StringReader(files.get(name))));
+            parsed.put(
+                    f,
+                    DefinitionParser.parse(
+                            f,
+                            new StringReader(files.get(f)),
+                            name -> new StringReader(files.get(name))));
         }
         Map<String, CatalogBuilder.Catalog> c = CatalogBuilder.catalogs(parsed, types(parsed.get("a.units")));
-        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT",
+        assertEquals(
+                "org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT",
                 c.get("a.units").entries().get(0).shared());
         CatalogEntry alias = c.get("b.units").entries().get(0);
         assertEquals("mtr", alias.definition().symbol());
         assertEquals("Length", alias.quantityType());
         assertNull(alias.shared());
-        GenerationException e = assertThrows(GenerationException.class,
+        GenerationException e = assertThrows(
+                GenerationException.class,
                 () -> CatalogBuilder.catalogs(Map.of("b.units", parsed.get("b.units")), types(parsed.get("a.units"))));
-        assertEquals("b.units:3: unit 'mtr' (metre alias) is the system unit of Length, which types.txt:1 defines as"
-                + " 'm' (metre)", e.getMessage());
+        assertEquals(
+                "b.units:3: unit 'mtr' (metre alias) is the system unit of Length, which types.txt:1 defines as"
+                        + " 'm' (metre)",
+                e.getMessage());
     }
 
     @Test
@@ -207,7 +258,10 @@ class CatalogBuilderTest {
         List<QuantityTypeSpec> types = new ArrayList<>(types(d));
         QuantityTypeSpec time = types.get(2);
         types.add(new QuantityTypeSpec("Duration", "s", time.systemUnit(), "s", "second", "types.txt", 10, false));
-        fails(() -> CatalogBuilder.build(d, types), 3, "ambiguous quantity type for 's': Time, Duration (add a [Type])");
+        fails(
+                () -> CatalogBuilder.build(d, types),
+                3,
+                "ambiguous quantity type for 's': Time, Duration (add a [Type])");
     }
 
     private static final String FACTORY = "org.tinygears.uom.quantity.%sFactory.SYSTEM_UNIT";
@@ -228,15 +282,21 @@ class CatalogBuilderTest {
         assertEquals(FACTORY.formatted("Length"), catalog("").preferred().get("Length"));
         fails(() -> catalog("@preferred Speed m\n"), 19, "unknown quantity type 'Speed'");
         fails(() -> catalog("@preferred Length s\n"), 19, "unit 's' is not a unit of Length");
-        fails(() -> catalog("@preferred Length m\n@preferred Length km\n"), 20,
+        fails(
+                () -> catalog("@preferred Length m\n@preferred Length km\n"),
+                20,
                 "duplicate preferred unit for 'Length'");
     }
 
     @Test
     void preferredUnknownSymbol() {
         Definitions parsed = defs(BASE);
-        Definitions d = new Definitions(parsed.definitions(),
-                List.of(new Preferred("Length", "nope", "test.units", 7)), parsed.prefixed(), "T", List.of(),
+        Definitions d = new Definitions(
+                parsed.definitions(),
+                List.of(new Preferred("Length", "nope", "test.units", 7)),
+                parsed.prefixed(),
+                "T",
+                List.of(),
                 List.of());
         fails(() -> CatalogBuilder.catalogs(Map.of("test.units", d), types(d)), 7, "unknown unit 'nope'");
     }
@@ -259,9 +319,12 @@ class CatalogBuilderTest {
     @Test
     void binaryPrefixableIsOwnExtendedAndPrefixedMembers() {
         Map<String, String> files = Map.of(
-                "base.units", BASE + "@system Base\nbit:bit ~\n@prefixed bit Ki\n",
-                "parent.units", "@system Parent\n@include base.units\n@member bit\n",
-                "child.units", "@system Child\n@extends parent.units\n");
+                "base.units",
+                BASE + "@system Base\nbit:bit ~\n@prefixed bit Ki\n",
+                "parent.units",
+                "@system Parent\n@include base.units\n@member bit\n",
+                "child.units",
+                "@system Child\n@extends parent.units\n");
         DefinitionParser.Resolver resolver = name -> new StringReader(files.get(name));
         Map<String, Definitions> parsed = new LinkedHashMap<>();
         for (String f : List.of("base.units", "parent.units", "child.units")) {
@@ -288,15 +351,22 @@ class CatalogBuilderTest {
     @Test
     void unknownMemberIsReportedAtItsLine() {
         Definitions parsed = defs(BASE);
-        Definitions d = new Definitions(parsed.definitions(), List.of(), List.of(), "T", List.of(),
+        Definitions d = new Definitions(
+                parsed.definitions(),
+                List.of(),
+                List.of(),
+                "T",
+                List.of(),
                 List.of(new Member("zz", "test.units", 5)));
         fails(() -> CatalogBuilder.catalogs(Map.of("test.units", d), types(d)), 5, "unknown unit 'zz'");
     }
 
     // base.units is BASE as a catalog; parent.units and child.units exercise @extends, @member and @prefixed.
     private static final Map<String, String> SAMPLE = Map.of(
-            "base.units", BASE + "@system Base\n@preferred Time min\n",
-            "parent.units", """
+            "base.units",
+            BASE + "@system Base\n@preferred Time min\n",
+            "parent.units",
+            """
                     @system Parent
                     @include base.units
                     ft:foot 0.3048 m
@@ -305,7 +375,8 @@ class CatalogBuilderTest {
                     @prefixed yd k
                     @preferred Length ft
                     """,
-            "child.units", """
+            "child.units",
+            """
                     @system Child
                     @extends parent.units
                     @include base.units
@@ -315,23 +386,27 @@ class CatalogBuilderTest {
                     @prefixed J k
                     @preferred Mass kg
                     """,
-            "orphan.units", """
+            "orphan.units",
+            """
                     @system Orphan
                     @include parent.units
                     @member yd
                     """,
-            "second.units", """
+            "second.units",
+            """
                     @system Second
                     @include base.units
                     mi:mile 1609.344 m
                     @preferred Length mi
                     """,
-            "twins.units", """
+            "twins.units",
+            """
                     @system Twins
                     @extends parent.units
                     @extends second.units
                     """,
-            "member.units", """
+            "member.units",
+            """
                     @system Mem
                     @include parent.units
                     @member ft
@@ -356,19 +431,31 @@ class CatalogBuilderTest {
         assertEquals("Child", child.className());
         assertEquals(List.of("fur", "ms", "kJ"), child.entries().stream().map(e -> e.definition().symbol()).toList());
         // A constant may repeat a parent's constant name: they live in different classes.
-        assertEquals(List.of("FOOT", "MILLISECOND", "KILOJOULE"),
+        assertEquals(
+                List.of("FOOT", "MILLISECOND", "KILOJOULE"),
                 child.entries().stream().map(CatalogEntry::constantName).toList());
     }
 
     @Test
     void unitsArePrefixedOwnThenExtendedThenMembers() {
         Map<String, CatalogBuilder.Catalog> c = sampleCatalogs("base.units", "parent.units", "child.units");
-        assertEquals(List.of("Parent.FOOT", "Parent.YARD", "Parent.KILOYARD", "Base.METRE", "Base.SECOND"),
+        assertEquals(
+                List.of("Parent.FOOT", "Parent.YARD", "Parent.KILOYARD", "Base.METRE", "Base.SECOND"),
                 List.copyOf(c.get("parent.units").units().values()));
         Map<String, String> units = c.get("child.units").units();
         assertEquals(List.of("fur", "ms", "kJ", "ft", "yd", "kyd", "m", "s", "kg", "Hz"), List.copyOf(units.keySet()));
-        assertEquals(List.of("Child.FOOT", "Child.MILLISECOND", "Child.KILOJOULE", "Parent.FOOT", "Parent.YARD",
-                "Parent.KILOYARD", "Base.METRE", "Base.SECOND", "Base.KILOGRAM", "Base.HERTZ"),
+        assertEquals(
+                List.of(
+                        "Child.FOOT",
+                        "Child.MILLISECOND",
+                        "Child.KILOJOULE",
+                        "Parent.FOOT",
+                        "Parent.YARD",
+                        "Parent.KILOYARD",
+                        "Base.METRE",
+                        "Base.SECOND",
+                        "Base.KILOGRAM",
+                        "Base.HERTZ"),
                 List.copyOf(units.values()));
     }
 
@@ -396,7 +483,10 @@ class CatalogBuilderTest {
 
     @Test
     void firstExtendedSystemWinsThePreferredUnit() {
-        Map<String, CatalogBuilder.Catalog> c = sampleCatalogs("base.units", "parent.units", "second.units",
+        Map<String, CatalogBuilder.Catalog> c = sampleCatalogs(
+                "base.units",
+                "parent.units",
+                "second.units",
                 "twins.units");
         assertEquals("Second.MILE", c.get("second.units").preferred().get("Length"));
         assertEquals("Parent.FOOT", c.get("twins.units").preferred().get("Length"));
@@ -413,31 +503,43 @@ class CatalogBuilderTest {
 
     @Test
     void parentsAndMemberOwnersMustBeEarlierCatalogs() {
-        GenerationException e = assertThrows(GenerationException.class,
+        GenerationException e = assertThrows(
+                GenerationException.class,
                 () -> sampleCatalogs("base.units", "child.units"));
-        assertEquals("child.units:2: 'parent.units' is not a catalog generated before 'child.units'",
+        assertEquals(
+                "child.units:2: 'parent.units' is not a catalog generated before 'child.units'",
                 e.getMessage());
         e = assertThrows(GenerationException.class, () -> sampleCatalogs("base.units", "orphan.units"));
-        assertEquals("orphan.units:3: unit 'yd' is defined in 'parent.units', which is not a catalog generated"
-                + " before 'orphan.units'", e.getMessage());
+        assertEquals(
+                "orphan.units:3: unit 'yd' is defined in 'parent.units', which is not a catalog generated"
+                        + " before 'orphan.units'",
+                e.getMessage());
     }
 
     @Test
     void preferredMustBeAUnitOfTheSystem() {
         Definitions d = defs(BASE + "@system T\n");
-        Definitions orphan = DefinitionParser.parse("o.units", new StringReader("@system O\n@include test.units\n"
-                + "@member s\n@preferred Length m\n"), name -> new StringReader(BASE + "@system T\n"));
+        Definitions orphan = DefinitionParser.parse(
+                "o.units",
+                new StringReader(
+                        "@system O\n@include test.units\n"
+                                + "@member s\n@preferred Length m\n"),
+                name -> new StringReader(BASE + "@system T\n"));
         Map<String, Definitions> parsed = new LinkedHashMap<>();
         parsed.put("test.units", d);
         parsed.put("o.units", orphan);
-        GenerationException e = assertThrows(GenerationException.class, () -> CatalogBuilder.catalogs(parsed,
-                types(d)));
+        GenerationException e = assertThrows(
+                GenerationException.class,
+                () -> CatalogBuilder.catalogs(
+                        parsed,
+                        types(d)));
         assertEquals("o.units:4: unit 'm' is not a unit of O", e.getMessage());
     }
 
     private static Map<String, Definitions> parseData() throws IOException {
         Path data = Path.of("../data");
-        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(data.resolve(name),
+        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(
+                data.resolve(name),
                 StandardCharsets.UTF_8);
         Map<String, Definitions> parsed = new LinkedHashMap<>();
         for (String file : Generate.CATALOGS) {
@@ -465,10 +567,18 @@ class CatalogBuilderTest {
         assertEquals(entries.size(), new HashSet<>(entries.stream().map(CatalogEntry::constantName).toList()).size());
         Map<String, String> symbols = entries.stream()
                 .collect(Collectors.toMap(CatalogEntry::constantName, e -> e.definition().symbol()));
-        Map<String, String> expected = Map.ofEntries(Map.entry("METRE", "m"), Map.entry("KILOGRAM", "kg"),
-                Map.entry("DEGREE_CELSIUS", "°C"), Map.entry("SQUARE_METRE", "m²"), Map.entry("KILOMETRE", "km"),
-                Map.entry("MICROMETRE", "µm"), Map.entry("KILOHERTZ", "kHz"), Map.entry("ASTRONOMICAL_UNIT", "au"),
-                Map.entry("ARCMINUTE", "arcmin"), Map.entry("MILLISIEMENS", "mS"), Map.entry("MILLISECOND", "ms"));
+        Map<String, String> expected = Map.ofEntries(
+                Map.entry("METRE", "m"),
+                Map.entry("KILOGRAM", "kg"),
+                Map.entry("DEGREE_CELSIUS", "°C"),
+                Map.entry("SQUARE_METRE", "m²"),
+                Map.entry("KILOMETRE", "km"),
+                Map.entry("MICROMETRE", "µm"),
+                Map.entry("KILOHERTZ", "kHz"),
+                Map.entry("ASTRONOMICAL_UNIT", "au"),
+                Map.entry("ARCMINUTE", "arcmin"),
+                Map.entry("MILLISIEMENS", "mS"),
+                Map.entry("MILLISECOND", "ms"));
         expected.forEach((name, symbol) -> assertEquals(symbol, symbols.get(name), name));
         CatalogBuilder.Catalog si = CatalogBuilder.catalogs(Map.of("si.units", d), types).get("si.units");
         assertEquals(entries, si.entries());
@@ -476,15 +586,18 @@ class CatalogBuilderTest {
     }
 
     /** Independent of the builder: own lines of the file, else the first extended file's, else SI's. */
-    private static Map<String, Map<String, String>> expectedPreferredSymbols(Map<String, Definitions> parsed,
-            List<QuantityTypeSpec> types) {
+    private static Map<String, Map<String, String>> expectedPreferredSymbols(
+            Map<String, Definitions> parsed,
+            List<QuantityTypeSpec> types
+    ) {
         Map<String, Map<String, String>> result = new HashMap<>();
         for (String file : Generate.CATALOGS) {
             Definitions d = parsed.get(file);
             Map<String, String> own = new HashMap<>();
             d.preferred().stream().filter(p -> p.source().equals(file))
                     .forEach(p -> own.put(p.quantityType(), p.symbol()));
-            Map<String, String> inherited = !d.extended().isEmpty() ? result.get(d.extended().get(0).file())
+            Map<String, String> inherited = !d.extended().isEmpty()
+                    ? result.get(d.extended().get(0).file())
                     : file.equals("si.units") ? Map.of() : result.get("si.units");
             Map<String, String> all = new HashMap<>();
             for (QuantityTypeSpec t : types) {
@@ -502,8 +615,12 @@ class CatalogBuilderTest {
         assertEquals(33, types.size());
         Map<String, CatalogBuilder.Catalog> catalogs = CatalogBuilder.catalogs(parsed, types);
         Map<String, String> symbolByRef = new HashMap<>();
-        catalogs.values().forEach(c -> c.entries().forEach(e -> symbolByRef.put(c.className() + "."
-                + e.constantName(), e.definition().symbol())));
+        catalogs.values().forEach(
+                c -> c.entries().forEach(
+                        e -> symbolByRef.put(
+                                c.className() + "."
+                                        + e.constantName(),
+                                e.definition().symbol())));
         Map<String, Map<String, String>> expected = expectedPreferredSymbols(parsed, types);
         for (String file : Generate.CATALOGS) {
             Definitions d = parsed.get(file);
@@ -515,8 +632,10 @@ class CatalogBuilderTest {
                 if (symbol.equals("factory")) {
                     assertEquals(FACTORY.formatted(t.name()), ref, file + " " + t.name());
                 } else {
-                    String owner = parsed.get(d.definitions().stream().filter(x -> x.symbol().equals(symbol))
-                            .findFirst().orElseThrow().source()).system();
+                    String owner = parsed.get(
+                            d.definitions().stream().filter(x -> x.symbol().equals(symbol))
+                                    .findFirst().orElseThrow().source())
+                            .system();
                     assertTrue(ref.startsWith(owner + "."), file + " " + t.name() + ": " + ref);
                     assertEquals(symbol, symbolByRef.get(ref), file + " " + t.name());
                 }
@@ -527,7 +646,8 @@ class CatalogBuilderTest {
         assertEquals("USCustomary.FOOT", imperial.get("Length"));
         assertEquals(FACTORY.formatted("Time"), catalogs.get("cgs.units").preferred().get("Time"));
         assertEquals("CGS.DYNE", catalogs.get("cgs-esu.units").preferred().get("Force"));
-        assertEquals(FACTORY.formatted("MagneticFluxDensity"),
+        assertEquals(
+                FACTORY.formatted("MagneticFluxDensity"),
                 catalogs.get("cgs-esu.units").preferred().get("MagneticFluxDensity"));
         Map<String, String> gaussian = catalogs.get("cgs-gaussian.units").preferred();
         assertEquals("Gaussian.FRANKLIN", gaussian.get("ElectricCharge"));
@@ -546,8 +666,10 @@ class CatalogBuilderTest {
         Map<String, Definitions> parsed = parseData();
         Map<String, CatalogBuilder.Catalog> c = CatalogBuilder.catalogs(parsed, realTypes(parsed.get("si.units")));
         CatalogBuilder.Catalog cgs = c.get("cgs.units");
-        assertEquals(List.of("SI.CENTIMETRE", "SI.GRAM", "SI.SECOND"), cgs.units().values().stream()
-                .filter(r -> r.startsWith("SI.")).toList());
+        assertEquals(
+                List.of("SI.CENTIMETRE", "SI.GRAM", "SI.SECOND"),
+                cgs.units().values().stream()
+                        .filter(r -> r.startsWith("SI.")).toList());
         assertEquals(Set.of("CGS", "SI"), classesOf(cgs));
         assertEquals(Set.of("Gal", "P", "St", "g", "s"), cgs.prefixable());
         assertEquals(cgs.prefixable(), c.get("cgs-esu.units").prefixable());
@@ -559,15 +681,18 @@ class CatalogBuilderTest {
         assertEquals(Set.of(), c.get("imperial.units").prefixable());
         CatalogBuilder.Catalog gaussian = c.get("cgs-gaussian.units");
         assertEquals(Set.of("Gaussian", "ESU", "CGS", "SI", "EMU"), classesOf(gaussian));
-        assertEquals(List.of("EMU.GAUSS", "EMU.MAXWELL", "EMU.OERSTED", "EMU.GILBERT"), gaussian.units().values()
-                .stream().filter(r -> r.startsWith("EMU.")).toList());
+        assertEquals(
+                List.of("EMU.GAUSS", "EMU.MAXWELL", "EMU.OERSTED", "EMU.GILBERT"),
+                gaussian.units().values()
+                        .stream().filter(r -> r.startsWith("EMU.")).toList());
         List<String> expected = new ArrayList<>(List.of("Gaussian.FRANKLIN"));
         expected.addAll(c.get("cgs-esu.units").units().values());
         expected.addAll(List.of("EMU.GAUSS", "EMU.MAXWELL", "EMU.OERSTED", "EMU.GILBERT"));
         assertEquals(expected, List.copyOf(gaussian.units().values()));
         CatalogBuilder.Catalog imperial = c.get("imperial.units");
         assertEquals(Set.of("Imperial", "USCustomary"), classesOf(imperial));
-        assertEquals(imperial.entries().size() + c.get("us-customary.units").entries().size(),
+        assertEquals(
+                imperial.entries().size() + c.get("us-customary.units").entries().size(),
                 imperial.units().size());
         for (CatalogBuilder.Catalog x : c.values()) {
             assertEquals(Set.copyOf(x.units().values()).size(), x.units().size(), x.className());

@@ -1,10 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.lang.module.ModuleDescriptor;
@@ -27,9 +31,15 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.systems.UomServiceProvider;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Pins the public API of both modules (docs/API.md) to docs/api/public-api.txt; {@code -Duom.writeApi} rewrites the
@@ -56,8 +66,10 @@ class ApiSurfaceTest {
                 .filter(l -> !l.isEmpty() && !l.startsWith("#")).toList();
         List<String> added = actual.stream().filter(l -> !pinned.contains(l)).toList();
         List<String> removed = pinned.stream().filter(l -> !actual.contains(l)).toList();
-        assertTrue(added.isEmpty() && removed.isEmpty(), "API differs from " + FILE + " (see docs/API.md)\nadded:\n  "
-                + String.join("\n  ", added) + "\nremoved:\n  " + String.join("\n  ", removed));
+        assertTrue(
+                added.isEmpty() && removed.isEmpty(),
+                "API differs from " + FILE + " (see docs/API.md)\nadded:\n  "
+                        + String.join("\n  ", added) + "\nremoved:\n  " + String.join("\n  ", removed));
         assertEquals(pinned, actual);
     }
 
@@ -66,16 +78,24 @@ class ApiSurfaceTest {
         ModuleReference core = module(UomUnit.class);
         Set<String> exported = core.descriptor().exports().stream().filter(e -> !e.isQualified())
                 .map(ModuleDescriptor.Exports::source).collect(Collectors.toSet());
-        assertEquals(Set.of("org.tinygears.uom.core", "org.tinygears.uom.core.parse",
-                "org.tinygears.uom.core.quantity"), exported);
+        assertEquals(
+                Set.of(
+                        "org.tinygears.uom.core",
+                        "org.tinygears.uom.core.parse",
+                        "org.tinygears.uom.core.quantity"),
+                exported);
         // The spi package is exported to uom only: its provider implements QuantityFactories.
-        assertEquals(Set.of("org.tinygears.uom"), core.descriptor().exports().stream()
-                .filter(e -> e.source().equals("org.tinygears.uom.core.spi")).findFirst().orElseThrow().targets());
+        assertEquals(
+                Set.of("org.tinygears.uom"),
+                core.descriptor().exports().stream()
+                        .filter(e -> e.source().equals("org.tinygears.uom.core.spi")).findFirst().orElseThrow()
+                        .targets());
         assertTrue(core.descriptor().exports().stream().noneMatch(e -> e.source().endsWith(".internal")));
         assertTrue(core.descriptor().packages().contains("org.tinygears.uom.core.internal"));
         assertTrue(core.descriptor().opens().isEmpty());
         ModuleReference uom = module(UomServiceProvider.class);
-        assertEquals(Set.of("org.tinygears.uom.quantity", "org.tinygears.uom.systems"),
+        assertEquals(
+                Set.of("org.tinygears.uom.quantity", "org.tinygears.uom.systems"),
                 uom.descriptor().exports().stream().map(ModuleDescriptor.Exports::source).collect(Collectors.toSet()));
         assertEquals(uom.descriptor().packages(), Set.of("org.tinygears.uom.quantity", "org.tinygears.uom.systems"));
         assertTrue(uom.descriptor().opens().isEmpty());
@@ -89,13 +109,17 @@ class ApiSurfaceTest {
         }
         assertFalse(hidden.isEmpty());
         for (String line : hidden) {
-            assertTrue(line.startsWith("org.tinygears.uom.core.internal ") || line.startsWith("org.tinygears.uom.core.spi "),
+            assertTrue(
+                    line.startsWith("org.tinygears.uom.core.internal ")
+                            || line.startsWith("org.tinygears.uom.core.spi "),
                     line);
         }
         // The spi package is exported to uom only and holds exactly the provider hook.
-        assertEquals(List.of("org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.Providers",
-                "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.QuantityFactories",
-                "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitTexts"),
+        assertEquals(
+                List.of(
+                        "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.Providers",
+                        "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.QuantityFactories",
+                        "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitTexts"),
                 hidden.stream().filter(l -> l.startsWith("org.tinygears.uom.core.spi ")).sorted().toList());
     }
 
@@ -111,8 +135,13 @@ class ApiSurfaceTest {
         String name = d.name();
         Set<String> lines = new TreeSet<>();
         d.requires().stream().filter(r -> !r.name().equals("java.base"))
-                .forEach(r -> lines.add(name + " module requires " + r.modifiers().stream().map(x -> x.toString().toLowerCase(Locale.ROOT) + " ").sorted()
-                        .collect(Collectors.joining()) + r.name()));
+                .forEach(
+                        r -> lines.add(
+                                name + " module requires "
+                                        + r.modifiers().stream().map(x -> x.toString().toLowerCase(Locale.ROOT) + " ")
+                                                .sorted()
+                                                .collect(Collectors.joining())
+                                        + r.name()));
         d.exports().forEach(e -> lines.add(name + " module exports " + e));
         d.opens().forEach(o -> lines.add(name + " module opens " + o));
         d.provides().forEach(p -> lines.add(name + " module provides " + p));
@@ -120,8 +149,10 @@ class ApiSurfaceTest {
                 .collect(Collectors.toSet());
         List<String> classes;
         try (var reader = ref.open(); Stream<String> s = reader.list()) {
-            classes = s.filter(r -> r.endsWith(".class") && !r.contains("$") && !r.endsWith("module-info.class")
-                    && !r.endsWith("package-info.class")).map(r -> r.substring(0, r.length() - 6).replace('/', '.'))
+            classes = s.filter(
+                    r -> r.endsWith(".class") && !r.contains("$") && !r.endsWith("module-info.class")
+                            && !r.endsWith("package-info.class"))
+                    .map(r -> r.substring(0, r.length() - 6).replace('/', '.'))
                     .toList();
         }
         for (String className : classes) {

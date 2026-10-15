@@ -1,9 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -11,14 +16,20 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.systems.modulepath.PrintCurrentProvider;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModulePathTest {
 
     private static final Path HERE = Path.of("").toAbsolutePath();
-    private static final String JAVA = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+    private static final String JAVA = System.getProperty("java.home") + File.separator + "bin" + File.separator
+            + "java";
 
     private static String modulePath() {
         Path classes = HERE.resolve("target/classes");
@@ -37,7 +48,10 @@ class ModulePathTest {
     @Test
     void describesModuleOnModulePath() throws Exception {
         String out = run(List.of(JAVA, "--module-path", modulePath(), "--describe-module", "org.tinygears.uom"));
-        assertTrue(out.contains("provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider"), out);
+        assertTrue(
+                out.contains(
+                        "provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider"),
+                out);
         assertTrue(out.contains("requires org.tinygears.uom.core transitive"), out);
         assertTrue(out.contains("exports org.tinygears.uom.quantity"), out);
         assertTrue(out.contains("exports org.tinygears.uom.systems"), out);
@@ -53,8 +67,16 @@ class ModulePathTest {
             Path target = cp.resolve(name);
             Files.createDirectories(target.getParent());
             Files.copy(HERE.resolve("target/test-classes").resolve(name), target);
-            String out = run(List.of(JAVA, "--module-path", modulePath, "--add-modules", "org.tinygears.uom",
-                    "-cp", cp.toString(), PrintCurrentProvider.class.getName()));
+            String out = run(
+                    List.of(
+                            JAVA,
+                            "--module-path",
+                            modulePath,
+                            "--add-modules",
+                            "org.tinygears.uom",
+                            "-cp",
+                            cp.toString(),
+                            PrintCurrentProvider.class.getName()));
             assertEquals("org.tinygears.uom.systems.UomServiceProvider in org.tinygears.uom", out.strip());
         } finally {
             Files.delete(cp.resolve(name));

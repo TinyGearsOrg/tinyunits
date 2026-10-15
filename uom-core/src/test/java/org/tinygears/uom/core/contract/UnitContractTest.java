@@ -1,6 +1,34 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.contract;
+
+import java.math.BigDecimal;
+import java.util.Map;
+import javax.measure.BinaryPrefix;
+import javax.measure.IncommensurableException;
+import javax.measure.MeasurementException;
+import javax.measure.MetricPrefix;
+import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Speed;
+import javax.measure.quantity.Temperature;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.core.Converters;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.TestServiceProvider;
+import org.tinygears.uom.core.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,24 +43,6 @@ import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.ONE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
 
-import java.math.BigDecimal;
-import java.util.Map;
-import javax.measure.BinaryPrefix;
-import javax.measure.IncommensurableException;
-import javax.measure.MeasurementException;
-import javax.measure.MetricPrefix;
-import javax.measure.UnconvertibleException;
-import javax.measure.Unit;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Speed;
-import javax.measure.quantity.Temperature;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
-import org.tinygears.uom.core.TestServiceProvider;
-import org.tinygears.uom.core.UomUnit;
-
 /** Each test states one clause of the unit-api 2.2 {@link Unit} Javadoc. */
 class UnitContractTest {
 
@@ -45,7 +55,7 @@ class UnitContractTest {
 
     @Test
     void getConverterToThrowsUnconvertibleExceptionForIncompatibleUnits() {
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         Unit<Temperature> second = (Unit) SECOND;
         assertThrows(UnconvertibleException.class, () -> KELVIN.getConverterTo(second));
     }

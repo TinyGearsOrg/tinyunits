@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
@@ -14,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.measure.Quantity;
+
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
@@ -90,12 +99,18 @@ public final class QuantityTypesParser {
                 if (explicit != null) {
                     String[] parts = explicit(explicit, source, ln);
                     if (def != null && !(parts[0].equals(symbol) && parts[1].equals(unitName))) {
-                        throw new GenerationException(source, ln, "explicit name for an already named unit '"
-                                + symbol + "'");
+                        throw new GenerationException(
+                                source,
+                                ln,
+                                "explicit name for an already named unit '"
+                                        + symbol + "'");
                     }
                     if (def == null && !evaluatesTo(parts[0], unit, bySymbol)) {
-                        throw new GenerationException(source, ln, "explicit symbol '" + parts[0]
-                                + "' does not evaluate to the unit");
+                        throw new GenerationException(
+                                source,
+                                ln,
+                                "explicit symbol '" + parts[0]
+                                        + "' does not evaluate to the unit");
                     }
                     if (def == null && (bySymbol.containsKey(parts[0]) || !explicitSymbols.add(parts[0]))) {
                         throw new GenerationException(source, ln, "duplicate symbol '" + parts[0] + "'");
@@ -103,8 +118,16 @@ public final class QuantityTypesParser {
                     symbol = parts[0];
                     unitName = parts[1];
                 }
-                result.add(new QuantityTypeSpec(name, formula, unit, symbol, unitName, source, ln,
-                        explicit != null && def == null));
+                result.add(
+                        new QuantityTypeSpec(
+                                name,
+                                formula,
+                                unit,
+                                symbol,
+                                unitName,
+                                source,
+                                ln,
+                                explicit != null && def == null));
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -145,7 +168,7 @@ public final class QuantityTypesParser {
         if (name.isBlank()) {
             throw new GenerationException(source, ln, "blank name in '" + text + "' after '=>'");
         }
-        return new String[] {parts[0], name};
+        return new String[] { parts[0], name };
     }
 
     private static boolean isQuantity(String name) {

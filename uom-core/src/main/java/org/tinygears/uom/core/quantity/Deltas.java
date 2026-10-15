@@ -1,8 +1,17 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
 
 import javax.measure.Quantity;
+
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomConverter;
 
@@ -19,7 +28,8 @@ final class Deltas {
 
     /** The scale of a sum or difference: {@code ABSOLUTE} unless both operands are {@code RELATIVE}. */
     static Quantity.Scale scale(Quantity.Scale a, Quantity.Scale b) {
-        return a == Quantity.Scale.RELATIVE && b == Quantity.Scale.RELATIVE ? Quantity.Scale.RELATIVE
+        return a == Quantity.Scale.RELATIVE && b == Quantity.Scale.RELATIVE
+                ? Quantity.Scale.RELATIVE
                 : Quantity.Scale.ABSOLUTE;
     }
 

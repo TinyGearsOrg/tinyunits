@@ -1,6 +1,25 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
+
+import javax.measure.IncommensurableException;
+import javax.measure.Quantity;
+import javax.measure.quantity.Speed;
+
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.Temperature;
+import org.tinygears.uom.quantity.Time;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,15 +34,6 @@ import static org.tinygears.uom.systems.SI.KILOMETRE;
 import static org.tinygears.uom.systems.SI.METRE;
 import static org.tinygears.uom.systems.SI.MILLISECOND;
 import static org.tinygears.uom.systems.SI.SECOND;
-
-import javax.measure.IncommensurableException;
-import javax.measure.Quantity;
-import javax.measure.quantity.Speed;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.quantity.Length;
-import org.tinygears.uom.quantity.Temperature;
-import org.tinygears.uom.quantity.Time;
 
 /** Each test states one clause or example of the unit-api 2.2 {@link Quantity} Javadoc. */
 class QuantityContractTest {

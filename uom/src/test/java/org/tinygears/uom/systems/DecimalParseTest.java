@@ -1,14 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -29,7 +29,9 @@ import javax.measure.Quantity.Scale;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.spi.QuantityFactory;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
@@ -40,6 +42,14 @@ import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.quantity.Temperature;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+
 class DecimalParseTest {
     private static final UomUnitFormat UNITS = UomUnitFormat.standard();
     private static final UomQuantityFormat ROOT = new UomQuantityFormat(UNITS);
@@ -48,12 +58,36 @@ class DecimalParseTest {
     private static final String HUNDRED_DIGITS = "-" + "1234567890".repeat(9) + "." + "9876543210";
 
     /** 15 decimals: trailing zeros, signs, scale 0, negative scale, tiny and huge exponents, 100 digits. */
-    static final String[] DECIMALS = {"1.50", "-1.50", "0", "0.000", "1E+3", "-2.5E-7", "123456789", "1E+99999",
-        "1E-99999", "-9.99E+300", "3.14159265358979323846264338327950288", "0E+5", "-0.5", HUNDRED_DIGITS,
-        "100000000000000000000000000000.000000000000000000000000000001"};
+    static final String[] DECIMALS = {
+        "1.50",
+        "-1.50",
+        "0",
+        "0.000",
+        "1E+3",
+        "-2.5E-7",
+        "123456789",
+        "1E+99999",
+        "1E-99999",
+        "-9.99E+300",
+        "3.14159265358979323846264338327950288",
+        "0E+5",
+        "-0.5",
+        HUNDRED_DIGITS,
+        "100000000000000000000000000000.000000000000000000000000000001" };
 
-    static final String[] LOCALES = {"und", "de-DE", "fr-FR", "ar-EG", "fa", "sv-SE", "hi-IN-u-nu-deva", "de-CH",
-        "en-IN", "th-TH-u-nu-thai", "he-IL", "ja-JP"};
+    static final String[] LOCALES = {
+        "und",
+        "de-DE",
+        "fr-FR",
+        "ar-EG",
+        "fa",
+        "sv-SE",
+        "hi-IN-u-nu-deva",
+        "de-CH",
+        "en-IN",
+        "th-TH-u-nu-thai",
+        "he-IL",
+        "ja-JP" };
 
     private static BigDecimal d(String s) {
         return new BigDecimal(s);
@@ -138,7 +172,9 @@ class DecimalParseTest {
     @Test
     void unitsTypedAndUntyped() {
         Quantity<?> c = D64.parse("-12.50 °C");
-        assertSameDecimal(Temperature.of(d("-12.50"), SI.DEGREE_CELSIUS, Scale.ABSOLUTE, MathContext.DECIMAL64), c,
+        assertSameDecimal(
+                Temperature.of(d("-12.50"), SI.DEGREE_CELSIUS, Scale.ABSOLUTE, MathContext.DECIMAL64),
+                c,
                 "°C");
         Quantity<?> shifted = D64.parse("2.5 K + 5");
         assertInstanceOf(Temperature.class, shifted);
@@ -147,11 +183,15 @@ class DecimalParseTest {
         Quantity<?> micro = D64.parse("2.50 µm");
         assertSameDecimal(Length.of(d("2.50"), SI.MICROMETRE, Scale.ABSOLUTE, MathContext.DECIMAL64), micro, "µm");
         Quantity<?> untyped = D64.parse("1.20 kg·m^5/s");
-        UntypedDecimalQuantity expected = UntypedDecimalQuantity.of(d("1.20"),
-                (UomUnit<?>) UNITS.parse("kg·m^5/s"), MathContext.DECIMAL64);
+        UntypedDecimalQuantity expected = UntypedDecimalQuantity.of(
+                d("1.20"),
+                (UomUnit<?>) UNITS.parse("kg·m^5/s"),
+                MathContext.DECIMAL64);
         assertSameDecimal(expected, untyped, "untyped");
         Quantity<?> number = D64.parse("  7.0  ");
-        assertSameDecimal(Dimensionless.of(d("7.0"), BaseUnits.ONE, Scale.ABSOLUTE, MathContext.DECIMAL64), number,
+        assertSameDecimal(
+                Dimensionless.of(d("7.0"), BaseUnits.ONE, Scale.ABSOLUTE, MathContext.DECIMAL64),
+                number,
                 "number");
     }
 
@@ -159,31 +199,49 @@ class DecimalParseTest {
     void nanAndInfinityAreErrors() {
         String message = "decimal quantities have no NaN or infinity: ";
         UomQuantityFormat de = D64.withLocale(Locale.GERMANY);
-        for (UomQuantityFormat f : new UomQuantityFormat[] {D64, de, D64.withGrouping(true)}) {
+        for (UomQuantityFormat f : new UomQuantityFormat[] { D64, de, D64.withGrouping(true) }) {
             assertFails(f, "NaN m", message + "'NaN'", 0);
             assertFails(f, "Infinity m", message + "'Infinity'", 0);
             assertFails(f, " -Infinity m", message + "'-Infinity'", 1);
             assertFails(f, "+Infinity m", message + "'+Infinity'", 0);
         }
-        assertFails(D64.withLocale(Locale.forLanguageTag("sv-SE")), "\u2212Infinity m",
-                message + "'\u2212Infinity'", 0);
-        assertFails(D64.withLocale(Locale.forLanguageTag("he-IL")), "\u200E-Infinity m",
-                message + "'\u200E-Infinity'", 0);
+        assertFails(
+                D64.withLocale(Locale.forLanguageTag("sv-SE")),
+                "\u2212Infinity m",
+                message + "'\u2212Infinity'",
+                0);
+        assertFails(
+                D64.withLocale(Locale.forLanguageTag("he-IL")),
+                "\u200E-Infinity m",
+                message + "'\u200E-Infinity'",
+                0);
     }
 
     @Test
     void scaleBeyondTheBoundIsAParseError() {
         assertFails(D64, "1E-100001 m", "invalid number '1E-100001': scale out of range: 100001", 0);
         assertFails(D64, "  1E+100001 m", "invalid number '1E+100001': scale out of range: -100001", 2);
-        assertFails(D64.withLocale(Locale.GERMANY), "1,5E-100000 m",
-                "invalid number '1,5E-100000': scale out of range: 100001", 0);
-        assertEquals(100000, ((BigDecimal) D64.parse("1E-100000 m").getValue()).scale());
-        assertFails(D64, "1E+99999999999 m", "invalid number '1E+99999999999': scale out of range: -99999999999",
+        assertFails(
+                D64.withLocale(Locale.GERMANY),
+                "1,5E-100000 m",
+                "invalid number '1,5E-100000': scale out of range: 100001",
                 0);
-        assertFails(D64, "1E-9999999999999999999999 m",
-                "invalid number '1E-9999999999999999999999': scale out of range", 0);
-        assertFails(D64, "1E+9999999999999999999999 m",
-                "invalid number '1E+9999999999999999999999': scale out of range", 0);
+        assertEquals(100000, ((BigDecimal) D64.parse("1E-100000 m").getValue()).scale());
+        assertFails(
+                D64,
+                "1E+99999999999 m",
+                "invalid number '1E+99999999999': scale out of range: -99999999999",
+                0);
+        assertFails(
+                D64,
+                "1E-9999999999999999999999 m",
+                "invalid number '1E-9999999999999999999999': scale out of range",
+                0);
+        assertFails(
+                D64,
+                "1E+9999999999999999999999 m",
+                "invalid number '1E+9999999999999999999999': scale out of range",
+                0);
         assertFails(D64, "1E-000100001 m", "invalid number '1E-000100001': scale out of range: 100001", 0);
         assertEquals(100000, ((BigDecimal) D64.parse("-.5E-99999 m").getValue()).scale());
         assertFails(D64, "-.50E-99999 m", "invalid number '-.50E-99999': scale out of range: 100001", 0);
@@ -229,8 +287,11 @@ class DecimalParseTest {
         assertFails(D64, "1.5 foo", "unknown unit 'foo'", 4);
         assertFails(D64.withLocale(Locale.GERMANY), "1.5 m", "grouping separator not allowed: '.'", 1);
         assertFails(D64.withLocale(Locale.GERMANY), "1d m", "invalid number '1d'", 0);
-        assertFails(D64.withGrouping(true), "1,234.5,6 m",
-                "grouping separator not allowed after the decimal separator", 7);
+        assertFails(
+                D64.withGrouping(true),
+                "1,234.5,6 m",
+                "grouping separator not allowed after the decimal separator",
+                7);
     }
 
     @Test
@@ -257,7 +318,8 @@ class DecimalParseTest {
         assertEquals(MathContext.DECIMAL64, de.getDecimalContext());
         // the locale's digits and symbols
         assertEquals(d("-12.50"), D64.withLocale(Locale.forLanguageTag("ar-EG")).parse("-١٢٫٥٠ km").getValue());
-        assertEquals(d("-1.50E+10"),
+        assertEquals(
+                d("-1.50E+10"),
                 D64.withLocale(Locale.forLanguageTag("sv-SE")).parse("\u22121,50×10^10 km").getValue());
         UomQuantityFormat fr = D64.withLocale(Locale.FRANCE).withGrouping(true);
         assertEquals(d("1234567.10"), fr.parse("1\u202F234\u202F567,10 km").getValue());
@@ -272,7 +334,10 @@ class DecimalParseTest {
     @Test
     void unlimitedContext() {
         UomQuantityFormat f = ROOT.withDecimals(MathContext.UNLIMITED);
-        Length q = Length.of(d("0.1000000000000000000000000000000000000001"), SI.METRE, Scale.ABSOLUTE,
+        Length q = Length.of(
+                d("0.1000000000000000000000000000000000000001"),
+                SI.METRE,
+                Scale.ABSOLUTE,
                 MathContext.UNLIMITED);
         assertSameDecimal(q, f.parse(f.format(q)), "unlimited");
     }
@@ -280,7 +345,8 @@ class DecimalParseTest {
     @Test
     void contextIsCheckedAtWithDecimals() {
         assertThrows(NullPointerException.class, () -> ROOT.withDecimals(null));
-        ArithmeticException e = assertThrows(ArithmeticException.class,
+        ArithmeticException e = assertThrows(
+                ArithmeticException.class,
                 () -> ROOT.withDecimals(new MathContext(100_001)));
         assertEquals("precision out of range: 100001", e.getMessage());
         MathContext max = new MathContext(100_000, RoundingMode.DOWN);
@@ -296,29 +362,36 @@ class DecimalParseTest {
         assertNotEquals(a, ROOT.withDecimals(MathContext.DECIMAL32));
         assertNotEquals(a, ROOT.withDecimals(new MathContext(16, RoundingMode.HALF_UP)));
         assertEquals("UomQuantityFormat[locale=und, grouping=false, decimals=off]", ROOT.toString());
-        assertEquals("UomQuantityFormat[locale=de-DE, grouping=true, decimals=16/HALF_EVEN]",
+        assertEquals(
+                "UomQuantityFormat[locale=de-DE, grouping=true, decimals=16/HALF_EVEN]",
                 a.withLocale(Locale.GERMANY).withGrouping(true).toString());
-        assertEquals("UomQuantityFormat[locale=und, grouping=false, decimals=unlimited]",
+        assertEquals(
+                "UomQuantityFormat[locale=und, grouping=false, decimals=unlimited]",
                 ROOT.withDecimals(MathContext.UNLIMITED).toString());
-        assertEquals("UomQuantityFormat[locale=und, grouping=false, decimals=0/HALF_EVEN]",
+        assertEquals(
+                "UomQuantityFormat[locale=und, grouping=false, decimals=0/HALF_EVEN]",
                 ROOT.withDecimals(new MathContext(0, RoundingMode.HALF_EVEN)).toString());
         assertEquals(MathContext.DECIMAL64, a.withLocale(Locale.GERMANY).withGrouping(true).getDecimalContext());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Quantity<?> of(QuantityFactory<?> f, BigDecimal v, Unit<?> u, MathContext mc) throws Exception {
         Method m = f.getClass().getMethod("of", BigDecimal.class, Unit.class, Scale.class, MathContext.class);
         return (Quantity<?>) m.invoke(f, v, u, Scale.ABSOLUTE, mc);
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void roundTripForEveryTypeInTwelveLocales() throws Exception {
         assertEquals(15, DECIMALS.length);
         assertEquals(12, LOCALES.length);
         assertEquals(33, QuantityTypes.types().size());
-        MathContext[] contexts = {MathContext.DECIMAL32, MathContext.DECIMAL64, MathContext.DECIMAL128,
-            MathContext.UNLIMITED, new MathContext(7, RoundingMode.HALF_UP)};
+        MathContext[] contexts = {
+            MathContext.DECIMAL32,
+            MathContext.DECIMAL64,
+            MathContext.DECIMAL128,
+            MathContext.UNLIMITED,
+            new MathContext(7, RoundingMode.HALF_UP) };
         List<String> failures = new ArrayList<>();
         int checked = 0;
         for (String tag : LOCALES) {
@@ -348,20 +421,33 @@ class DecimalParseTest {
 
     @Test
     void roundTripOfOffsetAndUntypedUnits() {
-        List<UomUnit<?>> units = List.of(SI.KILOMETRE, SI.DEGREE_CELSIUS, BaseUnits.KELVIN.shift(5),
-                SI.MICROMETRE, (UomUnit<?>) UNITS.parse("kg·m^5/s"), (UomUnit<?>) UNITS.parse("km/h"));
+        List<UomUnit<?>> units = List.of(
+                SI.KILOMETRE,
+                SI.DEGREE_CELSIUS,
+                BaseUnits.KELVIN.shift(5),
+                SI.MICROMETRE,
+                (UomUnit<?>) UNITS.parse("kg·m^5/s"),
+                (UomUnit<?>) UNITS.parse("km/h"));
         for (String tag : LOCALES) {
             UomQuantityFormat f = ROOT.withLocale(Locale.forLanguageTag(tag)).withDecimals(MathContext.DECIMAL128);
             for (UomUnit<?> unit : units) {
                 for (String s : DECIMALS) {
-                    Quantity<?> parsed = f.parse(f.format(UntypedDecimalQuantity.of(d(s), unit,
-                            MathContext.DECIMAL128)));
+                    Quantity<?> parsed = f.parse(
+                            f.format(
+                                    UntypedDecimalQuantity.of(
+                                            d(s),
+                                            unit,
+                                            MathContext.DECIMAL128)));
                     assertEquals(unit, parsed.getUnit(), tag + " " + s);
                     assertEquals(d(s), parsed.getValue(), tag + " " + s);
                 }
             }
-            Quantity<?> untyped = f.parse(f.format(UntypedDecimalQuantity.of(d("-1.50"),
-                    (UomUnit<?>) UNITS.parse("kg·m^5/s"), MathContext.DECIMAL128)));
+            Quantity<?> untyped = f.parse(
+                    f.format(
+                            UntypedDecimalQuantity.of(
+                                    d("-1.50"),
+                                    (UomUnit<?>) UNITS.parse("kg·m^5/s"),
+                                    MathContext.DECIMAL128)));
             assertInstanceOf(UntypedDecimalQuantity.class, untyped, tag);
         }
     }
@@ -400,11 +486,21 @@ class DecimalParseTest {
     @Test
     void millionDigitFractionFailsBeforeTheParse() {
         String text = "0." + "3".repeat(1_000_000) + " m";
-        assertTimeoutPreemptively(Duration.ofMillis(500), () -> assertFails(D64.withLocale(Locale.GERMANY),
-                text.replace('.', ','), "invalid number '" + text.substring(0, text.length() - 2).replace('.', ',')
-                        + "': scale out of range: 1000000", 0));
-        assertTimeoutPreemptively(Duration.ofMillis(500), () -> assertFails(D64, "1" + text,
-                "invalid number '1" + text.substring(0, text.length() - 2) + "': scale out of range: 1000000", 0));
+        assertTimeoutPreemptively(
+                Duration.ofMillis(500),
+                () -> assertFails(
+                        D64.withLocale(Locale.GERMANY),
+                        text.replace('.', ','),
+                        "invalid number '" + text.substring(0, text.length() - 2).replace('.', ',')
+                                + "': scale out of range: 1000000",
+                        0));
+        assertTimeoutPreemptively(
+                Duration.ofMillis(500),
+                () -> assertFails(
+                        D64,
+                        "1" + text,
+                        "invalid number '1" + text.substring(0, text.length() - 2) + "': scale out of range: 1000000",
+                        0));
     }
 
     @Test

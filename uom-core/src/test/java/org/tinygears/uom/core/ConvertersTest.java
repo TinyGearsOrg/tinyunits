@@ -1,6 +1,21 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.time.Duration;
+import javax.measure.UnitConverter;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,12 +31,6 @@ import static org.tinygears.uom.core.Factor.ONE;
 import static org.tinygears.uom.core.Factor.ZERO;
 import static org.tinygears.uom.core.Factor.of;
 import static org.tinygears.uom.core.Factor.ofLong;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.time.Duration;
-import javax.measure.UnitConverter;
-import org.junit.jupiter.api.Test;
 
 class ConvertersTest {
 
@@ -87,13 +96,27 @@ class ConvertersTest {
     @Test
     void foreignConverterRejected() {
         UnitConverter foreign = new UnitConverter() {
-            public boolean isIdentity() { return false; }
-            public boolean isLinear() { return true; }
-            public UnitConverter inverse() { return this; }
-            public Number convert(Number value) { return value; }
-            public double convert(double value) { return value; }
-            public UnitConverter concatenate(UnitConverter other) { return this; }
-            public java.util.List<? extends UnitConverter> getConversionSteps() { return java.util.List.of(this); }
+            public boolean isIdentity() {
+                return false;
+            }
+            public boolean isLinear() {
+                return true;
+            }
+            public UnitConverter inverse() {
+                return this;
+            }
+            public Number convert(Number value) {
+                return value;
+            }
+            public double convert(double value) {
+                return value;
+            }
+            public UnitConverter concatenate(UnitConverter other) {
+                return this;
+            }
+            public java.util.List<? extends UnitConverter> getConversionSteps() {
+                return java.util.List.of(this);
+            }
         };
         assertThrows(IllegalArgumentException.class, () -> IDENTITY.concatenate(foreign));
     }
@@ -125,9 +148,10 @@ class ConvertersTest {
     void irrationalConversionOfHugeValuesIsFast() {
         UomConverter degree = scale(Factor.PI.divide(ofLong(180)));
         BigDecimal perUnit = Factor.PI.divide(ofLong(180)).decimalValue(new MathContext(40));
-        for (int e : new int[] {20000, 200000}) {
+        for (int e : new int[] { 20000, 200000 }) {
             BigDecimal v = BigDecimal.ONE.scaleByPowerOfTen(e);
-            BigDecimal r = assertTimeoutPreemptively(Duration.ofSeconds(5),
+            BigDecimal r = assertTimeoutPreemptively(
+                    Duration.ofSeconds(5),
                     () -> degree.convert(v, MathContext.DECIMAL64));
             BigDecimal expected = perUnit.scaleByPowerOfTen(e);
             BigDecimal relative = r.subtract(expected).abs().divide(expected, MathContext.DECIMAL64);

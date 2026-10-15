@@ -1,14 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -18,9 +18,19 @@ import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AbstractDoubleQuantityTest {
 
@@ -36,13 +46,16 @@ class AbstractDoubleQuantityTest {
     @SuppressWarnings("unchecked")
     private static Unit<Length> foreignUnit() {
         return (Unit<Length>) Proxy.newProxyInstance(
-                AbstractDoubleQuantityTest.class.getClassLoader(), new Class<?>[] {Unit.class}, (p, m, a) -> null);
+                AbstractDoubleQuantityTest.class.getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
     }
 
     @SuppressWarnings("unchecked")
     private static Quantity<Length> foreignQuantity(Number value, Unit<Length> unit) {
         return (Quantity<Length>) Proxy.newProxyInstance(
-                AbstractDoubleQuantityTest.class.getClassLoader(), new Class<?>[] {Quantity.class},
+                AbstractDoubleQuantityTest.class.getClassLoader(),
+                new Class<?>[] { Quantity.class },
                 (p, m, a) -> switch (m.getName()) {
                     case "getValue" -> value;
                     case "getUnit" -> unit;
@@ -88,7 +101,8 @@ class AbstractDoubleQuantityTest {
 
     @Test
     void equalsAcrossSubclassesIsFalse() {
-        TestLengthImpl other = new TestLengthImpl(1, METRE, Quantity.Scale.ABSOLUTE) { };
+        TestLengthImpl other = new TestLengthImpl(1, METRE, Quantity.Scale.ABSOLUTE) {
+        };
         assertNotEquals(q(1, METRE), other);
         assertNotEquals(other, q(1, METRE));
     }
@@ -133,8 +147,13 @@ class AbstractDoubleQuantityTest {
         assertThrows(UnconvertibleException.class, () -> q(1, METRE).compareTo(foreignQuantity(1, foreignUnit())));
         assertThrows(NullPointerException.class, () -> q(1, METRE).compareTo(null));
 
-        List<TestLengthImpl> list = new ArrayList<>(List.of(
-                q(Double.NaN, METRE), q(2, KILOMETRE), q(5, METRE), q(1, KILOMETRE), q(-3, METRE)));
+        List<TestLengthImpl> list = new ArrayList<>(
+                List.of(
+                        q(Double.NaN, METRE),
+                        q(2, KILOMETRE),
+                        q(5, METRE),
+                        q(1, KILOMETRE),
+                        q(-3, METRE)));
         list.sort(null);
         assertEquals(List.of(q(-3, METRE), q(5, METRE), q(1, KILOMETRE), q(2, KILOMETRE), q(Double.NaN, METRE)), list);
     }

@@ -1,8 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.quantity;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,8 +16,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Set;
 import javax.measure.Unit;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Fresh loaders, so the alternate-unit registry and factory initialisation start clean.
 class QuantityTypesIsolationTest {
@@ -33,10 +43,12 @@ class QuantityTypesIsolationTest {
             var first = assertThrows(InvocationTargetException.class, () -> factory.invoke(null, l.javax("Frequency")));
             assertInstanceOf(ExceptionInInitializerError.class, first.getCause());
             assertTrue(rootCause(first).getMessage().contains("Hz"), rootCause(first).toString());
-            var second = assertThrows(InvocationTargetException.class, () -> factory.invoke(null, l.javax("Frequency")));
+            var second = assertThrows(
+                    InvocationTargetException.class,
+                    () -> factory.invoke(null, l.javax("Frequency")));
             assertInstanceOf(NoClassDefFoundError.class, second.getCause());
 
-            for (String name : new String[] {"Mass", "Time", "Radioactivity"}) {
+            for (String name : new String[] { "Mass", "Time", "Radioactivity" }) {
                 assertNotNull(factory.invoke(null, l.javax(name)), name);
             }
         }
@@ -65,8 +77,10 @@ class QuantityTypesIsolationTest {
 
     private static final class Loader extends URLClassLoader {
         Loader() {
-            super(new URL[] {codeSource(Length.class), codeSource(AbstractDoubleQuantity.class),
-                codeSource(Unit.class)}, ClassLoader.getPlatformClassLoader());
+            super(new URL[] {
+                codeSource(Length.class),
+                codeSource(AbstractDoubleQuantity.class),
+                codeSource(Unit.class) }, ClassLoader.getPlatformClassLoader());
         }
 
         Class<?> loaded(String name) {

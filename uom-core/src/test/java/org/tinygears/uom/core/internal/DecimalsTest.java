@@ -1,10 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.internal;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -12,7 +16,12 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.Random;
+
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DecimalsTest {
 
@@ -20,14 +29,15 @@ class DecimalsTest {
     void divideEqualsBigDecimalDivide() {
         Random random = new Random(20261013);
         RoundingMode[] modes = RoundingMode.values();
-        int[] precisions = {0, 1, 2, 3, 7, 16, 34, 100};
+        int[] precisions = { 0, 1, 2, 3, 7, 16, 34, 100 };
         int exact = 0;
         for (int i = 0; i < 5000; i++) {
             BigDecimal y = divisor(random);
             BigDecimal q = number(random, 25);
             // a third are exact quotients
             BigDecimal x = random.nextInt(3) == 0 ? y.multiply(q) : q;
-            MathContext mc = new MathContext(precisions[random.nextInt(precisions.length)],
+            MathContext mc = new MathContext(
+                    precisions[random.nextInt(precisions.length)],
                     modes[random.nextInt(modes.length)]);
             String expected = outcome(() -> x.divide(y, mc));
             assertEquals(expected, outcome(() -> Decimals.divide(x, y, mc)), x + " / " + y + " " + mc);
@@ -39,17 +49,27 @@ class DecimalsTest {
     @Test
     void edgeCases() {
         MathContext mc = new MathContext(5);
-        BigDecimal[][] cases = {{BigDecimal.ZERO, BigDecimal.ONE}, {new BigDecimal("0E+7"), new BigDecimal("8")},
-                {BigDecimal.ONE, BigDecimal.ZERO}, {new BigDecimal("1000"), new BigDecimal("1")},
-                {new BigDecimal("1234000"), new BigDecimal("1E-3")}, {new BigDecimal("1.50"), new BigDecimal("-2")},
-                {new BigDecimal("3"), new BigDecimal(BigInteger.TWO.pow(200))},
-                {new BigDecimal("21"), new BigDecimal("3")},
-                // dividends that are exactly 5^(2^m): their factors of 5 decide the trailing zeros
-                {new BigDecimal("25"), new BigDecimal("125")}, {new BigDecimal("625"), new BigDecimal("1953125")},
-                {new BigDecimal("1E+2147483647"), new BigDecimal("1E-10")}};
+        BigDecimal[][] cases = {
+            { BigDecimal.ZERO, BigDecimal.ONE },
+            { new BigDecimal("0E+7"), new BigDecimal("8") },
+            { BigDecimal.ONE, BigDecimal.ZERO },
+            { new BigDecimal("1000"), new BigDecimal("1") },
+            { new BigDecimal("1234000"), new BigDecimal("1E-3") },
+            { new BigDecimal("1.50"), new BigDecimal("-2") },
+            { new BigDecimal("3"), new BigDecimal(BigInteger.TWO.pow(200)) },
+            { new BigDecimal("21"), new BigDecimal("3") },
+            // dividends that are exactly 5^(2^m): their factors of 5 decide the trailing zeros
+            { new BigDecimal("25"), new BigDecimal("125") },
+            { new BigDecimal("625"), new BigDecimal("1953125") },
+            { new BigDecimal("1E+2147483647"), new BigDecimal("1E-10") } };
         for (BigDecimal[] c : cases) {
-            for (MathContext m : new MathContext[] {mc, MathContext.UNLIMITED, new MathContext(2, RoundingMode.DOWN)}) {
-                assertEquals(outcome(() -> c[0].divide(c[1], m)), outcome(() -> Decimals.divide(c[0], c[1], m)),
+            for (MathContext m : new MathContext[] {
+                mc,
+                MathContext.UNLIMITED,
+                new MathContext(2, RoundingMode.DOWN) }) {
+                assertEquals(
+                        outcome(() -> c[0].divide(c[1], m)),
+                        outcome(() -> Decimals.divide(c[0], c[1], m)),
                         c[0] + " / " + c[1] + " " + m);
             }
         }
@@ -57,7 +77,8 @@ class DecimalsTest {
 
     @Test
     void exactQuotientAtHighPrecisionIsFast() {
-        BigDecimal q = assertTimeoutPreemptively(Duration.ofSeconds(5),
+        BigDecimal q = assertTimeoutPreemptively(
+                Duration.ofSeconds(5),
                 () -> Decimals.divide(new BigDecimal("1.5"), new BigDecimal("1000"), new MathContext(1_000_000)));
         assertEquals(new BigDecimal("0.0015"), q);
     }
@@ -65,8 +86,12 @@ class DecimalsTest {
     @Test
     void hugePowersOfTwoAndFiveEqualBigDecimalDivide() {
         Random random = new Random(70_000);
-        MathContext[] contexts = {MathContext.DECIMAL128, MathContext.DECIMAL32, new MathContext(1000, RoundingMode.DOWN),
-                new MathContext(100_000, RoundingMode.HALF_EVEN), MathContext.UNLIMITED};
+        MathContext[] contexts = {
+            MathContext.DECIMAL128,
+            MathContext.DECIMAL32,
+            new MathContext(1000, RoundingMode.DOWN),
+            new MathContext(100_000, RoundingMode.HALF_EVEN),
+            MathContext.UNLIMITED };
         long helperNanos = 0;
         for (int n = 0; n < 60; n++) {
             int k = random.nextInt(70_001);
@@ -98,11 +123,11 @@ class DecimalsTest {
     void largeDivisorPowersAreFast() {
         BigInteger five = BigInteger.valueOf(5);
         BigDecimal[][] cases = {
-            {new BigDecimal(BigInteger.TEN.pow(100_000)), new BigDecimal(BigInteger.ONE.shiftLeft(65_535))},
-            {BigDecimal.ONE, new BigDecimal(five.pow(100_000))},
-            {new BigDecimal(3), new BigDecimal(BigInteger.valueOf(7).multiply(five.pow(28_000)))},
-            {BigDecimal.ONE, new BigDecimal(five.pow(28_000))},
-            {new BigDecimal(BigInteger.TEN.pow(115_000)), new BigDecimal(BigInteger.ONE.shiftLeft(65_535))}};
+            { new BigDecimal(BigInteger.TEN.pow(100_000)), new BigDecimal(BigInteger.ONE.shiftLeft(65_535)) },
+            { BigDecimal.ONE, new BigDecimal(five.pow(100_000)) },
+            { new BigDecimal(3), new BigDecimal(BigInteger.valueOf(7).multiply(five.pow(28_000))) },
+            { BigDecimal.ONE, new BigDecimal(five.pow(28_000)) },
+            { new BigDecimal(BigInteger.TEN.pow(115_000)), new BigDecimal(BigInteger.ONE.shiftLeft(65_535)) } };
         assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
             for (BigDecimal[] c : cases) {
                 Decimals.divide(c[0], c[1], MathContext.DECIMAL128);
@@ -110,7 +135,8 @@ class DecimalsTest {
             }
         });
         for (BigDecimal[] c : cases) {
-            assertEquals(outcome(() -> c[0].divide(c[1], MathContext.DECIMAL128)),
+            assertEquals(
+                    outcome(() -> c[0].divide(c[1], MathContext.DECIMAL128)),
                     outcome(() -> Decimals.divide(c[0], c[1], MathContext.DECIMAL128)));
         }
     }

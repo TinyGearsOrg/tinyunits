@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems.serial;
 
@@ -19,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.measure.Quantity;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.core.quantity.Untyped;
@@ -62,13 +71,22 @@ public final class QuantityCheck {
     public static Map<String, Quantity<?>> golden() {
         Map<String, Quantity<?>> m = new LinkedHashMap<>();
         m.put("length-double", Length.of(2.5, SI.KILOMETRE));
-        m.put("length-decimal32", Length.of(new BigDecimal("1.23456789012"), SI.METRE, Quantity.Scale.ABSOLUTE,
-                MathContext.DECIMAL32));
+        m.put(
+                "length-decimal32",
+                Length.of(
+                        new BigDecimal("1.23456789012"),
+                        SI.METRE,
+                        Quantity.Scale.ABSOLUTE,
+                        MathContext.DECIMAL32));
         m.put("temperature-relative", Temperature.of(-5.0, SI.KELVIN, Quantity.Scale.RELATIVE));
         m.put("celsius-decimal", Temperature.of(new BigDecimal("21.50"), SI.DEGREE_CELSIUS));
         m.put("untyped-double", UntypedDoubleQuantity.of(3.0, SI.METRE.multiply(SI.SECOND)));
-        m.put("untyped-decimal", UntypedDecimalQuantity.of(new BigDecimal("-0.0010"), SI.NEWTON.multiply(SI.METRE),
-                new MathContext(10, RoundingMode.HALF_DOWN)));
+        m.put(
+                "untyped-decimal",
+                UntypedDecimalQuantity.of(
+                        new BigDecimal("-0.0010"),
+                        SI.NEWTON.multiply(SI.METRE),
+                        new MathContext(10, RoundingMode.HALF_DOWN)));
         m.put("frequency-kilohertz", Frequency.of(50.0, SI.KILOHERTZ));
         m.put("angle-degree", Angle.of(new BigDecimal("90"), SI.DEGREE));
         return m;
@@ -99,9 +117,12 @@ public final class QuantityCheck {
             Object q = read(Files.readAllBytes(dir.resolve(e.getKey() + ".ser")));
             String name = q.getClass().getName();
             check(e.getValue().isInstance(q), e.getKey() + " is not a " + e.getValue().getName() + ": " + name);
-            check(e.getValue() == Untyped.class ? name.startsWith("org.tinygears.uom.core.quantity.Untyped")
-                    : name.startsWith("org.tinygears.uom.quantity.") && (name.endsWith("Double")
-                            || name.endsWith("Decimal")), e.getKey() + " has class " + name);
+            check(
+                    e.getValue() == Untyped.class
+                            ? name.startsWith("org.tinygears.uom.core.quantity.Untyped")
+                            : name.startsWith("org.tinygears.uom.quantity.") && (name.endsWith("Double")
+                                    || name.endsWith("Decimal")),
+                    e.getKey() + " has class " + name);
             read.put(e.getKey(), q);
         }
         Map<String, Quantity<?>> expected = golden();
@@ -110,10 +131,12 @@ public final class QuantityCheck {
             check(e.getValue().equals(q) && e.getValue().getClass() == q.getClass(), e.getKey() + " differs: " + q);
             check(e.getValue().getValue().equals(((Quantity<?>) q).getValue()), e.getKey() + " value differs");
             if (q instanceof AbstractDecimalQuantity<?, ?> d) {
-                check(((AbstractDecimalQuantity<?, ?>) e.getValue()).mathContext().equals(d.mathContext()),
+                check(
+                        ((AbstractDecimalQuantity<?, ?>) e.getValue()).mathContext().equals(d.mathContext()),
                         e.getKey() + " context differs");
             }
-            check(Arrays.equals(Files.readAllBytes(dir.resolve(e.getKey() + ".ser")), write(q)),
+            check(
+                    Arrays.equals(Files.readAllBytes(dir.resolve(e.getKey() + ".ser")), write(q)),
                     e.getKey() + " written differently");
         }
         System.out.println("ok golden " + read.size() + " named=" + Length.class.getModule().isNamed());
@@ -132,8 +155,10 @@ public final class QuantityCheck {
         for (int i = 0; i < catalog.size(); i++) {
             UomUnit<?> c = catalog.get(i);
             UomUnit<?> u = read.get(i);
-            check(c.equals(u) && c.hashCode() == u.hashCode() && c.getSymbol().equals(u.getSymbol())
-                    && java.util.Objects.equals(c.getName(), u.getName()), "unit " + i + ": " + c + " read as " + u);
+            check(
+                    c.equals(u) && c.hashCode() == u.hashCode() && c.getSymbol().equals(u.getSymbol())
+                            && java.util.Objects.equals(c.getName(), u.getName()),
+                    "unit " + i + ": " + c + " read as " + u);
         }
         System.out.println("ok units " + read.size());
     }

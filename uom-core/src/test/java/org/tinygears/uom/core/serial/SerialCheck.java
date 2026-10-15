@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.serial;
 
@@ -12,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import javax.measure.UnitConverter;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
@@ -37,14 +46,18 @@ public final class SerialCheck {
             read(Files.readAllBytes(dir.resolve("degree.ser")));
             throw new AssertionError("degree read although rad is bound to metre");
         } catch (InvalidObjectException expected) {
-            check(expected.getMessage().equals("invalid unit atom: symbol rad is already associated to a different unit"),
+            check(
+                    expected.getMessage()
+                            .equals("invalid unit atom: symbol rad is already associated to a different unit"),
                     expected.getMessage());
         }
         // A later registration with the same definition gives an equal unit, and reading then resolves to it.
         UomUnit<?> registered = BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz");
         check(hz.equals(registered), "hertz differs from Hz");
-        check(registered.atoms().keySet().iterator().next()
-                == ((UomUnit<?>) read(Files.readAllBytes(dir.resolve("hertz.ser")))).atoms().keySet().iterator().next(),
+        check(
+                registered.atoms().keySet().iterator()
+                        .next() == ((UomUnit<?>) read(Files.readAllBytes(dir.resolve("hertz.ser")))).atoms().keySet()
+                                .iterator().next(),
                 "hertz does not resolve to the registered atom");
 
         UomUnit<?> celsius = BaseUnits.KELVIN.shift(273.15);

@@ -1,10 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,13 +20,19 @@ import java.util.List;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.spi.ServiceProvider;
+
 import org.junit.jupiter.api.Test;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
+
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Time;
 import org.tinygears.uom.systems.SI;
 import org.tinygears.uom.systems.UomServiceProvider;
-import tech.units.indriya.quantity.Quantities;
-import tech.units.indriya.unit.Units;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * uom next to Indriya on one class path (docs/PROVIDERS.md): the priority decides which provider is current, and
@@ -52,8 +62,10 @@ class ProviderCoexistenceTest {
         assertEquals(10, indriya().getPriority());
         assertInstanceOf(UomServiceProvider.class, ServiceProvider.current());
         // Other test providers may be on the class path; uom is listed before Indriya.
-        assertEquals(List.of("uom", "Default"), ServiceProvider.available().stream().map(Object::toString)
-                .filter(n -> n.equals("uom") || n.equals("Default")).toList());
+        assertEquals(
+                List.of("uom", "Default"),
+                ServiceProvider.available().stream().map(Object::toString)
+                        .filter(n -> n.equals("uom") || n.equals("Default")).toList());
     }
 
     @Test

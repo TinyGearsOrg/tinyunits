@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
@@ -9,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.parse.Definition;
 
@@ -39,9 +48,11 @@ public final class UnitTableEmitter {
                 | System | Data file | Units |
                 |---|---|---|
                 """);
-        catalogs.values().forEach(c -> out.append("| [").append(c.className()).append("](#")
-                .append(c.className().toLowerCase(Locale.ROOT)).append(") | `data/").append(c.file()).append("` | ")
-                .append(c.units().size()).append(" |\n"));
+        catalogs.values().forEach(
+                c -> out.append("| [").append(c.className()).append("](#")
+                        .append(c.className().toLowerCase(Locale.ROOT)).append(") | `data/").append(c.file())
+                        .append("` | ")
+                        .append(c.units().size()).append(" |\n"));
         for (CatalogBuilder.Catalog c : catalogs.values()) {
             out.append("\n## ").append(c.className())
                     .append("\n\n| Symbol | Name | Quantity type | Factor | Offset |\n|---|---|---|---|---|\n");
@@ -49,13 +60,16 @@ public final class UnitTableEmitter {
                 CatalogEntry e = byRef.get(ref);
                 Definition d = e.definition();
                 QuantityTypeSpec spec = e.quantityType() == null ? null : byName.get(e.quantityType());
-                String system = spec != null && spec.systemSymbol() != null ? spec.systemSymbol()
+                String system = spec != null && spec.systemSymbol() != null
+                        ? spec.systemSymbol()
                         : d.unit().getSystemUnit().getSymbol();
                 Factor offset = d.unit().toSystemConverter().offset();
                 out.append("| ").append(cell("`" + d.symbol() + "`")).append(" | ").append(cell(d.name()))
                         .append(" | ").append(e.quantityType() == null ? "-" : e.quantityType()).append(" | ")
-                        .append(cell("`" + number(d.unit().toSystemConverter().factor())
-                                + (system.equals("1") ? "" : " " + system) + "`"))
+                        .append(
+                                cell(
+                                        "`" + number(d.unit().toSystemConverter().factor())
+                                                + (system.equals("1") ? "" : " " + system) + "`"))
                         .append(" | ").append(offset.isZero() ? "" : cell("`" + number(offset) + "`")).append(" |\n");
             }
         }
@@ -75,7 +89,8 @@ public final class UnitTableEmitter {
             BigDecimal value = new BigDecimal(n).divide(new BigDecimal(d));
             // below 1e-6 BigDecimal.toString switches to scientific notation, written like the data files (1e-7)
             String decimal = value.abs().compareTo(BigDecimal.ONE) < 0
-                    ? value.stripTrailingZeros().toString().replace('E', 'e') : value.toPlainString();
+                    ? value.stripTrailingZeros().toString().replace('E', 'e')
+                    : value.toPlainString();
             text = decimal.length() <= text.length() ? decimal : text;
         } catch (ArithmeticException e) {
             // non-terminating: keep the fraction

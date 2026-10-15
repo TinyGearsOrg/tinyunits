@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -20,8 +22,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.measure.Quantity;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
@@ -29,14 +33,48 @@ import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Prefixed;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class SiDataTest {
     private static final Path DATA = Path.of("../data");
-    private static final Set<String> TYPES = Set.of("Acceleration", "AmountOfSubstance", "Angle", "Area",
-            "CatalyticActivity", "Dimensionless", "ElectricCapacitance", "ElectricCharge", "ElectricConductance",
-            "ElectricCurrent", "ElectricInductance", "ElectricPotential", "ElectricResistance", "Energy", "Force",
-            "Frequency", "Illuminance", "Length", "LuminousFlux", "LuminousIntensity", "MagneticFlux",
-            "MagneticFluxDensity", "Mass", "Power", "Pressure", "RadiationDoseAbsorbed", "RadiationDoseEffective",
-            "Radioactivity", "SolidAngle", "Speed", "Temperature", "Time", "Volume");
+    private static final Set<String> TYPES = Set.of(
+            "Acceleration",
+            "AmountOfSubstance",
+            "Angle",
+            "Area",
+            "CatalyticActivity",
+            "Dimensionless",
+            "ElectricCapacitance",
+            "ElectricCharge",
+            "ElectricConductance",
+            "ElectricCurrent",
+            "ElectricInductance",
+            "ElectricPotential",
+            "ElectricResistance",
+            "Energy",
+            "Force",
+            "Frequency",
+            "Illuminance",
+            "Length",
+            "LuminousFlux",
+            "LuminousIntensity",
+            "MagneticFlux",
+            "MagneticFluxDensity",
+            "Mass",
+            "Power",
+            "Pressure",
+            "RadiationDoseAbsorbed",
+            "RadiationDoseEffective",
+            "Radioactivity",
+            "SolidAngle",
+            "Speed",
+            "Temperature",
+            "Time",
+            "Volume");
 
     private static Definitions defs;
     private static List<QuantityTypeSpec> specs;
@@ -84,8 +122,10 @@ class SiDataTest {
         }
         assertTrue(defs.prefixed().stream().map(Prefixed::prefixSymbols).anyMatch(l -> l.contains("\u00B5")));
         String types = Files.readString(DATA.resolve("quantity-types.txt"), StandardCharsets.UTF_8);
-        assertTrue(types.contains("Area m\u00B2") && types.contains("Volume m\u00B3")
-                && types.contains("ElectricResistance \u03A9"), types);
+        assertTrue(
+                types.contains("Area m\u00B2") && types.contains("Volume m\u00B3")
+                        && types.contains("ElectricResistance \u03A9"),
+                types);
     }
 
     @Test
@@ -187,12 +227,90 @@ class SiDataTest {
     @Test
     void prefixedSymbolsArePinned() {
         List<String> expected = List.of(
-                "GBq", "GHz", "GJ", "GPa", "GW", "GeV", "Gt", "MBq", "MDa", "MHz", "MJ", "MPa", "MW", "MeV", "Mt",
-                "MΩ", "THz", "TeV", "cL", "cm", "dL", "hPa", "kBq", "kDa", "kHz", "kJ", "kN", "kPa", "kV", "kW",
-                "kcd", "keV", "kkat", "klm", "klx", "km", "kt", "kΩ", "mA", "mC", "mF", "mGy", "mH", "mJ", "mK",
-                "mL", "mN", "mS", "mSv", "mT", "mV", "mW", "mWb", "mcd", "mg", "mkat", "mlm", "mm", "mmol", "mrad",
-                "ms", "msr", "nF", "nH", "nK", "nT", "nkat", "nm", "ns", "pF", "pm", "ps", "µA", "µC", "µF", "µH",
-                "µK", "µSv", "µT", "µV", "µg", "µkat", "µm", "µs");
+                "GBq",
+                "GHz",
+                "GJ",
+                "GPa",
+                "GW",
+                "GeV",
+                "Gt",
+                "MBq",
+                "MDa",
+                "MHz",
+                "MJ",
+                "MPa",
+                "MW",
+                "MeV",
+                "Mt",
+                "MΩ",
+                "THz",
+                "TeV",
+                "cL",
+                "cm",
+                "dL",
+                "hPa",
+                "kBq",
+                "kDa",
+                "kHz",
+                "kJ",
+                "kN",
+                "kPa",
+                "kV",
+                "kW",
+                "kcd",
+                "keV",
+                "kkat",
+                "klm",
+                "klx",
+                "km",
+                "kt",
+                "kΩ",
+                "mA",
+                "mC",
+                "mF",
+                "mGy",
+                "mH",
+                "mJ",
+                "mK",
+                "mL",
+                "mN",
+                "mS",
+                "mSv",
+                "mT",
+                "mV",
+                "mW",
+                "mWb",
+                "mcd",
+                "mg",
+                "mkat",
+                "mlm",
+                "mm",
+                "mmol",
+                "mrad",
+                "ms",
+                "msr",
+                "nF",
+                "nH",
+                "nK",
+                "nT",
+                "nkat",
+                "nm",
+                "ns",
+                "pF",
+                "pm",
+                "ps",
+                "µA",
+                "µC",
+                "µF",
+                "µH",
+                "µK",
+                "µSv",
+                "µT",
+                "µV",
+                "µg",
+                "µkat",
+                "µm",
+                "µs");
         List<String> actual = defs.definitions().stream().filter(SiDataTest::isPrefixed).map(Definition::symbol)
                 .sorted().toList();
         assertEquals(84, expected.size());

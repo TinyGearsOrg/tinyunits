@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.parse;
 
@@ -19,6 +27,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import javax.measure.MeasurementException;
 import javax.measure.Prefix;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
@@ -30,14 +39,75 @@ public final class DefinitionParser {
     private static final String BASE_LETTERS = "LMTIΘNJK";
     // JLS 3.9 reserved keywords, '_', the literals and the restricted identifiers that are not type names;
     // avoids depending on the java.compiler module.
-    private static final Set<String> RESERVED = Set.of("abstract", "assert", "boolean", "break", "byte", "case",
-            "catch", "char", "class", "const", "continue", "default", "do", "double", "else", "enum", "extends",
-            "final", "finally", "float", "for", "goto", "if", "implements", "import", "instanceof", "int",
-            "interface", "long", "native", "new", "package", "private", "protected", "public", "return", "short",
-            "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try",
-            "void", "volatile", "while", "_", "true", "false", "null", "var", "yield", "record", "sealed", "permits");
-    private static final UomUnit<?>[] BASES = {BaseUnits.METRE, BaseUnits.KILOGRAM, BaseUnits.SECOND,
-        BaseUnits.AMPERE, BaseUnits.KELVIN, BaseUnits.MOLE, BaseUnits.CANDELA, BaseUnits.KELVIN};
+    private static final Set<String> RESERVED = Set.of(
+            "abstract",
+            "assert",
+            "boolean",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "class",
+            "const",
+            "continue",
+            "default",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "extends",
+            "final",
+            "finally",
+            "float",
+            "for",
+            "goto",
+            "if",
+            "implements",
+            "import",
+            "instanceof",
+            "int",
+            "interface",
+            "long",
+            "native",
+            "new",
+            "package",
+            "private",
+            "protected",
+            "public",
+            "return",
+            "short",
+            "static",
+            "strictfp",
+            "super",
+            "switch",
+            "synchronized",
+            "this",
+            "throw",
+            "throws",
+            "transient",
+            "try",
+            "void",
+            "volatile",
+            "while",
+            "_",
+            "true",
+            "false",
+            "null",
+            "var",
+            "yield",
+            "record",
+            "sealed",
+            "permits");
+    private static final UomUnit<?>[] BASES = {
+        BaseUnits.METRE,
+        BaseUnits.KILOGRAM,
+        BaseUnits.SECOND,
+        BaseUnits.AMPERE,
+        BaseUnits.KELVIN,
+        BaseUnits.MOLE,
+        BaseUnits.CANDELA,
+        BaseUnits.KELVIN };
 
     /** Opens an included file by name. */
     public interface Resolver {
@@ -95,8 +165,12 @@ public final class DefinitionParser {
      * @return the definitions
      * @throws DefinitionException if a line is invalid
      */
-    public static Definitions parse(String source, Reader reader, Resolver resolver,
-            Function<String, UomUnit<?>> known) {
+    public static Definitions parse(
+            String source,
+            Reader reader,
+            Resolver resolver,
+            Function<String, UomUnit<?>> known
+    ) {
         DefinitionParser p = new DefinitionParser(resolver, Objects.requireNonNull(known, "known"));
         try {
             p.file(source, reader);

@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,12 +25,20 @@ import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OffsetUnitFormatTest {
     private static final UomUnitFormat FORMAT = UomUnitFormat.standard();
@@ -134,14 +144,19 @@ class OffsetUnitFormatTest {
         assertRefused(K.multiply(-2).shift(1), "unit can not be formatted: K (factor -2, offset -2)");
         Factor root2 = Factor.ofLong(2).root(2);
         assertRefused(K.scaledBy(root2).shift(1), "unit can not be formatted: K (factor (2)^(1/2), offset (2)^(1/2))");
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
                 () -> FORMAT.format(K.multiply(BigInteger.TWO.pow(60_000)).shift(1)));
         assertTrue(e.getMessage().startsWith("unit can not be formatted: K (factor "), e.getMessage().substring(0, 40));
         // o/f exceeds the factor size limit: refused, not an ArithmeticException.
-        UomUnit<?> huge = K.transform(Converters.affine(Factor.of(BigInteger.ONE, BigInteger.valueOf(3).pow(41_000)),
-                Factor.of(BigInteger.TWO.pow(65_000), BigInteger.ONE)));
+        UomUnit<?> huge = K.transform(
+                Converters.affine(
+                        Factor.of(BigInteger.ONE, BigInteger.valueOf(3).pow(41_000)),
+                        Factor.of(BigInteger.TWO.pow(65_000), BigInteger.ONE)));
         e = assertThrows(IllegalArgumentException.class, () -> FORMAT.format(huge));
-        assertTrue(e.getMessage().startsWith("unit can not be formatted: K (factor 1/"), e.getMessage().substring(0, 40));
+        assertTrue(
+                e.getMessage().startsWith("unit can not be formatted: K (factor 1/"),
+                e.getMessage().substring(0, 40));
         // A product drops the offset, so no compound shifted form can arise.
         assertTrue(SI.DEGREE_CELSIUS.multiply(SI.METRE).toSystemConverter().isLinear());
     }
@@ -157,10 +172,14 @@ class OffsetUnitFormatTest {
             assertEquals(-2.5, parsed.getValue());
             assertEquals(unit, parsed.getUnit());
         }
-        assertEquals("1.0 7|9·K - 1.5", qf.format(UntypedDoubleQuantity.of(1, K.scaledBy(Factor.of(7, 9)).shift(-1.5))));
+        assertEquals(
+                "1.0 7|9·K - 1.5",
+                qf.format(UntypedDoubleQuantity.of(1, K.scaledBy(Factor.of(7, 9)).shift(-1.5))));
     }
 
-    private enum Refusal { NEGATIVE_FACTOR, ROOT_FACTOR, IRRATIONAL_SHIFT, OVER_LONG }
+    private enum Refusal {
+        NEGATIVE_FACTOR, ROOT_FACTOR, IRRATIONAL_SHIFT, OVER_LONG
+    }
 
     /** The reason a unit has no faithful form, recomputed from its converter. */
     private static Refusal reason(UomUnit<?> unit) {
@@ -210,16 +229,21 @@ class OffsetUnitFormatTest {
 
     private static UomUnit<?> randomOp(UomUnit<?> u, List<UomUnit<?>> catalog, Random r) {
         return switch (r.nextInt(12)) {
-            case 0 -> u.multiply(r.nextInt(20) == 0 ? -r.nextInt(1, 50)
-                    : BigDecimal.valueOf(r.nextInt(1, 100_000), r.nextInt(6)));
+            case 0 -> u.multiply(
+                    r.nextInt(20) == 0
+                            ? -r.nextInt(1, 50)
+                            : BigDecimal.valueOf(r.nextInt(1, 100_000), r.nextInt(6)));
             case 1 -> u.divide(r.nextInt(1, 2000));
             case 2 -> u.pow(r.nextInt(-3, 4));
             case 3 -> u.root(r.nextInt(1, 3));
-            case 4 -> r.nextBoolean() ? u.multiply(catalog.get(r.nextInt(catalog.size())))
+            case 4 -> r.nextBoolean()
+                    ? u.multiply(catalog.get(r.nextInt(catalog.size())))
                     : u.divide(catalog.get(r.nextInt(catalog.size())));
             case 5 -> u.prefix(PREFIXES.get(r.nextInt(PREFIXES.size())));
-            case 6, 7 -> u.shift(r.nextBoolean() ? BigDecimal.valueOf(r.nextInt(-100_000, 100_000), r.nextInt(4))
-                    : r.nextInt(-500, 500));
+            case 6, 7 -> u.shift(
+                    r.nextBoolean()
+                            ? BigDecimal.valueOf(r.nextInt(-100_000, 100_000), r.nextInt(4))
+                            : r.nextInt(-500, 500));
             case 8 -> u.transform(Converters.shift(Factor.of(r.nextInt(-50, 50), r.nextInt(1, 50))));
             case 9 -> u.transform(Converters.scale(switch (r.nextInt(4)) {
                 case 0 -> Factor.PI.pow(r.nextInt(-2, 3));
@@ -228,8 +252,10 @@ class OffsetUnitFormatTest {
                 default -> Factor.of(r.nextInt(1, 100), r.nextInt(1, 100));
             }));
             case 10 -> u.transform(Converters.shift(Factor.PI.multiply(Factor.of(r.nextInt(1, 9), 3))));
-            default -> u.transform(Converters.affine(Factor.of(r.nextInt(1, 30), r.nextInt(1, 30)),
-                    Factor.of(r.nextInt(-300, 300), r.nextInt(1, 30))));
+            default -> u.transform(
+                    Converters.affine(
+                            Factor.of(r.nextInt(1, 30), r.nextInt(1, 30)),
+                            Factor.of(r.nextInt(-300, 300), r.nextInt(1, 30))));
         };
     }
 
@@ -263,7 +289,8 @@ class OffsetUnitFormatTest {
                 text = FORMAT.format(unit);
             } catch (IllegalArgumentException e) {
                 Refusal why = reason(unit);
-                if (why == null || !e.getMessage().startsWith("unit can not be formatted: " + unit.getSystemUnit() + " (factor ")) {
+                if (why == null || !e.getMessage()
+                        .startsWith("unit can not be formatted: " + unit.getSystemUnit() + " (factor ")) {
                     bad.add("refused " + unit.toSystemConverter() + ": " + e.getMessage());
                 } else {
                     refused.merge(why, 1, Integer::sum);
@@ -319,7 +346,9 @@ class OffsetUnitFormatTest {
 
     @Test
     void formattingAnOffsetUnitIsFast() {
-        List<UomUnit<?>> units = List.of(K.shift(5), K.scaledBy(Factor.of(7, 9)).shift(1.5),
+        List<UomUnit<?>> units = List.of(
+                K.shift(5),
+                K.scaledBy(Factor.of(7, 9)).shift(1.5),
                 SI.METRE.divide(SI.SECOND).scaledBy(Factor.of(3, 2)).shift(5));
         for (int i = 0; i < 20_000; i++) {
             FORMAT.format(units.get(i % 3));

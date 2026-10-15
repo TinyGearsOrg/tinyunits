@@ -1,18 +1,28 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Locale;
 import javax.measure.Quantity;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.quantity.Angle;
 import org.tinygears.uom.quantity.Dimensionless;
 import org.tinygears.uom.quantity.DimensionlessFactory;
 import org.tinygears.uom.quantity.Length;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** A dimensionless number is written alone, and a number alone parses as dimensionless. */
 class DimensionlessTextTest {

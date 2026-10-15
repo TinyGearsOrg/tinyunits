@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
@@ -24,12 +25,21 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 import javax.measure.spi.QuantityFactory;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.TestServiceProvider;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UntypedDecimalQuantityTest {
 
@@ -37,8 +47,7 @@ class UntypedDecimalQuantityTest {
     private static final UomUnit<Length> KILOMETRE = METRE.multiply(1000);
     private static final UomUnit<Length> INCH = METRE.multiply(new BigDecimal("0.0254"));
     private static final UomUnit<Length> KELVIN = UomUnit.unchecked(BaseUnits.KELVIN);
-    private static final UomUnit<Length> CELSIUS =
-            UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
+    private static final UomUnit<Length> CELSIUS = UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
     private static final UomUnit<Length> SECOND = UomUnit.unchecked(BaseUnits.SECOND);
     private static final UomUnit<Length> HOUR = SECOND.multiply(3600);
     private static final MathContext DECIMAL32 = MathContext.DECIMAL32;
@@ -65,8 +74,12 @@ class UntypedDecimalQuantityTest {
     }
 
     /** Asserts an untyped decimal result: numerically equal value, unit and context. */
-    private static UntypedDecimalQuantity assertUntyped(String value, Unit<?> unit, MathContext mc,
-            Quantity<?> actual) {
+    private static UntypedDecimalQuantity assertUntyped(
+            String value,
+            Unit<?> unit,
+            MathContext mc,
+            Quantity<?> actual
+    ) {
         UntypedDecimalQuantity r = assertInstanceOf(UntypedDecimalQuantity.class, actual);
         assertEquals(0, new BigDecimal(value).compareTo(r.getValue()), () -> value + " vs " + r.getValue());
         assertEquals(unit, r.getUnit());
@@ -101,20 +114,35 @@ class UntypedDecimalQuantityTest {
 
     @Test
     void lowerContextWinsInBothOrders() {
-        assertUntyped("0.3333333", METRE.divide(SECOND), DECIMAL32,
+        assertUntyped(
+                "0.3333333",
+                METRE.divide(SECOND),
+                DECIMAL32,
                 q("1", METRE, DECIMAL32).divide(q("3", SECOND, DECIMAL128)));
-        assertUntyped("0.3333333", METRE.divide(SECOND), DECIMAL32,
+        assertUntyped(
+                "0.3333333",
+                METRE.divide(SECOND),
+                DECIMAL32,
                 q("1", METRE, DECIMAL128).divide(q("3", SECOND, DECIMAL32)));
-        assertUntyped("1.234568", METRE.multiply(SECOND), DECIMAL32,
+        assertUntyped(
+                "1.234568",
+                METRE.multiply(SECOND),
+                DECIMAL32,
                 q("1.2345678", METRE, DECIMAL128).multiply(q("1", SECOND, DECIMAL32)));
     }
 
     @Test
     void unlimitedContextIsExactWhereItCanBe() {
         MathContext unlimited = MathContext.UNLIMITED;
-        assertUntyped("1.23456789012345678901234567890123456789", METRE.multiply(METRE), unlimited,
+        assertUntyped(
+                "1.23456789012345678901234567890123456789",
+                METRE.multiply(METRE),
+                unlimited,
                 q("1.23456789012345678901234567890123456789", METRE, unlimited).multiply(q("1", METRE, unlimited)));
-        assertUntyped("0.3333333333333333333333333333333333", METRE.divide(SECOND), unlimited,
+        assertUntyped(
+                "0.3333333333333333333333333333333333",
+                METRE.divide(SECOND),
+                unlimited,
                 q("1", METRE, unlimited).divide(q("3", SECOND, unlimited)));
     }
 
@@ -123,17 +151,29 @@ class UntypedDecimalQuantityTest {
         // An exact value and a foreign BigDecimal (unlimited) both leave the receiver's context.
         MathContext five = new MathContext(5);
         assertUntyped("0.33333", METRE.divide(SECOND), five, q("1", METRE, five).divide(foreign(3, SECOND)));
-        assertUntyped("0.33333", METRE.divide(SECOND), five,
+        assertUntyped(
+                "0.33333",
+                METRE.divide(SECOND),
+                five,
                 q("1", METRE, five).divide(foreign(new BigDecimal("3"), SECOND)));
         // Exact values never pass through double.
         BigInteger big = BigInteger.TEN.pow(400).add(BigInteger.ONE);
         MathContext unlimited = MathContext.UNLIMITED;
-        assertUntyped(big.toString(), METRE.multiply(METRE), unlimited,
+        assertUntyped(
+                big.toString(),
+                METRE.multiply(METRE),
+                unlimited,
                 q("1", METRE, unlimited).multiply(foreign(big, METRE)));
-        assertUntyped("9007199254740993", METRE.multiply(METRE), DECIMAL128,
+        assertUntyped(
+                "9007199254740993",
+                METRE.multiply(METRE),
+                DECIMAL128,
                 q("1", METRE).multiply(foreign((1L << 53) + 1, METRE)));
         String digits39 = "1.23456789012345678901234567890123456789";
-        assertUntyped(digits39, METRE.multiply(METRE), unlimited,
+        assertUntyped(
+                digits39,
+                METRE.multiply(METRE),
+                unlimited,
                 q("1", METRE, unlimited).multiply(foreign(new BigDecimal(digits39), METRE)));
     }
 
@@ -153,7 +193,10 @@ class UntypedDecimalQuantityTest {
     void doubleOperandIsReadAsDecimal() {
         assertUntyped("21600", METRE.multiply(SECOND), DECIMAL128, q("2", METRE).multiply(new TestLengthImpl(3, HOUR)));
         assertUntyped("0.25", METRE.divide(SECOND), DECIMAL128, q("1", METRE).divide(foreign(4.0, SECOND)));
-        assertUntyped("1e400", METRE.multiply(METRE), DECIMAL128,
+        assertUntyped(
+                "1e400",
+                METRE.multiply(METRE),
+                DECIMAL128,
                 q("1e400", METRE).multiply(new TestLengthImpl(1, METRE)));
         assertThrows(ArithmeticException.class, () -> q("1", METRE).multiply(new TestLengthImpl(Double.NaN, METRE)));
     }
@@ -171,14 +214,18 @@ class UntypedDecimalQuantityTest {
     void divisionByZero() {
         assertThrows(ArithmeticException.class, () -> q("1", METRE).divide(q("0", SECOND)));
         assertThrows(ArithmeticException.class, () -> q("0", METRE).divide(q("0", SECOND)));
-        assertThrows(ArithmeticException.class,
+        assertThrows(
+                ArithmeticException.class,
                 () -> q("1", METRE, MathContext.UNLIMITED).divide(q("0", SECOND, MathContext.UNLIMITED)));
     }
 
     @Test
     void scaleOfResultsIsAbsolute() {
-        TestLengthDecimalImpl relative =
-                new TestLengthDecimalImpl(BigDecimal.valueOf(2), METRE, Quantity.Scale.RELATIVE, DECIMAL128);
+        TestLengthDecimalImpl relative = new TestLengthDecimalImpl(
+                BigDecimal.valueOf(2),
+                METRE,
+                Quantity.Scale.RELATIVE,
+                DECIMAL128);
         assertSame(Quantity.Scale.ABSOLUTE, relative.multiply(q("3", SECOND)).getScale());
         assertSame(Quantity.Scale.ABSOLUTE, relative.divide(q("3", SECOND)).getScale());
         assertSame(Quantity.Scale.ABSOLUTE, relative.inverse().getScale());
@@ -196,8 +243,11 @@ class UntypedDecimalQuantityTest {
     @Test
     void asTypeKeepsARelativeScale() {
         // Untyped results are ABSOLUTE, so a fixture quantity in m/s stands in for a RELATIVE receiver.
-        TestLengthDecimalImpl relative = new TestLengthDecimalImpl(new BigDecimal("2.5"),
-                UomUnit.unchecked(METRE.divide(SECOND)), Quantity.Scale.RELATIVE, DECIMAL32);
+        TestLengthDecimalImpl relative = new TestLengthDecimalImpl(
+                new BigDecimal("2.5"),
+                UomUnit.unchecked(METRE.divide(SECOND)),
+                Quantity.Scale.RELATIVE,
+                DECIMAL32);
         TestSpeedDecimalImpl typed = assertInstanceOf(TestSpeedDecimalImpl.class, relative.asType(Speed.class));
         assertSame(Quantity.Scale.RELATIVE, typed.getScale());
         assertEquals(DECIMAL32, typed.mathContext());
@@ -206,8 +256,8 @@ class UntypedDecimalQuantityTest {
 
     @Test
     void asTypeNeverChangesTheValue() {
-        UntypedDecimalQuantity u =
-                UntypedDecimalQuantity.of(new BigDecimal("1.23456789"), METRE.divide(SECOND), DECIMAL32);
+        UntypedDecimalQuantity u = UntypedDecimalQuantity
+                .of(new BigDecimal("1.23456789"), METRE.divide(SECOND), DECIMAL32);
         TestSpeedDecimalImpl kept = assertInstanceOf(TestSpeedDecimalImpl.class, u.asType(Speed.class));
         assertEquals(new BigDecimal("1.23456789"), kept.getValue());
         assertEquals(DECIMAL32, kept.mathContext());
@@ -290,8 +340,9 @@ class UntypedDecimalQuantityTest {
     void asTypeContract() {
         Quantity<?> speed = q("10", METRE).divide(q("2", SECOND));
         assertThrows(ClassCastException.class, () -> speed.asType(Length.class));
-        UnsupportedOperationException e =
-                assertThrows(UnsupportedOperationException.class, () -> speed.asType(Unsupported.class));
+        UnsupportedOperationException e = assertThrows(
+                UnsupportedOperationException.class,
+                () -> speed.asType(Unsupported.class));
         assertEquals("no quantity factory for " + Unsupported.class.getName(), e.getMessage());
         assertSame(speed, speed.asType(Untyped.class));
         TestLengthDecimalImpl length = q("1", KILOMETRE);
@@ -301,7 +352,8 @@ class UntypedDecimalQuantityTest {
 
     private static Quantity<?> foreign(Number value, Unit<?> unit) {
         return (Quantity<?>) Proxy.newProxyInstance(
-                UntypedDecimalQuantityTest.class.getClassLoader(), new Class<?>[] {Quantity.class},
+                UntypedDecimalQuantityTest.class.getClassLoader(),
+                new Class<?>[] { Quantity.class },
                 (p, m, a) -> switch (m.getName()) {
                     case "getValue" -> value;
                     case "getUnit" -> unit;
@@ -313,7 +365,9 @@ class UntypedDecimalQuantityTest {
     @Test
     void foreignUnit() {
         Unit<?> foreignUnit = (Unit<?>) Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class<?>[] {Unit.class}, (p, m, a) -> null);
+                getClass().getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
         Quantity<?> foreign = foreign(BigDecimal.ONE, foreignUnit);
         UnconvertibleException e = assertThrows(UnconvertibleException.class, () -> q("1", METRE).multiply(foreign));
         assertTrue(e.getMessage().contains("foreign unit implementation"), e.getMessage());
@@ -340,7 +394,8 @@ class UntypedDecimalQuantityTest {
     private record Rational(BigInteger n, BigInteger d) {
 
         static Rational of(BigDecimal v) {
-            return v.scale() >= 0 ? new Rational(v.unscaledValue(), BigInteger.TEN.pow(v.scale()))
+            return v.scale() >= 0
+                    ? new Rational(v.unscaledValue(), BigInteger.TEN.pow(v.scale()))
                     : new Rational(v.unscaledValue().multiply(BigInteger.TEN.pow(-v.scale())), BigInteger.ONE);
         }
 

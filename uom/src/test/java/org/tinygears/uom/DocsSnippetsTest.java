@@ -1,10 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,11 +32,17 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
+
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+
 import org.tinygears.uom.core.parse.DefinitionException;
 import org.tinygears.uom.systems.UomSystemOfUnits;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Runs the fenced blocks of the user documents. {@code units} blocks load (an optional second info word names the
@@ -41,8 +51,12 @@ import org.tinygears.uom.systems.UomSystemOfUnits;
  * {@code // prints: } comments, run and print exactly those lines.
  */
 class DocsSnippetsTest {
-    private static final List<Path> DOCS = List.of(Path.of("../README.md"), Path.of("../docs/CUSTOM-UNITS.md"),
-            Path.of("../docs/OFFSET-UNITS.md"), Path.of("../docs/PROVIDERS.md"), Path.of("../docs/INDRIYA.md"),
+    private static final List<Path> DOCS = List.of(
+            Path.of("../README.md"),
+            Path.of("../docs/CUSTOM-UNITS.md"),
+            Path.of("../docs/OFFSET-UNITS.md"),
+            Path.of("../docs/PROVIDERS.md"),
+            Path.of("../docs/INDRIYA.md"),
             Path.of("../SECURITY.md"));
     private static final String IMPORTS = "import java.io.*; import java.math.*; import java.nio.file.*;"
             + " import java.util.*; import javax.measure.*; import org.tinygears.uom.quantity.*;"
@@ -70,8 +84,13 @@ class DocsSnippetsTest {
             for (i++; !lines.get(i).startsWith("```"); i++) {
                 text.append(lines.get(i)).append('\n');
             }
-            out.add(new Block(doc.getFileName().toString(), fence, info[0], info.length > 1 ? info[1] : null,
-                    text.toString()));
+            out.add(
+                    new Block(
+                            doc.getFileName().toString(),
+                            fence,
+                            info[0],
+                            info.length > 1 ? info[1] : null,
+                            text.toString()));
         }
         return out;
     }
@@ -98,7 +117,9 @@ class DocsSnippetsTest {
                     String expected = b.text().lines().filter(l -> l.startsWith(ERROR)).findFirst()
                             .orElseThrow(() -> new AssertionError(b + ": no '" + ERROR + "' line"))
                             .substring(ERROR.length());
-                    assertEquals(expected, assertThrows(DefinitionException.class, () -> load(b, files)).getMessage(),
+                    assertEquals(
+                            expected,
+                            assertThrows(DefinitionException.class, () -> load(b, files)).getMessage(),
                             b.toString());
                 }));
                 case "java" -> tests.add(DynamicTest.dynamicTest(b.toString(), () -> java(b)));
@@ -116,19 +137,35 @@ class DocsSnippetsTest {
         List<Block> blocks = all();
         assertTrue(blocks.stream().filter(b -> b.tag().startsWith("units")).count() >= 12, "units blocks");
         assertTrue(blocks.stream().filter(b -> b.tag().equals("java")).count() >= 8, "java blocks");
-        String units = String.join("\n", blocks.stream().filter(b -> b.tag().equals("units")).map(Block::text)
-                .toList());
-        for (String feature : List.of("@system ", "@include ", "@extends ", "@member ", "@preferred ", "@prefixed ",
-                " ~", " = x", " + ", "|", "pi")) {
+        String units = String.join(
+                "\n",
+                blocks.stream().filter(b -> b.tag().equals("units")).map(Block::text)
+                        .toList());
+        for (String feature : List.of(
+                "@system ",
+                "@include ",
+                "@extends ",
+                "@member ",
+                "@preferred ",
+                "@prefixed ",
+                " ~",
+                " = x",
+                " + ",
+                "|",
+                "pi")) {
             assertTrue(units.contains(feature), "no loading units block uses '" + feature + "'");
         }
-        String errors = String.join("\n", blocks.stream().filter(b -> b.tag().equals("units-error"))
-                .map(Block::text).toList());
+        String errors = String.join(
+                "\n",
+                blocks.stream().filter(b -> b.tag().equals("units-error"))
+                        .map(Block::text).toList());
         assertTrue(errors.contains(" !"), "no units-error block shows a base unit");
     }
 
     private static UomSystemOfUnits load(Block b, Map<String, String> files) {
-        return UomSystemOfUnits.load(b.name() != null ? b.name() : "example.units", new StringReader(b.text()),
+        return UomSystemOfUnits.load(
+                b.name() != null ? b.name() : "example.units",
+                new StringReader(b.text()),
                 name -> {
                     String text = files.get(b.doc() + "/" + name);
                     return text == null ? null : new StringReader(text);
@@ -147,8 +184,11 @@ class DocsSnippetsTest {
             }
         }
         String name = "Snippet" + b.line();
-        Class<?> c = compile(name, imports + "public class " + name
-                + " {\n public static void run() throws Exception {\n" + body + "}\n}\n", b);
+        Class<?> c = compile(
+                name,
+                imports + "public class " + name
+                        + " {\n public static void run() throws Exception {\n" + body + "}\n}\n",
+                b);
         if (expected.isEmpty()) {
             return;
         }
@@ -169,8 +209,12 @@ class DocsSnippetsTest {
         StringWriter log = new StringWriter();
         try (JavaFileManager files = new ForwardingJavaFileManager<>(javac.getStandardFileManager(null, null, null)) {
             @Override
-            public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind,
-                    FileObject sibling) {
+            public JavaFileObject getJavaFileForOutput(
+                    Location location,
+                    String className,
+                    JavaFileObject.Kind kind,
+                    FileObject sibling
+            ) {
                 return new SimpleJavaFileObject(URI.create("mem:///" + className + kind.extension), kind) {
                     @Override
                     public OutputStream openOutputStream() {
@@ -179,15 +223,21 @@ class DocsSnippetsTest {
                 };
             }
         }) {
-            JavaFileObject src = new SimpleJavaFileObject(URI.create("string:///" + name + ".java"),
+            JavaFileObject src = new SimpleJavaFileObject(
+                    URI.create("string:///" + name + ".java"),
                     JavaFileObject.Kind.SOURCE) {
                 @Override
                 public CharSequence getCharContent(boolean ignoreEncodingErrors) {
                     return source;
                 }
             };
-            boolean ok = javac.getTask(log, files, null, List.of("-classpath", System.getProperty("java.class.path")),
-                    null, List.of(src)).call();
+            boolean ok = javac.getTask(
+                    log,
+                    files,
+                    null,
+                    List.of("-classpath", System.getProperty("java.class.path")),
+                    null,
+                    List.of(src)).call();
             assertTrue(ok, b + " does not compile:\n" + log + "\n" + source);
         }
         ClassLoader loader = new ClassLoader(DocsSnippetsTest.class.getClassLoader()) {

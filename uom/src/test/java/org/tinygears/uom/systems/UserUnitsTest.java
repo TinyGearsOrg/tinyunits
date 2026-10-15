@@ -1,16 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,14 +36,26 @@ import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.DefinitionException;
 import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.QuantityTypes;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class UserUnitsTest {
     private static final String MEDIEVAL = """
@@ -111,7 +121,7 @@ class UserUnitsTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void preferredLayersOnSi() {
         UomSystemOfUnits m = load(MEDIEVAL);
         assertSame(m.getUnit("furlong"), m.getUnit(javax.measure.quantity.Length.class));
@@ -134,7 +144,8 @@ class UserUnitsTest {
 
     @Test
     void nameFromArgumentWithoutSystemLine() {
-        assertEquals("fallback",
+        assertEquals(
+                "fallback",
                 UomSystemOfUnits.load("fallback", new StringReader("league 3 mi\n"), null).getName());
     }
 
@@ -145,9 +156,12 @@ class UserUnitsTest {
         fails(base + "@preferred Length nothere\n", "user.units:3: unknown unit 'nothere'");
         fails(base + "@preferred Length m\n", "user.units:3: unknown unit 'm'");
         fails(base + "@preferred Time league\n", "user.units:3: unit 'league' is not a unit of Time");
-        fails(base + "@preferred Length league\n@preferred Length furlong\n",
+        fails(
+                base + "@preferred Length league\n@preferred Length furlong\n",
                 "user.units:4: duplicate preferred unit for 'Length'");
-        fails("@include a.units\n@preferred Length rod\n", Map.of("a.units", "rod 5.5 yd\n"),
+        fails(
+                "@include a.units\n@preferred Length rod\n",
+                Map.of("a.units", "rod 5.5 yd\n"),
                 "user.units:2: unit 'rod' is not a unit of user.units");
     }
 
@@ -157,10 +171,13 @@ class UserUnitsTest {
         fails("league 3 mi\nleague 4 mi\n", "user.units:2: duplicate symbol 'league'");
         fails("league 3 mi^\n", "user.units:1: exponent must be an integer");
         fails("league 3 mi [length]\n", "user.units:1: malformed quantity type 'length'");
-        fails("\n@include a.units\n", Map.of("a.units", "@include b.units\n", "b.units", "\n@include a.units\n"),
+        fails(
+                "\n@include a.units\n",
+                Map.of("a.units", "@include b.units\n", "b.units", "\n@include a.units\n"),
                 "b.units:2: include cycle: a.units -> b.units -> a.units");
         fails("@include missing.units\n", "user.units:1: cannot include 'missing.units'");
-        DefinitionException e = assertThrows(DefinitionException.class,
+        DefinitionException e = assertThrows(
+                DefinitionException.class,
                 () -> UomSystemOfUnits.load("user.units", new StringReader("\n@include si.units\n"), null));
         assertEquals("user.units:2: cannot include 'si.units'", e.getMessage());
         assertEquals("user.units", e.source());
@@ -187,7 +204,8 @@ class UserUnitsTest {
 
         Files.createDirectory(dir.resolve("sub"));
         Files.writeString(dir.resolve("sub/nested.units"), "@include ../common.units\n");
-        DefinitionException e = assertThrows(DefinitionException.class,
+        DefinitionException e = assertThrows(
+                DefinitionException.class,
                 () -> UomSystemOfUnits.load(dir.resolve("sub/nested.units")));
         assertEquals("nested.units:1: cannot include '../common.units'", e.getMessage());
         Files.writeString(dir.resolve("abs.units"), "@include " + dir.resolve("common.units") + "\n");
@@ -199,7 +217,9 @@ class UserUnitsTest {
 
         assertThrows(NoSuchFileException.class, () -> UomSystemOfUnits.load(dir.resolve("missing.units")));
 
-        Files.writeString(dir.resolve("bom.units"), "﻿league 3 mi\r\n@system Bom\r\nfurlong 220 yd\r\n",
+        Files.writeString(
+                dir.resolve("bom.units"),
+                "﻿league 3 mi\r\n@system Bom\r\nfurlong 220 yd\r\n",
                 StandardCharsets.UTF_8);
         UomSystemOfUnits bom = UomSystemOfUnits.load(dir.resolve("bom.units"));
         assertEquals("Bom", bom.getName());
@@ -210,13 +230,18 @@ class UserUnitsTest {
     @Test
     void extendsAnotherUserFile() {
         Map<String, String> files = Map.of(
-                "base.units", "@system Base\nrod:rod 5.5 yd\n@prefixed rod k\n@preferred Length rod\n"
+                "base.units",
+                "@system Base\nrod:rod 5.5 yd\n@prefixed rod k\n@preferred Length rod\n"
                         + "fortnight 14 d\n@preferred Time fortnight\n",
-                "extra.units", "pole 2 rod\nhide 120 m^2\n");
-        UomSystemOfUnits c = load("@extends base.units\n@include extra.units\n@system Child\nleague 3 mi\n"
-                + "@member pole\nweek 7 d\n@preferred Time week\n", files);
+                "extra.units",
+                "pole 2 rod\nhide 120 m^2\n");
+        UomSystemOfUnits c = load(
+                "@extends base.units\n@include extra.units\n@system Child\nleague 3 mi\n"
+                        + "@member pole\nweek 7 d\n@preferred Time week\n",
+                files);
         assertEquals("Child", c.getName());
-        assertEquals(List.of("league", "week", "rod", "krod", "fortnight", "pole"),
+        assertEquals(
+                List.of("league", "week", "rod", "krod", "fortnight", "pole"),
                 c.getUnits().stream().map(Unit::getSymbol).toList());
         assertTrue(c.isPrefixable("rod"));
         assertSame(c.getUnit("rod"), c.getUnit(javax.measure.quantity.Length.class));
@@ -242,10 +267,14 @@ class UserUnitsTest {
         assertEquals(2.0, two.getValue());
         assertEquals(THREE_MILES, two.getUnit());
         assertEquals("2.0 league", q.format(two));
-        assertEquals(THREE_MILES, UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
-                .parse("kleague").divide(1000));
-        assertEquals(THREE_MILES.multiply(1e6), UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
-                .parse("Mleague"));
+        assertEquals(
+                THREE_MILES,
+                UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
+                        .parse("kleague").divide(1000));
+        assertEquals(
+                THREE_MILES.multiply(1e6),
+                UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
+                        .parse("Mleague"));
     }
 
     @Test
@@ -287,16 +316,23 @@ class UserUnitsTest {
 
     @Test
     void conflictingSymbolsAreRejected() {
-        UomSystemOfUnits fake = new UomSystemOfUnits("Fake", List.of(SI.METRE.named("ft", "fake foot")), Map.of(),
+        UomSystemOfUnits fake = new UomSystemOfUnits(
+                "Fake",
+                List.of(SI.METRE.named("ft", "fake foot")),
+                Map.of(),
                 Set.of());
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
                 () -> UomUnitFormat.standard().with(fake));
         assertEquals("symbol 'ft' of Fake is a different unit in USCustomary", e.getMessage());
         UomSystemOfUnits km = new UomSystemOfUnits("Km", List.of(SI.METRE.named("km", "k")), Map.of(), Set.of());
         e = assertThrows(IllegalArgumentException.class, () -> UomUnitFormat.standard().with(km));
         assertEquals("symbol 'km' of Km is a different unit in SI", e.getMessage());
 
-        UomSystemOfUnits same = new UomSystemOfUnits("Same", List.of(USCustomary.FOOT, SI.KILOMETRE), Map.of(),
+        UomSystemOfUnits same = new UomSystemOfUnits(
+                "Same",
+                List.of(USCustomary.FOOT, SI.KILOMETRE),
+                Map.of(),
                 Set.of());
         assertSame(USCustomary.FOOT, UomUnitFormat.standard().with(same).parse("ft"));
 
@@ -347,7 +383,8 @@ class UserUnitsTest {
         assertEquals(SI.METRE.divide(SI.SECOND).getDimension(), one.getUnit("uu7alt").getDimension());
         assertFalse(one.getUnit("uu7alt").equals(SI.METRE.divide(SI.SECOND)));
         assertEquals(one.getUnit("slow"), UomUnitFormat.standard().with(two).parse("2 uu7alt"));
-        DefinitionException e = fails("\nuu7alt ~ kg\n",
+        DefinitionException e = fails(
+                "\nuu7alt ~ kg\n",
                 "user.units:2: symbol uu7alt is already associated to a different unit");
         assertInstanceOf(MeasurementException.class, e.getCause());
     }
@@ -356,14 +393,16 @@ class UserUnitsTest {
     void systemsAreImmutable() {
         UomSystemOfUnits m = load(MEDIEVAL);
         assertThrows(UnsupportedOperationException.class, () -> m.getUnits().clear());
-        assertThrows(UnsupportedOperationException.class,
+        assertThrows(
+                UnsupportedOperationException.class,
                 () -> m.getUnits(SI.METRE.getDimension()).clear());
     }
 
     @Test
     void everyUnitRoundTrips() {
-        UomSystemOfUnits m = load(MEDIEVAL + "@prefixed league k c\n@prefixed furlong M\nfortnight 14 d\n"
-                + "fps furlong/fortnight\nhot K = x + 7\n");
+        UomSystemOfUnits m = load(
+                MEDIEVAL + "@prefixed league k c\n@prefixed furlong M\nfortnight 14 d\n"
+                        + "fps furlong/fortnight\nhot K = x + 7\n");
         UomUnitFormat f = UomUnitFormat.standard().with(m);
         int n = 0;
         for (Unit<?> u : m.getUnits()) {
@@ -478,14 +517,16 @@ class UserUnitsTest {
 
     @Test
     void pathWithoutFileNameOrMalformedText(@TempDir Path dir) throws IOException {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
                 () -> UomSystemOfUnits.load(Path.of("/")));
         assertEquals("not a file: /", e.getMessage());
         Path bad = dir.resolve("bad.units");
-        Files.write(bad, new byte[] {'x', ' ', '2', ' ', 'm', '\n', (byte) 0xC3, (byte) 0x28, '\n'});
+        Files.write(bad, new byte[] { 'x', ' ', '2', ' ', 'm', '\n', (byte) 0xC3, (byte) 0x28, '\n' });
         assertThrows(MalformedInputException.class, () -> UomSystemOfUnits.load(bad));
         Files.writeString(dir.resolve("inc.units"), "@include bad.units\n");
-        DefinitionException d = assertThrows(DefinitionException.class,
+        DefinitionException d = assertThrows(
+                DefinitionException.class,
                 () -> UomSystemOfUnits.load(dir.resolve("inc.units")));
         assertEquals("inc.units:1: cannot include 'bad.units'", d.getMessage());
         assertInstanceOf(MalformedInputException.class, d.getCause());
@@ -506,8 +547,12 @@ class UserUnitsTest {
             opens.merge(name, 1, Integer::sum);
             return files(files).open(name);
         };
-        UomSystemOfUnits s = assertTimeoutPreemptively(Duration.ofSeconds(1), () -> UomSystemOfUnits.load("x0.units",
-                new StringReader("@extends a1.units\n@extends b1.units\nux0 1 m\n"), counting));
+        UomSystemOfUnits s = assertTimeoutPreemptively(
+                Duration.ofSeconds(1),
+                () -> UomSystemOfUnits.load(
+                        "x0.units",
+                        new StringReader("@extends a1.units\n@extends b1.units\nux0 1 m\n"),
+                        counting));
         assertEquals(SI.METRE.multiply(depth), s.getUnit("ux" + depth));
         assertEquals(1 + 3 * depth, s.symbols().size());
         assertEquals(files.keySet(), opens.keySet());
@@ -518,9 +563,14 @@ class UserUnitsTest {
     void closedReaderFromResolver() {
         StringReader used = new StringReader("x 2 m\n");
         used.close();
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> UomSystemOfUnits.load("u.units",
-                new StringReader("@include a.units\n"), name -> used));
-        assertEquals("cannot read 'a.units': the resolver returned a failing, closed or reused reader",
+        UncheckedIOException e = assertThrows(
+                UncheckedIOException.class,
+                () -> UomSystemOfUnits.load(
+                        "u.units",
+                        new StringReader("@include a.units\n"),
+                        name -> used));
+        assertEquals(
+                "cannot read 'a.units': the resolver returned a failing, closed or reused reader",
                 e.getMessage());
     }
 
@@ -568,7 +618,8 @@ class UserUnitsTest {
     @Test
     void conflictWithAPurePrefixReading() {
         UomSystemOfUnits gm = new UomSystemOfUnits("Gee", List.of(SI.GRAM.named("Gm", "gee")), Map.of(), Set.of());
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
                 () -> UomUnitFormat.standard().with(gm));
         assertEquals("symbol 'Gm' of Gee is a different unit in SI", e.getMessage());
     }

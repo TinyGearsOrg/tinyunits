@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -17,13 +19,21 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 import javax.measure.spi.QuantityFactory;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.TestServiceProvider;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UntypedQuantityTest {
 
@@ -74,7 +84,8 @@ class UntypedQuantityTest {
         assertEquals(METRE.multiply(SECOND), r.getUnit());
         assertInstanceOf(Untyped.class, r);
         assertSame(Quantity.Scale.ABSOLUTE, r.getScale());
-        assertSame(Quantity.Scale.ABSOLUTE,
+        assertSame(
+                Quantity.Scale.ABSOLUTE,
                 new TestLengthImpl(2, METRE, Quantity.Scale.RELATIVE).multiply(q(3, SECOND)).getScale());
     }
 
@@ -135,7 +146,8 @@ class UntypedQuantityTest {
 
     @Test
     void asTypeWithoutFactoryIsUnsupported() {
-        assertThrows(UnsupportedOperationException.class,
+        assertThrows(
+                UnsupportedOperationException.class,
                 () -> q(10, METRE).divide(q(2, SECOND)).asType(Unsupported.class));
     }
 
@@ -169,7 +181,8 @@ class UntypedQuantityTest {
 
     private static Quantity<?> foreign(Number value, Unit<?> unit) {
         return (Quantity<?>) Proxy.newProxyInstance(
-                UntypedQuantityTest.class.getClassLoader(), new Class<?>[] {Quantity.class},
+                UntypedQuantityTest.class.getClassLoader(),
+                new Class<?>[] { Quantity.class },
                 (p, m, a) -> switch (m.getName()) {
                     case "getValue" -> value;
                     case "getUnit" -> unit;
@@ -181,7 +194,9 @@ class UntypedQuantityTest {
     @Test
     void foreignOperand() {
         Unit<?> foreignUnit = (Unit<?>) Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class<?>[] {Unit.class}, (p, m, a) -> null);
+                getClass().getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
         Quantity<?> foreign = foreign(1.0, foreignUnit);
         UnconvertibleException e = assertThrows(UnconvertibleException.class, () -> q(1, METRE).multiply(foreign));
         assertTrue(e.getMessage().contains("foreign unit implementation"), e.getMessage());

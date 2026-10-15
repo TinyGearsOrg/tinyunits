@@ -1,6 +1,33 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.parse;
+
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.Converters;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -12,29 +39,30 @@ import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
 
-import java.io.StringReader;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
-import org.tinygears.uom.core.UomUnit;
-
 class FormulaEvaluatorTest {
     private static final UomUnit<?> N = KILOGRAM.multiply(METRE).divide(SECOND.pow(2));
     private static final UomUnit<?> DEG_C = METRE.shift(273.15);
     private static final Map<String, UomUnit<?>> UNITS = Map.of(
-            "m", METRE, "kg", KILOGRAM, "s", SECOND, "cm", METRE.multiply(0.01), "N", N,
-            "°C", DEG_C, "Ω", KILOGRAM, "µm", METRE.multiply(0.000001), "K", KELVIN, "km", METRE.multiply(1000));
+            "m",
+            METRE,
+            "kg",
+            KILOGRAM,
+            "s",
+            SECOND,
+            "cm",
+            METRE.multiply(0.01),
+            "N",
+            N,
+            "°C",
+            DEG_C,
+            "Ω",
+            KILOGRAM,
+            "µm",
+            METRE.multiply(0.000001),
+            "K",
+            KELVIN,
+            "km",
+            METRE.multiply(1000));
 
     private static UomUnit<?> eval(String f) throws FormulaException {
         return FormulaEvaluator.evaluate(f, UNITS::get);
@@ -148,7 +176,7 @@ class FormulaEvaluatorTest {
     @Test
     void lookupNeverSeesEmptySymbol() {
         java.util.List<String> seen = new java.util.ArrayList<>();
-        for (String f : new String[] {"m / )", "( )", "(", "( ", "m / ( )"}) {
+        for (String f : new String[] { "m / )", "( )", "(", "( ", "m / ( )" }) {
             assertThrows(FormulaException.class, () -> FormulaEvaluator.evaluate(f, n -> {
                 seen.add(n);
                 return UNITS.get(n);
@@ -170,7 +198,8 @@ class FormulaEvaluatorTest {
 
     @Test
     void lookupFailureIsWrappedWithColumn() {
-        FormulaException e = assertThrows(FormulaException.class,
+        FormulaException e = assertThrows(
+                FormulaException.class,
                 () -> FormulaEvaluator.evaluate("m  zz", n -> {
                     if (n.equals("zz")) {
                         throw new IllegalStateException("boom");
@@ -187,7 +216,8 @@ class FormulaEvaluatorTest {
         class Silent extends RuntimeException {
             private static final long serialVersionUID = 1L;
         }
-        FormulaException e = assertThrows(FormulaException.class,
+        FormulaException e = assertThrows(
+                FormulaException.class,
                 () -> FormulaEvaluator.evaluate("m", n -> {
                     throw new Silent();
                 }));
@@ -256,7 +286,7 @@ class FormulaEvaluatorTest {
 
     @Test
     void spacesAroundTheShiftAreAllowed() throws Exception {
-        for (String f : new String[] {"K + 273.15", "K+ 273.15", "K +273.15", " K\t+\t273.15 "}) {
+        for (String f : new String[] { "K + 273.15", "K+ 273.15", "K +273.15", " K\t+\t273.15 " }) {
             assertEquals(KELVIN.shift(273.15), eval(f), f);
         }
     }
@@ -341,7 +371,7 @@ class FormulaEvaluatorTest {
 
     @Test
     void lookupNeverSeesSigns() throws FormulaException {
-        for (String f : new String[] {"m+1", "m - 1", "m kg -1", "(m / s)^2+1"}) {
+        for (String f : new String[] { "m+1", "m - 1", "m kg -1", "(m / s)^2+1" }) {
             FormulaEvaluator.evaluate(f, name -> {
                 assertTrue(name.indexOf('+') < 0 && name.indexOf('-') < 0, name);
                 return UNITS.get(name);
@@ -371,7 +401,8 @@ class FormulaEvaluatorTest {
                 results.add(pool.submit(() -> eval(f)));
             }
             for (int i = 0; i < 2000; i++) {
-                UomUnit<?> expected = i % 2 == 0 ? KELVIN.transform(Converters.shift(Factor.of(i, 3)))
+                UomUnit<?> expected = i % 2 == 0
+                        ? KELVIN.transform(Converters.shift(Factor.of(i, 3)))
                         : METRE.multiply(1000).shift(-i);
                 assertEquals(expected, results.get(i).get());
             }
@@ -396,7 +427,7 @@ class FormulaEvaluatorTest {
 
     @Test
     void spacedOrNonIntegerMinusShiftsAreValid() throws Exception {
-        for (String f : new String[] {"K - 5", "K -5", "K- 5", "K\t-\t5"}) {
+        for (String f : new String[] { "K - 5", "K -5", "K- 5", "K\t-\t5" }) {
             assertEquals(KELVIN.shift(-5), eval(f), f);
         }
         assertEquals(KELVIN.shift(5), eval("K+5"));

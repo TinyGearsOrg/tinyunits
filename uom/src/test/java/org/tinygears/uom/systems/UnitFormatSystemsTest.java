@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,15 +25,24 @@ import javax.measure.MetricPrefix;
 import javax.measure.Prefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.systems.SystemsCatalogTest.Catalog;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /** The standard format over all seven systems (D7). */
 class UnitFormatSystemsTest {
     private static final List<Catalog> CATALOGS = SystemsCatalogTest.CATALOGS;
-    private static final List<Prefix> ALL_PREFIXES = Stream.<Prefix>concat(Arrays.stream(MetricPrefix.values()),
+    private static final List<Prefix> ALL_PREFIXES = Stream.<Prefix>concat(
+            Arrays.stream(MetricPrefix.values()),
             Arrays.stream(BinaryPrefix.values())).toList();
     private final UomUnitFormat format = UomUnitFormat.standard();
 
@@ -93,8 +104,10 @@ class UnitFormatSystemsTest {
                 }
             }
         }
-        int expected = CATALOGS.stream().mapToInt(c -> SystemsCatalogTest.members(c.file()).stream()
-                .mapToInt(s -> SystemsCatalogTest.prefixes(c.system(), s).size()).sum()).sum();
+        int expected = CATALOGS.stream().mapToInt(
+                c -> SystemsCatalogTest.members(c.file()).stream()
+                        .mapToInt(s -> SystemsCatalogTest.prefixes(c.system(), s).size()).sum())
+                .sum();
         assertEquals(expected, exact + prefixed);
         assertTrue(exact > 0 && prefixed > 0, exact + " " + prefixed);
     }
@@ -232,9 +245,14 @@ class UnitFormatSystemsTest {
         for (String label : List.of("ft", "dyn", "statC", "G", "gal_UK")) {
             messages.add(assertThrows(IllegalArgumentException.class, () -> f.label(SI.METRE, label)).getMessage());
         }
-        assertEquals(List.of("label 'ft' is the symbol of foot", "label 'dyn' is the symbol of dyne",
-                "label 'statC' is the symbol of statcoulomb", "label 'G' is the symbol of gauss",
-                "label 'gal_UK' is the symbol of gallon UK"), messages);
+        assertEquals(
+                List.of(
+                        "label 'ft' is the symbol of foot",
+                        "label 'dyn' is the symbol of dyne",
+                        "label 'statC' is the symbol of statcoulomb",
+                        "label 'G' is the symbol of gauss",
+                        "label 'gal_UK' is the symbol of gallon UK"),
+                messages);
         f.label(USCustomary.FOOT, "ft");
         f.label(ESU.STATCOULOMB, "Fr");
         assertEquals("Fr", f.format(ESU.STATCOULOMB));

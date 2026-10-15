@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,10 +24,19 @@ import java.util.concurrent.Future;
 import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UnitFormatTest {
     private final UomUnitFormat format = UomUnitFormat.standard();
@@ -42,8 +52,14 @@ class UnitFormatTest {
             assertEquals(unit, format.parse(unit.toString()), unit.toString());
             assertEquals(unit, format.parse(format.format(unit)), unit.toString());
         }
-        for (UomUnit<?> unit : List.of(SI.SQUARE_METRE, SI.CUBIC_METRE, SI.OHM, SI.DEGREE_CELSIUS, SI.MICROMETRE,
-                SI.KILOOHM, SI.MEGAELECTRONVOLT)) {
+        for (UomUnit<?> unit : List.of(
+                SI.SQUARE_METRE,
+                SI.CUBIC_METRE,
+                SI.OHM,
+                SI.DEGREE_CELSIUS,
+                SI.MICROMETRE,
+                SI.KILOOHM,
+                SI.MEGAELECTRONVOLT)) {
             assertEquals(unit, format.parse(unit.getSymbol()), unit.getSymbol());
             assertEquals(unit.getSymbol(), format.format(unit));
         }
@@ -53,8 +69,10 @@ class UnitFormatTest {
         UomUnit<?> parsed = parse(text);
         assertEquals(unit.prefix(prefix), parsed, text);
         assertEquals(unit.atoms(), parsed.atoms(), text);
-        assertEquals(unit.toSystemConverter().factor().multiply(Factor.decimal(factor)),
-                parsed.toSystemConverter().factor(), text);
+        assertEquals(
+                unit.toSystemConverter().factor().multiply(Factor.decimal(factor)),
+                parsed.toSystemConverter().factor(),
+                text);
         assertEquals(text, parsed.getSymbol());
         assertEquals(name, parsed.getName());
     }
@@ -87,9 +105,23 @@ class UnitFormatTest {
         assertEquals(SI.CANDELA.prefix(MetricPrefix.MILLI), parse("mcd"));
         assertEquals(SI.DALTON.prefix(MetricPrefix.KILO), parse("kDa"));
         assertEquals(SI.KILOGRAM.multiply(1_000_000_000), parse("Mt"));
-        for (UomUnit<?> unit : List.of(SI.MILLIKELVIN, SI.MICROKELVIN, SI.NANOKELVIN, SI.MILLICANDELA,
-                SI.KILOCANDELA, SI.MILLIKATAL, SI.MICROKATAL, SI.NANOKATAL, SI.KILOKATAL, SI.MILLILUMEN,
-                SI.KILOLUMEN, SI.MILLISTERADIAN, SI.KILODALTON, SI.MEGADALTON, SI.KILOTONNE, SI.MEGATONNE,
+        for (UomUnit<?> unit : List.of(
+                SI.MILLIKELVIN,
+                SI.MICROKELVIN,
+                SI.NANOKELVIN,
+                SI.MILLICANDELA,
+                SI.KILOCANDELA,
+                SI.MILLIKATAL,
+                SI.MICROKATAL,
+                SI.NANOKATAL,
+                SI.KILOKATAL,
+                SI.MILLILUMEN,
+                SI.KILOLUMEN,
+                SI.MILLISTERADIAN,
+                SI.KILODALTON,
+                SI.MEGADALTON,
+                SI.KILOTONNE,
+                SI.MEGATONNE,
                 SI.GIGATONNE)) {
             assertEquals(unit.getSymbol(), format.format(unit));
             assertSame(unit, parse(format.format(unit)));
@@ -134,7 +166,8 @@ class UnitFormatTest {
 
     @Test
     void derivedLabelsParseBack() {
-        for (UomUnit<?> unit : List.of(BaseUnits.METRE.divide(BaseUnits.SECOND).pow(2),
+        for (UomUnit<?> unit : List.of(
+                BaseUnits.METRE.divide(BaseUnits.SECOND).pow(2),
                 BaseUnits.KILOGRAM.divide(BaseUnits.METRE.multiply(BaseUnits.SECOND)),
                 BaseUnits.METRE.pow(2).multiply(BaseUnits.KILOGRAM))) {
             assertEquals(unit, parse(unit.getSymbol()), unit.getSymbol());
@@ -196,8 +229,30 @@ class UnitFormatTest {
         f.label(SI.KILOMETRE, "klick");
         assertEquals("klick", f.format(SI.KILOMETRE));
         assertEquals("km", format.format(SI.KILOMETRE));
-        for (String bad : List.of("", " ", "a b", "a*b", "a/b", "a(b", "a)", "a^2", "a|b", "a=b", "a#", "[a]", "a!",
-                "a~", "a@", "a,b", "a·b", "\tx", "2x", "pi", "a-b", "a+", "-a")) {
+        for (String bad : List.of(
+                "",
+                " ",
+                "a b",
+                "a*b",
+                "a/b",
+                "a(b",
+                "a)",
+                "a^2",
+                "a|b",
+                "a=b",
+                "a#",
+                "[a]",
+                "a!",
+                "a~",
+                "a@",
+                "a,b",
+                "a·b",
+                "\tx",
+                "2x",
+                "pi",
+                "a-b",
+                "a+",
+                "-a")) {
             assertThrows(IllegalArgumentException.class, () -> f.label(furlong, bad), bad);
         }
         assertThrows(IllegalArgumentException.class, () -> f.label(furlong, "s"));
@@ -257,10 +312,12 @@ class UnitFormatTest {
 
     @Test
     void unitsWithoutFaithfulFormAreRefused() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
                 () -> format.format(SI.DEGREE_CELSIUS.multiply(-2)));
         assertEquals("unit can not be formatted: K (factor -2, offset 5463/20)", e.getMessage());
-        e = assertThrows(IllegalArgumentException.class,
+        e = assertThrows(
+                IllegalArgumentException.class,
                 () -> format.format(SI.METRE.multiply(BigInteger.TWO.pow(60_000))));
         assertTrue(e.getMessage().startsWith("unit can not be formatted: m (factor "), e.getMessage().substring(0, 40));
         assertThrows(IllegalArgumentException.class, () -> format.format(SI.METRE.multiply(-2)));
@@ -278,8 +335,10 @@ class UnitFormatTest {
                 UomUnit<?> current = u;
                 try {
                     u = switch (random.nextInt(6)) {
-                        case 0 -> current.multiply(random.nextInt(12) == 0 ? -random.nextInt(1, 50)
-                                : BigDecimal.valueOf(random.nextInt(1, 100_000), random.nextInt(6)));
+                        case 0 -> current.multiply(
+                                random.nextInt(12) == 0
+                                        ? -random.nextInt(1, 50)
+                                        : BigDecimal.valueOf(random.nextInt(1, 100_000), random.nextInt(6)));
                         case 1 -> current.divide(random.nextInt(1, 2000));
                         case 2 -> current.pow(random.nextInt(-3, 4));
                         case 3 -> current.multiply(SI.UNITS.get(random.nextInt(SI.UNITS.size())));
@@ -287,7 +346,8 @@ class UnitFormatTest {
                         case 4 -> current.multiply(List.of(10, 100, 1000, 60, 3600).get(random.nextInt(5)));
                         // A prefix on a non-prefixable symbol gives a label such as kmin, which is not parseable.
                         default -> current.getSymbol() == null || SI.PREFIXABLE.contains(current.getSymbol())
-                                ? current.prefix(prefixes[random.nextInt(prefixes.length)]) : current;
+                                ? current.prefix(prefixes[random.nextInt(prefixes.length)])
+                                : current;
                     };
                 } catch (RuntimeException e) {
                     // a fractional root or an exponent overflow
@@ -302,7 +362,8 @@ class UnitFormatTest {
             } else if (unit.toSystemConverter().factor().signum() < 0) {
                 branch = "refused";
                 IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> format.format(unit));
-                assertTrue(e.getMessage().startsWith("unit can not be formatted: " + unit.getSystemUnit() + " (factor "));
+                assertTrue(
+                        e.getMessage().startsWith("unit can not be formatted: " + unit.getSystemUnit() + " (factor "));
                 branches.merge(branch, 1, Integer::sum);
                 continue;
             } else {
@@ -359,9 +420,13 @@ class UnitFormatTest {
             for (MetricPrefix p : prefixes) {
                 units.add(unit.prefix(p));
             }
-            for (int n : new int[] {-3, -2, 2, 3}) {
-                for (MetricPrefix p : List.of(MetricPrefix.KILO, MetricPrefix.MILLI, MetricPrefix.DECA,
-                        MetricPrefix.CENTI, MetricPrefix.MICRO)) {
+            for (int n : new int[] { -3, -2, 2, 3 }) {
+                for (MetricPrefix p : List.of(
+                        MetricPrefix.KILO,
+                        MetricPrefix.MILLI,
+                        MetricPrefix.DECA,
+                        MetricPrefix.CENTI,
+                        MetricPrefix.MICRO)) {
                     try {
                         units.add(unit.pow(n).prefix(p));
                     } catch (RuntimeException e) {

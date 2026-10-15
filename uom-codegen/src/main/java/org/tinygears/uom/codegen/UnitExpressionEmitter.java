@@ -1,10 +1,19 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UnitAtom;
@@ -16,11 +25,38 @@ import org.tinygears.uom.core.parse.Definitions;
 /** Writes Java expressions that evaluate to units equal to given ones. */
 public final class UnitExpressionEmitter {
     private static final String BASE_UNITS = "org.tinygears.uom.core.BaseUnits";
-    private static final Map<String, String> BASE_ATOMS = Map.of("m", "METRE", "kg", "KILOGRAM", "s", "SECOND",
-            "A", "AMPERE", "K", "KELVIN", "mol", "MOLE", "cd", "CANDELA");
-    private static final Map<String, UomUnit<?>> BASE_CONSTANTS = Map.of("METRE", BaseUnits.METRE,
-            "KILOGRAM", BaseUnits.KILOGRAM, "SECOND", BaseUnits.SECOND, "AMPERE", BaseUnits.AMPERE,
-            "KELVIN", BaseUnits.KELVIN, "MOLE", BaseUnits.MOLE, "CANDELA", BaseUnits.CANDELA, "ONE", BaseUnits.ONE);
+    private static final Map<String, String> BASE_ATOMS = Map.of(
+            "m",
+            "METRE",
+            "kg",
+            "KILOGRAM",
+            "s",
+            "SECOND",
+            "A",
+            "AMPERE",
+            "K",
+            "KELVIN",
+            "mol",
+            "MOLE",
+            "cd",
+            "CANDELA");
+    private static final Map<String, UomUnit<?>> BASE_CONSTANTS = Map.of(
+            "METRE",
+            BaseUnits.METRE,
+            "KILOGRAM",
+            BaseUnits.KILOGRAM,
+            "SECOND",
+            BaseUnits.SECOND,
+            "AMPERE",
+            BaseUnits.AMPERE,
+            "KELVIN",
+            BaseUnits.KELVIN,
+            "MOLE",
+            BaseUnits.MOLE,
+            "CANDELA",
+            BaseUnits.CANDELA,
+            "ONE",
+            BaseUnits.ONE);
     private static final int MAX_DEPTH = 32;
 
     private UnitExpressionEmitter() {
@@ -35,15 +71,19 @@ public final class UnitExpressionEmitter {
     public static String emitUnit(UomUnit<?> unit, Definitions definitions, Imports imports) {
         String system = emit(unit.getSystemUnit(), definitions, imports);
         UomConverter c = unit.toSystemConverter();
-        return c.equals(Converters.IDENTITY) ? system : system + ".transform("
-                + imports.name("org.tinygears.uom.core.Converters") + ".affine("
-                + FactorEmitter.emit(c.factor(), imports) + ", " + FactorEmitter.emit(c.offset(), imports) + "))";
+        return c.equals(Converters.IDENTITY)
+                ? system
+                : system + ".transform("
+                        + imports.name("org.tinygears.uom.core.Converters") + ".affine("
+                        + FactorEmitter.emit(c.factor(), imports) + ", " + FactorEmitter.emit(c.offset(), imports)
+                        + "))";
     }
 
     /** {@code expression} renamed, unless it is a {@code BaseUnits} constant that already has this symbol and name. */
     static String named(String expression, String symbol, String name, Imports imports) {
         String prefix = imports.name(BASE_UNITS) + ".";
-        UomUnit<?> base = expression.startsWith(prefix) ? BASE_CONSTANTS.get(expression.substring(prefix.length()))
+        UomUnit<?> base = expression.startsWith(prefix)
+                ? BASE_CONSTANTS.get(expression.substring(prefix.length()))
                 : null;
         if (base != null && symbol.equals(base.getSymbol()) && name.equals(base.getName())) {
             return expression;

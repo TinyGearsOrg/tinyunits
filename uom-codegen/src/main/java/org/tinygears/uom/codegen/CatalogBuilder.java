@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
@@ -14,6 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.Definitions;
@@ -33,8 +42,11 @@ public final class CatalogBuilder {
     }
 
     /** {@code claimed} holds the types whose system unit an earlier entry already matched. */
-    private static List<CatalogEntry> build(List<Definition> definitions, List<QuantityTypeSpec> types,
-            Set<String> claimed) {
+    private static List<CatalogEntry> build(
+            List<Definition> definitions,
+            List<QuantityTypeSpec> types,
+            Set<String> claimed
+    ) {
         Map<String, QuantityTypeSpec> byName = byName(types);
         Map<String, Definition> byConstant = new HashMap<>();
         List<CatalogEntry> result = new ArrayList<>();
@@ -45,8 +57,10 @@ public final class CatalogBuilder {
             }
             Definition previous = byConstant.putIfAbsent(constant, d);
             if (previous != null) {
-                throw error(d, "duplicate constant name '" + constant + "' ('" + previous.symbol() + "' and '"
-                        + d.symbol() + "')");
+                throw error(
+                        d,
+                        "duplicate constant name '" + constant + "' ('" + previous.symbol() + "' and '"
+                                + d.symbol() + "')");
             }
             String type = type(d, types, byName);
             result.add(new CatalogEntry(d, constant, type, shared(d, type, byName, claimed)));
@@ -69,8 +83,10 @@ public final class CatalogBuilder {
         List<String> matches = types.stream().filter(t -> t.systemUnit().equals(system))
                 .map(QuantityTypeSpec::name).toList();
         if (matches.size() > 1) {
-            throw error(d, "ambiguous quantity type for '" + d.symbol() + "': " + String.join(", ", matches)
-                    + " (add a [Type])");
+            throw error(
+                    d,
+                    "ambiguous quantity type for '" + d.symbol() + "': " + String.join(", ", matches)
+                            + " (add a [Type])");
         }
         return matches.isEmpty() ? null : matches.get(0);
     }
@@ -81,18 +97,25 @@ public final class CatalogBuilder {
      * a later one with another symbol or name (an alias) keeps its own unit. A type named by {@code =>} has a symbol no
      * definition can carry ({@code m/s}), so every definition equal to its system unit is an alias.
      */
-    private static String shared(Definition d, String type, Map<String, QuantityTypeSpec> byName,
-            Set<String> claimed) {
+    private static String shared(
+            Definition d,
+            String type,
+            Map<String, QuantityTypeSpec> byName,
+            Set<String> claimed
+    ) {
         QuantityTypeSpec spec = type == null ? null : byName.get(type);
         if (spec == null || spec.explicit() || !d.unit().equals(spec.systemUnit())) {
             return null;
         }
         boolean agrees = d.symbol().equals(spec.systemSymbol()) && d.name().equals(spec.systemName());
         if (claimed.add(type) && !agrees) {
-            String expected = spec.systemSymbol() == null ? "an unnamed unit"
+            String expected = spec.systemSymbol() == null
+                    ? "an unnamed unit"
                     : "'" + spec.systemSymbol() + "' (" + spec.systemName() + ")";
-            throw error(d, "unit '" + d.symbol() + "' (" + d.name() + ") is the system unit of " + type + ", which "
-                    + spec.source() + ":" + spec.line() + " defines as " + expected);
+            throw error(
+                    d,
+                    "unit '" + d.symbol() + "' (" + d.name() + ") is the system unit of " + type + ", which "
+                            + spec.source() + ":" + spec.line() + " defines as " + expected);
         }
         return agrees ? "org.tinygears.uom.quantity." + type + "Factory.SYSTEM_UNIT" : null;
     }
@@ -102,9 +125,15 @@ public final class CatalogBuilder {
      * units; {@code units} maps symbols to references in list order, {@code preferred} maps every type name to one.
      * {@code prefixable} and {@code binaryPrefixable} are the symbols that take a metric and a binary prefix.
      */
-    public record Catalog(String file, String className, List<CatalogEntry> entries, Map<String, String> units,
-            Set<String> prefixable, Set<String> binaryPrefixable, Map<String, String> preferred) {
-    }
+    public record Catalog(
+            String file,
+            String className,
+            List<CatalogEntry> entries,
+            Map<String, String> units,
+            Set<String> prefixable,
+            Set<String> binaryPrefixable,
+            Map<String, String> preferred
+    ) {}
 
     /**
      * One catalog per parsed file, in map order; parents must precede dependents. The first catalog (SI) gives the
@@ -122,19 +151,29 @@ public final class CatalogBuilder {
             }
             String previous = fileByClass.putIfAbsent(d.system(), file);
             if (previous != null) {
-                throw new GenerationException(file, 0, "duplicate system '" + d.system() + "' (also in " + previous
-                        + ")");
+                throw new GenerationException(
+                        file,
+                        0,
+                        "duplicate system '" + d.system() + "' (also in " + previous
+                                + ")");
             }
             done.put(file, catalog(file, d, types, done, claimed));
         });
         return Collections.unmodifiableMap(done);
     }
 
-    private static Catalog catalog(String file, Definitions d, List<QuantityTypeSpec> types,
-            Map<String, Catalog> done, Set<String> claimed) {
+    private static Catalog catalog(
+            String file,
+            Definitions d,
+            List<QuantityTypeSpec> types,
+            Map<String, Catalog> done,
+            Set<String> claimed
+    ) {
         String cls = d.system();
-        List<CatalogEntry> entries = build(d.definitions().stream().filter(x -> x.source().equals(file)).toList(),
-                types, claimed);
+        List<CatalogEntry> entries = build(
+                d.definitions().stream().filter(x -> x.source().equals(file)).toList(),
+                types,
+                claimed);
         Map<String, Definition> bySymbol = new HashMap<>();
         d.definitions().forEach(x -> bySymbol.putIfAbsent(x.symbol(), x));
         Map<String, String> units = new LinkedHashMap<>();
@@ -143,8 +182,11 @@ public final class CatalogBuilder {
         for (Extends x : d.extended()) {
             Catalog parent = done.get(x.file());
             if (parent == null) {
-                throw new GenerationException(x.source(), x.line(), "'" + x.file()
-                        + "' is not a catalog generated before '" + file + "'");
+                throw new GenerationException(
+                        x.source(),
+                        x.line(),
+                        "'" + x.file()
+                                + "' is not a catalog generated before '" + file + "'");
             }
             parents.add(parent);
             parent.units().forEach(units::putIfAbsent);
@@ -162,8 +204,11 @@ public final class CatalogBuilder {
             }
             Catalog owner = done.get(def.source());
             if (owner == null) {
-                throw new GenerationException(m.source(), m.line(), "unit '" + m.symbol() + "' is defined in '"
-                        + def.source() + "', which is not a catalog generated before '" + file + "'");
+                throw new GenerationException(
+                        m.source(),
+                        m.line(),
+                        "unit '" + m.symbol() + "' is defined in '"
+                                + def.source() + "', which is not a catalog generated before '" + file + "'");
             }
             units.putIfAbsent(m.symbol(), owner.units().get(m.symbol()));
             d.prefixed().stream().filter(p -> p.source().equals(def.source()) && p.unitSymbol().equals(m.symbol()))
@@ -172,20 +217,27 @@ public final class CatalogBuilder {
         // UomSystemOfUnits rejects a prefixable symbol that is not one of its units.
         prefixable.retainAll(units.keySet());
         binaryPrefixable.retainAll(units.keySet());
-        Map<String, String> fallback = !parents.isEmpty() ? parents.get(0).preferred()
+        Map<String, String> fallback = !parents.isEmpty()
+                ? parents.get(0).preferred()
                 : done.isEmpty() ? null : done.values().iterator().next().preferred();
         Map<String, String> own = ownPreferred(file, d, types, bySymbol, units, cls);
         Map<String, String> preferred = new LinkedHashMap<>();
         for (QuantityTypeSpec t : types) {
             String ref = own.get(t.name());
             if (ref == null) {
-                ref = fallback != null ? fallback.get(t.name())
+                ref = fallback != null
+                        ? fallback.get(t.name())
                         : "org.tinygears.uom.quantity." + t.name() + "Factory.SYSTEM_UNIT";
             }
             preferred.put(t.name(), ref);
         }
-        return new Catalog(file, cls, entries, Collections.unmodifiableMap(units),
-                Collections.unmodifiableSet(prefixable), Collections.unmodifiableSet(binaryPrefixable),
+        return new Catalog(
+                file,
+                cls,
+                entries,
+                Collections.unmodifiableMap(units),
+                Collections.unmodifiableSet(prefixable),
+                Collections.unmodifiableSet(binaryPrefixable),
                 Collections.unmodifiableMap(preferred));
     }
 
@@ -200,8 +252,14 @@ public final class CatalogBuilder {
     }
 
     /** Type name to unit reference, from the {@code @preferred} lines of {@code file} itself. */
-    private static Map<String, String> ownPreferred(String file, Definitions d, List<QuantityTypeSpec> types,
-            Map<String, Definition> bySymbol, Map<String, String> units, String cls) {
+    private static Map<String, String> ownPreferred(
+            String file,
+            Definitions d,
+            List<QuantityTypeSpec> types,
+            Map<String, Definition> bySymbol,
+            Map<String, String> units,
+            String cls
+    ) {
         Map<String, QuantityTypeSpec> byName = byName(types);
         Map<String, String> result = new HashMap<>();
         for (Preferred p : d.preferred()) {
@@ -213,21 +271,33 @@ public final class CatalogBuilder {
                 throw new GenerationException(p.source(), p.line(), "unknown unit '" + p.symbol() + "'");
             }
             if (!units.containsKey(p.symbol())) {
-                throw new GenerationException(p.source(), p.line(), "unit '" + p.symbol() + "' is not a unit of "
-                        + cls);
+                throw new GenerationException(
+                        p.source(),
+                        p.line(),
+                        "unit '" + p.symbol() + "' is not a unit of "
+                                + cls);
             }
             QuantityTypeSpec spec = byName.get(p.quantityType());
             if (spec == null) {
-                throw new GenerationException(p.source(), p.line(), "unknown quantity type '" + p.quantityType()
-                        + "'");
+                throw new GenerationException(
+                        p.source(),
+                        p.line(),
+                        "unknown quantity type '" + p.quantityType()
+                                + "'");
             }
             if (!spec.systemUnit().equals(def.unit().getSystemUnit())) {
-                throw new GenerationException(p.source(), p.line(), "unit '" + p.symbol() + "' is not a unit of "
-                        + spec.name());
+                throw new GenerationException(
+                        p.source(),
+                        p.line(),
+                        "unit '" + p.symbol() + "' is not a unit of "
+                                + spec.name());
             }
             if (result.putIfAbsent(spec.name(), units.get(p.symbol())) != null) {
-                throw new GenerationException(p.source(), p.line(), "duplicate preferred unit for '" + spec.name()
-                        + "'");
+                throw new GenerationException(
+                        p.source(),
+                        p.line(),
+                        "duplicate preferred unit for '" + spec.name()
+                                + "'");
             }
         }
         return result;

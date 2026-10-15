@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.measure.Quantity;
 import javax.measure.spi.QuantityFactory;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
@@ -38,6 +41,13 @@ import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.systems.serial.QuantityCheck;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class QuantitySerializationTest {
 
@@ -50,7 +60,7 @@ class QuantitySerializationTest {
         return QuantityCheck.read(QuantityCheck.write(o));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Quantity<?> create(Class<?> type, Number value, UomUnit<?> unit, Quantity.Scale scale) {
         QuantityFactory factory = QuantityTypes.factory((Class) type);
         return factory.create(value, unit, scale);
@@ -68,10 +78,12 @@ class QuantitySerializationTest {
         assertEquals(q.getUnit().getName(), copy.getUnit().getName());
         assertSame(q.getScale(), copy.getScale());
         if (q instanceof AbstractDoubleQuantity<?, ?>) {
-            assertEquals(Double.doubleToRawLongBits((Double) q.getValue()),
+            assertEquals(
+                    Double.doubleToRawLongBits((Double) q.getValue()),
                     Double.doubleToRawLongBits((Double) copy.getValue()));
         } else {
-            assertEquals(((AbstractDecimalQuantity<?, ?>) q).mathContext(),
+            assertEquals(
+                    ((AbstractDecimalQuantity<?, ?>) q).mathContext(),
                     ((AbstractDecimalQuantity<?, ?>) copy).mathContext());
         }
     }
@@ -80,9 +92,16 @@ class QuantitySerializationTest {
     private static List<UomUnit<?>> nonSystemUnits(Class<?> type) {
         UomUnit<?> system = (UomUnit<?>) QuantityTypes.factory(cast(type)).getSystemUnit();
         List<UomUnit<?>> units = new ArrayList<>(List.of(system.multiply(2.5)));
-        Map<Class<?>, UomUnit<?>> extra = Map.of(javax.measure.quantity.Temperature.class, SI.DEGREE_CELSIUS,
-                javax.measure.quantity.Length.class, SI.KILOMETRE, javax.measure.quantity.Frequency.class,
-                SI.KILOHERTZ, javax.measure.quantity.Angle.class, SI.DEGREE, javax.measure.quantity.Mass.class,
+        Map<Class<?>, UomUnit<?>> extra = Map.of(
+                javax.measure.quantity.Temperature.class,
+                SI.DEGREE_CELSIUS,
+                javax.measure.quantity.Length.class,
+                SI.KILOMETRE,
+                javax.measure.quantity.Frequency.class,
+                SI.KILOHERTZ,
+                javax.measure.quantity.Angle.class,
+                SI.DEGREE,
+                javax.measure.quantity.Mass.class,
                 SI.MILLIGRAM);
         if (extra.containsKey(type)) {
             units.add(extra.get(type));
@@ -90,7 +109,7 @@ class QuantitySerializationTest {
         return units;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Class cast(Class<?> type) {
         return type;
     }
@@ -106,7 +125,10 @@ class QuantitySerializationTest {
                     assertTrue(d.getClass().getName().endsWith("Double"), d.getClass().getName());
                     assertSameQuantity(d, roundTrip(d));
                     // 40 digits: more than the factory's DECIMAL128 context.
-                    Quantity<?> b = create(type, new BigDecimal("1234567890.123456789012345678901234567890"), unit,
+                    Quantity<?> b = create(
+                            type,
+                            new BigDecimal("1234567890.123456789012345678901234567890"),
+                            unit,
                             scale);
                     assertTrue(b.getClass().getName().endsWith("Decimal"), b.getClass().getName());
                     assertSameQuantity(b, roundTrip(b));
@@ -140,7 +162,8 @@ class QuantitySerializationTest {
         assertSame(UntypedDecimalQuantity.class, q.getClass());
         assertSameQuantity(q, roundTrip(q));
         // Narrowing the copy works as on the original.
-        assertEquals(q.asType(javax.measure.quantity.Speed.class),
+        assertEquals(
+                q.asType(javax.measure.quantity.Speed.class),
                 ((Quantity<?>) roundTrip(q)).asType(javax.measure.quantity.Speed.class));
         assertTrue(roundTrip(q) instanceof Untyped);
     }
@@ -157,10 +180,17 @@ class QuantitySerializationTest {
             assertEquals(u.getName(), copy.getName());
             assertEquals(u.getDimension(), copy.getDimension());
             // In a quantity of the first type it measures, or untyped.
-            Class<?> type = QuantityTypes.types().stream().filter(t -> QuantityTypes.factory(cast(t)).getSystemUnit()
-                    .getDimension().equals(u.getDimension())).findFirst().orElse(null);
-            Quantity<?> q = type == null ? UntypedDoubleQuantity.of(7.5, u) : create(type, 7.5, u,
-                    Quantity.Scale.ABSOLUTE);
+            Class<?> type = QuantityTypes.types().stream().filter(
+                    t -> QuantityTypes.factory(cast(t)).getSystemUnit()
+                            .getDimension().equals(u.getDimension()))
+                    .findFirst().orElse(null);
+            Quantity<?> q = type == null
+                    ? UntypedDoubleQuantity.of(7.5, u)
+                    : create(
+                            type,
+                            7.5,
+                            u,
+                            Quantity.Scale.ABSOLUTE);
             assertSameQuantity(q, roundTrip(q));
         }
     }
@@ -170,14 +200,24 @@ class QuantitySerializationTest {
         Path file = Files.createTempFile("units", ".ser");
         try {
             List<UomUnit<?>> catalog = QuantityCheck.catalog();
-            try (OutputStream bytes = Files.newOutputStream(file); ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+            try (
+                    OutputStream bytes = Files.newOutputStream(file);
+                    ObjectOutputStream out = new ObjectOutputStream(bytes)
+            ) {
                 out.writeInt(catalog.size());
                 for (UomUnit<?> u : catalog) {
                     out.writeObject(u);
                 }
             }
-            String out = run(List.of(JAVA, "-XX:-UsePerfData", "-cp", System.getProperty("java.class.path"),
-                    QuantityCheck.class.getName(), "units", file.toString()));
+            String out = run(
+                    List.of(
+                            JAVA,
+                            "-XX:-UsePerfData",
+                            "-cp",
+                            System.getProperty("java.class.path"),
+                            QuantityCheck.class.getName(),
+                            "units",
+                            file.toString()));
             assertTrue(out.contains("ok units 320"), out);
         } finally {
             Files.deleteIfExists(file);
@@ -202,7 +242,10 @@ class QuantitySerializationTest {
             byte[] bytes = write ? Files.readAllBytes(dir.resolve(e.getKey() + ".ser")) : golden(e.getKey());
             assertSameQuantity(e.getValue(), QuantityCheck.read(bytes));
             assertTrue(QuantityCheck.GOLDEN_TYPES.get(e.getKey()).isInstance(QuantityCheck.read(bytes)), e.getKey());
-            assertArrayEquals(bytes, QuantityCheck.write(e.getValue()), "serialized form of " + e.getKey() + " changed");
+            assertArrayEquals(
+                    bytes,
+                    QuantityCheck.write(e.getValue()),
+                    "serialized form of " + e.getKey() + " changed");
         }
     }
 
@@ -220,8 +263,15 @@ class QuantitySerializationTest {
 
     @Test
     void freshJvmReadsGoldenFilesOnTheClassPath() throws Exception {
-        String out = run(List.of(JAVA, "-XX:-UsePerfData", "-cp", System.getProperty("java.class.path"),
-                QuantityCheck.class.getName(), "golden", goldenDir()));
+        String out = run(
+                List.of(
+                        JAVA,
+                        "-XX:-UsePerfData",
+                        "-cp",
+                        System.getProperty("java.class.path"),
+                        QuantityCheck.class.getName(),
+                        "golden",
+                        goldenDir()));
         assertTrue(out.contains("ok golden 8 named=false"), out);
     }
 
@@ -244,10 +294,19 @@ class QuantitySerializationTest {
         try {
             Files.createDirectories(target.getParent());
             Files.copy(HERE.resolve("target/test-classes").resolve(name), target);
-            String out = run(List.of(JAVA, "-XX:-UsePerfData", "--module-path",
-                    String.join(File.pathSeparator, classes.toString(), core.toString(), jar),
-                    "--add-modules", "org.tinygears.uom", "-cp", cp.toString(), QuantityCheck.class.getName(),
-                    "golden", goldenDir()));
+            String out = run(
+                    List.of(
+                            JAVA,
+                            "-XX:-UsePerfData",
+                            "--module-path",
+                            String.join(File.pathSeparator, classes.toString(), core.toString(), jar),
+                            "--add-modules",
+                            "org.tinygears.uom",
+                            "-cp",
+                            cp.toString(),
+                            QuantityCheck.class.getName(),
+                            "golden",
+                            goldenDir()));
             assertTrue(out.contains("ok golden 8 named=true"), out);
         } finally {
             Files.deleteIfExists(target);
@@ -261,15 +320,22 @@ class QuantitySerializationTest {
     void forgedTypeMismatchIsRejected() throws Exception {
         // A metre quantity patched to name Time: the unit is valid, it does not measure the type.
         byte[] bytes = QuantityCheck.write(Length.of(1.0, SI.METRE));
-        InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> QuantityCheck.read(
-                replaceString(bytes, "javax.measure.quantity.Length", "javax.measure.quantity.Time")));
-        assertEquals("invalid quantity: unit m of dimension L does not measure javax.measure.quantity.Time",
+        InvalidObjectException e = assertThrows(
+                InvalidObjectException.class,
+                () -> QuantityCheck.read(
+                        replaceString(bytes, "javax.measure.quantity.Length", "javax.measure.quantity.Time")));
+        assertEquals(
+                "invalid quantity: unit m of dimension L does not measure javax.measure.quantity.Time",
                 e.getMessage());
-        e = assertThrows(InvalidObjectException.class, () -> QuantityCheck.read(
-                replaceString(bytes, "javax.measure.quantity.Length", "org.tinygears.uom.quantity.Length")));
+        e = assertThrows(
+                InvalidObjectException.class,
+                () -> QuantityCheck.read(
+                        replaceString(bytes, "javax.measure.quantity.Length", "org.tinygears.uom.quantity.Length")));
         assertEquals("invalid quantity: unknown type org.tinygears.uom.quantity.Length", e.getMessage());
-        e = assertThrows(InvalidObjectException.class, () -> QuantityCheck.read(
-                replaceString(bytes, "ABSOLUTE", "RELATIVE?")));
+        e = assertThrows(
+                InvalidObjectException.class,
+                () -> QuantityCheck.read(
+                        replaceString(bytes, "ABSOLUTE", "RELATIVE?")));
         assertEquals("invalid quantity: unknown scale RELATIVE?", e.getMessage());
     }
 
@@ -277,15 +343,30 @@ class QuantitySerializationTest {
     void forgedAlternateAtomIsRejectedWhetherOrNotTheCatalogIsLoaded() throws Exception {
         // A kHz whose Hz atom is defined as rad/s: same dimension, a different definition than the registered Hz.
         UomUnit<?> fake = SI.RADIAN.divide(SI.SECOND).alternate("Hzx").multiply(1000);
-        byte[] bytes = replaceAll(QuantityCheck.write(create(javax.measure.quantity.Frequency.class, 50.0, fake,
-                Quantity.Scale.ABSOLUTE)), "Hzx", "Hz");
+        byte[] bytes = replaceAll(
+                QuantityCheck.write(
+                        create(
+                                javax.measure.quantity.Frequency.class,
+                                50.0,
+                                fake,
+                                Quantity.Scale.ABSOLUTE)),
+                "Hzx",
+                "Hz");
         Path file = Files.createTempFile("forged", ".ser");
         try {
             Files.write(file, bytes);
             String expected = "rejected invalid unit atom: symbol Hz is already associated to a different unit";
             for (String touchFirst : List.of("false", "true")) {
-                String out = run(List.of(JAVA, "-XX:-UsePerfData", "-cp", System.getProperty("java.class.path"),
-                        QuantityCheck.class.getName(), "forged", file.toString(), touchFirst));
+                String out = run(
+                        List.of(
+                                JAVA,
+                                "-XX:-UsePerfData",
+                                "-cp",
+                                System.getProperty("java.class.path"),
+                                QuantityCheck.class.getName(),
+                                "forged",
+                                file.toString(),
+                                touchFirst));
                 assertEquals(expected, out.strip(), "SI touched first: " + touchFirst);
             }
             InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> QuantityCheck.read(bytes));

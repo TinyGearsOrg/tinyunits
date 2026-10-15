@@ -1,16 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,12 +36,24 @@ import javax.measure.spi.FormatService;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
 import javax.measure.spi.SystemOfUnitsService;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.TestServiceProvider;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class QuantitySerializationTest {
 
@@ -59,7 +69,8 @@ class QuantitySerializationTest {
         @Override
         public Quantity<Length> create(Number value, Unit<Length> unit, Quantity.Scale scale) {
             UomUnit<Length> u = UomUnit.unchecked((UomUnit<?>) unit);
-            return value instanceof BigDecimal d ? new TestLengthDecimalImpl(d, u, scale, MathContext.DECIMAL128)
+            return value instanceof BigDecimal d
+                    ? new TestLengthDecimalImpl(d, u, scale, MathContext.DECIMAL128)
                     : new TestLengthImpl(value.doubleValue(), u, scale);
         }
 
@@ -111,7 +122,9 @@ class QuantitySerializationTest {
         assertSame(q.getClass(), copy.getClass());
         assertEquals(q, copy);
         assertEquals(q.hashCode(), copy.hashCode());
-        assertEquals(Double.doubleToRawLongBits(q.getValue()), Double.doubleToRawLongBits(copy.getValue()),
+        assertEquals(
+                Double.doubleToRawLongBits(q.getValue()),
+                Double.doubleToRawLongBits(copy.getValue()),
                 q.toString());
         assertEquals(q.getUnit(), copy.getUnit());
         assertEquals(q.getUnit().getSymbol(), copy.getUnit().getSymbol());
@@ -136,8 +149,17 @@ class QuantitySerializationTest {
 
     @Test
     void doubleValuesKeepTheirBits() throws Exception {
-        double[] values = {0.0, -0.0, 1.5, -2.25e300, Double.NaN, Double.longBitsToDouble(0x7ff8_0000_0000_0123L),
-                Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.MIN_VALUE, -Double.MAX_VALUE};
+        double[] values = {
+            0.0,
+            -0.0,
+            1.5,
+            -2.25e300,
+            Double.NaN,
+            Double.longBitsToDouble(0x7ff8_0000_0000_0123L),
+            Double.POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY,
+            Double.MIN_VALUE,
+            -Double.MAX_VALUE };
         for (double v : values) {
             for (Quantity.Scale s : SCALES) {
                 assertDoubleRoundTrip(new TestLengthImpl(v, METRE, s));
@@ -155,18 +177,28 @@ class QuantitySerializationTest {
 
     @Test
     void decimalValuesKeepDigitsScaleAndContext() throws Exception {
-        List<BigDecimal> values = List.of(new BigDecimal("1.50"), BigDecimal.ZERO, new BigDecimal("0E+5"),
-                new BigDecimal("0.000"), new BigDecimal("-123456789012345678901234567890.123456789"),
-                new BigDecimal(BigInteger.ONE, 100_000), new BigDecimal(BigInteger.ONE, -100_000),
+        List<BigDecimal> values = List.of(
+                new BigDecimal("1.50"),
+                BigDecimal.ZERO,
+                new BigDecimal("0E+5"),
+                new BigDecimal("0.000"),
+                new BigDecimal("-123456789012345678901234567890.123456789"),
+                new BigDecimal(BigInteger.ONE, 100_000),
+                new BigDecimal(BigInteger.ONE, -100_000),
                 new BigDecimal(BigInteger.TEN.pow(5000).negate(), 7));
-        List<MathContext> contexts = List.of(MathContext.UNLIMITED, MathContext.DECIMAL32, MathContext.DECIMAL128,
-                new MathContext(5, RoundingMode.CEILING), new MathContext(0, RoundingMode.UNNECESSARY));
+        List<MathContext> contexts = List.of(
+                MathContext.UNLIMITED,
+                MathContext.DECIMAL32,
+                MathContext.DECIMAL128,
+                new MathContext(5, RoundingMode.CEILING),
+                new MathContext(0, RoundingMode.UNNECESSARY));
         for (BigDecimal v : values) {
             for (MathContext mc : contexts) {
                 for (Quantity.Scale s : SCALES) {
                     assertDecimalRoundTrip(new TestLengthDecimalImpl(v, KILOMETRE, s, mc));
                     assertDecimalRoundTrip(new TestSpeedDecimalImpl(v, KMH, s, mc));
-                    assertDecimalRoundTrip(new UntypedDecimalQuantity(v, UomUnit.unchecked(KMH.multiply(METRE)), s, mc));
+                    assertDecimalRoundTrip(
+                            new UntypedDecimalQuantity(v, UomUnit.unchecked(KMH.multiply(METRE)), s, mc));
                 }
             }
         }
@@ -215,7 +247,8 @@ class QuantitySerializationTest {
     void bytesDependOnValuesNotIdentity() throws Exception {
         UomUnit<Length> km1 = METRE.multiply(1000).named("km", "kilometre");
         UomUnit<Length> km2 = METRE.multiply(1000).named(new String("km"), new String("kilometre"));
-        assertArrayEquals(serialize(new TestLengthDecimalImpl(new BigDecimal("1.5"), km1)),
+        assertArrayEquals(
+                serialize(new TestLengthDecimalImpl(new BigDecimal("1.5"), km1)),
                 serialize(new TestLengthDecimalImpl(new BigDecimal("1.5"), km2)));
         assertArrayEquals(serialize(new TestLengthImpl(1.5, km1)), serialize(new TestLengthImpl(1.5, km2)));
         // Two quantities in one stream share nothing, so the second is written in full.
@@ -235,8 +268,15 @@ class QuantitySerializationTest {
         return new QuantityProxy(kind, type, unit, scale, Double.doubleToRawLongBits(v), null, 0, 0, null);
     }
 
-    private static QuantityProxy decimalProxy(String kind, String type, UomUnit<?> unit, byte[] unscaled, int scale,
-            int precision, String rounding) {
+    private static QuantityProxy decimalProxy(
+            String kind,
+            String type,
+            UomUnit<?> unit,
+            byte[] unscaled,
+            int scale,
+            int precision,
+            String rounding
+    ) {
         return new QuantityProxy(kind, type, unit, "ABSOLUTE", 0, unscaled, scale, precision, rounding);
     }
 
@@ -252,18 +292,29 @@ class QuantitySerializationTest {
 
     @Test
     void forgedProxiesThatAreValid() throws Exception {
-        assertEquals(new TestLengthImpl(2.0, KILOMETRE, Quantity.Scale.RELATIVE),
+        assertEquals(
+                new TestLengthImpl(2.0, KILOMETRE, Quantity.Scale.RELATIVE),
                 deserialize(serialize(doubleProxy("double", LENGTH, KILOMETRE, "RELATIVE", 2.0))));
-        TestLengthDecimalImpl d = (TestLengthDecimalImpl) deserialize(serialize(
-                decimalProxy(new byte[] {1}, 100_000, 7, "HALF_DOWN")));
+        TestLengthDecimalImpl d = (TestLengthDecimalImpl) deserialize(
+                serialize(
+                        decimalProxy(new byte[] { 1 }, 100_000, 7, "HALF_DOWN")));
         assertEquals(new BigDecimal(BigInteger.ONE, 100_000), d.getValue());
         assertEquals(new MathContext(7, RoundingMode.HALF_DOWN), d.mathContext());
-        assertEquals(new BigDecimal(BigInteger.ONE, -100_000),
-                ((TestLengthDecimalImpl) deserialize(serialize(decimalProxy(new byte[] {1}, -100_000, 0, "UP"))))
+        assertEquals(
+                new BigDecimal(BigInteger.ONE, -100_000),
+                ((TestLengthDecimalImpl) deserialize(serialize(decimalProxy(new byte[] { 1 }, -100_000, 0, "UP"))))
                         .getValue());
         // An Untyped quantity of any dimension is valid; the unit's own validation still applies.
-        assertEquals(UntypedDoubleQuantity.of(4.0, BaseUnits.SECOND), deserialize(serialize(
-                doubleProxy(QuantityProxy.UNTYPED_DOUBLE, UNTYPED, BaseUnits.SECOND, "ABSOLUTE", 4.0))));
+        assertEquals(
+                UntypedDoubleQuantity.of(4.0, BaseUnits.SECOND),
+                deserialize(
+                        serialize(
+                                doubleProxy(
+                                        QuantityProxy.UNTYPED_DOUBLE,
+                                        UNTYPED,
+                                        BaseUnits.SECOND,
+                                        "ABSOLUTE",
+                                        4.0))));
     }
 
     @Test
@@ -271,40 +322,54 @@ class QuantitySerializationTest {
         assertInvalid("invalid quantity: null kind", doubleProxy(null, LENGTH, METRE, "ABSOLUTE", 1));
         assertInvalid("invalid quantity: unknown kind float", doubleProxy("float", LENGTH, METRE, "ABSOLUTE", 1));
         assertInvalid("invalid quantity: null type", doubleProxy("double", null, METRE, "ABSOLUTE", 1));
-        assertInvalid("invalid quantity: unknown type org.tinygears.uom.core.quantity.TestLength",
+        assertInvalid(
+                "invalid quantity: unknown type org.tinygears.uom.core.quantity.TestLength",
                 doubleProxy("double", TestLength.class.getName(), METRE, "ABSOLUTE", 1));
         assertInvalid("invalid quantity: unknown type Length", doubleProxy("double", "Length", METRE, "ABSOLUTE", 1));
-        assertInvalid("invalid quantity: kind untyped-double does not match type javax.measure.quantity.Length",
+        assertInvalid(
+                "invalid quantity: kind untyped-double does not match type javax.measure.quantity.Length",
                 doubleProxy(QuantityProxy.UNTYPED_DOUBLE, LENGTH, METRE, "ABSOLUTE", 1));
-        assertInvalid("invalid quantity: kind decimal does not match type org.tinygears.uom.core.quantity.Untyped",
-                decimalProxy("decimal", UNTYPED, METRE, new byte[] {1}, 0, 0, "HALF_UP"));
-        assertInvalid("invalid quantity: kind double does not match type org.tinygears.uom.core.quantity.Untyped",
+        assertInvalid(
+                "invalid quantity: kind decimal does not match type org.tinygears.uom.core.quantity.Untyped",
+                decimalProxy("decimal", UNTYPED, METRE, new byte[] { 1 }, 0, 0, "HALF_UP"));
+        assertInvalid(
+                "invalid quantity: kind double does not match type org.tinygears.uom.core.quantity.Untyped",
                 doubleProxy("double", UNTYPED, METRE, "ABSOLUTE", 1));
-        assertInvalid("invalid quantity: kind untyped-decimal does not match type javax.measure.quantity.Length",
-                decimalProxy(QuantityProxy.UNTYPED_DECIMAL, LENGTH, METRE, new byte[] {1}, 0, 0, "HALF_UP"));
+        assertInvalid(
+                "invalid quantity: kind untyped-decimal does not match type javax.measure.quantity.Length",
+                decimalProxy(QuantityProxy.UNTYPED_DECIMAL, LENGTH, METRE, new byte[] { 1 }, 0, 0, "HALF_UP"));
         assertInvalid("invalid quantity: null unit", doubleProxy("double", LENGTH, null, "ABSOLUTE", 1));
         assertInvalid("invalid quantity: null scale", doubleProxy("double", LENGTH, METRE, null, 1));
-        assertInvalid("invalid quantity: unknown scale ABSOLUTELY", doubleProxy("double", LENGTH, METRE, "ABSOLUTELY", 1));
+        assertInvalid(
+                "invalid quantity: unknown scale ABSOLUTELY",
+                doubleProxy("double", LENGTH, METRE, "ABSOLUTELY", 1));
         assertInvalid("invalid quantity: unknown scale absolute", doubleProxy("double", LENGTH, METRE, "absolute", 1));
-        assertInvalid("invalid quantity: unit s of dimension T does not measure javax.measure.quantity.Length",
+        assertInvalid(
+                "invalid quantity: unit s of dimension T does not measure javax.measure.quantity.Length",
                 doubleProxy("double", LENGTH, BaseUnits.SECOND, "ABSOLUTE", 1));
-        assertInvalid("invalid quantity: unit m of dimension L does not measure javax.measure.quantity.Speed",
-                decimalProxy("decimal", Speed.class.getName(), METRE, new byte[] {1}, 0, 0, "HALF_UP"));
+        assertInvalid(
+                "invalid quantity: unit m of dimension L does not measure javax.measure.quantity.Speed",
+                decimalProxy("decimal", Speed.class.getName(), METRE, new byte[] { 1 }, 0, 0, "HALF_UP"));
     }
 
     @Test
     void forgedDecimalsAreRejected() {
         assertInvalid("invalid quantity: null value", decimalProxy(null, 0, 0, "HALF_UP"));
         assertInvalid("invalid quantity: empty value", decimalProxy(new byte[0], 0, 0, "HALF_UP"));
-        assertInvalid("invalid quantity: scale out of range: 100001", decimalProxy(new byte[] {1}, 100_001, 0, "UP"));
-        assertInvalid("invalid quantity: scale out of range: -100001", decimalProxy(new byte[] {1}, -100_001, 0, "UP"));
-        assertInvalid("invalid quantity: scale out of range: -2147483648",
-                decimalProxy(new byte[] {1}, Integer.MIN_VALUE, 0, "UP"));
-        assertInvalid("invalid quantity: negative precision -1", decimalProxy(new byte[] {1}, 0, -1, "UP"));
-        assertInvalid("invalid quantity: null rounding mode", decimalProxy(new byte[] {1}, 0, 7, null));
-        assertInvalid("invalid quantity: unknown rounding mode HALF_SIDEWAYS",
-                decimalProxy(new byte[] {1}, 0, 7, "HALF_SIDEWAYS"));
-        InvalidObjectException e = assertInvalid("invalid quantity: value too large",
+        assertInvalid("invalid quantity: scale out of range: 100001", decimalProxy(new byte[] { 1 }, 100_001, 0, "UP"));
+        assertInvalid(
+                "invalid quantity: scale out of range: -100001",
+                decimalProxy(new byte[] { 1 }, -100_001, 0, "UP"));
+        assertInvalid(
+                "invalid quantity: scale out of range: -2147483648",
+                decimalProxy(new byte[] { 1 }, Integer.MIN_VALUE, 0, "UP"));
+        assertInvalid("invalid quantity: negative precision -1", decimalProxy(new byte[] { 1 }, 0, -1, "UP"));
+        assertInvalid("invalid quantity: null rounding mode", decimalProxy(new byte[] { 1 }, 0, 7, null));
+        assertInvalid(
+                "invalid quantity: unknown rounding mode HALF_SIDEWAYS",
+                decimalProxy(new byte[] { 1 }, 0, 7, "HALF_SIDEWAYS"));
+        InvalidObjectException e = assertInvalid(
+                "invalid quantity: value too large",
                 decimalProxy(new byte[QuantityProxy.MAX_VALUE_BYTES + 1], 0, 0, "UP"));
         assertNull(e.getCause());
     }
@@ -318,23 +383,25 @@ class QuantitySerializationTest {
         assertDecimalRoundTrip(q);
         // The writer refuses what the reader would reject.
         BigDecimal over = new BigDecimal(BigInteger.ONE.shiftLeft(8 * QuantityProxy.MAX_VALUE_BYTES));
-        NotSerializableException e = assertThrows(NotSerializableException.class,
+        NotSerializableException e = assertThrows(
+                NotSerializableException.class,
                 () -> serialize(new TestLengthDecimalImpl(over, METRE)));
         assertEquals("invalid quantity: value too large", e.getMessage());
     }
 
     @Test
     void forgedValueLengthIsRejectedBeforeAllocation() throws Exception {
-        byte[] bytes = serialize(decimalProxy(new byte[] {0x51, 0x52, 0x53, 0x54}, 0, 0, "UP"));
-        int at = indexOf(bytes, new byte[] {0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54});
+        byte[] bytes = serialize(decimalProxy(new byte[] { 0x51, 0x52, 0x53, 0x54 }, 0, 0, "UP"));
+        int at = indexOf(bytes, new byte[] { 0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54 });
         assertTrue(at > 0);
-        for (int length : new int[] {Integer.MAX_VALUE, QuantityProxy.MAX_VALUE_BYTES + 1}) {
+        for (int length : new int[] { Integer.MAX_VALUE, QuantityProxy.MAX_VALUE_BYTES + 1 }) {
             byte[] forged = Arrays.copyOf(bytes, at + 4);
             forged[at] = (byte) (length >>> 24);
             forged[at + 1] = (byte) (length >>> 16);
             forged[at + 2] = (byte) (length >>> 8);
             forged[at + 3] = (byte) length;
-            InvalidObjectException e = assertTimeoutPreemptively(Duration.ofSeconds(1),
+            InvalidObjectException e = assertTimeoutPreemptively(
+                    Duration.ofSeconds(1),
                     () -> assertThrows(InvalidObjectException.class, () -> deserialize(forged)));
             assertEquals("invalid quantity: value too large", e.getMessage());
         }
@@ -370,20 +437,29 @@ class QuantitySerializationTest {
         String name = Tripwire.class.getName();
         assertInvalid("invalid quantity: unknown type " + name, doubleProxy("double", name, METRE, "ABSOLUTE", 1));
         assertFalse(tripped);
-        assertInvalid("invalid quantity: unknown type java.lang.Runtime",
+        assertInvalid(
+                "invalid quantity: unknown type java.lang.Runtime",
                 doubleProxy("double", "java.lang.Runtime", METRE, "ABSOLUTE", 1));
-        assertInvalid("invalid quantity: unknown type javax.measure.Quantity",
+        assertInvalid(
+                "invalid quantity: unknown type javax.measure.Quantity",
                 doubleProxy("double", "javax.measure.Quantity", METRE, "ABSOLUTE", 1));
     }
 
     @Test
     void wrongElementTypeIsRejected() {
-        InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> readReplacing(
-                new TestLengthImpl(1.0, METRE), o -> o.getClass().getName().equals(UomUnit.class.getName() + "$Proxy")
-                        ? "m" : o));
+        InvalidObjectException e = assertThrows(
+                InvalidObjectException.class,
+                () -> readReplacing(
+                        new TestLengthImpl(1.0, METRE),
+                        o -> o.getClass().getName().equals(UomUnit.class.getName() + "$Proxy")
+                                ? "m"
+                                : o));
         assertEquals("expected UomUnit, got java.lang.String", e.getMessage());
-        e = assertThrows(InvalidObjectException.class, () -> readReplacing(
-                new TestLengthImpl(1.0, METRE), o -> "ABSOLUTE".equals(o) ? Quantity.Scale.ABSOLUTE : o));
+        e = assertThrows(
+                InvalidObjectException.class,
+                () -> readReplacing(
+                        new TestLengthImpl(1.0, METRE),
+                        o -> "ABSOLUTE".equals(o) ? Quantity.Scale.ABSOLUTE : o));
         assertEquals("expected String, got javax.measure.Quantity$Scale", e.getMessage());
     }
 
@@ -427,8 +503,10 @@ class QuantitySerializationTest {
     @Test
     void providerFailuresBecomeInvalidObjectException() throws Exception {
         byte[] length = serialize(new TestLengthImpl(1.0, METRE));
-        for (Throwable failure : List.of(new IllegalStateException("No measurement ServiceProvider found"),
-                new java.util.ServiceConfigurationError("broken provider"), new IllegalStateException())) {
+        for (Throwable failure : List.of(
+                new IllegalStateException("No measurement ServiceProvider found"),
+                new java.util.ServiceConfigurationError("broken provider"),
+                new IllegalStateException())) {
             withProvider(new ThrowingProvider(failure), () -> {
                 InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> deserialize(length));
                 String message = failure.getMessage() != null ? failure.getMessage() : failure.getClass().getName();
@@ -442,13 +520,26 @@ class QuantitySerializationTest {
     void factoryOfTheWrongKindOrFailingIsRejected() throws Exception {
         TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedImpl.FACTORY);
         try {
-            InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> roundTrip(
-                    new TestSpeedDecimalImpl(BigDecimal.ONE, KMH, Quantity.Scale.ABSOLUTE, MathContext.DECIMAL64)));
-            assertEquals("invalid quantity: the factory for javax.measure.quantity.Speed created "
-                    + TestSpeedImpl.class.getName() + ", not a decimal quantity of this implementation", e.getMessage());
+            InvalidObjectException e = assertThrows(
+                    InvalidObjectException.class,
+                    () -> roundTrip(
+                            new TestSpeedDecimalImpl(
+                                    BigDecimal.ONE,
+                                    KMH,
+                                    Quantity.Scale.ABSOLUTE,
+                                    MathContext.DECIMAL64)));
+            assertEquals(
+                    "invalid quantity: the factory for javax.measure.quantity.Speed created "
+                            + TestSpeedImpl.class.getName() + ", not a decimal quantity of this implementation",
+                    e.getMessage());
             TestServiceProvider.FACTORIES.put(Speed.class, new FailingFactory());
-            e = assertThrows(InvalidObjectException.class, () -> roundTrip(new TestSpeedImpl(1.0, KMH,
-                    Quantity.Scale.ABSOLUTE)));
+            e = assertThrows(
+                    InvalidObjectException.class,
+                    () -> roundTrip(
+                            new TestSpeedImpl(
+                                    1.0,
+                                    KMH,
+                                    Quantity.Scale.ABSOLUTE)));
             assertEquals("invalid quantity: factory failed", e.getMessage());
             assertTrue(e.getCause() instanceof IllegalStateException);
             TestServiceProvider.FACTORIES.put(Speed.class, new FailingFactory() {
@@ -457,10 +548,17 @@ class QuantitySerializationTest {
                     return null;
                 }
             });
-            e = assertThrows(InvalidObjectException.class, () -> roundTrip(new TestSpeedImpl(1.0, KMH,
-                    Quantity.Scale.ABSOLUTE)));
-            assertEquals("invalid quantity: the factory for javax.measure.quantity.Speed created null, not a double"
-                    + " quantity of this implementation", e.getMessage());
+            e = assertThrows(
+                    InvalidObjectException.class,
+                    () -> roundTrip(
+                            new TestSpeedImpl(
+                                    1.0,
+                                    KMH,
+                                    Quantity.Scale.ABSOLUTE)));
+            assertEquals(
+                    "invalid quantity: the factory for javax.measure.quantity.Speed created null, not a double"
+                            + " quantity of this implementation",
+                    e.getMessage());
         } finally {
             TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
         }
@@ -472,7 +570,10 @@ class QuantitySerializationTest {
         public Quantity<Speed> create(Number value, Unit<Speed> unit, Quantity.Scale scale) {
             UomUnit<Speed> u = UomUnit.unchecked((UomUnit<?>) unit);
             return value instanceof BigDecimal d
-                    ? new TestSpeedDecimalImpl(d.round(MathContext.DECIMAL32), u, Quantity.Scale.ABSOLUTE,
+                    ? new TestSpeedDecimalImpl(
+                            d.round(MathContext.DECIMAL32),
+                            u,
+                            Quantity.Scale.ABSOLUTE,
                             MathContext.DECIMAL32)
                     : new TestSpeedImpl((float) value.doubleValue(), u, Quantity.Scale.ABSOLUTE);
         }
@@ -483,8 +584,12 @@ class QuantitySerializationTest {
         TestServiceProvider.FACTORIES.put(Speed.class, new LossyFactory());
         try {
             assertDoubleRoundTrip(new TestSpeedImpl(0.1, KMH, Quantity.Scale.RELATIVE));
-            assertDecimalRoundTrip(new TestSpeedDecimalImpl(new BigDecimal("0.1234567890123"), KMH,
-                    Quantity.Scale.RELATIVE, new MathContext(3, RoundingMode.FLOOR)));
+            assertDecimalRoundTrip(
+                    new TestSpeedDecimalImpl(
+                            new BigDecimal("0.1234567890123"),
+                            KMH,
+                            Quantity.Scale.RELATIVE,
+                            new MathContext(3, RoundingMode.FLOOR)));
         } finally {
             TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
         }
@@ -496,32 +601,52 @@ class QuantitySerializationTest {
     @Test
     void contextPrecisionIsBoundedOnEveryPath() throws Exception {
         assertDecimalRoundTrip(new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.ABSOLUTE, MAX_CONTEXT));
-        assertEquals(MAX_CONTEXT, ((TestLengthDecimalImpl) deserialize(serialize(
-                decimalProxy(new byte[] {1}, 0, 100_000, "HALF_UP")))).mathContext());
-        assertInvalid("invalid quantity: precision out of range: 100001",
-                decimalProxy(new byte[] {1}, 0, 100_001, "HALF_UP"));
-        assertInvalid("invalid quantity: precision out of range: 2147483647",
-                decimalProxy(QuantityProxy.UNTYPED_DECIMAL, UNTYPED, METRE, new byte[] {1}, 0, Integer.MAX_VALUE, "UP"));
-        NotSerializableException w = assertThrows(NotSerializableException.class,
-                () -> QuantityProxy.ofDecimal(Length.class, METRE, Quantity.Scale.ABSOLUTE, BigDecimal.ONE, OVER_CONTEXT));
+        assertEquals(
+                MAX_CONTEXT,
+                ((TestLengthDecimalImpl) deserialize(
+                        serialize(
+                                decimalProxy(new byte[] { 1 }, 0, 100_000, "HALF_UP"))))
+                        .mathContext());
+        assertInvalid(
+                "invalid quantity: precision out of range: 100001",
+                decimalProxy(new byte[] { 1 }, 0, 100_001, "HALF_UP"));
+        assertInvalid(
+                "invalid quantity: precision out of range: 2147483647",
+                decimalProxy(
+                        QuantityProxy.UNTYPED_DECIMAL,
+                        UNTYPED,
+                        METRE,
+                        new byte[] { 1 },
+                        0,
+                        Integer.MAX_VALUE,
+                        "UP"));
+        NotSerializableException w = assertThrows(
+                NotSerializableException.class,
+                () -> QuantityProxy
+                        .ofDecimal(Length.class, METRE, Quantity.Scale.ABSOLUTE, BigDecimal.ONE, OVER_CONTEXT));
         assertEquals("invalid quantity: precision out of range: 100001", w.getMessage());
-        ArithmeticException e = assertThrows(ArithmeticException.class,
+        ArithmeticException e = assertThrows(
+                ArithmeticException.class,
                 () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.ABSOLUTE, OVER_CONTEXT));
         assertEquals("precision out of range: 100001", e.getMessage());
-        e = assertThrows(ArithmeticException.class,
+        e = assertThrows(
+                ArithmeticException.class,
                 () -> UntypedDecimalQuantity.of(BigDecimal.ONE, METRE, new MathContext(Integer.MAX_VALUE)));
         assertEquals("precision out of range: 2147483647", e.getMessage());
         e = assertThrows(ArithmeticException.class, () -> new TestLengthImpl(1.5, METRE).toDecimal(OVER_CONTEXT));
         assertEquals("precision out of range: 100001", e.getMessage());
-        e = assertThrows(ArithmeticException.class,
+        e = assertThrows(
+                ArithmeticException.class,
                 () -> new TestLengthDecimalImpl(BigDecimal.ONE, METRE).toDecimal(OVER_CONTEXT));
         assertEquals("precision out of range: 100001", e.getMessage());
-        assertEquals(MAX_CONTEXT, ((TestLengthDecimalImpl) new TestLengthImpl(1.5, METRE).toDecimal(MAX_CONTEXT)).mathContext());
+        assertEquals(
+                MAX_CONTEXT,
+                ((TestLengthDecimalImpl) new TestLengthImpl(1.5, METRE).toDecimal(MAX_CONTEXT)).mathContext());
     }
 
     @Test
     void boundsAreCheckedBeforeTheFactoryCreates() {
-        int[] calls = {0};
+        int[] calls = { 0 };
         TestServiceProvider.FACTORIES.put(Speed.class, new FailingFactory() {
             @Override
             public Quantity<Speed> create(Number value, Unit<Speed> unit, Quantity.Scale scale) {
@@ -531,10 +656,12 @@ class QuantitySerializationTest {
         });
         try {
             String speed = Speed.class.getName();
-            assertInvalid("invalid quantity: precision out of range: 100001",
-                    decimalProxy("decimal", speed, KMH, new byte[] {1}, 0, 100_001, "UP"));
-            assertInvalid("invalid quantity: scale out of range: 100001",
-                    decimalProxy("decimal", speed, KMH, new byte[] {1}, 100_001, 7, "UP"));
+            assertInvalid(
+                    "invalid quantity: precision out of range: 100001",
+                    decimalProxy("decimal", speed, KMH, new byte[] { 1 }, 0, 100_001, "UP"));
+            assertInvalid(
+                    "invalid quantity: scale out of range: 100001",
+                    decimalProxy("decimal", speed, KMH, new byte[] { 1 }, 100_001, 7, "UP"));
             assertEquals(0, calls[0]);
         } finally {
             TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
@@ -543,7 +670,10 @@ class QuantitySerializationTest {
 
     @Test
     void arithmeticAtTheMaximumPrecisionIsBounded() {
-        TestLengthDecimalImpl q = new TestLengthDecimalImpl(new BigDecimal("1.5"), METRE, Quantity.Scale.ABSOLUTE,
+        TestLengthDecimalImpl q = new TestLengthDecimalImpl(
+                new BigDecimal("1.5"),
+                METRE,
+                Quantity.Scale.ABSOLUTE,
                 MAX_CONTEXT);
         UomUnit<Length> foot = METRE.multiply(new BigDecimal("0.3048"));
         // About 1 s on JDK 21 (mostly pi), well under on JDK 25; the bound only catches quadratic or worse.
@@ -554,8 +684,14 @@ class QuantitySerializationTest {
             assertEquals(100_000, ((BigDecimal) q.to(foot).getValue()).precision());
             UomUnit<Length> piMetre = UomUnit.unchecked(METRE.scaledBy(org.tinygears.uom.core.Factor.PI));
             assertEquals(100_000, ((BigDecimal) q.to(piMetre).getValue()).precision());
-            assertEquals(1, q.compareTo(new TestLengthDecimalImpl(BigDecimal.ONE, piMetre.multiply(new BigDecimal("0.4")),
-                    Quantity.Scale.ABSOLUTE, MAX_CONTEXT)));
+            assertEquals(
+                    1,
+                    q.compareTo(
+                            new TestLengthDecimalImpl(
+                                    BigDecimal.ONE,
+                                    piMetre.multiply(new BigDecimal("0.4")),
+                                    Quantity.Scale.ABSOLUTE,
+                                    MAX_CONTEXT)));
         });
     }
 
@@ -582,15 +718,20 @@ class QuantitySerializationTest {
     void unexpectedFactoriesGetPreciseMessages() {
         TestSpeedImpl q = new TestSpeedImpl(1.0, KMH, Quantity.Scale.ABSOLUTE);
         @SuppressWarnings("unchecked")
-        Unit<Speed> foreign = (Unit<Speed>) java.lang.reflect.Proxy.newProxyInstance(getClass().getClassLoader(),
-                new Class<?>[] {Unit.class}, (p, m, a) -> null);
+        Unit<Speed> foreign = (Unit<Speed>) java.lang.reflect.Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
         try {
             TestServiceProvider.FACTORIES.put(Speed.class, new OddFactory(null));
             InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> roundTrip(q));
-            assertEquals("invalid quantity: factory for javax.measure.quantity.Speed has no system unit", e.getMessage());
+            assertEquals(
+                    "invalid quantity: factory for javax.measure.quantity.Speed has no system unit",
+                    e.getMessage());
             TestServiceProvider.FACTORIES.put(Speed.class, new OddFactory(foreign));
             e = assertThrows(InvalidObjectException.class, () -> roundTrip(q));
-            assertEquals("invalid quantity: factory for javax.measure.quantity.Speed has a foreign system unit",
+            assertEquals(
+                    "invalid quantity: factory for javax.measure.quantity.Speed has a foreign system unit",
                     e.getMessage());
             TestServiceProvider.FACTORIES.put(Speed.class, new OddFactory(TestSpeedImpl.FACTORY.getSystemUnit()));
             e = assertThrows(InvalidObjectException.class, () -> roundTrip(q));
@@ -762,7 +903,9 @@ class QuantitySerializationTest {
 
     @Test
     void writerRefusesUnknownTypes() {
-        NotSerializableException e = assertThrows(NotSerializableException.class, () -> serialize(new CustomQuantity(1)));
+        NotSerializableException e = assertThrows(
+                NotSerializableException.class,
+                () -> serialize(new CustomQuantity(1)));
         assertEquals("invalid quantity: unknown type " + Custom.class.getName(), e.getMessage());
     }
 
@@ -785,8 +928,10 @@ class QuantitySerializationTest {
             @Override
             protected void writeClassDescriptor(ObjectStreamClass desc) throws IOException {
                 Class<?> c = desc.forClass();
-                super.writeClassDescriptor(c == Twin.class ? ObjectStreamClass.lookup(target)
-                        : c == BaseTwin.class && base != null ? ObjectStreamClass.lookup(base) : desc);
+                super.writeClassDescriptor(
+                        c == Twin.class
+                                ? ObjectStreamClass.lookup(target)
+                                : c == BaseTwin.class && base != null ? ObjectStreamClass.lookup(base) : desc);
             }
         }) {
             out.writeObject(new Twin());
@@ -796,14 +941,21 @@ class QuantitySerializationTest {
 
     @Test
     void directDeserializationRequiresTheProxy() {
-        for (Class<?> target : List.of(TestLengthImpl.class, TestLengthDecimalImpl.class, TestSpeedImpl.class,
-                UntypedDoubleQuantity.class, UntypedDecimalQuantity.class)) {
-            Class<?> base = AbstractDoubleQuantity.class.isAssignableFrom(target) ? AbstractDoubleQuantity.class
+        for (Class<?> target : List.of(
+                TestLengthImpl.class,
+                TestLengthDecimalImpl.class,
+                TestSpeedImpl.class,
+                UntypedDoubleQuantity.class,
+                UntypedDecimalQuantity.class)) {
+            Class<?> base = AbstractDoubleQuantity.class.isAssignableFrom(target)
+                    ? AbstractDoubleQuantity.class
                     : AbstractDecimalQuantity.class;
             // With the base class in the stream its readObject runs; without it, readObjectNoData.
             for (Class<?> b : Arrays.asList(base, null)) {
-                InvalidObjectException e = assertThrows(InvalidObjectException.class,
-                        () -> deserialize(forgeAs(target, b)), target.getName() + " " + b);
+                InvalidObjectException e = assertThrows(
+                        InvalidObjectException.class,
+                        () -> deserialize(forgeAs(target, b)),
+                        target.getName() + " " + b);
                 assertEquals("proxy required", e.getMessage(), target.getName());
             }
         }

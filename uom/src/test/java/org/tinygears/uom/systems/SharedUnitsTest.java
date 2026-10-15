@@ -1,9 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -13,7 +18,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.measure.Unit;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.quantity.AmountOfSubstanceFactory;
@@ -26,10 +33,19 @@ import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.quantity.TemperatureFactory;
 import org.tinygears.uom.quantity.TimeFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 /** A unit reachable through a base unit, a factory, a catalog constant or a preferred map is one object. */
 class SharedUnitsTest {
-    private static final List<Class<?>> CATALOGS = List.of(SI.class, USCustomary.class, Imperial.class, CGS.class,
-            ESU.class, EMU.class, Gaussian.class);
+    private static final List<Class<?>> CATALOGS = List.of(
+            SI.class,
+            USCustomary.class,
+            Imperial.class,
+            CGS.class,
+            ESU.class,
+            EMU.class,
+            Gaussian.class);
 
     @Test
     void baseUnitsAreTheCatalogAndFactoryUnits() {
@@ -52,14 +68,17 @@ class SharedUnitsTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void everySystemUnitIsOneInstance() throws Exception {
         assertEquals(33, QuantityTypes.types().size());
         for (Class<?> type : QuantityTypes.types()) {
             Unit<?> unit = QuantityTypes.factory((Class) type).getSystemUnit();
             String name = type.getSimpleName();
-            assertSame(unit, Class.forName("org.tinygears.uom.quantity." + name + "Factory").getField("SYSTEM_UNIT")
-                    .get(null), name);
+            assertSame(
+                    unit,
+                    Class.forName("org.tinygears.uom.quantity." + name + "Factory").getField("SYSTEM_UNIT")
+                            .get(null),
+                    name);
             assertSame(unit, SI.PREFERRED.get(type), name);
             assertSame(unit, SI.SYSTEM.getUnit((Class) type), name);
         }
@@ -67,7 +86,7 @@ class SharedUnitsTest {
 
     // Resolved by unit equality over the catalog fields, independently of the generator's matching.
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void catalogConstantsEqualToASystemUnitAreThatUnit() throws Exception {
         Set<String> siTypes = new TreeSet<>();
         for (Class<?> catalog : CATALOGS) {
@@ -100,7 +119,7 @@ class SharedUnitsTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void preferredUnitsEqualToASystemUnitAreThatUnit() throws Exception {
         for (Class<?> catalog : CATALOGS) {
             Map<Class<?>, UomUnit<?>> preferred = (Map<Class<?>, UomUnit<?>>) catalog.getField("PREFERRED").get(null);

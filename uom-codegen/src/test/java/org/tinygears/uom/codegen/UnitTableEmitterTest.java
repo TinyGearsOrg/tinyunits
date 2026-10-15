@@ -1,9 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
 import java.nio.file.Path;
@@ -11,13 +16,19 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.core.parse.Definitions;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class UnitTableEmitterTest {
     private static final Map<String, String> SAMPLE = Map.of(
-            "a.units", """
+            "a.units",
+            """
                     @system A
                     m:metre !L
                     s:second !T
@@ -28,7 +39,8 @@ class UnitTableEmitterTest {
                     pm:pi_metre pi|180 m
                     @prefixed m k
                     """,
-            "b.units", """
+            "b.units",
+            """
                     @system B
                     @include a.units
                     @member m km
@@ -38,11 +50,17 @@ class UnitTableEmitterTest {
     private static String sample() {
         Map<String, Definitions> parsed = new LinkedHashMap<>();
         for (String f : List.of("a.units", "b.units")) {
-            parsed.put(f, DefinitionParser.parse(f, new StringReader(SAMPLE.get(f)),
-                    name -> new StringReader(SAMPLE.get(name))));
+            parsed.put(
+                    f,
+                    DefinitionParser.parse(
+                            f,
+                            new StringReader(SAMPLE.get(f)),
+                            name -> new StringReader(SAMPLE.get(name))));
         }
-        List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt",
-                new StringReader("Length m\nTemperature K\n"), parsed.get("a.units"));
+        List<QuantityTypeSpec> types = QuantityTypesParser.parse(
+                "types.txt",
+                new StringReader("Length m\nTemperature K\n"),
+                parsed.get("a.units"));
         return UnitTableEmitter.table(CatalogBuilder.catalogs(parsed, types), types);
     }
 
@@ -105,8 +123,16 @@ class UnitTableEmitterTest {
     @Test
     void realSectionsFollowTheCatalogOrder() {
         List<String> headings = TABLE.lines().filter(l -> l.startsWith("## ") && !l.equals("## Systems")).toList();
-        assertEquals(List.of("## SI", "## USCustomary", "## Imperial", "## CGS", "## ESU", "## EMU", "## Gaussian",
-                "## Information"),
+        assertEquals(
+                List.of(
+                        "## SI",
+                        "## USCustomary",
+                        "## Imperial",
+                        "## CGS",
+                        "## ESU",
+                        "## EMU",
+                        "## Gaussian",
+                        "## Information"),
                 headings);
         assertTrue(TABLE.contains("| [ESU](#esu) | `data/cgs-esu.units` | 22 |\n"), TABLE);
     }
@@ -132,7 +158,8 @@ class UnitTableEmitterTest {
         assertEquals("| `ft` | foot | Length | `0.3048 m` |  |", row("USCustomary", "ft"));
         assertEquals("| `statC` | statcoulomb | ElectricCharge | `1\\|2997924580 C` |  |", row("ESU", "statC"));
         assertEquals("| `°C` | degree Celsius | Temperature | `1 K` | `273.15` |", row("SI", "°C"));
-        assertEquals("| `°F` | degree Fahrenheit | Temperature | `5\\|9 K` | `45967\\|180` |",
+        assertEquals(
+                "| `°F` | degree Fahrenheit | Temperature | `5\\|9 K` | `45967\\|180` |",
                 row("USCustomary", "°F"));
         assertEquals("| `eV` | electronvolt | Energy | `1.602176634e-19 J` |  |", row("SI", "eV"));
         assertEquals("| `keV` | kiloelectronvolt | Energy | `1.602176634e-16 J` |  |", row("SI", "keV"));

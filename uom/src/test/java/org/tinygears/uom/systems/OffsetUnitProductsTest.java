@@ -1,17 +1,27 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import javax.measure.Quantity.Scale;
 import javax.measure.Unit;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Temperature;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Units with an offset take part in products by their factor only (docs/OFFSET-UNITS.md). */
 class OffsetUnitProductsTest {
@@ -51,7 +61,9 @@ class OffsetUnitProductsTest {
         assertEquals(KELVIN_PER_METRE, rise.divide(two).getUnit());
         assertEquals(40.0, two.multiply(rise).getValue().doubleValue(), 1e-12);
         assertEquals(SI.KELVIN.multiply(SI.METRE), two.multiply(rise).getUnit());
-        assertEquals(0.5, Temperature.of(2, SI.DEGREE_CELSIUS, Scale.RELATIVE).inverse().getValue().doubleValue(),
+        assertEquals(
+                0.5,
+                Temperature.of(2, SI.DEGREE_CELSIUS, Scale.RELATIVE).inverse().getValue().doubleValue(),
                 1e-12);
         // An ABSOLUTE quantity is a point: it goes through the offset first (293.15 K).
         Temperature point = Temperature.of(20, SI.DEGREE_CELSIUS);
@@ -67,8 +79,11 @@ class OffsetUnitProductsTest {
         assertEquals(0, new BigDecimal("10").compareTo((BigDecimal) rise.divide(two).getValue()));
         assertEquals(KELVIN_PER_METRE, rise.divide(two).getUnit());
         assertEquals(0, new BigDecimal("40").compareTo((BigDecimal) two.multiply(rise).getValue()));
-        assertEquals(0, new BigDecimal("0.5").compareTo((BigDecimal) Temperature
-                .of(new BigDecimal("2"), SI.DEGREE_CELSIUS, Scale.RELATIVE).inverse().getValue()));
+        assertEquals(
+                0,
+                new BigDecimal("0.5").compareTo(
+                        (BigDecimal) Temperature
+                                .of(new BigDecimal("2"), SI.DEGREE_CELSIUS, Scale.RELATIVE).inverse().getValue()));
         Temperature point = Temperature.of(new BigDecimal("20"), SI.DEGREE_CELSIUS);
         assertEquals(0, new BigDecimal("146.575").compareTo((BigDecimal) point.divide(two).getValue()));
         assertEquals(0, new BigDecimal("586.3").compareTo((BigDecimal) two.multiply(point).getValue()));

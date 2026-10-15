@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems.initorder;
 
@@ -6,6 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.quantity.LengthFactory;
 import org.tinygears.uom.quantity.QuantityTypes;
@@ -13,8 +22,16 @@ import org.tinygears.uom.systems.SI;
 
 /** Run by {@code InitOrderTest} in a fresh JVM: initialises {@code args[0]} first, then every other class. */
 public final class FirstTouch {
-    public static final List<String> CATALOGS = List.of("SI", "USCustomary", "Imperial", "CGS", "ESU", "EMU",
-            "Gaussian", "UnitSystems", "UomServiceProvider");
+    public static final List<String> CATALOGS = List.of(
+            "SI",
+            "USCustomary",
+            "Imperial",
+            "CGS",
+            "ESU",
+            "EMU",
+            "Gaussian",
+            "UnitSystems",
+            "UomServiceProvider");
 
     private FirstTouch() {
     }

@@ -1,6 +1,20 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.measure.Unit;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,11 +28,6 @@ import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.ONE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.measure.Unit;
-import org.junit.jupiter.api.Test;
 
 class UomUnitTest {
 
@@ -142,7 +151,8 @@ class UomUnitTest {
     @Test
     void dimensionOverflowSurfacesAtConstruction() {
         UnitAtom other = new UnitAtom("m2", UomDimension.LENGTH);
-        assertThrows(ArithmeticException.class,
+        assertThrows(
+                ArithmeticException.class,
                 () -> UomUnit.of(atoms(M, Integer.MAX_VALUE, other, 2), Converters.IDENTITY, null, null));
     }
 }

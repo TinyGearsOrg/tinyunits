@@ -1,6 +1,24 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,15 +31,6 @@ import static org.tinygears.uom.core.Factor.ZERO;
 import static org.tinygears.uom.core.Factor.decimal;
 import static org.tinygears.uom.core.Factor.of;
 import static org.tinygears.uom.core.Factor.ofLong;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import org.junit.jupiter.api.Test;
 
 class FactorTest {
 
@@ -54,7 +63,8 @@ class FactorTest {
 
     @Test
     void piToFiftyDigits() {
-        assertEquals(new BigDecimal("3.1415926535897932384626433832795028841971693993751"),
+        assertEquals(
+                new BigDecimal("3.1415926535897932384626433832795028841971693993751"),
                 PI.decimalValue(new MathContext(50)));
     }
 
@@ -86,22 +96,36 @@ class FactorTest {
         // The sign stays outside the root, and the denominator is made positive.
         assertEquals(Factor.ofLong(-2), Factor.of(BigInteger.valueOf(-4), BigInteger.ONE, 0, 2));
         assertEquals(Factor.of(-3, 2), Factor.of(BigInteger.valueOf(6), BigInteger.valueOf(-4), 0, 1));
-        assertEquals("root index must be positive: 0", assertThrows(IllegalArgumentException.class,
-                () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, 0)).getMessage());
-        assertEquals("division by zero", assertThrows(ArithmeticException.class,
-                () -> Factor.of(BigInteger.ONE, BigInteger.ZERO, 0, 1)).getMessage());
-        assertEquals("factor too large", assertThrows(ArithmeticException.class,
-                () -> Factor.of(BigInteger.TWO.pow(70_000), BigInteger.ONE, 0, 1)).getMessage());
+        assertEquals(
+                "root index must be positive: 0",
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, 0)).getMessage());
+        assertEquals(
+                "division by zero",
+                assertThrows(
+                        ArithmeticException.class,
+                        () -> Factor.of(BigInteger.ONE, BigInteger.ZERO, 0, 1)).getMessage());
+        assertEquals(
+                "factor too large",
+                assertThrows(
+                        ArithmeticException.class,
+                        () -> Factor.of(BigInteger.TWO.pow(70_000), BigInteger.ONE, 0, 1)).getMessage());
     }
 
     @Test
     void powAndRootThrowWhereTheJavadocSays() {
-        assertEquals("exponent 1001 exceeds 1000",
+        assertEquals(
+                "exponent 1001 exceeds 1000",
                 assertThrows(ArithmeticException.class, () -> Factor.ofLong(2).pow(1001)).getMessage());
-        assertEquals("exponent -1001 exceeds 1000",
+        assertEquals(
+                "exponent -1001 exceeds 1000",
                 assertThrows(ArithmeticException.class, () -> Factor.ofLong(2).root(-1001)).getMessage());
-        assertEquals("zeroth root", assertThrows(ArithmeticException.class, () -> Factor.ofLong(2).root(0)).getMessage());
-        assertEquals("even root of a negative number",
+        assertEquals(
+                "zeroth root",
+                assertThrows(ArithmeticException.class, () -> Factor.ofLong(2).root(0)).getMessage());
+        assertEquals(
+                "even root of a negative number",
                 assertThrows(ArithmeticException.class, () -> Factor.ofLong(-4).root(2)).getMessage());
         assertEquals(Factor.ofLong(-2), Factor.ofLong(-8).root(3));
         assertEquals("division by zero", assertThrows(ArithmeticException.class, () -> ZERO.pow(-1)).getMessage());
@@ -128,7 +152,7 @@ class FactorTest {
 
     private static void assertPiValues(List<BigDecimal> reference, int p) {
         MathContext mc = new MathContext(p);
-        Factor[] factors = {PI, PI.pow(2), ofLong(250).divide(PI)};
+        Factor[] factors = { PI, PI.pow(2), ofLong(250).divide(PI) };
         for (int i = 0; i < factors.length; i++) {
             assertEquals(reference.get(i).round(mc), factors[i].decimalValue(mc), factors[i] + " at " + p);
         }
@@ -137,7 +161,8 @@ class FactorTest {
     @Test
     void piCacheBucketsGiveCorrectDigitsInAnyOrder() {
         List<BigDecimal> reference = references(320);
-        List<Integer> ascending = List.of(1, 54, 63, 64, 65, 100, 127, 128, 129, 191, 192, 193, 250, 255, 256, 257, 300);
+        List<Integer> ascending = List
+                .of(1, 54, 63, 64, 65, 100, 127, 128, 129, 191, 192, 193, 250, 255, 256, 257, 300);
         List<Integer> descending = new ArrayList<>(ascending);
         Collections.reverse(descending);
         for (List<Integer> order : List.of(ascending, descending)) {
@@ -147,7 +172,7 @@ class FactorTest {
             }
         }
         // Within one bucket: the larger request first, then the smaller, and the reverse.
-        for (int[] pair : new int[][] {{54, 1}, {1, 54}, {64, 54}, {54, 64}, {65, 128}, {128, 65}}) {
+        for (int[] pair : new int[][] { { 54, 1 }, { 1, 54 }, { 64, 54 }, { 54, 64 }, { 65, 128 }, { 128, 65 } }) {
             Factor.clearPiCache();
             assertPiValues(reference, pair[0]);
             assertPiValues(reference, pair[1]);
@@ -174,8 +199,10 @@ class FactorTest {
     /** Reference pi by Machin's formula, 16 atan(1/5) - 4 atan(1/239). */
     private static BigDecimal machin(int digits) {
         MathContext mc = new MathContext(digits + 10);
-        return atanInverse(5, mc).multiply(BigDecimal.valueOf(16)).subtract(atanInverse(239, mc).multiply(
-                BigDecimal.valueOf(4))).round(new MathContext(digits));
+        return atanInverse(5, mc).multiply(BigDecimal.valueOf(16)).subtract(
+                atanInverse(239, mc).multiply(
+                        BigDecimal.valueOf(4)))
+                .round(new MathContext(digits));
     }
 
     private static BigDecimal atanInverse(int x, MathContext mc) {
@@ -183,7 +210,7 @@ class FactorTest {
         BigDecimal eps = BigDecimal.ONE.movePointLeft(mc.getPrecision());
         BigDecimal power = BigDecimal.ONE.divide(BigDecimal.valueOf(x), mc);
         BigDecimal sum = power;
-        for (int k = 1; ; k++) {
+        for (int k = 1;; k++) {
             power = power.divide(x2, mc);
             BigDecimal term = power.divide(BigDecimal.valueOf(2L * k + 1), mc);
             if (term.compareTo(eps) < 0) {
@@ -196,7 +223,7 @@ class FactorTest {
     @Test
     void piMatchesMachinsFormula() {
         BigDecimal reference = machin(3020);
-        for (int p : new int[] {1, 2, 15, 63, 64, 65, 500, 1000, 3000}) {
+        for (int p : new int[] { 1, 2, 15, 63, 64, 65, 500, 1000, 3000 }) {
             assertEquals(reference.round(new MathContext(p)), PI.decimalValue(new MathContext(p)), "digits " + p);
         }
     }
@@ -205,7 +232,8 @@ class FactorTest {
     void piToTheMaximumContextPrecisionIsFast() {
         // Precision 100000 plus guard digits, as a decimal quantity at the bound of its context needs; 2.5 s alone and
         // 10 to 13 s under load on JDK 21, 0.6 s on JDK 25: the 120 s bound only catches quadratic or worse.
-        BigDecimal pi = assertTimeoutPreemptively(Duration.ofSeconds(120),
+        BigDecimal pi = assertTimeoutPreemptively(
+                Duration.ofSeconds(120),
                 () -> PI.decimalValue(new MathContext(200_100)));
         assertEquals(200_100, pi.precision());
         assertEquals(machin(3000), pi.round(new MathContext(3000)));
@@ -247,8 +275,15 @@ class FactorTest {
 
     @Test
     void partsReconstructTheFactor() {
-        for (Factor f : new Factor[] {of(6, 4), of(-6, 4), PI.divide(ofLong(180)), ofLong(2).root(2),
-                ofLong(-2).multiply(ofLong(2).root(2)), PI.pow(-2).multiply(of(3, 7)).root(3), ZERO, ONE}) {
+        for (Factor f : new Factor[] {
+            of(6, 4),
+            of(-6, 4),
+            PI.divide(ofLong(180)),
+            ofLong(2).root(2),
+            ofLong(-2).multiply(ofLong(2).root(2)),
+            PI.pow(-2).multiply(of(3, 7)).root(3),
+            ZERO,
+            ONE }) {
             Factor magnitude = of(f.numerator().abs(), f.denominator()).multiply(PI.pow(f.piExponent()))
                     .root(f.rootIndex());
             assertEquals(f, f.signum() < 0 ? magnitude.negate() : magnitude);
@@ -276,8 +311,15 @@ class FactorTest {
     @Test
     void partsRoundTrip() {
         Factor huge = Factor.of(BigInteger.ONE, BigInteger.ONE, 1500, 1);
-        for (Factor f : new Factor[] {ZERO, of(6, 4), of(-3, 7), PI.divide(ofLong(180)), ofLong(2).root(2),
-                PI.root(3), ofLong(-8).root(3), huge}) {
+        for (Factor f : new Factor[] {
+            ZERO,
+            of(6, 4),
+            of(-3, 7),
+            PI.divide(ofLong(180)),
+            ofLong(2).root(2),
+            PI.root(3),
+            ofLong(-8).root(3),
+            huge }) {
             Factor g = Factor.of(f.numerator(), f.denominator(), f.piExponent(), f.rootIndex());
             assertEquals(f, g);
             assertEquals(f.hashCode(), g.hashCode());
@@ -298,7 +340,8 @@ class FactorTest {
         assertThrows(IllegalArgumentException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, 0));
         assertThrows(IllegalArgumentException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, -1));
         assertThrows(ArithmeticException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ZERO, 0, 1));
-        assertThrows(ArithmeticException.class,
+        assertThrows(
+                ArithmeticException.class,
                 () -> Factor.of(BigInteger.ONE.shiftLeft(70_000), BigInteger.ONE, 0, 1));
     }
 
@@ -306,7 +349,8 @@ class FactorTest {
     void hugeRootIndexReducesQuicklyWithoutOverflow() {
         BigInteger one = BigInteger.ONE;
         BigInteger three = BigInteger.valueOf(3);
-        Factor f = assertTimeoutPreemptively(Duration.ofSeconds(2),
+        Factor f = assertTimeoutPreemptively(
+                Duration.ofSeconds(2),
                 () -> Factor.of(three, one, 1, Integer.MAX_VALUE));
         assertEquals(Integer.MAX_VALUE, f.rootIndex());
         assertEquals(1, f.piExponent());
@@ -314,7 +358,8 @@ class FactorTest {
         assertEquals(PI, Factor.of(one, one, Integer.MAX_VALUE, Integer.MAX_VALUE));
         Factor g = assertTimeoutPreemptively(Duration.ofSeconds(2), () -> Factor.of(three, one, 0, 1 << 30));
         assertEquals(1 << 30, g.rootIndex());
-        Factor h = assertTimeoutPreemptively(Duration.ofSeconds(2),
+        Factor h = assertTimeoutPreemptively(
+                Duration.ofSeconds(2),
                 () -> Factor.of(BigInteger.valueOf(4), one, 0, 2_147_483_646));
         assertEquals(1_073_741_823, h.rootIndex());
         assertEquals(BigInteger.TWO, h.numerator());
@@ -340,8 +385,11 @@ class FactorTest {
                 assertEquals(ZERO, f);
                 continue;
             }
-            BigInteger[] ref = referenceReduce(n.divide(g).multiply(BigInteger.valueOf(d.signum())),
-                    d.divide(g), k, r);
+            BigInteger[] ref = referenceReduce(
+                    n.divide(g).multiply(BigInteger.valueOf(d.signum())),
+                    d.divide(g),
+                    k,
+                    r);
             assertEquals(ref[0], f.numerator());
             assertEquals(ref[1], f.denominator());
             assertEquals(ref[2].intValue(), f.piExponent());
@@ -363,7 +411,7 @@ class FactorTest {
                 r /= p;
             }
         }
-        return new BigInteger[] {n, d, BigInteger.valueOf(k), BigInteger.valueOf(r)};
+        return new BigInteger[] { n, d, BigInteger.valueOf(k), BigInteger.valueOf(r) };
     }
 
     private static BigInteger refRoot(BigInteger x, int p) {

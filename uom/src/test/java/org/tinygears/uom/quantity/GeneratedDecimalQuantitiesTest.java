@@ -1,8 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.quantity;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,8 +22,12 @@ import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Decimal quantities for every generated type, driven by the {@link QuantityTypes} registry. */
 class GeneratedDecimalQuantitiesTest {
@@ -42,12 +52,12 @@ class GeneratedDecimalQuantitiesTest {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Quantity<?> create(QuantityFactory<?> f, Number n, Unit<?> u) {
         return ((QuantityFactory) f).create(n, u);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Quantity<?> create(QuantityFactory<?> f, Number n, Unit<?> u, Scale s) {
         return ((QuantityFactory) f).create(n, u, s);
     }
@@ -97,7 +107,7 @@ class GeneratedDecimalQuantitiesTest {
             assertEquals(MathContext.DECIMAL128, mc(d));
             assertDecimal(create(f, BigInteger.TEN, u));
             assertEquals(0, BigDecimal.TEN.compareTo((BigDecimal) create(f, BigInteger.TEN, u).getValue()));
-            for (Number n : new Number[] {1.5, 1.5f, 2, 2L}) {
+            for (Number n : new Number[] { 1.5, 1.5f, 2, 2L }) {
                 Quantity<?> q = create(f, n, u);
                 assertDouble(q);
                 assertInstanceOf(typed, q);
@@ -122,8 +132,11 @@ class GeneratedDecimalQuantitiesTest {
     @Test
     void contextIsKept() throws Exception {
         forAllTypes((type, f, u, typed) -> {
-            for (MathContext mc : new MathContext[] {MathContext.DECIMAL32, MathContext.DECIMAL64,
-                MathContext.UNLIMITED, new MathContext(7, java.math.RoundingMode.DOWN)}) {
+            for (MathContext mc : new MathContext[] {
+                MathContext.DECIMAL32,
+                MathContext.DECIMAL64,
+                MathContext.UNLIMITED,
+                new MathContext(7, java.math.RoundingMode.DOWN) }) {
                 Quantity<?> q = ofDecimal(f, ONE_HALF, u, Scale.ABSOLUTE, mc);
                 assertDecimal(q);
                 assertEquals(mc, mc(q));
@@ -166,7 +179,7 @@ class GeneratedDecimalQuantitiesTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void conversionsKeepScaleAndContext() throws Exception {
         forAllTypes((type, f, u, typed) -> {
             MathContext mc = MathContext.DECIMAL32;
@@ -193,8 +206,10 @@ class GeneratedDecimalQuantitiesTest {
 
     /** A system named Test that has {@code unit} for {@code type} only. */
     private static SystemOfUnits system(Class<?> type, Unit<?> unit) {
-        return (SystemOfUnits) Proxy.newProxyInstance(GeneratedDecimalQuantitiesTest.class.getClassLoader(),
-                new Class<?>[] {SystemOfUnits.class}, (p, m, a) -> switch (m.getName()) {
+        return (SystemOfUnits) Proxy.newProxyInstance(
+                GeneratedDecimalQuantitiesTest.class.getClassLoader(),
+                new Class<?>[] { SystemOfUnits.class },
+                (p, m, a) -> switch (m.getName()) {
                     case "getName" -> "Test";
                     case "getUnit" -> a[0] == type ? unit : null;
                     default -> throw new UnsupportedOperationException(m.getName());
@@ -227,8 +242,9 @@ class GeneratedDecimalQuantitiesTest {
         BigDecimal exact = new BigDecimal("1.2345678");
         BigDecimal rounded = new BigDecimal("1.234568");
         forAllTypes((type, f, u, typed) -> {
-            for (Quantity<?> src : new Quantity<?>[] {ofDecimal(f, exact, u, Scale.ABSOLUTE, MathContext.DECIMAL128),
-                create(f, 1.2345678, u)}) {
+            for (Quantity<?> src : new Quantity<?>[] {
+                ofDecimal(f, exact, u, Scale.ABSOLUTE, MathContext.DECIMAL128),
+                create(f, 1.2345678, u) }) {
                 Quantity<?> q = (Quantity<?>) typed.getMethod("toDecimal", MathContext.class)
                         .invoke(src, MathContext.DECIMAL32);
                 assertDecimal(q);
@@ -239,7 +255,7 @@ class GeneratedDecimalQuantitiesTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void compareToDoubleInAnotherUnit() throws Exception {
         forAllTypes((type, f, u, typed) -> {
             Unit big = u.multiply(1000);
@@ -256,13 +272,16 @@ class GeneratedDecimalQuantitiesTest {
             Unit<?> foreign = GeneratedQuantitiesTest.foreignUnit();
             assertThrows(UnconvertibleException.class, () -> create(f, ONE_HALF, foreign));
             assertThrows(UnconvertibleException.class, () -> create(f, 1.5, foreign));
-            assertThrows(UnconvertibleException.class,
+            assertThrows(
+                    UnconvertibleException.class,
                     () -> ofDecimal(f, ONE_HALF, foreign, Scale.ABSOLUTE, MathContext.DECIMAL128));
             assertThrows(NullPointerException.class, () -> create(f, null, u));
-            assertThrows(NullPointerException.class,
+            assertThrows(
+                    NullPointerException.class,
                     () -> ofDecimal(f, null, u, Scale.ABSOLUTE, MathContext.DECIMAL128));
             // The value is checked before the unit.
-            assertThrows(NullPointerException.class,
+            assertThrows(
+                    NullPointerException.class,
                     () -> ofDecimal(f, null, foreign, Scale.ABSOLUTE, MathContext.DECIMAL128));
             assertThrows(NullPointerException.class, () -> create(f, null, foreign));
         });
@@ -273,7 +292,7 @@ class GeneratedDecimalQuantitiesTest {
         forAllTypes((type, f, u, typed) -> {
             Quantity<?> dec = create(f, ONE_HALF, u);
             Quantity<?> dbl = create(f, 2.5, u);
-            for (Quantity<?>[] pair : new Quantity<?>[][] {{dec, dbl}, {dbl, dec}}) {
+            for (Quantity<?>[] pair : new Quantity<?>[][] { { dec, dbl }, { dbl, dec } }) {
                 Quantity<?> sum = typedCall(typed, pair[0], "add", Quantity.class, pair[1]);
                 assertInstanceOf(typed, sum);
                 // F23: the decimal wins in either order.

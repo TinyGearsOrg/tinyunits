@@ -1,6 +1,33 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.parse;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.measure.BinaryPrefix;
+import javax.measure.MetricPrefix;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import org.tinygears.uom.core.Converters;
+import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.core.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,23 +41,6 @@ import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.ONE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.measure.BinaryPrefix;
-import javax.measure.MetricPrefix;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
-import org.tinygears.uom.core.UomUnit;
 
 class DefinitionParserTest {
     private static final String HAPPY = """
@@ -121,7 +131,8 @@ class DefinitionParserTest {
 
     @Test
     void unknownUnit() {
-        fails(BASE.lines().limit(2).map(l -> l + "\n").reduce("", String::concat) + "x:foo bar\n",
+        fails(
+                BASE.lines().limit(2).map(l -> l + "\n").reduce("", String::concat) + "x:foo bar\n",
                 "test.units:3: unknown unit 'bar'");
     }
 
@@ -160,10 +171,11 @@ class DefinitionParserTest {
 
     @Test
     void affineDefinitions() {
-        Definitions d = parse(BASE + "°C:degree_Celsius K = x + 273.15\n"
-                + "°F:degree_fahrenheit °C = (x - 32) * 5|9\n"
-                + "°F2 °C = (x - 32) / 9 * 5\n"
-                + "neg K = -x + 1\n");
+        Definitions d = parse(
+                BASE + "°C:degree_Celsius K = x + 273.15\n"
+                        + "°F:degree_fahrenheit °C = (x - 32) * 5|9\n"
+                        + "°F2 °C = (x - 32) / 9 * 5\n"
+                        + "neg K = -x + 1\n");
         UomUnit<?> degC = find(d, "°C").unit();
         assertEquals(degC.transform(Converters.affine(Factor.of(5, 9), Factor.of(-160, 9))), find(d, "°F").unit());
         assertEquals(find(d, "°F").unit(), find(d, "°F2").unit());
@@ -196,28 +208,39 @@ class DefinitionParserTest {
     @Test
     void includeErrors() {
         fails("@include missing.units\n", "test.units:1: cannot include 'missing.units'");
-        fails("\n@include a.units\n", Map.of("a.units", "@include b.units\n", "b.units", "\n\n@include a.units\n"),
+        fails(
+                "\n@include a.units\n",
+                Map.of("a.units", "@include b.units\n", "b.units", "\n\n@include a.units\n"),
                 "b.units:3: include cycle: a.units -> b.units -> a.units");
         fails("@include a.units\n", Map.of("a.units", BASE + "x:foo bar\n"), "a.units:5: unknown unit 'bar'");
-        DefinitionException e = assertThrows(DefinitionException.class,
+        DefinitionException e = assertThrows(
+                DefinitionException.class,
                 () -> DefinitionParser.parse("t.units", new StringReader("@include a\n"), null));
         assertEquals("t.units:1: cannot include 'a'", e.getMessage());
         assertEquals("t.units", e.source());
         assertEquals(1, e.line());
-        e = assertThrows(DefinitionException.class, () -> DefinitionParser.parse("t.units",
-                new StringReader("@include a\n"), name -> {
-                    throw new IOException("boom");
-                }));
+        e = assertThrows(
+                DefinitionException.class,
+                () -> DefinitionParser.parse(
+                        "t.units",
+                        new StringReader("@include a\n"),
+                        name -> {
+                            throw new IOException("boom");
+                        }));
         assertEquals("t.units:1: cannot include 'a'", e.getMessage());
     }
 
     @Test
     void diamondIncludeOnceInOrder() {
         Map<String, String> files = Map.of(
-                "a", "@include b\n@include c\na1 m\n",
-                "b", "@include d\nb1 m\n",
-                "c", "@include d\nc1 m\n",
-                "d", BASE + "d1 m\n");
+                "a",
+                "@include b\n@include c\na1 m\n",
+                "b",
+                "@include d\nb1 m\n",
+                "c",
+                "@include d\nc1 m\n",
+                "d",
+                BASE + "d1 m\n");
         Definitions d = parse("@include a\ntop m\n", files);
         assertEquals(List.of("m", "kg", "s", "K", "d1", "b1", "c1", "a1", "top"), symbols(d));
         assertEquals("d", find(d, "d1").source());
@@ -280,19 +303,34 @@ class DefinitionParserTest {
         f = AffineFunction.parse("2 * (3 * x + 1.5) / 4 - -1|2");
         assertEquals(Factor.of(3, 2), f.a());
         assertEquals(Factor.of(5, 4), f.b());
-        assertEquals("function is not affine", assertThrows(FormulaException.class,
-                () -> AffineFunction.parse("x * (x + 1)")).getMessage());
-        assertEquals("division by zero", assertThrows(FormulaException.class,
-                () -> AffineFunction.parse("x / (1 - 1)")).getMessage());
-        assertEquals("division by zero", assertThrows(FormulaException.class,
-                () -> AffineFunction.parse("x * 1|0")).getMessage());
+        assertEquals(
+                "function is not affine",
+                assertThrows(
+                        FormulaException.class,
+                        () -> AffineFunction.parse("x * (x + 1)")).getMessage());
+        assertEquals(
+                "division by zero",
+                assertThrows(
+                        FormulaException.class,
+                        () -> AffineFunction.parse("x / (1 - 1)")).getMessage());
+        assertEquals(
+                "division by zero",
+                assertThrows(
+                        FormulaException.class,
+                        () -> AffineFunction.parse("x * 1|0")).getMessage());
         FormulaException e = assertThrows(FormulaException.class, () -> AffineFunction.parse("x + y"));
         assertEquals("unexpected 'y'", e.getMessage());
         assertEquals(5, e.column());
-        assertEquals("missing ')'", assertThrows(FormulaException.class,
-                () -> AffineFunction.parse("(x + 1")).getMessage());
-        assertEquals("function nested too deeply", assertThrows(FormulaException.class,
-                () -> AffineFunction.parse("(".repeat(101) + "x" + ")".repeat(101))).getMessage());
+        assertEquals(
+                "missing ')'",
+                assertThrows(
+                        FormulaException.class,
+                        () -> AffineFunction.parse("(x + 1")).getMessage());
+        assertEquals(
+                "function nested too deeply",
+                assertThrows(
+                        FormulaException.class,
+                        () -> AffineFunction.parse("(".repeat(101) + "x" + ")".repeat(101))).getMessage());
     }
 
     private static final String PREFIX_BASE = BASE + "g:gram 1|1000 kg\nHz:hertz ~ 1/s [Frequency]\n"
@@ -305,9 +343,9 @@ class DefinitionParserTest {
         assertEquals(List.of(new Prefixed("m", List.of("k", "c", "µ"), "test.units", 9)), d.prefixed());
         assertTrue(d.prefixed().get(0).metric());
         assertFalse(d.prefixed().get(0).binary());
-        MetricPrefix[] prefixes = {MetricPrefix.KILO, MetricPrefix.CENTI, MetricPrefix.MICRO};
-        String[] names = {"kilometre", "centimetre", "micrometre"};
-        String[] syms = {"km", "cm", "µm"};
+        MetricPrefix[] prefixes = { MetricPrefix.KILO, MetricPrefix.CENTI, MetricPrefix.MICRO };
+        String[] names = { "kilometre", "centimetre", "micrometre" };
+        String[] syms = { "km", "cm", "µm" };
         for (int i = 0; i < 3; i++) {
             Definition def = find(d, syms[i]);
             assertEquals(names[i], def.name());
@@ -334,8 +372,11 @@ class DefinitionParserTest {
         assertEquals(find(d, "Hz").unit().prefix(MetricPrefix.MEGA), find(d, "MHz").unit());
         assertEquals("kilohertz", khz.name());
         assertNull(khz.alternateOf());
-        assertEquals(List.of(new Prefixed("Hz", List.of("k", "M"), "test.units", 9),
-                new Prefixed("Bq", List.of("k"), "test.units", 10)), d.prefixed());
+        assertEquals(
+                List.of(
+                        new Prefixed("Hz", List.of("k", "M"), "test.units", 9),
+                        new Prefixed("Bq", List.of("k"), "test.units", 10)),
+                d.prefixed());
     }
 
     @Test
@@ -354,7 +395,9 @@ class DefinitionParserTest {
         assertTrue(mixed.binary());
         assertFalse(d.prefixed().get(1).metric());
         assertTrue(d.prefixed().get(1).binary());
-        fails(BASE + "bit:bit ~\n@prefixed bit Ki\n@prefixed Kibit Mi\n", "test.units:7: unit 'Kibit' is already prefixed");
+        fails(
+                BASE + "bit:bit ~\n@prefixed bit Ki\n@prefixed Kibit Mi\n",
+                "test.units:7: unit 'Kibit' is already prefixed");
     }
 
     @Test
@@ -368,7 +411,9 @@ class DefinitionParserTest {
         fails(PREFIX_BASE + "@prefixed m k k\n", "test.units:9: duplicate symbol 'km'");
         // A prefixed unit is not prefixed again (km would give kkm), also if it came from an included file.
         fails(PREFIX_BASE + "@prefixed m k\n@prefixed km M\n", "test.units:10: unit 'km' is already prefixed");
-        fails("@include a\n@prefixed km M\n", Map.of("a", PREFIX_BASE + "@prefixed m k\n"),
+        fails(
+                "@include a\n@prefixed km M\n",
+                Map.of("a", PREFIX_BASE + "@prefixed m k\n"),
                 "test.units:2: unit 'km' is already prefixed");
         fails(PREFIX_BASE + "km 1000 m\n@prefixed m k\n", "test.units:10: duplicate symbol 'km'");
         fails(PREFIX_BASE + "@prefixed m k\nkm 1000 m\n", "test.units:10: duplicate symbol 'km'");
@@ -379,7 +424,8 @@ class DefinitionParserTest {
     void prefixedInIncludedFile() {
         Definitions d = parse("@include a\n@prefixed s m\ntop km\n", Map.of("a", BASE + "@prefixed m k\n"));
         assertEquals(List.of("m", "kg", "s", "K", "km", "ms", "top"), symbols(d));
-        assertEquals(List.of(new Prefixed("m", List.of("k"), "a", 5), new Prefixed("s", List.of("m"), "test.units", 2)),
+        assertEquals(
+                List.of(new Prefixed("m", List.of("k"), "a", 5), new Prefixed("s", List.of("m"), "test.units", 2)),
                 d.prefixed());
         assertEquals("a", find(d, "km").source());
         assertEquals(5, find(d, "km").line());
@@ -448,7 +494,8 @@ class DefinitionParserTest {
 
     @Test
     void extendsInIncludedFileIsNotReported() {
-        Definitions d = parse("@include a\n@extends c\n",
+        Definitions d = parse(
+                "@include a\n@extends c\n",
                 Map.of("a", "@extends b\n", "b", BASE, "c", "c1 m\n"));
         assertEquals(List.of("m", "kg", "s", "K", "c1"), symbols(d));
         assertEquals(List.of(new Extends("c", "test.units", 2)), d.extended());
@@ -466,7 +513,9 @@ class DefinitionParserTest {
     @Test
     void extendsErrors() {
         fails("@extends missing.units\n", "test.units:1: cannot include 'missing.units'");
-        fails("\n@extends a\n", Map.of("a", "@extends b\n", "b", "@include a\n"),
+        fails(
+                "\n@extends a\n",
+                Map.of("a", "@extends b\n", "b", "@include a\n"),
                 "b:1: include cycle: a -> b -> a");
         fails("@extends test.units\n", "test.units:1: include cycle: test.units -> test.units");
         fails("@extends\n", "test.units:1: expected '@extends name'");
@@ -475,10 +524,16 @@ class DefinitionParserTest {
 
     @Test
     void memberDirective() {
-        Definitions d = parse("@include si\n@member cm g s\n@member K\n",
+        Definitions d = parse(
+                "@include si\n@member cm g s\n@member K\n",
                 Map.of("si", PREFIX_BASE + "@prefixed m c\n"));
-        assertEquals(List.of(new Member("cm", "test.units", 2), new Member("g", "test.units", 2),
-                new Member("s", "test.units", 2), new Member("K", "test.units", 3)), d.members());
+        assertEquals(
+                List.of(
+                        new Member("cm", "test.units", 2),
+                        new Member("g", "test.units", 2),
+                        new Member("s", "test.units", 2),
+                        new Member("K", "test.units", 3)),
+                d.members());
         assertEquals(List.of(), parse(BASE).members());
     }
 
@@ -502,10 +557,15 @@ class DefinitionParserTest {
 
     @Test
     void memberFromExtendedFileAndNonAsciiSymbols() {
-        Definitions d = parse("@extends e\n@member Ω °F m\n",
+        Definitions d = parse(
+                "@extends e\n@member Ω °F m\n",
                 Map.of("e", BASE + "Ω:ohm m\n°F:degree_Fahrenheit K = (x + 459.67) * 5|9\n"));
-        assertEquals(List.of(new Member("Ω", "test.units", 2), new Member("°F", "test.units", 2),
-                new Member("m", "test.units", 2)), d.members());
+        assertEquals(
+                List.of(
+                        new Member("Ω", "test.units", 2),
+                        new Member("°F", "test.units", 2),
+                        new Member("m", "test.units", 2)),
+                d.members());
     }
 
     @Test
@@ -515,12 +575,68 @@ class DefinitionParserTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
-        "const", "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally", "float",
-        "for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new",
-        "package", "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
-        "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while", "_", "true",
-        "false", "null", "var", "yield", "record", "sealed", "permits"})
+    @ValueSource(
+        strings = {
+            "abstract",
+            "assert",
+            "boolean",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "class",
+            "const",
+            "continue",
+            "default",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "extends",
+            "final",
+            "finally",
+            "float",
+            "for",
+            "goto",
+            "if",
+            "implements",
+            "import",
+            "instanceof",
+            "int",
+            "interface",
+            "long",
+            "native",
+            "new",
+            "package",
+            "private",
+            "protected",
+            "public",
+            "return",
+            "short",
+            "static",
+            "strictfp",
+            "super",
+            "switch",
+            "synchronized",
+            "this",
+            "throw",
+            "throws",
+            "transient",
+            "try",
+            "void",
+            "volatile",
+            "while",
+            "_",
+            "true",
+            "false",
+            "null",
+            "var",
+            "yield",
+            "record",
+            "sealed",
+            "permits" }
+    )
     void reservedSystemNames(String name) {
         fails("@system " + name + "\n", "test.units:1: invalid system name '" + name + "'");
         assertEquals(name + "1", parse("@system " + name + "1\n").system());
@@ -528,12 +644,20 @@ class DefinitionParserTest {
 
     @Test
     void hugeFactorsAreRejected() {
-        assertTimeoutPreemptively(Duration.ofSeconds(5),
+        assertTimeoutPreemptively(
+                Duration.ofSeconds(5),
                 () -> fails("x ((10^1000)^1000)^100\n", "test.units:1: factor too large"));
     }
 
-    private static final Map<String, UomUnit<?>> KNOWN = Map.of("m", METRE, "km", METRE.prefix(MetricPrefix.KILO),
-            "kg", KILOGRAM, "s", SECOND);
+    private static final Map<String, UomUnit<?>> KNOWN = Map.of(
+            "m",
+            METRE,
+            "km",
+            METRE.prefix(MetricPrefix.KILO),
+            "kg",
+            KILOGRAM,
+            "s",
+            SECOND);
 
     private static Definitions known(String text) {
         return DefinitionParser.parse("test.units", new StringReader(text), null, KNOWN::get);
@@ -561,9 +685,13 @@ class DefinitionParserTest {
         knownFails("km 1000 m\n", "test.units:1: symbol 'km' is already defined");
         knownFails("s:second !T\n", "test.units:1: symbol 's' is already defined");
         knownFails("kg ~ m\n", "test.units:1: symbol 'kg' is already defined");
-        DefinitionException e = assertThrows(DefinitionException.class,
-                () -> DefinitionParser.parse("t.units", new StringReader("@include a\n"),
-                        n -> new StringReader("\nx m\nkm m\n"), KNOWN::get));
+        DefinitionException e = assertThrows(
+                DefinitionException.class,
+                () -> DefinitionParser.parse(
+                        "t.units",
+                        new StringReader("@include a\n"),
+                        n -> new StringReader("\nx m\nkm m\n"),
+                        KNOWN::get));
         assertEquals("a:3: symbol 'km' is already defined", e.getMessage());
         assertEquals("a", e.source());
         assertEquals(3, e.line());
@@ -572,8 +700,13 @@ class DefinitionParserTest {
     @Test
     void prefixedSymbolClashingWithAKnownOneIsAnError() {
         Map<String, UomUnit<?>> k = Map.of("m", METRE, "kleague", METRE);
-        DefinitionException e = assertThrows(DefinitionException.class, () -> DefinitionParser.parse("t.units",
-                new StringReader("league 3 m\n@prefixed league M k\n"), null, k::get));
+        DefinitionException e = assertThrows(
+                DefinitionException.class,
+                () -> DefinitionParser.parse(
+                        "t.units",
+                        new StringReader("league 3 m\n@prefixed league M k\n"),
+                        null,
+                        k::get));
         assertEquals("t.units:2: symbol 'kleague' is already defined", e.getMessage());
     }
 
@@ -592,13 +725,15 @@ class DefinitionParserTest {
     @Test
     void preferredOfAKnownSymbolIsAnError() {
         knownFails("a 2 m\n@preferred Length m\n", "test.units:2: unknown unit 'm'");
-        assertEquals(List.of(new Preferred("Length", "a", "test.units", 2)),
+        assertEquals(
+                List.of(new Preferred("Length", "a", "test.units", 2)),
                 known("a 2 m\n@preferred Length a\n").preferred());
     }
 
     @Test
     void knownNullSafety() {
-        assertThrows(NullPointerException.class,
+        assertThrows(
+                NullPointerException.class,
                 () -> DefinitionParser.parse("t.units", new StringReader("a m\n"), null, null));
         List<String> calls = new ArrayList<>();
         known("a 2 m\n");

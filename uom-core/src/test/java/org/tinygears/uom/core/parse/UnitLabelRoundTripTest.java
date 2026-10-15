@@ -1,6 +1,23 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.parse;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,19 +25,30 @@ import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.UomUnit;
-
 class UnitLabelRoundTripTest {
-    private static final List<UomUnit<?>> BASES = List.of(BaseUnits.METRE, BaseUnits.KILOGRAM,
-            BaseUnits.SECOND, BaseUnits.AMPERE, BaseUnits.KELVIN, BaseUnits.MOLE, BaseUnits.CANDELA);
-    private static final Map<String, UomUnit<?>> LOOKUP = Map.of("m", BaseUnits.METRE, "kg", BaseUnits.KILOGRAM,
-            "s", BaseUnits.SECOND, "A", BaseUnits.AMPERE, "K", BaseUnits.KELVIN, "mol", BaseUnits.MOLE,
-            "cd", BaseUnits.CANDELA);
+    private static final List<UomUnit<?>> BASES = List.of(
+            BaseUnits.METRE,
+            BaseUnits.KILOGRAM,
+            BaseUnits.SECOND,
+            BaseUnits.AMPERE,
+            BaseUnits.KELVIN,
+            BaseUnits.MOLE,
+            BaseUnits.CANDELA);
+    private static final Map<String, UomUnit<?>> LOOKUP = Map.of(
+            "m",
+            BaseUnits.METRE,
+            "kg",
+            BaseUnits.KILOGRAM,
+            "s",
+            BaseUnits.SECOND,
+            "A",
+            BaseUnits.AMPERE,
+            "K",
+            BaseUnits.KELVIN,
+            "mol",
+            BaseUnits.MOLE,
+            "cd",
+            BaseUnits.CANDELA);
 
     private static void assertParsesBack(UomUnit<?> u) throws FormulaException {
         assertEquals(u, FormulaEvaluator.evaluate(u.getSymbol(), LOOKUP::get), u.getSymbol());
@@ -60,8 +88,12 @@ class UnitLabelRoundTripTest {
         assertEquals("1/s", BaseUnits.ONE.divide(SECOND).getSymbol());
         assertEquals("s^-1", SECOND.pow(-1).getSymbol());
         assertEquals("m/s^2", METRE.divide(SECOND.pow(2)).getSymbol());
-        for (UomUnit<?> u : List.of(ms.pow(2), METRE.pow(2).multiply(KILOGRAM),
-                KILOGRAM.divide(METRE.multiply(SECOND)), BaseUnits.ONE.divide(SECOND), SECOND.pow(-1),
+        for (UomUnit<?> u : List.of(
+                ms.pow(2),
+                METRE.pow(2).multiply(KILOGRAM),
+                KILOGRAM.divide(METRE.multiply(SECOND)),
+                BaseUnits.ONE.divide(SECOND),
+                SECOND.pow(-1),
                 METRE.divide(SECOND.pow(2)))) {
             assertParsesBack(u);
         }

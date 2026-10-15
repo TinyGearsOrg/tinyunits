@@ -1,6 +1,23 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.contract;
+
+import java.math.BigDecimal;
+import java.util.List;
+import javax.measure.UnitConverter;
+
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.core.Converters;
+import org.tinygears.uom.core.Factor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,21 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KELVIN;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 
-import java.math.BigDecimal;
-import java.util.List;
-import javax.measure.UnitConverter;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
-
 /** Each test states one clause of the unit-api 2.2 {@link UnitConverter} Javadoc. */
 class UnitConverterContractTest {
 
     private static final UnitConverter TIMES_TWO = Converters.scale(Factor.ofLong(2));
     private static final UnitConverter TIMES_THREE = Converters.scale(Factor.ofLong(3));
     private static final UnitConverter PLUS_TEN = Converters.shift(Factor.ofLong(10));
-    private static final UnitConverter FAHRENHEIT_TO_KELVIN =
-            Converters.affine(Factor.of(5, 9), Factor.of(45967, 180));
+    private static final UnitConverter FAHRENHEIT_TO_KELVIN = Converters.affine(Factor.of(5, 9), Factor.of(45967, 180));
 
     @Test
     void identityReturnsItsArgumentAndIsLinear() {
@@ -56,7 +65,7 @@ class UnitConverterContractTest {
 
     @Test
     void inverseUndoesConvert() {
-        for (double x : new double[] {-40.0, 0.0, 32.0, 212.0, 1e6}) {
+        for (double x : new double[] { -40.0, 0.0, 32.0, 212.0, 1e6 }) {
             assertEquals(x, FAHRENHEIT_TO_KELVIN.inverse().convert(FAHRENHEIT_TO_KELVIN.convert(x)), 1e-9);
         }
         assertEquals(233.15, FAHRENHEIT_TO_KELVIN.convert(-40.0), 1e-12);

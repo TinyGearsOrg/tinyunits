@@ -1,9 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -16,9 +21,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.systems.initorder.FirstTouch;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Each catalog and factory, touched first in a fresh JVM, initialises without a cycle (SI -> factories only). */
 class InitOrderTest {
@@ -50,8 +60,14 @@ class InitOrderTest {
     // namespaces that share /tmp can get the same PID, collide on its hsperfdata file and print a warning.
     private static String run(String name) throws Exception {
         Path log = Files.createTempFile("initorder", ".log");
-        Process p = new ProcessBuilder(JAVA, "-XX:TieredStopAtLevel=1", "-XX:-UsePerfData", "-cp",
-                System.getProperty("java.class.path"), FirstTouch.class.getName(), name)
+        Process p = new ProcessBuilder(
+                JAVA,
+                "-XX:TieredStopAtLevel=1",
+                "-XX:-UsePerfData",
+                "-cp",
+                System.getProperty("java.class.path"),
+                FirstTouch.class.getName(),
+                name)
                 .redirectErrorStream(true).redirectOutput(log.toFile()).start();
         try {
             assertTrue(p.waitFor(60, TimeUnit.SECONDS), name + " did not finish");

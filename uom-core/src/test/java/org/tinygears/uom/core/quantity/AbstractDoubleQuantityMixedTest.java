@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,16 +17,24 @@ import java.math.RoundingMode;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AbstractDoubleQuantityMixedTest {
 
     private static final UomUnit<Length> METRE = BaseUnits.METRE;
     private static final UomUnit<Length> KILOMETRE = BaseUnits.METRE.multiply(1000);
-    private static final UomUnit<Length> CELSIUS =
-            UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
+    private static final UomUnit<Length> CELSIUS = UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
     private static final UomUnit<Length> KELVIN = UomUnit.unchecked(BaseUnits.KELVIN);
 
     private static TestLengthImpl d(double value, UomUnit<Length> unit) {
@@ -52,7 +61,10 @@ class AbstractDoubleQuantityMixedTest {
         assertDecimal("1001.5", d(1.5, METRE).add(q("1", KILOMETRE)));
         assertDecimal("276.15", d(2, CELSIUS).add(q("1", CELSIUS)));
         // The result takes the decimal operand's context.
-        TestLengthDecimalImpl five = new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.ABSOLUTE,
+        TestLengthDecimalImpl five = new TestLengthDecimalImpl(
+                BigDecimal.ONE,
+                METRE,
+                Quantity.Scale.ABSOLUTE,
                 new MathContext(5));
         Quantity<Length> rounded = d(1.0 / 3, METRE).add(five);
         assertDecimal("1.3333", rounded);
@@ -157,13 +169,19 @@ class AbstractDoubleQuantityMixedTest {
     @Test
     void untypedProductsWithDecimalOperandAreDecimal() {
         UomUnit<?> secondUnit = BaseUnits.SECOND;
-        Quantity<?> product = d(2, METRE).multiply(UntypedDecimalQuantity.of(new BigDecimal("3"), METRE,
-                MathContext.DECIMAL128));
+        Quantity<?> product = d(2, METRE).multiply(
+                UntypedDecimalQuantity.of(
+                        new BigDecimal("3"),
+                        METRE,
+                        MathContext.DECIMAL128));
         assertInstanceOf(UntypedDecimalQuantity.class, product);
         assertDecimal("6", product);
         assertEquals(METRE.multiply(METRE), product.getUnit());
-        Quantity<?> quotient = d(10, METRE).divide(UntypedDecimalQuantity.of(new BigDecimal("4"), secondUnit,
-                MathContext.DECIMAL128));
+        Quantity<?> quotient = d(10, METRE).divide(
+                UntypedDecimalQuantity.of(
+                        new BigDecimal("4"),
+                        secondUnit,
+                        MathContext.DECIMAL128));
         assertInstanceOf(UntypedDecimalQuantity.class, quotient);
         assertDecimal("2.5", quotient);
         assertEquals(METRE.divide(secondUnit), quotient.getUnit());
@@ -181,14 +199,22 @@ class AbstractDoubleQuantityMixedTest {
         assertEquals(q("0.1", METRE), decimal);
         assertSame(MathContext.DECIMAL128, decimal.mathContext());
         assertSame(METRE, decimal.getUnit());
-        assertSame(Quantity.Scale.RELATIVE, new TestLengthImpl(1.5, METRE, Quantity.Scale.RELATIVE)
-                .toDecimal(MathContext.DECIMAL64).getScale());
-        assertEquals(new BigDecimal("0.3333333"), ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
-                .toDecimal(MathContext.DECIMAL32)).getValue());
-        assertSame(MathContext.DECIMAL32, ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
-                .toDecimal(MathContext.DECIMAL32)).mathContext());
-        assertSame(MathContext.DECIMAL64, ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
-                .toDecimal(MathContext.DECIMAL64)).mathContext());
+        assertSame(
+                Quantity.Scale.RELATIVE,
+                new TestLengthImpl(1.5, METRE, Quantity.Scale.RELATIVE)
+                        .toDecimal(MathContext.DECIMAL64).getScale());
+        assertEquals(
+                new BigDecimal("0.3333333"),
+                ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
+                        .toDecimal(MathContext.DECIMAL32)).getValue());
+        assertSame(
+                MathContext.DECIMAL32,
+                ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
+                        .toDecimal(MathContext.DECIMAL32)).mathContext());
+        assertSame(
+                MathContext.DECIMAL64,
+                ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
+                        .toDecimal(MathContext.DECIMAL64)).mathContext());
         MathContext five = new MathContext(5, RoundingMode.HALF_UP);
         TestLengthDecimalImpl rounded = (TestLengthDecimalImpl) d(2.000049, METRE).toDecimal(five);
         assertSame(five, rounded.mathContext());
@@ -198,9 +224,11 @@ class AbstractDoubleQuantityMixedTest {
     @Test
     void toDecimalOfNonFiniteThrows() {
         assertThrows(ArithmeticException.class, () -> d(Double.NaN, METRE).toDecimal(MathContext.DECIMAL128));
-        assertThrows(ArithmeticException.class,
+        assertThrows(
+                ArithmeticException.class,
                 () -> d(Double.POSITIVE_INFINITY, METRE).toDecimal(MathContext.DECIMAL128));
-        assertThrows(ArithmeticException.class,
+        assertThrows(
+                ArithmeticException.class,
                 () -> d(Double.NEGATIVE_INFINITY, METRE).toDecimal(MathContext.DECIMAL128));
     }
 
@@ -213,7 +241,9 @@ class AbstractDoubleQuantityMixedTest {
 
     @Test
     void fixturesImplementTheDecimalHook() {
-        Quantity<Speed> speed = new TestSpeedImpl(3, UomUnit.unchecked(METRE.divide(BaseUnits.SECOND)),
+        Quantity<Speed> speed = new TestSpeedImpl(
+                3,
+                UomUnit.unchecked(METRE.divide(BaseUnits.SECOND)),
                 Quantity.Scale.ABSOLUTE).toDecimal(MathContext.DECIMAL64);
         assertInstanceOf(TestSpeedDecimalImpl.class, speed);
         Quantity<?> untyped = UntypedDoubleQuantity.of(1.5, METRE).toDecimal(MathContext.DECIMAL32);
@@ -222,7 +252,9 @@ class AbstractDoubleQuantityMixedTest {
         assertSame(MathContext.DECIMAL32, decimal.mathContext());
         assertSame(MathContext.DECIMAL64, ((TestSpeedDecimalImpl) speed).mathContext());
         MathContext five = new MathContext(5, RoundingMode.HALF_UP);
-        assertSame(five, ((UntypedDecimalQuantity) UntypedDoubleQuantity.of(1.5, METRE).toDecimal(five))
-                .mathContext());
+        assertSame(
+                five,
+                ((UntypedDecimalQuantity) UntypedDoubleQuantity.of(1.5, METRE).toDecimal(five))
+                        .mathContext());
     }
 }

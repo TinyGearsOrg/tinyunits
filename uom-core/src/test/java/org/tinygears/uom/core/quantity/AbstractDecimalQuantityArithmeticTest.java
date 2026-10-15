@@ -1,14 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
@@ -22,26 +22,35 @@ import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class AbstractDecimalQuantityArithmeticTest {
 
     private static final UomUnit<Length> METRE = BaseUnits.METRE;
     private static final UomUnit<Length> KILOMETRE = BaseUnits.METRE.multiply(1000);
-    private static final UomUnit<Length> CELSIUS =
-            UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
+    private static final UomUnit<Length> CELSIUS = UomUnit.unchecked(BaseUnits.KELVIN.shift(new BigDecimal("273.15")));
     private static final UomUnit<Length> KELVIN = UomUnit.unchecked(BaseUnits.KELVIN);
     private static final UomUnit<Length> INCH = BaseUnits.METRE.multiply(new BigDecimal("0.0254"));
-    private static final UomUnit<Length> FAHRENHEIT =
-            UomUnit.unchecked(BaseUnits.KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67")));
+    private static final UomUnit<Length> FAHRENHEIT = UomUnit
+            .unchecked(BaseUnits.KELVIN.multiply(5).divide(9).shift(new BigDecimal("459.67")));
     private static final UomUnit<Length> MINUS_2_5_M = BaseUnits.METRE.multiply(new BigDecimal("-2.5"));
-    private static final UomUnit<Length> MINUS_2_K_SHIFTED =
-            UomUnit.unchecked(BaseUnits.KELVIN.multiply(-2).shift(new BigDecimal("7.5")));
+    private static final UomUnit<Length> MINUS_2_K_SHIFTED = UomUnit
+            .unchecked(BaseUnits.KELVIN.multiply(-2).shift(new BigDecimal("7.5")));
     private static final UomUnit<Length> PI_M = UomUnit.unchecked(METRE.scaledBy(Factor.PI));
     private static final MathContext UNLIMITED = MathContext.UNLIMITED;
 
@@ -103,7 +112,10 @@ class AbstractDecimalQuantityArithmeticTest {
         assertEquals(new BigDecimal("0.75"), q("3", METRE).multiply(0.25).getValue());
         assertEquals(new BigDecimal("0.3"), q("3", METRE).multiply(0.1f).getValue());
         assertEquals(new BigDecimal("2.2"), q("2", METRE).multiply(new BigDecimal("1.1")).getValue());
-        assertDecimal("2.2", METRE, MathContext.DECIMAL32,
+        assertDecimal(
+                "2.2",
+                METRE,
+                MathContext.DECIMAL32,
                 q("2", METRE, MathContext.DECIMAL32).multiply(new BigDecimal("1.1")));
         assertThrows(ArithmeticException.class, () -> q("2", METRE).multiply(Double.NaN));
         assertThrows(ArithmeticException.class, () -> q("2", METRE).multiply(Double.POSITIVE_INFINITY));
@@ -112,7 +124,10 @@ class AbstractDecimalQuantityArithmeticTest {
     @Test
     void scalarAdoptsTheReceiverContext() {
         assertDecimal("2.469", METRE, new MathContext(4), q("1.2345", METRE, new MathContext(4)).multiply(2));
-        assertDecimal("1.235", METRE, new MathContext(4),
+        assertDecimal(
+                "1.235",
+                METRE,
+                new MathContext(4),
                 q("1", METRE, new MathContext(4)).multiply(new BigDecimal("1.2345")));
     }
 
@@ -120,8 +135,13 @@ class AbstractDecimalQuantityArithmeticTest {
     void exactOperandsStayExact() {
         BigInteger huge = BigInteger.TEN.pow(400);
         assertDecimal("2e400", METRE, UNLIMITED, q("2", METRE, UNLIMITED).multiply(huge));
-        assertDecimal("1", METRE, UNLIMITED, q("2e400", METRE, UNLIMITED).divide(new BigDecimal(huge).multiply(
-                BigDecimal.valueOf(2))));
+        assertDecimal(
+                "1",
+                METRE,
+                UNLIMITED,
+                q("2e400", METRE, UNLIMITED).divide(
+                        new BigDecimal(huge).multiply(
+                                BigDecimal.valueOf(2))));
         assertDecimal("9007199254740993", METRE, q("0", METRE).add(new Foreign<>(9007199254740993L, METRE)));
         assertDecimal("1e400", METRE, UNLIMITED, q("0", METRE, UNLIMITED).add(new Foreign<>(huge, METRE)));
     }
@@ -171,9 +191,15 @@ class AbstractDecimalQuantityArithmeticTest {
 
     @Test
     void foreignDecimalCountsAsUnlimited() {
-        assertDecimal("3.5", METRE, MathContext.DECIMAL64,
+        assertDecimal(
+                "3.5",
+                METRE,
+                MathContext.DECIMAL64,
                 q("1.5", METRE, MathContext.DECIMAL64).add(new Foreign<>(new BigDecimal("2"), METRE)));
-        assertDecimal("3.5", METRE, UNLIMITED,
+        assertDecimal(
+                "3.5",
+                METRE,
+                UNLIMITED,
                 q("1.5", METRE, UNLIMITED).add(new Foreign<>(new BigDecimal("2"), METRE)));
     }
 
@@ -197,16 +223,24 @@ class AbstractDecimalQuantityArithmeticTest {
         Quantity<Length> r = q("1.2345678", METRE, MathContext.DECIMAL32).add(q("0", METRE));
         assertEquals(new BigDecimal("1.234568"), r.getValue());
         assertEquals(7, ((BigDecimal) r.getValue()).precision());
-        assertEquals(new BigDecimal("1.234568"), q("0", METRE).add(q("1.2345678", METRE, MathContext.DECIMAL32))
-                .getValue());
+        assertEquals(
+                new BigDecimal("1.234568"),
+                q("0", METRE).add(q("1.2345678", METRE, MathContext.DECIMAL32))
+                        .getValue());
     }
 
     @Test
     void scaleIsKept() {
         TestLengthDecimalImpl relative = new TestLengthDecimalImpl(
-                BigDecimal.ONE, KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128);
+                BigDecimal.ONE,
+                KILOMETRE,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL128);
         TestLengthDecimalImpl delta = new TestLengthDecimalImpl(
-                BigDecimal.ONE, METRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128);
+                BigDecimal.ONE,
+                METRE,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL128);
         assertSame(Quantity.Scale.RELATIVE, relative.add(delta).getScale());
         assertSame(Quantity.Scale.RELATIVE, relative.subtract(delta).getScale());
         assertSame(Quantity.Scale.RELATIVE, relative.multiply(2).getScale());
@@ -254,8 +288,10 @@ class AbstractDecimalQuantityArithmeticTest {
         assertEquals(-1, q("999.999", METRE).compareTo(q("1", KILOMETRE)));
         assertEquals(0, q("2", CELSIUS).compareTo(q("275.15", KELVIN)));
         assertEquals(0, q("1.0", METRE).compareTo(q("1.00", METRE)));
-        assertEquals(1, q("1.000000000000000000000000000000000000001", METRE, UNLIMITED)
-                .compareTo(q("1", METRE, UNLIMITED)));
+        assertEquals(
+                1,
+                q("1.000000000000000000000000000000000000001", METRE, UNLIMITED)
+                        .compareTo(q("1", METRE, UNLIMITED)));
         assertEquals(1, q("2", METRE).compareTo(new Foreign<>(1, METRE)));
     }
 
@@ -316,14 +352,21 @@ class AbstractDecimalQuantityArithmeticTest {
     @Test
     void addAndSubtractRoundOnce() {
         // Exact: 1 - 39.37008 * 0.0254 = -3.2E-8.
-        assertDecimal("-3.2E-8", METRE, MathContext.DECIMAL32,
+        assertDecimal(
+                "-3.2E-8",
+                METRE,
+                MathContext.DECIMAL32,
                 q("1", METRE, MathContext.DECIMAL32).subtract(q("39.37008", INCH)));
         TestLengthDecimalImpl p7 = q("1.2345678", METRE, new MathContext(7));
         TestLengthDecimalImpl p34 = q("1.2345674", METRE, MathContext.DECIMAL128);
         assertDecimal("4E-7", METRE, new MathContext(7), p7.subtract(p34));
         assertDecimal("-4E-7", METRE, new MathContext(7), p34.subtract(p7));
-        assertDecimal("7.2E+14", METRE, new MathContext(7), q("-987666759108827382456942", METRE, new MathContext(7))
-                .subtract(q("-987666759828827382456942", METRE, MathContext.DECIMAL64)));
+        assertDecimal(
+                "7.2E+14",
+                METRE,
+                new MathContext(7),
+                q("-987666759108827382456942", METRE, new MathContext(7))
+                        .subtract(q("-987666759828827382456942", METRE, MathContext.DECIMAL64)));
     }
 
     @Test
@@ -331,8 +374,10 @@ class AbstractDecimalQuantityArithmeticTest {
         assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
             assertDecimal("1E+99999", METRE, q("1e99999", METRE).add(q("1", METRE)));
             assertDecimal("1E+99999", KILOMETRE, q("1e99999", KILOMETRE).add(q("1e-99999", METRE)));
-            assertEquals(100_000, ((BigDecimal) q("1e99999", METRE, UNLIMITED).add(q("1", METRE, UNLIMITED))
-                    .getValue()).precision());
+            assertEquals(
+                    100_000,
+                    ((BigDecimal) q("1e99999", METRE, UNLIMITED).add(q("1", METRE, UNLIMITED))
+                            .getValue()).precision());
             assertEquals(1, q("1e99999", CELSIUS).compareTo(q("1e-99999", KELVIN)));
             assertDecimal("2E+99999", CELSIUS, q("1e99999", CELSIUS).multiply(2));
         });
@@ -356,14 +401,21 @@ class AbstractDecimalQuantityArithmeticTest {
         UomUnit<Length> piOver180 = UomUnit.unchecked(
                 METRE.scaledBy(Factor.PI.divide(Factor.ofLong(180))));
         assertDecimal("4.141592653589793238462643383279503", METRE, q("1", METRE).add(q("180", piOver180)));
-        assertDecimal("4.141592653589793238462643383279503", METRE, UNLIMITED,
+        assertDecimal(
+                "4.141592653589793238462643383279503",
+                METRE,
+                UNLIMITED,
                 q("1", METRE, UNLIMITED).add(q("180", piOver180, UNLIMITED)));
         assertDecimal("360", piOver180, q("180", piOver180).add(q("180", piOver180)));
         // pi = 3.14159265358979323846264338327950288419716...
-        assertEquals(1, q("3.1415926535897932384626433832795028842", METRE, UNLIMITED)
-                .compareTo(q("180", piOver180, UNLIMITED)));
-        assertEquals(-1, q("3.1415926535897932384626433832795028841", METRE, UNLIMITED)
-                .compareTo(q("180", piOver180, UNLIMITED)));
+        assertEquals(
+                1,
+                q("3.1415926535897932384626433832795028842", METRE, UNLIMITED)
+                        .compareTo(q("180", piOver180, UNLIMITED)));
+        assertEquals(
+                -1,
+                q("3.1415926535897932384626433832795028841", METRE, UNLIMITED)
+                        .compareTo(q("180", piOver180, UNLIMITED)));
     }
 
     @Test
@@ -371,9 +423,14 @@ class AbstractDecimalQuantityArithmeticTest {
         // pi = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803...
         String pi34 = "3.141592653589793238462643383279503";
         String pi70 = "3.141592653589793238462643383279502884197169399375105820974944592307816";
-        assertDecimal("-1.158028306006248941790250554076922E-34", METRE,
+        assertDecimal(
+                "-1.158028306006248941790250554076922E-34",
+                METRE,
                 q("-" + pi34, METRE).add(q("1", PI_M)));
-        assertDecimal("-1.158028306006248941790250554076922E-34", METRE, UNLIMITED,
+        assertDecimal(
+                "-1.158028306006248941790250554076922E-34",
+                METRE,
+                UNLIMITED,
                 q("-" + pi34, METRE, UNLIMITED).add(q("1", PI_M, UNLIMITED)));
         assertDecimal("4.062862089986280348253421170679821E-70", METRE, q("-" + pi70, METRE).add(q("1", PI_M)));
         assertEquals(-1, q(pi70, METRE).compareTo(q("1", PI_M)));
@@ -391,7 +448,8 @@ class AbstractDecimalQuantityArithmeticTest {
         UomConverter toKelvin = MINUS_2_K_SHIFTED.getConverterTo(KELVIN);
         BigDecimal one = toKelvin.convert(BigDecimal.ONE, MathContext.DECIMAL128);
         assertEquals(0, q("1", MINUS_2_K_SHIFTED).compareTo(q(one.toPlainString(), KELVIN)));
-        assertEquals(-Integer.signum(one.compareTo(BigDecimal.ZERO)),
+        assertEquals(
+                -Integer.signum(one.compareTo(BigDecimal.ZERO)),
                 q("0", KELVIN).compareTo(q("1", MINUS_2_K_SHIFTED)));
     }
 
@@ -427,12 +485,13 @@ class AbstractDecimalQuantityArithmeticTest {
         assertFalse(q("999999", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1000001", METRE)));
     }
 
-    private static final List<BigDecimal> OUT_OF_SCALE =
-            List.of(new BigDecimal("1e-20000000"), new BigDecimal("1e+20000000"));
+    private static final List<BigDecimal> OUT_OF_SCALE = List
+            .of(new BigDecimal("1e-20000000"), new BigDecimal("1e+20000000"));
 
     /** {@code e} throws the scale-bound ArithmeticException for {@code v} within a second. */
     private static void assertScaleOutOfRange(BigDecimal v, Executable e) {
-        ArithmeticException x = assertTimeoutPreemptively(Duration.ofSeconds(1),
+        ArithmeticException x = assertTimeoutPreemptively(
+                Duration.ofSeconds(1),
                 () -> assertThrows(ArithmeticException.class, e));
         assertEquals("scale out of range: " + v.scale(), x.getMessage());
     }
@@ -509,18 +568,31 @@ class AbstractDecimalQuantityArithmeticTest {
     /** Add, subtract, compareTo and scalars against an exact rational reference of the literal rule, correctly rounded. */
     @Test
     void correctlyRoundedAgainstExactReference() {
-        List<List<UomUnit<Length>>> groups = List.of(List.of(KILOMETRE, METRE, INCH, MINUS_2_5_M),
+        List<List<UomUnit<Length>>> groups = List.of(
+                List.of(KILOMETRE, METRE, INCH, MINUS_2_5_M),
                 List.of(KELVIN, CELSIUS, FAHRENHEIT, MINUS_2_K_SHIFTED));
-        RoundingMode[] modes = {RoundingMode.HALF_UP, RoundingMode.HALF_EVEN, RoundingMode.HALF_DOWN,
-            RoundingMode.UP, RoundingMode.DOWN, RoundingMode.CEILING, RoundingMode.FLOOR};
+        RoundingMode[] modes = {
+            RoundingMode.HALF_UP,
+            RoundingMode.HALF_EVEN,
+            RoundingMode.HALF_DOWN,
+            RoundingMode.UP,
+            RoundingMode.DOWN,
+            RoundingMode.CEILING,
+            RoundingMode.FLOOR };
         Random random = new Random(20261012);
         for (int i = 0; i < 20_000; i++) {
             List<UomUnit<Length>> group = groups.get(random.nextInt(2));
             UomUnit<Length> ua = group.get(random.nextInt(group.size()));
             UomUnit<Length> ub = group.get(random.nextInt(group.size()));
-            TestLengthDecimalImpl a = new TestLengthDecimalImpl(randomDecimal(random), ua, Quantity.Scale.ABSOLUTE,
+            TestLengthDecimalImpl a = new TestLengthDecimalImpl(
+                    randomDecimal(random),
+                    ua,
+                    Quantity.Scale.ABSOLUTE,
                     randomContext(random, modes));
-            TestLengthDecimalImpl b = new TestLengthDecimalImpl(randomDecimal(random), ub, Quantity.Scale.ABSOLUTE,
+            TestLengthDecimalImpl b = new TestLengthDecimalImpl(
+                    randomDecimal(random),
+                    ub,
+                    Quantity.Scale.ABSOLUTE,
                     randomContext(random, modes));
             BigDecimal s = randomDecimal(random);
             MathContext mc = Precision.lower(a.mathContext(), b.mathContext());
@@ -562,7 +634,8 @@ class AbstractDecimalQuantityArithmeticTest {
             assertEquals(0, expected.compareTo(r), () -> what + ": expected " + expected + " got " + r);
         } catch (ArithmeticException nonTerminating) {
             BigDecimal expected = n.divide(d, MathContext.DECIMAL128);
-            assertTrue(expected.subtract(r).abs().compareTo(expected.ulp()) <= 0,
+            assertTrue(
+                    expected.subtract(r).abs().compareTo(expected.ulp()) <= 0,
                     () -> what + ": expected " + expected + " got " + r);
         }
     }
@@ -570,7 +643,8 @@ class AbstractDecimalQuantityArithmeticTest {
     /** An exact rational n/d, d > 0. */
     private record Rat(BigInteger n, BigInteger d) {
         static Rat of(BigDecimal x) {
-            return x.scale() >= 0 ? new Rat(x.unscaledValue(), BigInteger.TEN.pow(x.scale()))
+            return x.scale() >= 0
+                    ? new Rat(x.unscaledValue(), BigInteger.TEN.pow(x.scale()))
                     : new Rat(x.unscaledValue().multiply(BigInteger.TEN.pow(-x.scale())), BigInteger.ONE);
         }
 
@@ -599,33 +673,76 @@ class AbstractDecimalQuantityArithmeticTest {
         }
 
         Rat divide(Rat o) {
-            return o.n.signum() < 0 ? new Rat(n.multiply(o.d).negate(), d.multiply(o.n).negate())
+            return o.n.signum() < 0
+                    ? new Rat(n.multiply(o.d).negate(), d.multiply(o.n).negate())
                     : new Rat(n.multiply(o.d), d.multiply(o.n));
         }
     }
 
     @SuppressWarnings("unchecked")
     private static Unit<Length> foreignUnit() {
-        return (Unit<Length>) Proxy.newProxyInstance(AbstractDecimalQuantityArithmeticTest.class.getClassLoader(),
-                new Class<?>[] {Unit.class}, (p, m, a) -> null);
+        return (Unit<Length>) Proxy.newProxyInstance(
+                AbstractDecimalQuantityArithmeticTest.class.getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> null);
     }
 
     /** A Quantity from another implementation carrying any Number. */
     private record Foreign<Q extends Quantity<Q>>(Number value, Unit<Q> unit) implements Quantity<Q> {
-        @Override public Number getValue() { return value; }
-        @Override public Unit<Q> getUnit() { return unit; }
-        @Override public Scale getScale() { return Scale.ABSOLUTE; }
-        @Override public Quantity<Q> add(Quantity<Q> addend) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Q> subtract(Quantity<Q> s) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<?> divide(Quantity<?> divisor) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Q> divide(Number divisor) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<?> multiply(Quantity<?> m) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Q> multiply(Number m) { throw new UnsupportedOperationException(); }
-        @Override public Quantity<?> inverse() { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Q> negate() { throw new UnsupportedOperationException(); }
-        @Override public Quantity<Q> to(Unit<Q> u) { throw new UnsupportedOperationException(); }
-        @Override public boolean isEquivalentTo(Quantity<Q> that) { throw new UnsupportedOperationException(); }
-        @Override public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
+        @Override
+        public Number getValue() {
+            return value;
+        }
+        @Override
+        public Unit<Q> getUnit() {
+            return unit;
+        }
+        @Override
+        public Scale getScale() {
+            return Scale.ABSOLUTE;
+        }
+        @Override
+        public Quantity<Q> add(Quantity<Q> addend) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Q> subtract(Quantity<Q> s) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<?> divide(Quantity<?> divisor) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Q> divide(Number divisor) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<?> multiply(Quantity<?> m) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Q> multiply(Number m) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<?> inverse() {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Q> negate() {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public Quantity<Q> to(Unit<Q> u) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public boolean isEquivalentTo(Quantity<Q> that) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public <T extends Quantity<T>> Quantity<T> asType(Class<T> type) {
             throw new UnsupportedOperationException();
         }
     }

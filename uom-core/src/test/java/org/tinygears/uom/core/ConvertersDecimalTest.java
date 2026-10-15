@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.tinygears.uom.core.BaseUnits.METRE;
-import static org.tinygears.uom.core.Converters.affine;
-import static org.tinygears.uom.core.Factor.of;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,12 +17,20 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.Random;
 import javax.measure.quantity.Length;
+
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.tinygears.uom.core.BaseUnits.METRE;
+import static org.tinygears.uom.core.Converters.affine;
+import static org.tinygears.uom.core.Factor.of;
 
 class ConvertersDecimalTest {
 
-    private static final UomUnit<Length> KILOMETRE =
-            UomUnit.of(METRE.atoms(), Converters.scale(Factor.ofLong(1000)), "km", "kilometre");
+    private static final UomUnit<Length> KILOMETRE = UomUnit
+            .of(METRE.atoms(), Converters.scale(Factor.ofLong(1000)), "km", "kilometre");
     private static final UomConverter F_TO_C = affine(of(5, 9), of(-160, 9));
 
     private static BigDecimal fast(UomConverter c, String value, MathContext mc) {
@@ -38,11 +47,17 @@ class ConvertersDecimalTest {
     @Test
     void hugeScaleFahrenheitToCelsius() {
         assertEquals(new BigDecimal("-17.77777777777778"), fast(F_TO_C, "1e-20000000", MathContext.DECIMAL64));
-        assertEquals(new BigDecimal("-17.77777777777777"), fast(F_TO_C, "1e-20000000",
-                new MathContext(16, RoundingMode.CEILING)));
-        assertEquals(new BigDecimal("5.555555555555556E+19999999"),
+        assertEquals(
+                new BigDecimal("-17.77777777777777"),
+                fast(
+                        F_TO_C,
+                        "1e-20000000",
+                        new MathContext(16, RoundingMode.CEILING)));
+        assertEquals(
+                new BigDecimal("5.555555555555556E+19999999"),
                 fast(F_TO_C, "1e+20000000", MathContext.DECIMAL64));
-        assertEquals(new BigDecimal("5.555555555555555E+19999999"),
+        assertEquals(
+                new BigDecimal("5.555555555555555E+19999999"),
                 fast(F_TO_C, "1e+20000000", new MathContext(16, RoundingMode.DOWN)));
     }
 
@@ -59,23 +74,31 @@ class ConvertersDecimalTest {
         UomConverter plusOne = affine(Factor.ONE, Factor.ONE);
         UomConverter plusHalf5 = affine(Factor.ONE, Factor.decimal("2.5"));
         String[][] cases = {
-            {"2.5e100", "HALF_EVEN", "3E+100"}, {"2.5e100", "HALF_DOWN", "3E+100"},
-            {"-2.5e100", "HALF_EVEN", "-2E+100"}, {"-2.5e100", "HALF_UP", "-2E+100"},
-            {"-2.5e100", "FLOOR", "-3E+100"}, {"2.5e100", "DOWN", "2E+100"},
+            { "2.5e100", "HALF_EVEN", "3E+100" },
+            { "2.5e100", "HALF_DOWN", "3E+100" },
+            { "-2.5e100", "HALF_EVEN", "-2E+100" },
+            { "-2.5e100", "HALF_UP", "-2E+100" },
+            { "-2.5e100", "FLOOR", "-3E+100" },
+            { "2.5e100", "DOWN", "2E+100" },
         };
         for (String[] t : cases) {
             MathContext mc = new MathContext(1, RoundingMode.valueOf(t[1]));
             assertEquals(new BigDecimal(t[2]), fast(plusOne, t[0], mc), () -> String.join(" ", t));
         }
         String[][] small = {
-            {"1e-200", "HALF_EVEN", "3"}, {"1e-200", "HALF_DOWN", "3"}, {"-1e-200", "HALF_UP", "2"},
-            {"-1e-200", "HALF_EVEN", "2"}, {"1e-200", "FLOOR", "2"}, {"-1e-200", "CEILING", "3"},
+            { "1e-200", "HALF_EVEN", "3" },
+            { "1e-200", "HALF_DOWN", "3" },
+            { "-1e-200", "HALF_UP", "2" },
+            { "-1e-200", "HALF_EVEN", "2" },
+            { "1e-200", "FLOOR", "2" },
+            { "-1e-200", "CEILING", "3" },
         };
         for (String[] t : small) {
             MathContext mc = new MathContext(1, RoundingMode.valueOf(t[1]));
             assertEquals(new BigDecimal(t[2]), fast(plusHalf5, t[0], mc), () -> String.join(" ", t));
         }
-        assertThrows(ArithmeticException.class,
+        assertThrows(
+                ArithmeticException.class,
                 () -> plusOne.convert(new BigDecimal("2.5e100"), new MathContext(2, RoundingMode.UNNECESSARY)));
     }
 
@@ -83,15 +106,17 @@ class ConvertersDecimalTest {
     void stickyDigitStaysBelowBothGuardBounds() {
         // The offset's last digit is one unit below a rounding boundary: a sticky digit at that unit lands on it.
         BigInteger n = new BigInteger("111706672390044947752674" + "9".repeat(78));
-        UomConverter lastDigit =
-                affine(Factor.ofLong(-2503), of(n, BigInteger.valueOf(5).multiply(BigInteger.TEN.pow(56))));
+        UomConverter lastDigit = affine(
+                Factor.ofLong(-2503),
+                of(n, BigInteger.valueOf(5).multiply(BigInteger.TEN.pow(56))));
         MathContext down = new MathContext(34, RoundingMode.DOWN);
         BigDecimal v = new BigDecimal("-7.3820565E-114");
         assertEquals(reference(lastDigit.factor(), lastDigit.offset(), v, down), lastDigit.convert(v, down));
         assertEquals(new BigDecimal("2.234133447800898955053499999999999E+44"), lastDigit.convert(v, down));
         // The rounding grid of the quotient sits digits(490309) below the numerator's leading digit.
         UomConverter divisor = affine(of(1, 490309), Factor.ofLong(-1));
-        assertEquals(new BigDecimal("1E+97"),
+        assertEquals(
+                new BigDecimal("1E+97"),
                 divisor.convert(new BigDecimal("4.658E+102"), new MathContext(1, RoundingMode.HALF_UP)));
     }
 
@@ -104,11 +129,13 @@ class ConvertersDecimalTest {
             boolean tie = r.nextBoolean();
             int fd = 1 + r.nextInt(r.nextBoolean() ? 20 : 100_000);
             Factor f = tie ? of(1, fd) : of(nonZero(r, 1_000_000), 1 + r.nextInt(1_000_000));
-            Factor o = r.nextInt(8) == 0 ? Factor.ZERO
+            Factor o = r.nextInt(8) == 0
+                    ? Factor.ZERO
                     : tie ? Factor.ofLong(nonZero(r, 1000)) : of(nonZero(r, 1_000_000_000), 1 + r.nextInt(10_000));
             BigInteger unscaled;
             if (tie) {
-                BigInteger digits = BigInteger.TEN.pow(p - 1).add(new BigInteger(p * 4, r).mod(BigInteger.TEN.pow(p - 1)));
+                BigInteger digits = BigInteger.TEN.pow(p - 1)
+                        .add(new BigInteger(p * 4, r).mod(BigInteger.TEN.pow(p - 1)));
                 unscaled = digits.multiply(BigInteger.TEN).add(BigInteger.valueOf(5)).multiply(BigInteger.valueOf(fd))
                         .multiply(BigInteger.TEN.pow(r.nextInt(20))).divide(BigInteger.TEN.pow(r.nextInt(4)))
                         .add(BigInteger.valueOf(r.nextInt(3) - 1));

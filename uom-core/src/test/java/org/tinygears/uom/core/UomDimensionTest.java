@@ -1,6 +1,18 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
+
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -9,9 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.UomDimension.LENGTH;
 import static org.tinygears.uom.core.UomDimension.NONE;
 import static org.tinygears.uom.core.UomDimension.TIME;
-
-import java.util.Map;
-import org.junit.jupiter.api.Test;
 
 class UomDimensionTest {
 
@@ -55,11 +64,21 @@ class UomDimensionTest {
     @Test
     void foreignDimensionIsConvertedThroughBaseDimensions() {
         javax.measure.Dimension foreign = new javax.measure.Dimension() {
-            public javax.measure.Dimension multiply(javax.measure.Dimension m) { throw new UnsupportedOperationException(); }
-            public javax.measure.Dimension divide(javax.measure.Dimension d) { throw new UnsupportedOperationException(); }
-            public javax.measure.Dimension pow(int n) { throw new UnsupportedOperationException(); }
-            public javax.measure.Dimension root(int n) { throw new UnsupportedOperationException(); }
-            public Map<? extends javax.measure.Dimension, Integer> getBaseDimensions() { return Map.of(TIME, 1); }
+            public javax.measure.Dimension multiply(javax.measure.Dimension m) {
+                throw new UnsupportedOperationException();
+            }
+            public javax.measure.Dimension divide(javax.measure.Dimension d) {
+                throw new UnsupportedOperationException();
+            }
+            public javax.measure.Dimension pow(int n) {
+                throw new UnsupportedOperationException();
+            }
+            public javax.measure.Dimension root(int n) {
+                throw new UnsupportedOperationException();
+            }
+            public Map<? extends javax.measure.Dimension, Integer> getBaseDimensions() {
+                return Map.of(TIME, 1);
+            }
         };
         assertEquals(LENGTH.multiply(TIME), LENGTH.multiply(foreign));
     }
@@ -69,11 +88,21 @@ class UomDimensionTest {
 
     private static javax.measure.Dimension foreign(Map<javax.measure.Dimension, Integer> base) {
         return new javax.measure.Dimension() {
-            public javax.measure.Dimension multiply(javax.measure.Dimension m) { throw new UnsupportedOperationException(); }
-            public javax.measure.Dimension divide(javax.measure.Dimension d) { throw new UnsupportedOperationException(); }
-            public javax.measure.Dimension pow(int n) { throw new UnsupportedOperationException(); }
-            public javax.measure.Dimension root(int n) { throw new UnsupportedOperationException(); }
-            public Map<? extends javax.measure.Dimension, Integer> getBaseDimensions() { return base; }
+            public javax.measure.Dimension multiply(javax.measure.Dimension m) {
+                throw new UnsupportedOperationException();
+            }
+            public javax.measure.Dimension divide(javax.measure.Dimension d) {
+                throw new UnsupportedOperationException();
+            }
+            public javax.measure.Dimension pow(int n) {
+                throw new UnsupportedOperationException();
+            }
+            public javax.measure.Dimension root(int n) {
+                throw new UnsupportedOperationException();
+            }
+            public Map<? extends javax.measure.Dimension, Integer> getBaseDimensions() {
+                return base;
+            }
         };
     }
 

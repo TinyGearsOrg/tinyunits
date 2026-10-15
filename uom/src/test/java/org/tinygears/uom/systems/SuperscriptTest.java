@@ -1,21 +1,31 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.measure.Unit;
+import javax.measure.format.MeasurementParseException;
+
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.quantity.Speed;
+import org.tinygears.uom.quantity.Time;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-import javax.measure.Unit;
-import javax.measure.format.MeasurementParseException;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.quantity.Speed;
-import org.tinygears.uom.quantity.Time;
 
 /** Formulas read superscript exponents; a format writes them on request, ASCII exponents by default. */
 class SuperscriptTest {
@@ -43,7 +53,8 @@ class SuperscriptTest {
         assertThrows(MeasurementParseException.class, () -> ASCII.parse("x²"));
         assertThrows(MeasurementParseException.class, () -> ASCII.parse("s⁻"));
         assertThrows(MeasurementParseException.class, () -> ASCII.parse("²"));
-        assertEquals("exponent 9999 exceeds 1000",
+        assertEquals(
+                "exponent 9999 exceeds 1000",
                 assertThrows(MeasurementParseException.class, () -> ASCII.parse("m⁹⁹⁹⁹")).getMessage());
     }
 
@@ -100,7 +111,7 @@ class SuperscriptTest {
         int checked = 0;
         for (UomSystemOfUnits system : UnitSystems.all()) {
             for (Unit<?> known : system.getUnits()) {
-                for (int n : new int[] {-3, -2, 2, 3, 10}) {
+                for (int n : new int[] { -3, -2, 2, 3, 10 }) {
                     UomUnit<?> unit;
                     try {
                         unit = ((UomUnit<?>) known).pow(n);

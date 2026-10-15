@@ -1,8 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.quantity;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -15,11 +21,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import javax.measure.Quantity;
-import javax.measure.Unit;
 import javax.measure.UnconvertibleException;
+import javax.measure.Unit;
 import javax.measure.spi.ServiceProvider;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.UomUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GeneratedQuantitiesTest {
 
@@ -34,8 +44,10 @@ class GeneratedQuantitiesTest {
 
     @SuppressWarnings("unchecked")
     static <Q extends Quantity<Q>> Unit<Q> foreignUnit() {
-        return (Unit<Q>) Proxy.newProxyInstance(GeneratedQuantitiesTest.class.getClassLoader(),
-                new Class<?>[] {Unit.class}, (p, m, a) -> {
+        return (Unit<Q>) Proxy.newProxyInstance(
+                GeneratedQuantitiesTest.class.getClassLoader(),
+                new Class<?>[] { Unit.class },
+                (p, m, a) -> {
                     if (m.getName().equals("toString")) {
                         return "foreign";
                     }
@@ -73,16 +85,19 @@ class GeneratedQuantitiesTest {
         assertEquals(typed, add.getReturnType());
         var param = assertInstanceOf(java.lang.reflect.ParameterizedType.class, add.getGenericParameterTypes()[0]);
         assertEquals(Quantity.class, param.getRawType());
-        assertArrayEquals(new Object[] {javaxType}, param.getActualTypeArguments());
+        assertArrayEquals(new Object[] { javaxType }, param.getActualTypeArguments());
     }
 
     @Test
     void temperatureOffsets() {
         assertEquals(373.15, Temperature.of(100, CELSIUS).to(KELVIN).getValue().doubleValue(), 1e-12);
-        assertTrue(Temperature.of(2, CELSIUS).add(Temperature.of(2, KELVIN))
-                .isEquivalentTo(Temperature.of(4, CELSIUS)));
+        assertTrue(
+                Temperature.of(2, CELSIUS).add(Temperature.of(2, KELVIN))
+                        .isEquivalentTo(Temperature.of(4, CELSIUS)));
         // Javadoc rule applied literally: 275.15 K + 274.15 K = 549.3 K = 276.15 degC
-        assertEquals(276.15, Temperature.of(2, CELSIUS).add(Temperature.of(1, CELSIUS)).getValue().doubleValue(),
+        assertEquals(
+                276.15,
+                Temperature.of(2, CELSIUS).add(Temperature.of(1, CELSIUS)).getValue().doubleValue(),
                 1e-12);
     }
 
@@ -96,14 +111,14 @@ class GeneratedQuantitiesTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void alternateUnits() {
         Frequency freq = Frequency.of(2, HZ);
         assertEquals(2.0, Radioactivity.of(2, BQ).getValue().doubleValue());
         assertNotEquals(HZ, BQ);
         // asType goes by dimension, which Hz and Bq share; the unit is kept.
-        Quantity<javax.measure.quantity.Radioactivity> asBecquerel =
-                freq.asType(javax.measure.quantity.Radioactivity.class);
+        Quantity<javax.measure.quantity.Radioactivity> asBecquerel = freq
+                .asType(javax.measure.quantity.Radioactivity.class);
         assertEquals(2.0, asBecquerel.getValue().doubleValue());
         assertEquals(HZ, asBecquerel.getUnit());
         assertTrue(asBecquerel instanceof Radioactivity);
@@ -127,8 +142,10 @@ class GeneratedQuantitiesTest {
     void negativeZeroOrdersByTheSystemUnitValue() {
         // Double.compare puts -0.0 below 0.0, so 0 m is greater than -0 m; 0 degC and -0 degC are both 273.15 K.
         assertTrue(Length.of(0.0, METRE).compareTo(Length.of(-0.0, METRE)) > 0);
-        assertEquals(0, Temperature.of(0.0, org.tinygears.uom.systems.SI.DEGREE_CELSIUS)
-                .compareTo(Temperature.of(-0.0, org.tinygears.uom.systems.SI.DEGREE_CELSIUS)));
+        assertEquals(
+                0,
+                Temperature.of(0.0, org.tinygears.uom.systems.SI.DEGREE_CELSIUS)
+                        .compareTo(Temperature.of(-0.0, org.tinygears.uom.systems.SI.DEGREE_CELSIUS)));
         assertTrue(Length.of(0.0, METRE).isEquivalentTo(Length.of(-0.0, METRE)));
         assertNotEquals(Length.of(0.0, METRE), Length.of(-0.0, METRE));
     }
@@ -193,8 +210,10 @@ class GeneratedQuantitiesTest {
     // Fresh loaders, so the first touch of a generated class really is the one under test.
     @Test
     void staticInitOrder() throws Exception {
-        URL[] urls = {codeSource(Length.class), codeSource(org.tinygears.uom.core.quantity.AbstractDoubleQuantity.class),
-            codeSource(Unit.class)};
+        URL[] urls = {
+            codeSource(Length.class),
+            codeSource(org.tinygears.uom.core.quantity.AbstractDoubleQuantity.class),
+            codeSource(Unit.class) };
         try (Loader l = new Loader(urls)) {
             assertNull(l.loaded("org.tinygears.uom.quantity.QuantityTypes"));
             assertNull(l.loaded("org.tinygears.uom.quantity.Length"));

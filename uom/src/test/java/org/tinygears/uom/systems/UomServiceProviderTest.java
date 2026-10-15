@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -18,24 +19,58 @@ import javax.measure.Quantity;
 import javax.measure.quantity.*;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
+
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Time;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UomServiceProviderTest {
     interface Unsupported extends Quantity<Unsupported> {
     }
 
     private static final List<Class<? extends Quantity<?>>> TYPES = List.of(
-            Acceleration.class, AmountOfSubstance.class, Angle.class, Area.class, CatalyticActivity.class,
-            Dimensionless.class, ElectricCapacitance.class, ElectricCharge.class, ElectricConductance.class,
-            ElectricCurrent.class, ElectricInductance.class, ElectricPotential.class, ElectricResistance.class,
-            Energy.class, Force.class, Frequency.class, Illuminance.class, javax.measure.quantity.Length.class,
-            LuminousFlux.class, LuminousIntensity.class, MagneticFlux.class, MagneticFluxDensity.class,
-            Mass.class, Power.class, Pressure.class, RadiationDoseAbsorbed.class, RadiationDoseEffective.class,
-            Radioactivity.class, SolidAngle.class, Speed.class, Temperature.class,
-            javax.measure.quantity.Time.class, Volume.class);
+            Acceleration.class,
+            AmountOfSubstance.class,
+            Angle.class,
+            Area.class,
+            CatalyticActivity.class,
+            Dimensionless.class,
+            ElectricCapacitance.class,
+            ElectricCharge.class,
+            ElectricConductance.class,
+            ElectricCurrent.class,
+            ElectricInductance.class,
+            ElectricPotential.class,
+            ElectricResistance.class,
+            Energy.class,
+            Force.class,
+            Frequency.class,
+            Illuminance.class,
+            javax.measure.quantity.Length.class,
+            LuminousFlux.class,
+            LuminousIntensity.class,
+            MagneticFlux.class,
+            MagneticFluxDensity.class,
+            Mass.class,
+            Power.class,
+            Pressure.class,
+            RadiationDoseAbsorbed.class,
+            RadiationDoseEffective.class,
+            Radioactivity.class,
+            SolidAngle.class,
+            Speed.class,
+            Temperature.class,
+            javax.measure.quantity.Time.class,
+            Volume.class);
 
     @Test
     void currentIsOursAndListedOnce() {
@@ -66,7 +101,7 @@ class UomServiceProviderTest {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void check(Class type) {
         QuantityFactory f = ServiceProvider.current().getQuantityFactory(type);
         assertNotNull(f, type.getName());
@@ -79,14 +114,18 @@ class UomServiceProviderTest {
 
     @Test
     void unsupportedType() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> ServiceProvider.current().getQuantityFactory(Unsupported.class));
     }
 
     @Test
     void speedEndToEnd() {
         Quantity<Speed> v = Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR)).asType(Speed.class);
-        assertEquals(10.0, v.to(UomUnitFormat.standard().parse("m/s").asType(Speed.class)).getValue().doubleValue(), 1e-12);
+        assertEquals(
+                10.0,
+                v.to(UomUnitFormat.standard().parse("m/s").asType(Speed.class)).getValue().doubleValue(),
+                1e-12);
     }
 
     @Test

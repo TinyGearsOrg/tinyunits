@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -24,8 +25,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
@@ -35,6 +38,13 @@ import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Extends;
 import org.tinygears.uom.core.parse.Member;
 import org.tinygears.uom.core.parse.Preferred;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CgsDataTest {
     private static final Path DATA = Path.of("../data");
@@ -61,13 +71,16 @@ class CgsDataTest {
             specs = QuantityTypesParser.parse("quantity-types.txt", in, parsed.get(CGS));
         }
         for (String file : FILES) {
-            entries.put(file, CatalogBuilder.build(parsed.get(file), specs).stream()
-                    .collect(Collectors.toMap(e -> e.definition().symbol(), Function.identity())));
+            entries.put(
+                    file,
+                    CatalogBuilder.build(parsed.get(file), specs).stream()
+                            .collect(Collectors.toMap(e -> e.definition().symbol(), Function.identity())));
         }
     }
 
     private static Definitions parse(String file) throws IOException {
-        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(DATA.resolve(name),
+        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(
+                DATA.resolve(name),
                 StandardCharsets.UTF_8);
         try (Reader in = resolver.open(file)) {
             return DefinitionParser.parse(file, in, resolver);
@@ -86,8 +99,11 @@ class CgsDataTest {
     }
 
     private static Factor pow10(int n) {
-        return n >= 0 ? Factor.of(BigInteger.TEN.pow(n), BigInteger.ONE) : Factor.of(BigInteger.ONE,
-                BigInteger.TEN.pow(-n));
+        return n >= 0
+                ? Factor.of(BigInteger.TEN.pow(n), BigInteger.ONE)
+                : Factor.of(
+                        BigInteger.ONE,
+                        BigInteger.TEN.pow(-n));
     }
 
     private static void assertFactor(String symbol, UomUnit<?> system, Factor factor) {
@@ -183,14 +199,14 @@ class CgsDataTest {
     @Test
     void prefixedUnits() {
         Map<String, Object[]> expected = new LinkedHashMap<>();
-        expected.put("cP", new Object[] {"centipoise", pow10(-3), null});
-        expected.put("mP", new Object[] {"millipoise", pow10(-4), null});
-        expected.put("cSt", new Object[] {"centistokes", pow10(-6), null});
-        expected.put("mGal", new Object[] {"milligalileo", pow10(-5), "Acceleration"});
-        expected.put("µGal", new Object[] {"microgalileo", pow10(-8), "Acceleration"});
-        expected.put("mG", new Object[] {"milligauss", pow10(-7), "MagneticFluxDensity"});
-        expected.put("µG", new Object[] {"microgauss", pow10(-10), "MagneticFluxDensity"});
-        expected.put("nG", new Object[] {"nanogauss", pow10(-13), "MagneticFluxDensity"});
+        expected.put("cP", new Object[] { "centipoise", pow10(-3), null });
+        expected.put("mP", new Object[] { "millipoise", pow10(-4), null });
+        expected.put("cSt", new Object[] { "centistokes", pow10(-6), null });
+        expected.put("mGal", new Object[] { "milligalileo", pow10(-5), "Acceleration" });
+        expected.put("µGal", new Object[] { "microgalileo", pow10(-8), "Acceleration" });
+        expected.put("mG", new Object[] { "milligauss", pow10(-7), "MagneticFluxDensity" });
+        expected.put("µG", new Object[] { "microgauss", pow10(-10), "MagneticFluxDensity" });
+        expected.put("nG", new Object[] { "nanogauss", pow10(-13), "MagneticFluxDensity" });
         expected.forEach((symbol, e) -> {
             String base = symbol.substring(1);
             assertFactor(symbol, unit(base), (Factor) e[1]);
@@ -201,16 +217,28 @@ class CgsDataTest {
 
     @Test
     void types() {
-        Map<String, String> expected = Map.ofEntries(Map.entry("dyn", "Force"), Map.entry("erg", "Energy"),
-                Map.entry("Ba", "Pressure"), Map.entry("Gal", "Acceleration"), Map.entry("cm²", "Area"),
-                Map.entry("cm³", "Volume"), Map.entry("statC", "ElectricCharge"),
-                Map.entry("statA", "ElectricCurrent"), Map.entry("statV", "ElectricPotential"),
-                Map.entry("statΩ", "ElectricResistance"), Map.entry("statF", "ElectricCapacitance"),
-                Map.entry("statH", "ElectricInductance"), Map.entry("abC", "ElectricCharge"),
-                Map.entry("abA", "ElectricCurrent"), Map.entry("abV", "ElectricPotential"),
-                Map.entry("abΩ", "ElectricResistance"), Map.entry("abF", "ElectricCapacitance"),
-                Map.entry("abH", "ElectricInductance"), Map.entry("G", "MagneticFluxDensity"),
-                Map.entry("Mx", "MagneticFlux"), Map.entry("Gb", "ElectricCurrent"),
+        Map<String, String> expected = Map.ofEntries(
+                Map.entry("dyn", "Force"),
+                Map.entry("erg", "Energy"),
+                Map.entry("Ba", "Pressure"),
+                Map.entry("Gal", "Acceleration"),
+                Map.entry("cm²", "Area"),
+                Map.entry("cm³", "Volume"),
+                Map.entry("statC", "ElectricCharge"),
+                Map.entry("statA", "ElectricCurrent"),
+                Map.entry("statV", "ElectricPotential"),
+                Map.entry("statΩ", "ElectricResistance"),
+                Map.entry("statF", "ElectricCapacitance"),
+                Map.entry("statH", "ElectricInductance"),
+                Map.entry("abC", "ElectricCharge"),
+                Map.entry("abA", "ElectricCurrent"),
+                Map.entry("abV", "ElectricPotential"),
+                Map.entry("abΩ", "ElectricResistance"),
+                Map.entry("abF", "ElectricCapacitance"),
+                Map.entry("abH", "ElectricInductance"),
+                Map.entry("G", "MagneticFluxDensity"),
+                Map.entry("Mx", "MagneticFlux"),
+                Map.entry("Gb", "ElectricCurrent"),
                 Map.entry("Fr", "ElectricCharge"));
         expected.forEach((symbol, type) -> assertEquals(type, entry(symbol).quantityType(), symbol));
         for (String untyped : List.of("P", "St", "Oe")) {
@@ -221,15 +249,32 @@ class CgsDataTest {
 
     @Test
     void names() {
-        Map<String, String> expected = Map.ofEntries(Map.entry("dyn", "dyne"), Map.entry("erg", "erg"),
-                Map.entry("Ba", "barye"), Map.entry("Gal", "galileo"), Map.entry("cm²", "square centimetre"),
-                Map.entry("cm³", "cubic centimetre"), Map.entry("P", "poise"), Map.entry("St", "stokes"),
-                Map.entry("statC", "statcoulomb"), Map.entry("statA", "statampere"), Map.entry("statV", "statvolt"),
-                Map.entry("statΩ", "statohm"), Map.entry("statF", "statfarad"), Map.entry("statH", "stathenry"),
-                Map.entry("abA", "abampere"), Map.entry("abC", "abcoulomb"), Map.entry("abV", "abvolt"),
-                Map.entry("abΩ", "abohm"), Map.entry("abF", "abfarad"), Map.entry("abH", "abhenry"),
-                Map.entry("G", "gauss"), Map.entry("Mx", "maxwell"), Map.entry("Oe", "oersted"),
-                Map.entry("Gb", "gilbert"), Map.entry("Fr", "franklin"));
+        Map<String, String> expected = Map.ofEntries(
+                Map.entry("dyn", "dyne"),
+                Map.entry("erg", "erg"),
+                Map.entry("Ba", "barye"),
+                Map.entry("Gal", "galileo"),
+                Map.entry("cm²", "square centimetre"),
+                Map.entry("cm³", "cubic centimetre"),
+                Map.entry("P", "poise"),
+                Map.entry("St", "stokes"),
+                Map.entry("statC", "statcoulomb"),
+                Map.entry("statA", "statampere"),
+                Map.entry("statV", "statvolt"),
+                Map.entry("statΩ", "statohm"),
+                Map.entry("statF", "statfarad"),
+                Map.entry("statH", "stathenry"),
+                Map.entry("abA", "abampere"),
+                Map.entry("abC", "abcoulomb"),
+                Map.entry("abV", "abvolt"),
+                Map.entry("abΩ", "abohm"),
+                Map.entry("abF", "abfarad"),
+                Map.entry("abH", "abhenry"),
+                Map.entry("G", "gauss"),
+                Map.entry("Mx", "maxwell"),
+                Map.entry("Oe", "oersted"),
+                Map.entry("Gb", "gilbert"),
+                Map.entry("Fr", "franklin"));
         Map<String, String> actual = new HashMap<>();
         for (Definition d : parsed.get(GAUSSIAN).definitions()) {
             if (FILES.contains(d.source()) && !isPrefixed(d)) {
@@ -242,8 +287,9 @@ class CgsDataTest {
     }
 
     private static boolean isPrefixed(Definition d) {
-        return parsed.get(GAUSSIAN).prefixed().stream().anyMatch(p -> p.source().equals(d.source())
-                && p.line() == d.line());
+        return parsed.get(GAUSSIAN).prefixed().stream().anyMatch(
+                p -> p.source().equals(d.source())
+                        && p.line() == d.line());
     }
 
     @Test
@@ -266,8 +312,21 @@ class CgsDataTest {
             assertEquals(constants.size(), new HashSet<>(constants).size(), constants.toString());
             constants.forEach(c -> assertTrue(SourceVersion.isName(c), c));
         }
-        Map<String, String> names = Map.of("statΩ", "STATOHM", "abΩ", "ABOHM", "cm²", "SQUARE_CENTIMETRE",
-                "cm³", "CUBIC_CENTIMETRE", "Gal", "GALILEO", "Fr", "FRANKLIN", "µG", "MICROGAUSS");
+        Map<String, String> names = Map.of(
+                "statΩ",
+                "STATOHM",
+                "abΩ",
+                "ABOHM",
+                "cm²",
+                "SQUARE_CENTIMETRE",
+                "cm³",
+                "CUBIC_CENTIMETRE",
+                "Gal",
+                "GALILEO",
+                "Fr",
+                "FRANKLIN",
+                "µG",
+                "MICROGAUSS");
         names.forEach((symbol, constant) -> assertEquals(constant, entry(symbol).constantName(), symbol));
     }
 
@@ -299,7 +358,8 @@ class CgsDataTest {
         assertEquals(List.of("cm", "g", "s"), parsed.get(CGS).members().stream().map(Member::symbol).toList());
         assertEquals(List.of(), parsed.get(ESU).members());
         assertEquals(List.of(), parsed.get(EMU).members());
-        assertEquals(List.of("G", "Mx", "Oe", "Gb"),
+        assertEquals(
+                List.of("G", "Mx", "Oe", "Gb"),
                 parsed.get(GAUSSIAN).members().stream().map(Member::symbol).toList());
         assertTrue(entries.get(GAUSSIAN).containsKey("abA"), "cgs-emu.units is included");
         assertFalse(entries.get(ESU).containsKey("abA"));
@@ -308,8 +368,22 @@ class CgsDataTest {
         Set<String> cgs = new HashSet<>(own(CGS));
         cgs.addAll(List.of("cm", "g", "s"));
         assertEquals(cgs, members(CGS));
-        assertTrue(own(CGS).containsAll(List.of("dyn", "erg", "Ba", "Gal", "cm²", "cm³", "P", "St", "cP", "mP",
-                "cSt", "mGal", "µGal")));
+        assertTrue(
+                own(CGS).containsAll(
+                        List.of(
+                                "dyn",
+                                "erg",
+                                "Ba",
+                                "Gal",
+                                "cm²",
+                                "cm³",
+                                "P",
+                                "St",
+                                "cP",
+                                "mP",
+                                "cSt",
+                                "mGal",
+                                "µGal")));
         Set<String> esu = new HashSet<>(cgs);
         esu.addAll(List.of("statC", "statA", "statV", "statΩ", "statF", "statH"));
         assertEquals(esu, members(ESU));
@@ -337,22 +411,65 @@ class CgsDataTest {
 
     @Test
     void preferredUnits() {
-        Map<String, String> cgs = Map.of("Length", "cm", "Mass", "g", "Force", "dyn", "Energy", "erg",
-                "Pressure", "Ba", "Acceleration", "Gal", "Area", "cm²", "Volume", "cm³");
+        Map<String, String> cgs = Map.of(
+                "Length",
+                "cm",
+                "Mass",
+                "g",
+                "Force",
+                "dyn",
+                "Energy",
+                "erg",
+                "Pressure",
+                "Ba",
+                "Acceleration",
+                "Gal",
+                "Area",
+                "cm²",
+                "Volume",
+                "cm³");
         assertEquals(cgs, preferred(CGS));
         Map<String, String> esu = new HashMap<>(cgs);
-        esu.putAll(Map.of("ElectricCharge", "statC", "ElectricCurrent", "statA", "ElectricPotential", "statV",
-                "ElectricResistance", "statΩ", "ElectricCapacitance", "statF", "ElectricInductance", "statH"));
+        esu.putAll(
+                Map.of(
+                        "ElectricCharge",
+                        "statC",
+                        "ElectricCurrent",
+                        "statA",
+                        "ElectricPotential",
+                        "statV",
+                        "ElectricResistance",
+                        "statΩ",
+                        "ElectricCapacitance",
+                        "statF",
+                        "ElectricInductance",
+                        "statH"));
         assertEquals(esu, preferred(ESU));
         Map<String, String> emu = new HashMap<>(cgs);
-        emu.putAll(Map.of("ElectricCharge", "abC", "ElectricCurrent", "abA", "ElectricPotential", "abV",
-                "ElectricResistance", "abΩ", "ElectricCapacitance", "abF", "ElectricInductance", "abH",
-                "MagneticFluxDensity", "G", "MagneticFlux", "Mx"));
+        emu.putAll(
+                Map.of(
+                        "ElectricCharge",
+                        "abC",
+                        "ElectricCurrent",
+                        "abA",
+                        "ElectricPotential",
+                        "abV",
+                        "ElectricResistance",
+                        "abΩ",
+                        "ElectricCapacitance",
+                        "abF",
+                        "ElectricInductance",
+                        "abH",
+                        "MagneticFluxDensity",
+                        "G",
+                        "MagneticFlux",
+                        "Mx"));
         assertEquals(emu, preferred(EMU));
         Map<String, String> gaussian = new HashMap<>(esu);
         gaussian.putAll(Map.of("ElectricCharge", "Fr", "MagneticFluxDensity", "G", "MagneticFlux", "Mx"));
         assertEquals(gaussian, preferred(GAUSSIAN));
-        assertEquals(Map.of("ElectricCharge", "Fr", "MagneticFluxDensity", "G", "MagneticFlux", "Mx"),
+        assertEquals(
+                Map.of("ElectricCharge", "Fr", "MagneticFluxDensity", "G", "MagneticFlux", "Mx"),
                 parsed.get(GAUSSIAN).preferred().stream().filter(p -> p.source().equals(GAUSSIAN))
                         .collect(Collectors.toMap(Preferred::quantityType, Preferred::symbol)));
         for (String file : FILES) {

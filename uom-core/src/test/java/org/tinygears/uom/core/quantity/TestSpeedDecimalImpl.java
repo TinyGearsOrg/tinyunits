@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core.quantity;
 
@@ -8,6 +16,7 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Speed;
 import javax.measure.spi.QuantityFactory;
+
 import org.tinygears.uom.core.UomUnit;
 
 /** Stand-in for a generated decimal speed, with a factory that follows D11 (DECIMAL128 for decimal values). */
@@ -19,7 +28,10 @@ class TestSpeedDecimalImpl extends AbstractDecimalQuantity<Speed, TestSpeed> imp
             if (Precision.kind(value) == Precision.Kind.DOUBLE) {
                 return TestSpeedImpl.FACTORY.create(value, unit, scale);
             }
-            return new TestSpeedDecimalImpl(Precision.toDecimal(value), UomUnit.unchecked((UomUnit<?>) unit), scale,
+            return new TestSpeedDecimalImpl(
+                    Precision.toDecimal(value),
+                    UomUnit.unchecked((UomUnit<?>) unit),
+                    scale,
                     MathContext.DECIMAL128);
         }
 

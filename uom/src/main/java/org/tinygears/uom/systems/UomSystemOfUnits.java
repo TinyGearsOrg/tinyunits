@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.systems;
 
@@ -25,6 +33,7 @@ import javax.measure.Dimension;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
+
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.DefinitionException;
@@ -54,8 +63,12 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * @param preferred the unit of each quantity type
      * @param prefixable the symbols that take a metric prefix
      */
-    public UomSystemOfUnits(String name, List<UomUnit<?>> units, Map<Class<?>, UomUnit<?>> preferred,
-            Set<String> prefixable) {
+    public UomSystemOfUnits(
+            String name,
+            List<UomUnit<?>> units,
+            Map<Class<?>, UomUnit<?>> preferred,
+            Set<String> prefixable
+    ) {
         this(name, units, preferred, prefixable, Set.of());
     }
 
@@ -68,8 +81,13 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * @param prefixable the symbols that take a metric prefix
      * @param binaryPrefixable the symbols that take a binary prefix ({@code Ki}, {@code Mi}, ...)
      */
-    public UomSystemOfUnits(String name, List<UomUnit<?>> units, Map<Class<?>, UomUnit<?>> preferred,
-            Set<String> prefixable, Set<String> binaryPrefixable) {
+    public UomSystemOfUnits(
+            String name,
+            List<UomUnit<?>> units,
+            Map<Class<?>, UomUnit<?>> preferred,
+            Set<String> prefixable,
+            Set<String> binaryPrefixable
+    ) {
         this.name = Objects.requireNonNull(name, "name");
         Map<String, UomUnit<?>> index = new LinkedHashMap<>();
         for (UomUnit<?> unit : Objects.requireNonNull(units, "units")) {
@@ -184,8 +202,10 @@ public final class UomSystemOfUnits implements SystemOfUnits {
                     try {
                         r.transferTo(w);
                     } catch (IOException e) {
-                        throw new UncheckedIOException("cannot read '" + name
-                                + "': the resolver returned a failing, closed or reused reader", e);
+                        throw new UncheckedIOException(
+                                "cannot read '" + name
+                                        + "': the resolver returned a failing, closed or reused reader",
+                                e);
                     }
                     text = w.toString();
                 }
@@ -200,9 +220,14 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         return dot > 0 ? file.substring(0, dot) : file;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static UomSystemOfUnits load(String source, String defaultName, Reader reader,
-            DefinitionParser.Resolver resolver, Map<String, UomSystemOfUnits> loaded) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static UomSystemOfUnits load(
+            String source,
+            String defaultName,
+            Reader reader,
+            DefinitionParser.Resolver resolver,
+            Map<String, UomSystemOfUnits> loaded
+    ) {
         UomUnitFormat builtIn = UomUnitFormat.standard();
         Definitions d = DefinitionParser.parse(source, reader, resolver, s -> builtIn.resolve(s).orElse(null));
         String name = d.system() != null ? d.system() : defaultName;
@@ -264,21 +289,37 @@ public final class UomSystemOfUnits implements SystemOfUnits {
             }
             Class<?> type = types.get(p.quantityType());
             if (type == null) {
-                throw new DefinitionException(p.source(), p.line(), "unknown quantity type '" + p.quantityType()
-                        + "'", null);
+                throw new DefinitionException(
+                        p.source(),
+                        p.line(),
+                        "unknown quantity type '" + p.quantityType()
+                                + "'",
+                        null);
             }
             UomUnit<?> unit = units.get(p.symbol());
             if (unit == null) {
-                throw new DefinitionException(p.source(), p.line(), "unit '" + p.symbol() + "' is not a unit of "
-                        + name, null);
+                throw new DefinitionException(
+                        p.source(),
+                        p.line(),
+                        "unit '" + p.symbol() + "' is not a unit of "
+                                + name,
+                        null);
             }
             if (!QuantityTypes.factory((Class) type).getSystemUnit().equals(unit.getSystemUnit())) {
-                throw new DefinitionException(p.source(), p.line(), "unit '" + p.symbol() + "' is not a unit of "
-                        + p.quantityType(), null);
+                throw new DefinitionException(
+                        p.source(),
+                        p.line(),
+                        "unit '" + p.symbol() + "' is not a unit of "
+                                + p.quantityType(),
+                        null);
             }
             if (preferred.putIfAbsent(type, unit) != null) {
-                throw new DefinitionException(p.source(), p.line(), "duplicate preferred unit for '"
-                        + p.quantityType() + "'", null);
+                throw new DefinitionException(
+                        p.source(),
+                        p.line(),
+                        "duplicate preferred unit for '"
+                                + p.quantityType() + "'",
+                        null);
             }
         }
         Map<Class<?>, UomUnit<?>> fallback = parents.isEmpty() ? SI.PREFERRED : parents.get(0).preferred;

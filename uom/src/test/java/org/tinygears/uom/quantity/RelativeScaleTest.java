@@ -1,18 +1,28 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.quantity;
+
+import java.math.BigDecimal;
+import javax.measure.Quantity;
+import javax.measure.Quantity.Scale;
+
+import org.junit.jupiter.api.Test;
+
+import org.tinygears.uom.systems.SI;
+import org.tinygears.uom.systems.USCustomary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.math.BigDecimal;
-import javax.measure.Quantity;
-import javax.measure.Quantity.Scale;
-import org.junit.jupiter.api.Test;
-import org.tinygears.uom.systems.SI;
-import org.tinygears.uom.systems.USCustomary;
 
 /**
  * Offset units (docs/OFFSET-UNITS.md): a RELATIVE quantity is a difference and takes no offset; ABSOLUTE operands
@@ -68,7 +78,9 @@ class RelativeScaleTest {
         assertQuantity(2, Scale.RELATIVE, rel(2).to(SI.KELVIN));
         assertQuantity(2, Scale.RELATIVE, rel(2).toSystem(SI.SYSTEM));
         assertQuantity(5, Scale.RELATIVE, relK(5).to(SI.DEGREE_CELSIUS));
-        assertQuantity(5, Scale.RELATIVE,
+        assertQuantity(
+                5,
+                Scale.RELATIVE,
                 Temperature.of(9, USCustomary.DEGREE_FAHRENHEIT, Scale.RELATIVE).to(SI.DEGREE_CELSIUS));
         assertQuantity(-2, Scale.RELATIVE, rel(2).negate());
         // An ABSOLUTE quantity still converts through the offset.
@@ -122,7 +134,9 @@ class RelativeScaleTest {
         assertDecimal("1", Scale.RELATIVE, decRel("2").divide(2));
         assertDecimal("2", Scale.RELATIVE, decRel("2").to(SI.KELVIN));
         assertDecimal("5", Scale.RELATIVE, decRelK("5").to(SI.DEGREE_CELSIUS));
-        assertDecimal("5", Scale.RELATIVE,
+        assertDecimal(
+                "5",
+                Scale.RELATIVE,
                 Temperature.of(new BigDecimal("9"), USCustomary.DEGREE_FAHRENHEIT, Scale.RELATIVE)
                         .to(SI.DEGREE_CELSIUS));
         assertDecimal("275.15", Scale.ABSOLUTE, decAbs("2").to(SI.KELVIN));
