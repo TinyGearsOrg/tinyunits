@@ -16,6 +16,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 17 (DR-11)
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
 | Java baseline | Java 17; releases built with JDK 21 (DR-11). |
 | Information units | An `Information` catalog with bit and byte as untyped alternate atoms, metric and binary prefixes (DR-12). |
+| Systems of units | Catalogs and preferred units over the SI dimensions; own base units and dimension models belong in a separate library (DR-13). |
 
 ### Decision records
 
@@ -200,6 +201,47 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Revisit if.* Users ask for typed information quantities or a data rate type (`bit/s` works untyped). The bit is
   dimensionless like the radian, so a quantity in bytes converts to `ONE` (1 B is 8), as 1 rad converts to 1.
 - *See.* [UNITS.md](UNITS.md), [CUSTOM-UNITS.md](CUSTOM-UNITS.md) (`@prefixed`), `UnitFormatSystemsTest`.
+
+**DR-13 A system is a catalog over the SI dimensions; other dimension models belong in a separate library.**
+- *Decision.* A system of units is a catalog plus a preferred unit per quantity type; every unit is an exact factor of
+  SI units, `getSystemUnit()` and `Dimension` are SI-based, and a system has no base units of its own (`cm`, `g` and `s`
+  are members of `CGS`, not its base). Values convert between all systems, electromagnetic CGS units included (1 C is
+  2.99792458E9 Fr), but the formulas of ESU, EMU and Gaussian units do not hold. The README says so ("Systems of
+  units").
+- *Why.* The JSR-385 API assumes a single dimension model: `Dimension.getBaseDimensions` and `Unit.getBaseUnits`
+  have integer exponents, `isCompatible` is global, and the quantity types (`MagneticFluxDensity`, ...) are fixed SI
+  dimensions. A system-dependent model would break unit equality (F21) and the typing of `asType`.
+- *Rejected.* A per-system base-unit view in uom (`kg·m/s` as `g·cm/s` in CGS; option B of the former TODO item 15):
+  feasible without core changes, since the base units of CGS or US customary are exact scalings of SI base units, but
+  it is presentation that JSR-385 does not ask for, and it belongs with the model below. Distinct dimension systems for
+  ESU, EMU and Gaussian (option C): needs another dimension model, see the follow-up.
+- *Follow-up: a separate library on `uom-core`.* Converting the way GNU units does with `--units gauss` (probed with GNU
+  Units 2.27): it redefines its primitive units per system (`sqrt_cm` and `sqrt_g` as base units, `m` as `100 sqrt_cm^2`,
+  the ampere as `10 c statA` in Gaussian units, with Coulomb's constant 1 and `epsilon0`, `mu0` rescaled) and keeps every
+  other definition, so every unit is expressed in the system's base units (`coulomb` is
+  `2.9979246e+09 sqrt_cm^3 sqrt_g / s`) and conformability depends on the system:
+
+  | | SI | `--units gauss` | `--units emu` | `--units esu` |
+  |---|---|---|---|---|
+  | `oersted` to `gauss` (H and B) | not conformable | 1 | 1 | not conformable |
+  | `statvolt/cm` to `gauss` (E and B) | not conformable | 1 | not conformable | not conformable |
+  | `statfarad` to `cm` | not conformable | 1 | not conformable | 1 |
+  | `coulomb` to `statcoulomb` | 2.9979246e+09 | 2.9979246e+09 | 2.9979246e+09 | 2.9979246e+09 |
+
+  Such a library projects a uom unit into a system with what the pinned `uom-core` API already offers: `UomUnit.atoms()`
+  (SI and alternate atoms with exponents), `toSystemConverter().factor()` and `offset()` (an exact `Factor`, with
+  rationals, powers of pi and roots), `getDimension()`, and `DefinitionParser` for system files in the same syntax. Per
+  system it substitutes each SI base atom by a factor times its own base atoms (`m` is `100 cm`, `A` is `10 c statA` with
+  c exact, so the factors stay exact), with a dimension model of its own (half-integer exponents, or `sqrt_cm`-style
+  atoms to keep integer exponents) and a system-scoped conversion that returns untyped quantities, since B and H, say,
+  are one quantity in Gaussian units and two JSR-385 types. To keep in mind: the `.units` data files are not in the uom
+  jars (the library ships its own or uses the catalog constants); an offset unit projects by its factor only, as in unit
+  products; the `uom-core` methods above become its contract (pinned by `ApiSurfaceTest`, semantic versioning from 1.0).
+  The design of the original uom library had the same aim: its parser took a selectable reference system file
+  (`si.system`, "for now, only SI is supported").
+- *Revisit if.* Users of uom need system base units for JSR-385 types, or the separate library needs more of
+  `uom-core` than the methods above.
+- *See.* README, "Systems of units"; REQUIREMENTS section 2 (out of scope) and section 7.
 
 ## 2. Modules and data flow
 

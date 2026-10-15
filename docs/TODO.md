@@ -1,11 +1,10 @@
 # TODO
 
 Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when to revisit
-them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-12); the last version of this file with the full discussion is
+them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-13); the last version of this file with the full discussion is
 `git show 5d734d3:docs/TODO.md`. The groups: gaps against the JSR-385 reference implementation Indriya (10, 11, 13,
-14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and 18), open defects and
-hardening carried over from the milestone reviews (21 to 32), then the steps before the first release ("Release
-readiness"). Each item says under "Needed by" what, if anything, it blocks.
+14), an AGENTS.md (16), pre-commit and formatting (17 and 18), open defects and hardening carried over from the
+milestone reviews (21 to 32), then the steps before the first release ("Release readiness"). Each item says under "Needed by" what, if anything, it blocks.
 
 ## 10. Behaviour comparison with Indriya
 
@@ -54,26 +53,6 @@ reference status is the expert group's, so engage the unitsofmeasurement maintai
 first second implementation. Re-run the TCK in CI and publish the result rather than relying on the README claim.
 
 **Needed by:** before the first release announcement.
-
-## 15. Base units of a system (CGS and others)
-
-**Status:** undecided. Every system is built on the seven SI base units: `cgs.units` is `@include si.units` with `cm g s` as
-members, and its definitions are exact factors to SI units (F7). `getSystemUnit()` and `Dimension` are SI-based, so `cm` and
-`0.01 m` are the same unit, and untyped results of `multiply`/`divide` come back in SI system units. A system only adds
-its catalogue and its preferred units (`@preferred Length cm`). A user may expect CGS to have `cm`, `g`, `s` as base units.
-
-**Limit:** for ESU, EMU and Gaussian, values convert correctly but formulas do not (in Gaussian, charge has dimension
-`g^1/2 cm^3/2 s^-1`); the documentation must say so (REQUIREMENTS section 7) and does not yet, prominently.
-
-**Options:**
-- **A. Document the current model** in the README: systems are catalogues plus a preferred-unit mapping over the SI
-  dimension model.
-- **B. Per-system base-unit view.** Each system names its base units (CGS: `cm`, `g`, `s`), used to decompose and format
-  units and untyped results in that system (`cm/s` instead of `m/s`). Presentation only; `getSystemUnit()` stays SI-based.
-- **C. Distinct dimension systems** for ESU, EMU and Gaussian (option B of the design notes, out of scope for 1.0). The
-  only option that makes the electromagnetic CGS formulas correct; touches the core, `asType` and equality.
-
-**Needed by:** A before 1.0; decide B and C before 1.0 or record them as out of scope.
 
 ## 16. Add an AGENTS.md
 

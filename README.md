@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1213 tests (core 530, codegen 175, uom 393, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1214 tests (core 530, codegen 175, uom 394, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
@@ -23,6 +23,23 @@ System.out.println(Length.from(format.parse("20 km")).to(SI.METRE));
 Quantities are typed (`Length`, `Speed`, ... for all 33 JSR-385 quantity types), in `double` or exact `BigDecimal`
 precision; the catalogs `SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian` and `Information` hold the units
 ([docs/UNITS.md](docs/UNITS.md) lists them all), and `quantity.toSystem(system)` converts to the preferred unit of a system.
+
+## Systems of units
+
+A system is a catalog of units plus a preferred unit for each of the 33 quantity types. Every unit is an exact factor
+of SI units over the SI dimensions: `CGS` holds `cm`, `g` and `s`, but they are not base units of their own, so
+`getSystemUnit()` is always the SI unit, and a quantity without a type, such as a product in `kg·m/s`, has no unit in a
+system (`toSystem` throws `UnsupportedOperationException`; convert it with `to(unit)`). For `ESU`, `EMU` and `Gaussian`
+this means that values convert correctly, but the formulas of those systems do not hold: in Gaussian units a charge has
+the dimension g^½·cm^3/2·s^-1 and the B and H fields share a dimension, while here every unit keeps its SI dimension,
+so the gauss and the oersted are not compatible. Systems with base units or dimensions of their own are out of scope
+([docs/DESIGN.md](docs/DESIGN.md), DR-13).
+
+```java
+System.out.println(Force.of(1, SI.NEWTON).toSystem(CGS.SYSTEM));                // prints: 100000.0 dyn
+System.out.println(ElectricCharge.of(1, SI.COULOMB).toSystem(Gaussian.SYSTEM)); // prints: 2.99792458E9 Fr
+System.out.println(EMU.GAUSS.isCompatible(EMU.OERSTED));                         // prints: false
+```
 
 ## Install
 

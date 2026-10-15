@@ -57,7 +57,9 @@ dynamic proxies in the picture.
 - Typed quantity products and quotients (`Length / Time` returning `Speed`, `Length * Length`
   returning `Area`). JSR-385 `multiply` and `divide` return `Quantity<?>`; narrowing is by
   `asType(Class)`. Declared relations can be added in a later release.
-- Modelling ESU/EMU/Gaussian as distinct dimension systems (option B in the design notes).
+- Systems with base units or dimensions of their own: expressing a quantity in a system's base units (`g·cm/s` in
+  CGS), and modelling ESU/EMU/Gaussian as distinct dimension systems. These belong in a separate library on top of
+  `uom-core` (DESIGN DR-13).
 - Arbitrary-precision support for transcendental conversions beyond what `BigDecimal` and
   `MathContext` give.
 - Database, JSON and framework integrations.
@@ -127,7 +129,7 @@ internal tool and is not.
 - **Dimension ambiguity.** A formula determines a dimension, not a quantity type. Units such as
   hertz/becquerel and gray/sievert need explicit typing (F16).
 - **Electromagnetic CGS semantics.** Treating ESU/EMU/Gaussian as conversion factors converts
-  values but not formulas; the documentation must say so.
+  values but not formulas; the documentation must say so (README, "Systems of units").
 
 ## 8. Acceptance criteria for 1.0
 
