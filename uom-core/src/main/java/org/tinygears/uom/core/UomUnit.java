@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -47,7 +46,12 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     private final String name;
     /** Dimension of the atoms. */
     private final UomDimension dimension;
-    private final transient Map<UomUnit<?>, UomConverter> converterCache = new ConcurrentHashMap<>();
+    static final int CONVERTER_CACHE_SIZE = 16;
+    /** Hash of the atoms and the converter; units are cache keys, so it is computed once. */
+    private final transient int hash;
+    /** Converters to the most recently used targets; bounded, so the targets are not all kept alive. */
+    private final transient BoundedCache<UomUnit<?>, UomConverter> converterCache =
+            new BoundedCache<>(CONVERTER_CACHE_SIZE);
 
     private UomUnit(Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
         this.atoms = atoms;
@@ -59,6 +63,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             d = d.multiply(e.getKey().dimension().pow(e.getValue()));
         }
         this.dimension = d;
+        this.hash = Objects.hash(atoms, toSystem);
     }
 
     /**
@@ -193,7 +198,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     @Override
     public int hashCode() {
-        return Objects.hash(atoms, toSystem);
+        return hash;
     }
 
     // Guards the provider's format from printing the unit it is formatting again.
@@ -276,7 +281,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     /** Caller has checked compatibility, so only valid targets are cached. */
     private UomConverter converterTo(UomUnit<?> that) {
-        return converterCache.computeIfAbsent(that, t -> t.toSystem.inverse().concatenate(toSystem));
+        return converterCache.get(that, t -> t.toSystem.inverse().concatenate(toSystem));
     }
 
     /**

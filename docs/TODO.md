@@ -167,14 +167,6 @@ output); the line-length limit; whether the check fails the build or only warns.
 
 **Needed by:** decide before 1.0 (user-visible behaviour of `load`).
 
-## 24. Per-unit converter cache keeps targets alive
-
-**Status:** open, noted since milestone 1 ("revisit before the unit parser"). Each unit caches its converter to a target
-unit in a small map, so converting catalog units to many run-time loaded units keeps those units alive in the catalog
-units' caches. Bound the cache or use weak keys; measure first.
-
-**Needed by:** nothing; before heavy use of `UomSystemOfUnits.load`.
-
 ## 25. Core hardening
 
 **Status:** open, small items in `uom-core`.
@@ -251,8 +243,8 @@ stable before 1.0).
   (null, Integer, Long, BigInteger, Float), `km.shift(1)`, an offset-converter conversion, and the `getBaseUnits` fold
   of multi-atom units.
 - Tests that cannot fail or are weak: `everySystemUnitIsIdentityAndTypeable` (tautology), `failuresAreNotCached`,
-  `FactorTest.piCacheIsBounded` never reaches the clear-at-16 branch, `LicenseHeaderTest` has no non-vacuity guard,
-  `SystemConversionTest` pins only some `PREFERRED` entries (`SystemsCatalogTest` and `ToSystemTest` catch the rest).
+  `LicenseHeaderTest` has no non-vacuity guard, `SystemConversionTest` pins only some `PREFERRED` entries
+  (`SystemsCatalogTest` and `ToSystemTest` catch the rest).
 - `assertEquals(128, SI.UNITS.size())` and other pinned counts are brittle and need an update with every added unit.
 - `DecimalsTest.hugePowersOfTwoAndFiveEqualBigDecimalDivide` takes 34 s alone and up to 56 s under load on JDK 21; shrink
   the cases there if the suite time matters.

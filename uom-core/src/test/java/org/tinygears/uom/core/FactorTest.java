@@ -158,13 +158,17 @@ class FactorTest {
     void piCacheIsBoundedAndCorrectAfterEviction() {
         List<BigDecimal> reference = references(1120);
         Factor.clearPiCache();
-        // Twice over 18 buckets: the cache is cleared on the way and refilled.
+        // Twice over 18 buckets, more than the cache holds: entries are evicted and computed again.
         for (int round = 0; round < 2; round++) {
             for (int p = 1; p <= 1100; p += 64) {
                 assertPiValues(reference, p);
-                assertTrue(Factor.piCacheSize() <= 16, "cache size " + Factor.piCacheSize());
+                // The 64-digit bucket stays: it is used again before each new bucket.
+                assertPiValues(reference, 20);
+                assertTrue(Factor.piCacheSize() <= Factor.PI_CACHE_SIZE, "cache size " + Factor.piCacheSize());
+                assertTrue(Factor.piCacheHolds(64), "64-digit bucket evicted at " + p);
             }
         }
+        assertEquals(Factor.PI_CACHE_SIZE, Factor.piCacheSize());
     }
 
     /** Reference pi by Machin's formula, 16 atan(1/5) - 4 atan(1/239). */

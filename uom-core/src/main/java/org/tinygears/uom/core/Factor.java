@@ -11,9 +11,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import org.tinygears.uom.core.internal.Decimals;
 
 /**
@@ -29,7 +27,8 @@ public final class Factor implements Serializable {
 
     private static final int MAX_EXPONENT = 1000;
     private static final int MAX_BITS = 65_536;
-    private static final Map<Integer, BigDecimal> PI_CACHE = new ConcurrentHashMap<>();
+    static final int PI_CACHE_SIZE = 16;
+    private static final BoundedCache<Integer, BigDecimal> PI_CACHE = new BoundedCache<>(PI_CACHE_SIZE);
 
     /** Zero. */
     public static final Factor ZERO = new Factor(BigInteger.ZERO, BigInteger.ONE, 0, 1);
@@ -444,12 +443,9 @@ public final class Factor implements Serializable {
         return (signum() < 0 ? result.negate() : result).round(mc);
     }
 
-    /** Pi to at least {@code digits} digits; precisions round up to multiples of 64 and the cache holds 16. */
+    /** Pi to at least {@code digits} digits; precisions round up to multiples of 64 and the cache holds 16 of them. */
     private static BigDecimal pi(int digits) {
-        if (PI_CACHE.size() >= 16) {
-            PI_CACHE.clear();
-        }
-        return PI_CACHE.computeIfAbsent((digits + 63) / 64 * 64, p -> {
+        return PI_CACHE.get((digits + 63) / 64 * 64, p -> {
             // Chudnovsky: pi = 426880 sqrt(10005) Q / T, about 14.18 digits per term; binary splitting keeps it fast.
             MathContext mc = new MathContext(p + 10);
             BigInteger[] pqt = chudnovsky(0, p / 14 + 2);
@@ -465,6 +461,10 @@ public final class Factor implements Serializable {
 
     static int piCacheSize() {
         return PI_CACHE.size();
+    }
+
+    static boolean piCacheHolds(int bucket) {
+        return PI_CACHE.contains(bucket);
     }
 
     static void clearPiCache() {

@@ -275,8 +275,14 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
   hook that the provider implements (`toString` never throws and guards against re-entry); with no such provider,
   or no text for the unit, it prints its definition (`1000·m`, `5|9·K + 45967|100`), not a system label. The parser
   rejects `@prefixed` on a unit that is itself prefixed.
-- **Caching.** Each unit caches its converter to a given target unit in a small per-unit map
-  (N3). Units created on the fly take their cache with them, so no weak references.
+- **Caching.** Each unit caches its converter to a given target unit (N3) in a `BoundedCache` of at most 16
+  targets, so converting a long-lived catalog unit to many distinct units does not keep them all alive (measured
+  before: about 1.1 KB retained per distinct target, never freed). Eviction approximates least recently used by second
+  chance (CLOCK): a hit marks its entry on a `ConcurrentHashMap` without a lock, and a miss on a full cache sweeps the
+  marks under the cache's lock and evicts the first entry not used since the previous sweep. Values are computed
+  outside the lock; racing threads get the same instance. A unit computes its hash once. `Factor` keeps pi for 16
+  precision buckets in the same cache (it used to clear all 16 when full). A strict LRU (`LinkedHashMap` in access order) was rejected: its
+  lock on every hit made eight threads converting `SI.METRE` 15 to 25 times slower than the unbounded map.
 - **Out of scope:** non-affine converters such as logarithmic units.
 
 ## 4. Quantities and generated code

@@ -26,7 +26,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -175,17 +174,12 @@ class UnitSerializationTest {
     void converterCacheIsNotSerialized() throws Exception {
         UomUnit<?> km = METRE.multiply(1000);
         km.getConverterToAny(METRE);
-        assertEquals(1, cache(km).size());
+        assertEquals(1, ConverterCacheTest.cache(km).size());
         UomUnit<?> copy = roundTrip(km);
-        assertTrue(cache(copy).isEmpty());
+        assertEquals(0, ConverterCacheTest.cache(copy).size());
         assertEquals(Factor.ofLong(1000), copy.getConverterToAny(METRE).factor());
     }
 
-    private static Map<?, ?> cache(UomUnit<?> u) throws Exception {
-        Field f = UomUnit.class.getDeclaredField("converterCache");
-        f.setAccessible(true);
-        return (Map<?, ?>) f.get(u);
-    }
 
     @Test
     void goldenFiles() throws Exception {
