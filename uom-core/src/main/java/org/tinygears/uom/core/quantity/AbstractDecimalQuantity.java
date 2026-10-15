@@ -29,7 +29,10 @@ import org.tinygears.uom.core.spi.Providers;
  * whatever the rounding mode. A {@link BigDecimal} operand value or scalar whose scale exceeds ±100000 throws
  * {@link ArithmeticException}, as does a {@link MathContext} precision over 100000 (at construction, so in
  * {@link #toDecimal(MathContext)} and every factory taking a context). {@link #toDecimal(MathContext)} rounds to a
- * new context; {@link #withMathContext(MathContext)}, used by the quantity format, keeps the value exactly. Immutable.
+ * new context; {@link #withMathContext(MathContext)}, used by the quantity format, keeps the value exactly. A {@code double}
+ * operand (of {@code add}, {@code subtract}, {@code multiply}, {@code divide} and {@code compareTo}) is read as its
+ * shortest decimal ({@link BigDecimal#valueOf(double)}) and adopts this context, so the result is decimal; a NaN or
+ * infinite one throws {@link ArithmeticException}, except in {@code compareTo}. Immutable.
  * <p>
  * Serializable through a proxy (see {@link #writeReplace()}); the serialized form may change before 1.0. Reading
  * rebuilds the quantity through the factory of the provider current at read time, then restores the exact value,
@@ -204,8 +207,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * system round trip. If either operand is {@code RELATIVE}, {@code addend} is a difference: it is converted by
      * the factor only and added to this value in this unit. The result is {@code RELATIVE} only if both operands
      * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). Evaluated exactly and rounded once to the lower
-     * context of the two (irrational unit factors with guard digits, best effort); a {@code double} operand gives
-     * a {@code double} result. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
+     * context of the two (irrational unit factors with guard digits, best effort); a {@code double} operand is read
+     * as its shortest decimal and adopts this context. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
      *
      * @throws NullPointerException if {@code addend} is null
      */
@@ -253,10 +256,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
 
     /**
      * Compares the exact system-unit values (a consistent total preorder; two {@code RELATIVE} quantities as
-     * differences, by the factor only), or with {@link Double#compare} against a
-     * {@code double} operand; not consistent with equals. Exact for units with exact factors; irrational factors
-     * are evaluated with guard digits, best effort. Against a {@code double} operand, a value of this quantity
-     * outside the double range throws {@link ArithmeticException}.
+     * differences, by the factor only); a {@code double} operand is read as its shortest decimal, and a NaN or
+     * infinite one compares as {@link Double#compare} does. Not consistent with equals. Exact for units with exact
+     * factors; irrational factors are evaluated with guard digits, best effort.
      *
      * @throws NullPointerException if {@code that} is null
      */
@@ -269,7 +271,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         boolean deltas = Deltas.both(scale, that.getScale());
         UomConverter ta = deltas ? Deltas.converter(unit.toSystemConverter()) : unit.toSystemConverter();
         UomConverter tb = deltas ? Deltas.converter(thatUnit.toSystemConverter()) : thatUnit.toSystemConverter();
-        if (Precision.kind(n) == Precision.Kind.DOUBLE) {
+        if (Precision.kind(n) == Precision.Kind.DOUBLE && !Double.isFinite(n.doubleValue())) {
             return Double.compare(ta.convert(Precision.toDouble(value)), tb.convert(n.doubleValue()));
         }
         // sign(sys(a) - sys(b)) = sign(fa) * sign(a - (fb/fa) b - (ob - oa)/fa)
@@ -315,7 +317,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * Multiplies the system-unit values (operands are taken to the system unit, so offsets count, except for a
      * {@code RELATIVE} operand, which is a difference and counts by its factor only), evaluated exactly
      * and rounded once to the lower context of the two; the result is an {@link Untyped} quantity in the product of
-     * the system units, scale {@code ABSOLUTE}. A {@code double} operand gives an {@link UntypedDoubleQuantity}.
+     * the system units, scale {@code ABSOLUTE}. A {@code double} operand is read as its shortest decimal.
      * Throws {@link UnconvertibleException} for a foreign unit.
      *
      * @throws NullPointerException if {@code multiplicand} is null
@@ -418,10 +420,6 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     private Quantity<?> untyped(Quantity<?> that, boolean divide) {
         UomUnit<?> thatUnit = uomUnit(that.getUnit());
         Number n = that.getValue();
-        if (Precision.kind(n) == Precision.Kind.DOUBLE) {
-            R d = toDouble();
-            return divide ? d.divide(that) : d.multiply(that);
-        }
         MathContext mc = contextWith(that);
         BigDecimal b = Precision.toDecimal(n);
         int digits = guardDigits(mc, b);
@@ -443,9 +441,9 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
                 f.exact && o.exact);
     }
 
-    /** The result context against {@code that}: the lower one; an exact value adopts this context. */
+    /** The result context against {@code that}: the lower one; an exact or double value adopts this context. */
     private MathContext contextWith(Quantity<?> that) {
-        if (Precision.kind(that.getValue()) == Precision.Kind.EXACT) {
+        if (Precision.kind(that.getValue()) != Precision.Kind.DECIMAL) {
             return mathContext;
         }
         // A foreign BigDecimal has no context and counts as unlimited.
@@ -454,16 +452,10 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /** The literal rule {@code r = a ± (fb·b + ob)/fa} as one exact quotient, rounded once. */
-    @SuppressWarnings("unchecked")
     private R combine(Quantity<Q> that, boolean subtract) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         requireCompatible(thatUnit);
         Number n = that.getValue();
-        if (Precision.kind(n) == Precision.Kind.DOUBLE) {
-            // R is the typed interface, which the double quantity's add and subtract return.
-            R d = toDouble();
-            return (R) (subtract ? d.subtract(that) : d.add(that));
-        }
         MathContext mc = contextWith(that);
         UomConverter ta = unit.toSystemConverter();
         UomConverter tb = Deltas.isDelta(scale, that.getScale()) ? Deltas.converter(thatUnit.toSystemConverter())

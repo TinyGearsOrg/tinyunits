@@ -12,7 +12,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 17 (DR-11)
 | Code generation | An internal generator reads data files and writes plain Java sources, which are committed. CI fails if regenerating produces a diff. No annotation processor, no proxies. |
 | Catalogs | Text data files are the single source of truth (F15). They generate typed catalogs; the same parser loads user files at run time (F17, section 5). |
 | User extension | Users load their own `.units` files at run time (`UomSystemOfUnits.load`) and get `Unit<?>` back (F18). User-defined quantity types are out of scope. |
-| Precision | The lower precision wins, symmetric (F23). |
+| Precision | Mixing `double` and `BigDecimal` gives `BigDecimal`, the `double` read as its shortest decimal; symmetric (F23, DR-14). |
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
 | Java baseline | Java 17; releases built with JDK 21 (DR-11). |
 | Information units | An `Information` catalog with bit and byte as untyped alternate atoms, metric and binary prefixes (DR-12). |
@@ -243,6 +243,31 @@ behaviour for users is in the linked documents. The full discussion and probe re
   `uom-core` than the methods above.
 - *See.* README, "Systems of units"; REQUIREMENTS section 2 (out of scope) and section 7.
 
+**DR-14 Mixing precisions: the decimal wins.**
+- *Decision.* An operation on a `double` and a `BigDecimal` quantity (add, subtract, multiply, divide, `compareTo`) is
+  decimal: the `double` value is read as its shortest decimal (`BigDecimal.valueOf`), the result is a `BigDecimal`
+  quantity in the decimal operand's context, in either operand order. `isEquivalentTo` keeps the tolerance of the less
+  precise operand. A NaN or infinite `double` throws `ArithmeticException` in that arithmetic; `compareTo` keeps the
+  `Double.compare` order for it. Scalar arguments keep adopting the receiver's precision (F23).
+- *Why.* The former rule, the lower precision wins, was right about accuracy: a `double` operand carries 15 to 17
+  digits, and doing the arithmetic in `double` adds about one more rounding error of that size, so promoting does not
+  make a result more accurate. But `BigDecimal` is chosen for exact decimal arithmetic, not for more digits, and under
+  that rule one `double` quantity made a result binary without a signal (decimal `0.1 m` plus `0.2 m` was
+  `0.30000000000000004 m`), which then spread through every later step. The `double` operand is usually the decimal the
+  user wrote: `Length.of(2, m)` is stored as a `double` (F5). The former rule also contradicted itself: a `double`
+  scalar was already read as its shortest decimal (`multiply(0.2)` on a decimal stayed decimal), and "lower" ranked
+  `double` below `DECIMAL32` although it has more digits. Equivalence is about the accuracy of the inputs, so it keeps
+  the coarser tolerance: with the decimal one (10^-33 at `DECIMAL128`), decimal `0.3` would no longer be equivalent to
+  `double` `0.1 + 0.2`.
+- *Rejected.* The lower precision wins (float contagion, as in Common Lisp and Python's `Fraction + float`): silent loss
+  of decimal exactness. Refusing to mix (Python's `Decimal + float` is a `TypeError`, C# has no implicit `decimal` and
+  `double` arithmetic): generic JSR-385 code that mixes quantities from different sources would fail at run time, and
+  so would every `Length.of(2, m)` with a decimal. Indriya promotes even `double` with `double` to `BigDecimal` (probed
+  with 2.2); uom keeps `double` arithmetic `double`.
+- *Revisit if.* Users need to detect mixing: a strict mode could throw instead, without changing the default.
+- *See.* REQUIREMENTS F23; `AbstractDoubleQuantityMixedTest`, `AbstractDecimalQuantityArithmeticTest`; the
+  `mixedPrecision` example.
+
 ## 2. Modules and data flow
 
 ```
@@ -354,7 +379,7 @@ Per quantity type the generator writes four files:
 2. **`LengthDouble`**, a tiny package-private final class extending the base class with
    `R = Length`; it only supplies the typed `create` and `createDecimal`.
 3. **`LengthDecimal`**, the same for `AbstractDecimalQuantity`, with `create` and `createDouble`
-   (the hook used when a `double` operand makes the result a `double` quantity).
+   (the hook of `toDouble()`).
 4. **`LengthFactory`**, a final class with a singleton `INSTANCE` that implements
    `QuantityFactory<javax.measure.quantity.Length>` and holds the type's `SYSTEM_UNIT`.
    `create(Number, ...)` returns a decimal quantity (`DECIMAL128`) for a `BigDecimal` or `BigInteger` value and a `double` quantity for any other `Number`; the factory also has

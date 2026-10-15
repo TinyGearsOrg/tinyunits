@@ -25,7 +25,7 @@ class ExamplesTest {
                 Map.entry("decimals", "0.3 m equals 0.3 m: true | 0.30000000000000004 m equals 0.3 m: false"
                         + " | 1/3 m = 0.3333333333333333333333333333333333 m"),
                 Map.entry("mixedPrecision",
-                        "Double 4.0 m | same type either way: true | 1e400 into a double: ArithmeticException"),
+                        "BigDecimal 0.3 m | same either way: true | doubles only: 0.30000000000000004 m, equivalent: true"),
                 Map.entry("contexts", "1.235 m | 0.4115226 m | Double"),
                 Map.entry("decimalEquality",
                         "decimal equals double: false | equivalent: true | 2 equals 2.00: true"),

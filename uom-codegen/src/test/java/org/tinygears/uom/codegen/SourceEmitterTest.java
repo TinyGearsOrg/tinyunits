@@ -246,11 +246,15 @@ class SourceEmitterTest {
         assertTrue(iface.isInstance(back));
         assertEquals(new BigDecimal("1.3"), ((Quantity<?>) back).getValue());
         assertEquals(new MathContext(2), ((AbstractDecimalQuantity<?, ?>) back).mathContext());
-        // a double operand gives the double class of the typed interface
+        // mixing gives the decimal class of the typed interface in either order (F23)
         Object mixed = ((Quantity<javax.measure.quantity.Length>) d).add(
                 (Quantity<javax.measure.quantity.Length>) dbl);
-        assertEquals(PACKAGE + "LengthDouble", mixed.getClass().getName());
-        assertEquals(3.0, ((Quantity<?>) mixed).getValue());
+        assertEquals(PACKAGE + "LengthDecimal", mixed.getClass().getName());
+        assertEquals(0, new BigDecimal("3").compareTo((BigDecimal) ((Quantity<?>) mixed).getValue()));
+        Object reverse = ((Quantity<javax.measure.quantity.Length>) dbl).add(
+                (Quantity<javax.measure.quantity.Length>) d);
+        assertEquals(PACKAGE + "LengthDecimal", reverse.getClass().getName());
+        assertEquals(0, new BigDecimal("3").compareTo((BigDecimal) ((Quantity<?>) reverse).getValue()));
 
         Object factory = loader.loadClass(PACKAGE + "LengthFactory").getField("INSTANCE").get(null);
         java.lang.reflect.Method create = factory.getClass().getMethod("create", Number.class, Unit.class);

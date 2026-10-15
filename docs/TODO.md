@@ -1,10 +1,11 @@
 # TODO
 
-Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when to revisit
-them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-13); the last version of this file with the full discussion is
-`git show 5d734d3:docs/TODO.md`. The groups: gaps against the JSR-385 reference implementation Indriya (10, 11, 13,
-14), an AGENTS.md (16), pre-commit and formatting (17 and 18), open defects and hardening carried over from the
-milestone reviews (21 to 32), then the steps before the first release ("Release readiness"). Each item says under "Needed by" what, if anything, it blocks.
+Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when
+to revisit them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-14); the last version of this file with the full
+discussion is `git show 5d734d3:docs/TODO.md`. The groups: gaps against the JSR-385 reference implementation Indriya
+(10, 13, 14), an AGENTS.md (16), pre-commit and formatting (17 and 18), open defects and hardening carried over from the
+milestone reviews (21 to 32), then the steps before the first release ("Release readiness"). Each item says under
+"Needed by" what, if anything, it blocks.
 
 ## 10. Behaviour comparison with Indriya
 
@@ -23,14 +24,6 @@ Symbols that neither library parses (`bar`, `kWh`, `atm`, `mmHg`, `Å`, and `°`
 `arcmin`, `arcsec`) belong to item 13.
 
 **Needed by:** the three decisions before 1.0.
-
-## 11. Precision promotion rule
-
-**Status:** undecided, revisit. F23 says the lower precision wins, so `double` mixed with `BigDecimal` gives `double`. This is
-defensible but the opposite of promoting upward, and Indriya's number handling differs. Decide whether to keep it, document
-the rationale prominently, or offer a strict no-mixing mode (not provided today).
-
-**Needed by:** decide before 1.0.
 
 ## 13. Scope gaps against Indriya
 
@@ -130,8 +123,8 @@ output); the line-length limit; whether the check fails the build or only warns.
   (pi at p=761 with `HALF_UP`, the degree factor at 762 to 763, sqrt(2) at p=2706); with `UNNECESSARY` it returns a value
   instead of throwing. Fix by Ziv-style evaluation: retry with more guard digits until the rounding decision is
   unambiguous.
-- `isEquivalentTo` and `compareTo` of a decimal outside the `double` range against a `double` quantity throw
-  `ArithmeticException` (confirmed for `1e400 m`); `false` and the obvious sign are the expected answers.
+- `isEquivalentTo` of a decimal outside the `double` range against a `double` quantity throws `ArithmeticException`
+  (confirmed for `1e400 m`; `compareTo` is decimal since DR-14 and gives the sign); `false` is the expected answer.
 - The `isEquivalentTo` tolerance `10^(1-p)` is 1 at precision 1, so any two same-sign values within a factor of two are
   equivalent: document it or require a minimum precision.
 - Cost: guard digits grow with the operand's precision (multiplying a 3,000,000-digit value takes 28 s) and a huge

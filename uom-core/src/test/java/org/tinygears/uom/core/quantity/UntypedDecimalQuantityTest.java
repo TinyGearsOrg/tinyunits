@@ -150,14 +150,12 @@ class UntypedDecimalQuantityTest {
     }
 
     @Test
-    void doubleOperandGivesDouble() {
-        Quantity<?> product = q("2", METRE).multiply(new TestLengthImpl(3, HOUR));
-        UntypedDoubleQuantity p = assertInstanceOf(UntypedDoubleQuantity.class, product);
-        assertEquals(21600.0, p.getValue());
-        assertEquals(METRE.multiply(SECOND), p.getUnit());
-        Quantity<?> quotient = q("1", METRE).divide(foreign(4.0, SECOND));
-        assertEquals(0.25, assertInstanceOf(UntypedDoubleQuantity.class, quotient).getValue());
-        assertThrows(ArithmeticException.class, () -> q("1e400", METRE).multiply(new TestLengthImpl(1, METRE)));
+    void doubleOperandIsReadAsDecimal() {
+        assertUntyped("21600", METRE.multiply(SECOND), DECIMAL128, q("2", METRE).multiply(new TestLengthImpl(3, HOUR)));
+        assertUntyped("0.25", METRE.divide(SECOND), DECIMAL128, q("1", METRE).divide(foreign(4.0, SECOND)));
+        assertUntyped("1e400", METRE.multiply(METRE), DECIMAL128,
+                q("1e400", METRE).multiply(new TestLengthImpl(1, METRE)));
+        assertThrows(ArithmeticException.class, () -> q("1", METRE).multiply(new TestLengthImpl(Double.NaN, METRE)));
     }
 
     @Test

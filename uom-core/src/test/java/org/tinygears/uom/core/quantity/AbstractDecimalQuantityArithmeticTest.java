@@ -144,23 +144,23 @@ class AbstractDecimalQuantityArithmeticTest {
         assertThrows(ArithmeticException.class, () -> q("1", CELSIUS).divide(0.0));
     }
 
+    // F23: the decimal wins; a double operand is read as its shortest decimal and adopts this context.
     @Test
-    void doubleOperandGivesDouble() {
-        Quantity<Length> sum = q("1.5", METRE).add(d(2.5, METRE));
-        assertInstanceOf(TestLengthImpl.class, sum);
-        assertEquals(4.0, sum.getValue());
-        assertEquals(METRE, sum.getUnit());
-        Quantity<Length> difference = q("1", KILOMETRE).subtract(d(500, METRE));
-        assertInstanceOf(TestLengthImpl.class, difference);
-        assertEquals(0.5, difference.getValue());
-        assertEquals(276.15, q("2", CELSIUS).add(d(1, CELSIUS)).getValue().doubleValue(), 1e-12);
-        assertInstanceOf(TestLengthImpl.class, q("1", METRE).add(new Foreign<>(2.5f, METRE)));
+    void doubleOperandIsReadAsDecimal() {
+        assertDecimal("4", METRE, q("1.5", METRE).add(d(2.5, METRE)));
+        assertDecimal("0.3", METRE, q("0.1", METRE).add(d(0.2, METRE)));
+        assertDecimal("0.5", KILOMETRE, q("1", KILOMETRE).subtract(d(500, METRE)));
+        assertDecimal("276.15", CELSIUS, q("2", CELSIUS).add(d(1, CELSIUS)));
+        assertDecimal("3.5", METRE, q("1", METRE).add(new Foreign<>(2.5f, METRE)));
+        assertDecimal("1.3333", METRE, new MathContext(5), q("1", METRE, new MathContext(5)).add(d(1.0 / 3, METRE)));
+        assertThrows(ArithmeticException.class, () -> q("1", METRE).add(d(Double.NaN, METRE)));
+        assertThrows(ArithmeticException.class, () -> q("1", METRE).subtract(d(Double.POSITIVE_INFINITY, METRE)));
     }
 
     @Test
-    void decimalOutsideDoubleRangeThrowsAgainstDouble() {
-        assertThrows(ArithmeticException.class, () -> q("1e400", METRE).add(d(1, METRE)));
-        assertThrows(ArithmeticException.class, () -> q("1e400", METRE).subtract(d(1, METRE)));
+    void decimalOutsideDoubleRangeWorksAgainstDouble() {
+        assertDecimal("1e400", METRE, q("1e400", METRE).add(d(1, METRE)));
+        assertDecimal("1e400", METRE, q("1e400", METRE).subtract(d(1, METRE)));
     }
 
     @Test
@@ -260,12 +260,17 @@ class AbstractDecimalQuantityArithmeticTest {
     }
 
     @Test
-    void compareToDoubleComparesAsDoubles() {
-        // 0.1 as a double is above the decimal 0.1, but both compare as the same double.
+    void compareToDoubleComparesAsDecimals() {
+        // The double 0.1 reads as the decimal 0.1.
         assertEquals(0, q("0.1", METRE).compareTo(d(0.1, METRE)));
+        assertEquals(1, q("0.10000000000000000001", METRE).compareTo(d(0.1, METRE)));
         assertEquals(-1, q("1", METRE).compareTo(d(1.5, METRE)));
         assertEquals(1, q("1", KILOMETRE).compareTo(d(999.5, METRE)));
-        assertThrows(ArithmeticException.class, () -> q("1e400", METRE).compareTo(d(1, METRE)));
+        assertEquals(1, q("1e400", METRE).compareTo(d(1, METRE)));
+        // NaN and infinities keep the Double.compare order.
+        assertEquals(-1, q("1", METRE).compareTo(d(Double.NaN, METRE)));
+        assertEquals(-1, q("1", METRE).compareTo(d(Double.POSITIVE_INFINITY, METRE)));
+        assertEquals(1, q("1", METRE).compareTo(d(Double.NEGATIVE_INFINITY, METRE)));
     }
 
     @Test
@@ -490,8 +495,9 @@ class AbstractDecimalQuantityArithmeticTest {
             BigDecimal tiny = OUT_OF_SCALE.get(0);
             BigDecimal huge = OUT_OF_SCALE.get(1);
             assertEquals(0.0, d(1, METRE).multiply(tiny).getValue());
-            assertEquals(1.0, d(1, METRE).add(new Foreign<>(tiny, METRE)).getValue());
-            assertEquals(1, d(1, METRE).compareTo(new Foreign<>(tiny, METRE)));
+            // A decimal operand promotes the double quantity, so the decimal scale bound applies.
+            assertThrows(ArithmeticException.class, () -> d(1, METRE).add(new Foreign<>(tiny, METRE)));
+            assertThrows(ArithmeticException.class, () -> d(1, METRE).compareTo(new Foreign<>(tiny, METRE)));
             assertThrows(ArithmeticException.class, () -> d(1, METRE).multiply(huge));
             assertThrows(ArithmeticException.class, () -> d(1, METRE).divide(huge));
             assertThrows(ArithmeticException.class, () -> d(1, METRE).add(new Foreign<>(huge, METRE)));

@@ -163,7 +163,7 @@ gives a `double`: a number without a fraction becomes the smallest integer type 
 This difference is deliberate. The arithmetic of a quantity follows its number type (in Indriya, `2 m` divided by 3 is
 a 34-digit `BigDecimal`, while in uom the context decides), so with Indriya two lines of the same input can convert with
 different types and rounding although the caller chose neither. In uom the caller chooses the precision once, on the
-format, and every parsed quantity converts with it; mixing precisions follows F23 (the lower one wins).
+format, and every parsed quantity converts with it; mixing a `double` and a decimal quantity gives a decimal (F23).
 
 ```java
 import javax.measure.format.QuantityFormat;

@@ -17,7 +17,8 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
 - The `SI` catalog (128 units, from the SI Brochure, 9th edition), metric prefixes, the JSR-385 `ServiceProvider`,
   unit and quantity formats; the JSR-385 TCK (`unit-tck` 2.2) passes 113 of 113 tests.
 - `BigDecimal` quantities for all 33 types with a `MathContext` (`DECIMAL128` by default), single rounding, and the
-  precision rule (a `double` operand makes the result a `double`).
+  precision rule (mixing a `double` and a `BigDecimal` quantity gives a `BigDecimal` result; the `double` is read as
+  its shortest decimal, so `0.1 m + 0.2 m` is exactly `0.3 m`).
 - The catalogs `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU` and `Gaussian`, the `@system`, `@extends` and `@member`
   directives, and `quantity.toSystem(system)`, which converts to the preferred unit of a system.
 - Java serialization of units and quantities through serialization proxies that re-check every invariant.

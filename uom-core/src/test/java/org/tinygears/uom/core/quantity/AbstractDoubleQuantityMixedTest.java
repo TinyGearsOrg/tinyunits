@@ -36,14 +36,37 @@ class AbstractDoubleQuantityMixedTest {
         return new TestLengthDecimalImpl(new BigDecimal(value), unit);
     }
 
+    private static void assertDecimal(String expected, Quantity<?> actual) {
+        BigDecimal value = assertInstanceOf(BigDecimal.class, actual.getValue());
+        assertEquals(0, new BigDecimal(expected).compareTo(value), () -> expected + " vs " + value);
+    }
+
+    // F23: the decimal wins; the double operand is read as its shortest decimal (BigDecimal.valueOf).
     @Test
-    void addDecimalOperandGivesDouble() {
+    void addDecimalOperandGivesDecimal() {
         Quantity<Length> sum = d(2.5, METRE).add(q("1.5", METRE));
-        assertInstanceOf(TestLengthImpl.class, sum);
-        assertEquals(4.0, sum.getValue());
+        assertInstanceOf(TestLengthDecimalImpl.class, sum);
+        assertDecimal("4", sum);
         assertSame(METRE, sum.getUnit());
-        assertEquals(1001.5, d(1.5, METRE).add(q("1", KILOMETRE)).getValue());
-        assertEquals(276.15, d(2, CELSIUS).add(q("1", CELSIUS)).getValue().doubleValue(), 1e-12);
+        assertDecimal("0.3", d(0.2, METRE).add(q("0.1", METRE)));
+        assertDecimal("1001.5", d(1.5, METRE).add(q("1", KILOMETRE)));
+        assertDecimal("276.15", d(2, CELSIUS).add(q("1", CELSIUS)));
+        // The result takes the decimal operand's context.
+        TestLengthDecimalImpl five = new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.ABSOLUTE,
+                new MathContext(5));
+        Quantity<Length> rounded = d(1.0 / 3, METRE).add(five);
+        assertDecimal("1.3333", rounded);
+        assertEquals(new MathContext(5), ((TestLengthDecimalImpl) rounded).mathContext());
+    }
+
+    @Test
+    void nonFiniteDoubleCannotBePromoted() {
+        assertThrows(ArithmeticException.class, () -> d(Double.NaN, METRE).add(q("1", METRE)));
+        assertThrows(ArithmeticException.class, () -> d(Double.POSITIVE_INFINITY, METRE).subtract(q("1", METRE)));
+        assertThrows(ArithmeticException.class, () -> d(Double.NaN, METRE).multiply((Quantity<?>) q("1", METRE)));
+        // compareTo keeps the Double.compare order for them.
+        assertEquals(1, d(Double.NaN, METRE).compareTo(q("1", METRE)));
+        assertEquals(-1, d(Double.NEGATIVE_INFINITY, METRE).compareTo(q("1", METRE)));
     }
 
     @Test
@@ -58,8 +81,8 @@ class AbstractDoubleQuantityMixedTest {
     @Test
     void subtractDecimalOperand() {
         Quantity<Length> difference = d(1, KILOMETRE).subtract(q("500", METRE));
-        assertInstanceOf(TestLengthImpl.class, difference);
-        assertEquals(0.5, difference.getValue());
+        assertInstanceOf(TestLengthDecimalImpl.class, difference);
+        assertDecimal("0.5", difference);
         assertSame(KILOMETRE, difference.getUnit());
     }
 
@@ -76,34 +99,34 @@ class AbstractDoubleQuantityMixedTest {
         assertEquals(0, d(1, KILOMETRE).compareTo(q("1000", METRE)));
         assertEquals(1, d(1, KILOMETRE).compareTo(q("999.999", METRE)));
         assertEquals(-1, d(1, KILOMETRE).compareTo(q("1000.001", METRE)));
-        // Compared as doubles: the decimal rounds to 0.1 and is not greater.
-        assertEquals(0, d(0.1, METRE).compareTo(q("0.10000000000000000001", METRE)));
+        // Compared as decimals: the double reads as 0.1, which is less.
+        assertEquals(-1, d(0.1, METRE).compareTo(q("0.10000000000000000001", METRE)));
+        assertEquals(0, d(0.1, METRE).compareTo(q("0.1", METRE)));
     }
 
     @Test
-    void decimalOperandOutsideDoubleRangeThrows() {
+    void decimalOperandOutsideDoubleRangeWorks() {
         TestLengthDecimalImpl huge = q("1e400", METRE);
         TestLengthImpl a = d(1, METRE);
-        assertThrows(ArithmeticException.class, () -> a.add(huge));
-        assertThrows(ArithmeticException.class, () -> a.subtract(huge));
-        assertThrows(ArithmeticException.class, () -> a.multiply((Quantity<?>) huge));
-        assertThrows(ArithmeticException.class, () -> a.divide((Quantity<?>) huge));
+        assertDecimal("1e400", a.add(huge));
+        assertDecimal("-1e400", a.subtract(huge));
+        assertDecimal("1e400", a.multiply((Quantity<?>) huge));
+        assertDecimal("1e-400", a.divide((Quantity<?>) huge));
+        assertEquals(-1, a.compareTo(huge));
+        // isEquivalentTo keeps the double rule: the decimal is taken to a double.
         assertThrows(ArithmeticException.class, () -> a.isEquivalentTo(huge));
-        assertThrows(ArithmeticException.class, () -> a.compareTo(huge));
-        assertThrows(ArithmeticException.class, () -> a.add(q("-1e400", METRE)));
     }
 
     @Test
-    void decimalOperandBelowDoubleRangeIsZero() {
+    void decimalOperandBelowDoubleRangeIsKept() {
         TestLengthDecimalImpl tiny = q("1e-400", METRE);
         TestLengthImpl a = d(1, METRE);
-        assertEquals(1.0, a.add(tiny).getValue());
-        assertEquals(1.0, a.subtract(tiny).getValue());
-        assertEquals(0.0, a.multiply((Quantity<?>) tiny).getValue());
-        assertEquals(Double.POSITIVE_INFINITY, a.divide((Quantity<?>) tiny).getValue());
+        assertDecimal("1", a.add(tiny));
+        assertDecimal("1e-400", a.multiply((Quantity<?>) tiny));
+        assertDecimal("1e400", a.divide((Quantity<?>) tiny));
         assertFalse(a.isEquivalentTo(tiny));
         assertEquals(1, a.compareTo(tiny));
-        assertEquals(0, d(0, METRE).compareTo(tiny));
+        assertEquals(-1, d(0, METRE).compareTo(tiny));
     }
 
     @Test
@@ -132,21 +155,21 @@ class AbstractDoubleQuantityMixedTest {
     }
 
     @Test
-    void untypedProductsWithDecimalOperandStayDouble() {
+    void untypedProductsWithDecimalOperandAreDecimal() {
         UomUnit<?> secondUnit = BaseUnits.SECOND;
         Quantity<?> product = d(2, METRE).multiply(UntypedDecimalQuantity.of(new BigDecimal("3"), METRE,
                 MathContext.DECIMAL128));
-        assertInstanceOf(UntypedDoubleQuantity.class, product);
-        assertEquals(6.0, product.getValue());
+        assertInstanceOf(UntypedDecimalQuantity.class, product);
+        assertDecimal("6", product);
         assertEquals(METRE.multiply(METRE), product.getUnit());
         Quantity<?> quotient = d(10, METRE).divide(UntypedDecimalQuantity.of(new BigDecimal("4"), secondUnit,
                 MathContext.DECIMAL128));
-        assertInstanceOf(UntypedDoubleQuantity.class, quotient);
-        assertEquals(2.5, quotient.getValue());
+        assertInstanceOf(UntypedDecimalQuantity.class, quotient);
+        assertDecimal("2.5", quotient);
         assertEquals(METRE.divide(secondUnit), quotient.getUnit());
         Quantity<?> typed = d(1, KILOMETRE).multiply(q("0.5", METRE));
-        assertInstanceOf(UntypedDoubleQuantity.class, typed);
-        assertEquals(500.0, typed.getValue());
+        assertInstanceOf(UntypedDecimalQuantity.class, typed);
+        assertDecimal("500", typed);
         assertInstanceOf(UntypedDoubleQuantity.class, d(4, METRE).inverse());
     }
 

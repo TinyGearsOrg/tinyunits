@@ -276,8 +276,9 @@ class GeneratedDecimalQuantitiesTest {
             for (Quantity<?>[] pair : new Quantity<?>[][] {{dec, dbl}, {dbl, dec}}) {
                 Quantity<?> sum = typedCall(typed, pair[0], "add", Quantity.class, pair[1]);
                 assertInstanceOf(typed, sum);
-                assertDouble(sum);
-                assertEquals(4.0, sum.getValue().doubleValue());
+                // F23: the decimal wins in either order.
+                assertDecimal(sum);
+                assertEquals(0, new BigDecimal("4").compareTo((BigDecimal) sum.getValue()));
             }
             Quantity<?> two = typedCall(typed, dec, "add", Quantity.class, dec);
             assertDecimal(two);
@@ -308,8 +309,10 @@ class GeneratedDecimalQuantitiesTest {
         Length sum = l.add(Length.of(2.5, metre));
         Length dsum = Length.of(2.5, metre).add(l);
         assertEquals(0, new BigDecimal("1500.0").compareTo((BigDecimal) m.getValue()));
-        assertDouble(sum);
-        assertDouble(dsum);
+        assertDecimal(sum);
+        assertDecimal(dsum);
+        assertEquals(0, new BigDecimal("1.5025").compareTo((BigDecimal) sum.getValue()));
+        assertEquals(0, new BigDecimal("1502.5").compareTo((BigDecimal) dsum.getValue()));
         assertEquals(0, Length.of(BigDecimal.ONE, km).compareTo(Length.of(new BigDecimal("1000"), metre)));
         assertTrue(Length.of(BigDecimal.ONE, km).compareTo(Length.of(new BigDecimal("999"), metre)) > 0);
         assertTrue(Length.of(BigDecimal.ONE, km).compareTo(Length.of(new BigDecimal("1001"), metre)) < 0);

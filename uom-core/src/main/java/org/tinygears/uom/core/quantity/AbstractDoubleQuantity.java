@@ -22,9 +22,12 @@ import org.tinygears.uom.core.spi.Providers;
 
 /**
  * Base class of the generated {@code double} quantities; {@code R} is the typed interface returned by
- * conversions. Operands of any precision are read as {@code double}s, so results stay {@code double}; a
- * {@link BigDecimal} or {@link java.math.BigInteger} outside the {@code double} range throws
- * {@link ArithmeticException}. Immutable.
+ * conversions. A quantity operand holding a {@link BigDecimal} (of {@code add}, {@code subtract},
+ * {@code multiply}, {@code divide} and {@code compareTo}) makes the operation decimal: this value is read as its
+ * shortest decimal ({@link BigDecimal#valueOf(double)}) with the operand's context, and the result is a decimal
+ * quantity; a NaN or infinite value then throws {@link ArithmeticException}, except in {@code compareTo}.
+ * {@code isEquivalentTo} and scalar arguments stay {@code double}: a {@link BigDecimal} or
+ * {@link java.math.BigInteger} outside the {@code double} range throws {@link ArithmeticException} there. Immutable.
  * <p>
  * Serializable through a proxy (see {@link #writeReplace()}); the serialized form may change before 1.0. Reading
  * rebuilds the quantity through the factory of the provider current at read time, then restores the exact value and
@@ -191,8 +194,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * Compares the system-unit values with {@link Double#compare}, or, if both are {@code RELATIVE}, the system-unit
      * differences (factor only); not consistent with equals. {@code Double.compare} puts {@code -0.0} below
      * {@code 0.0}, so {@code 0 m} is greater than {@code -0 m}, while {@code 0 °C} and {@code -0 °C} compare equal:
-     * their system-unit values are both 273.15 K. A decimal operand outside the double range throws
-     * {@link ArithmeticException}.
+     * their system-unit values are both 273.15 K. Against a decimal operand the comparison is decimal, as in the
+     * decimal quantity, unless this value is NaN or infinite.
      *
      * @throws NullPointerException if {@code that} is null
      */
@@ -203,6 +206,13 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + thatUnit);
         }
+        // NaN and infinities have no decimal value; they keep the Double.compare order.
+        if (promotes(that) && Double.isFinite(value)) {
+            // The decimal quantities are Comparable to their quantity type.
+            @SuppressWarnings("unchecked")
+            Comparable<Quantity<Q>> d = (Comparable<Quantity<Q>>) promoted(that);
+            return d.compareTo(that);
+        }
         boolean deltas = Deltas.both(scale, that.getScale());
         return Double.compare(systemValue(value, unit, deltas),
                 systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas));
@@ -212,15 +222,15 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * Adds as if both operands were in the system unit, with the result back in this unit; linear units skip the
      * system round trip. If either operand is {@code RELATIVE}, {@code addend} is a difference: it is converted by
      * the factor only and added to this value in this unit. The result is {@code RELATIVE} only if both operands
-     * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). Throws {@link UnconvertibleException} for a foreign
-     * unit or incompatible dimensions.
+     * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). A decimal {@code addend} gives a decimal result (see
+     * the class comment). Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
      *
      * @throws NullPointerException if {@code addend} is null
      */
     @Override
     public R add(Quantity<Q> addend) {
         Objects.requireNonNull(addend, "addend");
-        return combine(addend, Double::sum);
+        return combine(addend, Double::sum, false);
     }
 
     /**
@@ -231,7 +241,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     @Override
     public R subtract(Quantity<Q> subtrahend) {
         Objects.requireNonNull(subtrahend, "subtrahend");
-        return combine(subtrahend, (a, b) -> a - b);
+        return combine(subtrahend, (a, b) -> a - b, true);
     }
 
     /** Returns a quantity whose value is {@code -getValue()}, in this unit and scale. */
@@ -267,7 +277,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     /**
      * Multiplies the system-unit values (offsets count, except for a {@code RELATIVE} operand, which is a difference
      * and counts by its factor only); the result is an {@link Untyped} quantity in the product of the system units,
-     * scale {@code ABSOLUTE}. Throws {@link UnconvertibleException} for a foreign unit.
+     * scale {@code ABSOLUTE}, decimal for a decimal {@code multiplicand}. Throws {@link UnconvertibleException} for a
+     * foreign unit.
      *
      * @throws NullPointerException if {@code multiplicand} is null
      */
@@ -275,6 +286,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     public Quantity<?> multiply(Quantity<?> multiplicand) {
         Objects.requireNonNull(multiplicand, "multiplicand");
         UomUnit<?> u = uomUnit(multiplicand.getUnit());
+        if (promotes(multiplicand)) {
+            return promoted(multiplicand).multiply(multiplicand);
+        }
         return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) * systemValue(multiplicand, u),
                 unit.getSystemUnit().multiply(u.getSystemUnit()));
     }
@@ -288,6 +302,9 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     public Quantity<?> divide(Quantity<?> divisor) {
         Objects.requireNonNull(divisor, "divisor");
         UomUnit<?> u = uomUnit(divisor.getUnit());
+        if (promotes(divisor)) {
+            return promoted(divisor).divide(divisor);
+        }
         return untyped(systemValue(value, unit, scale == Quantity.Scale.RELATIVE) / systemValue(divisor, u),
                 unit.getSystemUnit().divide(u.getSystemUnit()));
     }
@@ -357,6 +374,21 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         throw new InvalidObjectException("proxy required");
     }
 
+    /** Whether {@code that} holds a {@link BigDecimal}, so the operation runs on the decimal quantity (F23). */
+    private static boolean promotes(Quantity<?> that) {
+        return Precision.kind(that.getValue()) == Precision.Kind.DECIMAL;
+    }
+
+    /**
+     * This quantity as a decimal one with the context of {@code that} (unlimited for a foreign quantity), its value
+     * read as the shortest decimal that gives this double ({@link BigDecimal#valueOf(double)}), unrounded. A NaN or
+     * infinite value throws {@link ArithmeticException}.
+     */
+    private R promoted(Quantity<?> that) {
+        MathContext mc = that instanceof AbstractDecimalQuantity<?, ?> d ? d.mathContext() : MathContext.UNLIMITED;
+        return createDecimal(Precision.toDecimal(value), unit, scale, mc);
+    }
+
     private static Quantity<?> untyped(double value, UomUnit<?> unit) {
         return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit.getSystemUnit()), Quantity.Scale.ABSOLUTE);
     }
@@ -373,8 +405,14 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return create(r, unit, scale);
     }
 
-    private R combine(Quantity<Q> that, DoubleBinaryOperator op) {
+    @SuppressWarnings("unchecked")
+    private R combine(Quantity<Q> that, DoubleBinaryOperator op, boolean subtract) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
+        if (promotes(that)) {
+            // R is the typed interface, which the decimal quantity's add and subtract return.
+            Quantity<Q> d = promoted(that);
+            return (R) (subtract ? d.subtract(that) : d.add(that));
+        }
         UomConverter toThisUnit = thatUnit.getConverterTo(unit);
         double b = Precision.toDouble(that.getValue());
         boolean delta = Deltas.isDelta(scale, that.getScale());

@@ -114,21 +114,18 @@ public final class Examples {
                 + " | 1/3 m = " + third;
     }
 
-    /** Mixing precisions: the lower one wins, so a double operand makes the result a double. */
+    /**
+     * Mixing precisions: the decimal wins, and a double operand is read as its shortest decimal (0.2 is 0.2), so the
+     * sum is exact. isEquivalentTo compares within the tolerance of the less precise operand.
+     */
     static String mixedPrecision() {
-        Length decimal = Length.of(new BigDecimal("1.5"), SI.METRE);
-        Length binary = Length.of(2.5, SI.METRE);
+        Length decimal = Length.of(new BigDecimal("0.1"), SI.METRE);
+        Length binary = Length.of(0.2, SI.METRE);
         Length sum = decimal.add(binary);
-        boolean sameEitherWay = decimal.add(binary).getClass() == binary.add(decimal).getClass();
-        String tooBig;
-        try {
-            binary.add(Length.of(new BigDecimal("1e400"), SI.METRE));
-            tooBig = "no exception";
-        } catch (ArithmeticException e) {
-            tooBig = "ArithmeticException";
-        }
-        return sum.getValue().getClass().getSimpleName() + " " + sum + " | same type either way: " + sameEitherWay
-                + " | 1e400 into a double: " + tooBig;
+        boolean sameEitherWay = sum.equals(binary.add(decimal));
+        Length doublesOnly = Length.of(0.1, SI.METRE).add(binary);
+        return sum.getValue().getClass().getSimpleName() + " " + sum + " | same either way: " + sameEitherWay
+                + " | doubles only: " + doublesOnly + ", equivalent: " + sum.isEquivalentTo(doublesOnly);
     }
 
     /** A decimal carries a MathContext (DECIMAL128 by default); toDecimal and toDouble change the precision. */
