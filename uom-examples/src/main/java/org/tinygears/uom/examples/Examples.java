@@ -21,6 +21,7 @@ import javax.measure.format.QuantityFormat;
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.FormatService;
 import javax.measure.spi.ServiceProvider;
+import org.tinygears.uom.quantity.Dimensionless;
 import org.tinygears.uom.quantity.ElectricCharge;
 import org.tinygears.uom.quantity.Energy;
 import org.tinygears.uom.quantity.Force;
@@ -33,6 +34,7 @@ import org.tinygears.uom.quantity.Volume;
 import org.tinygears.uom.systems.CGS;
 import org.tinygears.uom.systems.Gaussian;
 import org.tinygears.uom.systems.Imperial;
+import org.tinygears.uom.systems.Information;
 import org.tinygears.uom.systems.SI;
 import org.tinygears.uom.systems.USCustomary;
 import org.tinygears.uom.systems.UomQuantityFormat;
@@ -167,6 +169,23 @@ public final class Examples {
                 + " | " + ElectricCharge.of(1, SI.COULOMB).toSystem(Gaussian.SYSTEM);
     }
 
+    /**
+     * Information units: decimal and binary prefixes. Bit and byte have no quantity type; they are dimensionless,
+     * as the radian is, so Dimensionless.from narrows a size for conversion.
+     */
+    static String information() {
+        UomUnitFormat units = UomUnitFormat.standard();
+        UomQuantityFormat format = new UomQuantityFormat(units);
+        Quantity<?> file = format.parse("1.5 GiB");
+        Quantity<?> rate = format.parse("100 Mbit/s");
+        Time transfer = Time.from(file.divide(rate));
+        Dimensionless size = Dimensionless.from(file);
+        return file + " / " + rate + " = " + transfer.to(SI.SECOND)
+                + " | " + size.to(Information.MEGABYTE.asType(javax.measure.quantity.Dimensionless.class))
+                + " | " + units.format(Information.BYTE.multiply(1024)) + " vs "
+                + units.format(Information.BYTE.multiply(1000));
+    }
+
     /** Units and quantities are Serializable; a round trip gives equal objects. */
     static String serialization() {
         Unit<?> unit = SI.KILOMETRE.divide(SI.HOUR);
@@ -251,6 +270,7 @@ public final class Examples {
         out.put("decimalEquality", decimalEquality());
         out.put("decimalFormat", decimalFormat());
         out.put("systems", systems());
+        out.put("information", information());
         out.put("serialization", serialization());
         out.put("locales", locales());
         out.put("offsetUnits", offsetUnits());

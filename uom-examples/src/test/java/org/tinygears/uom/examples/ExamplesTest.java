@@ -32,6 +32,7 @@ class ExamplesTest {
                 Map.entry("decimalFormat", "1.50 km | Double 1.5"),
                 Map.entry("systems", "1.0 ft = 30.48 cm | 100.0 °C = 212.0 °F | exact 212 °F"
                         + " | 3.785411784 L vs 4.54609 L | 2.99792458E9 Fr"),
+                Map.entry("information", "1.5 GiB / 100.0 Mbit/s = 128.84901888 s | 1610.612736 MB | KiB vs kB"),
                 Map.entry("serialization", "unit: true km/h | quantity: true 1.50 km"),
                 Map.entry("locales", "1,5 km | 1.5 km"),
                 Map.entry("offsetUnits", "K + 5 | parses back equal: true | 2·K + 136.575"),
