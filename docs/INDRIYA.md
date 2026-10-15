@@ -143,19 +143,51 @@ try {
 
 ### Parsing quantities
 
-The uom quantity format parses the number as a `double` unless `withDecimals(mc)` is set, which keeps the decimal and
-its scale. Indriya parses `1.5` as a `BigDecimal` and `2` as an `Integer`. Neither parses `1.5km` or `1,5 km` with the
-default format (uom reads `1,5 km` with `withLocale(Locale.GERMANY)`).
+The number type of a parsed quantity is chosen by the format in uom and by the text in Indriya. The uom quantity format
+parses every number as a `double`; with `withDecimals(mc)` it parses every number as a `BigDecimal` that keeps its
+digits and scale, with `mc` as the context of later arithmetic. Indriya's default format (`SimpleQuantityFormat`) never
+gives a `double`: a number without a fraction becomes the smallest integer type that holds it, one with a fraction a
+`BigDecimal`.
+
+| Text | uom | uom `withDecimals` | Indriya |
+|---|---|---|---|
+| `2`, `-1` | `Double` | `BigDecimal` | `Integer` |
+| `2147483648` | `Double` | `BigDecimal` | `Long` |
+| `9223372036854775808` | `Double` | `BigDecimal` | `BigInteger` |
+| `1.5`, `1.50`, `0.1` | `Double` | `BigDecimal`, scale kept | `BigDecimal`, scale kept |
+| `1e-3` | `Double` | `BigDecimal` | `BigDecimal` |
+| `1e3`, `1.5e3` | `Double` | `BigDecimal` | `Integer` |
+| `1e400` | error | `BigDecimal` | `BigInteger` of 401 digits |
+| `NaN`, `Infinity` | `Double` | error | error |
+
+This difference is deliberate. The arithmetic of a quantity follows its number type (in Indriya, `2 m` divided by 3 is
+a 34-digit `BigDecimal`, while in uom the context decides), so with Indriya two lines of the same input can convert with
+different types and rounding although the caller chose neither. In uom the caller chooses the precision once, on the
+format, and every parsed quantity converts with it; mixing precisions follows F23 (the lower one wins).
 
 ```java
 import javax.measure.format.QuantityFormat;
 import javax.measure.spi.ServiceProvider;
 QuantityFormat uom = ServiceProvider.of("uom").getFormatService().getQuantityFormat();
 QuantityFormat indriya = ServiceProvider.of("Default").getFormatService().getQuantityFormat();
-System.out.println(uom.parse("1.50 km").getValue() + " " + indriya.parse("1.50 km").getValue());   // prints: 1.5 1.50
-System.out.println(uom.parse("2 m/s").getValue() + " " + indriya.parse("2 m/s").getValue());       // prints: 2.0 2
-System.out.println(new UomQuantityFormat(UomUnitFormat.standard()).withDecimals(MathContext.DECIMAL128).parse("1.50 km").getValue()); // prints: 1.50
+UomQuantityFormat decimals = new UomQuantityFormat(UomUnitFormat.standard()).withDecimals(MathContext.DECIMAL128);
+for (String text : List.of("2 m", "1.50 m", "1e3 m")) {
+    Number a = uom.parse(text).getValue();
+    Number b = decimals.parse(text).getValue();
+    Number c = indriya.parse(text).getValue();
+    System.out.println(a + " " + a.getClass().getSimpleName() + " | " + b + " " + b.getClass().getSimpleName()
+            + " | " + c + " " + c.getClass().getSimpleName());
+}
+// prints: 2.0 Double | 2 BigDecimal | 2 Integer
+// prints: 1.5 Double | 1.50 BigDecimal | 1.50 BigDecimal
+// prints: 1000.0 Double | 1E+3 BigDecimal | 1000 Integer
 ```
+
+Neither default format parses `1.5km` or `1,5 km`; uom reads `1,5 km` with `withLocale(Locale.GERMANY)`. Indriya's
+other quantity formats (`NUMBERDELIMITER`, `EBNF`, `LOCAL`) use `java.text.NumberFormat`, give a `Double` for `1.5`,
+and read the start of a number they cannot read whole without an error: `1e3 m` and `1e-3 m` parse as 1, `0x10 m` as 0,
+`1_000 m` as 1, and `1,5 m` as 15 in an English locale. uom reads `1e3 m` and `1e-3 m` as 1000 and 0.001 and rejects the
+others.
 
 ### Parsing units
 
