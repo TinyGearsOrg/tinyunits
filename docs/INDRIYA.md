@@ -1,0 +1,208 @@
+# uom compared with Indriya
+
+Indriya is the reference implementation of JSR-385. Generic code that uses only the `javax.measure` API runs on both,
+but the two answer some questions differently. This page lists the differences found by running the same cases on uom
+and on Indriya 2.2 on one class path. Every example below runs in the build (`DocsSnippetsTest`, with Indriya as a
+test dependency) and prints both results, so the page breaks when either library changes.
+
+Most differences are deliberate and follow from the requirements of uom ([REQUIREMENTS.md](REQUIREMENTS.md): F5, F20,
+F21, F23).
+The ones marked **open** are not decided yet ([TODO.md](TODO.md), item 10); they may change before 1.0.
+
+The examples use `ServiceProvider.of("uom")` and `ServiceProvider.of("Default")` (Indriya's provider) where generic
+code is meant, and each library's own constants (`SI`, `Units`) otherwise. [PROVIDERS.md](PROVIDERS.md) explains how
+both providers live on one class path.
+
+## Units
+
+### Equality is structural in uom
+
+A uom unit equals another when both have the same atoms and the same converter to the system unit, however it was
+written (F21). Indriya compares how the unit was built: `km` from a prefix and `m·1000` are different units there, though
+they are equivalent. `isEquivalentTo` agrees in both.
+
+```java
+import tech.units.indriya.unit.Units;
+System.out.println(SI.KILOMETRE.equals(SI.METRE.multiply(1000)));                    // prints: true
+System.out.println(MetricPrefix.KILO(Units.METRE).equals(Units.METRE.multiply(1000))); // prints: false
+System.out.println(MetricPrefix.KILO(Units.METRE).isEquivalentTo(Units.METRE.multiply(1000))); // prints: true
+// the same for N and kg·m/s², J and N·m, °C and K + 273.15
+System.out.println(SI.NEWTON.equals(SI.KILOGRAM.multiply(SI.METRE).divide(SI.SECOND.pow(2)))); // prints: true
+System.out.println(Units.NEWTON.equals(Units.KILOGRAM.multiply(Units.METRE).divide(Units.SECOND.pow(2)))); // prints: false
+System.out.println(SI.DEGREE_CELSIUS.equals(SI.KELVIN.shift(273.15)));               // prints: true
+System.out.println(Units.CELSIUS.equals(Units.KELVIN.shift(273.15)));                // prints: false
+```
+
+Both keep alternate units apart from what they are derived from: `Hz` is not `1/s` and `rad` is not `one` in either,
+while both are equivalent.
+
+### Names, symbols and how unnamed units print
+
+uom gives prefixed units a symbol and a lower-case name (`km`, `kilometre`; `newton`); Indriya leaves a prefixed unit
+without either and capitalises some names (`Newton`). An unnamed unit prints in uom as the standard format writes it,
+which looks for an equal unit of the catalogs (`km`, `ft`); Indriya prints how it was built.
+
+```java
+import tech.units.indriya.unit.Units;
+System.out.println(SI.KILOMETRE.getSymbol() + " " + SI.KILOMETRE.getName());                 // prints: km kilometre
+System.out.println(MetricPrefix.KILO(Units.METRE).getSymbol() + " " + MetricPrefix.KILO(Units.METRE).getName()); // prints: null null
+System.out.println(SI.NEWTON.getName() + " " + Units.NEWTON.getName());                       // prints: newton Newton
+System.out.println(SI.METRE.multiply(1000) + " " + SI.METRE.multiply(0.3048));                // prints: km ft
+System.out.println(Units.METRE.multiply(1000) + " " + Units.METRE.multiply(0.3048));          // prints: m*1000 m*0.3048
+```
+
+### Exponents and special characters
+
+The uom format writes ASCII exponents by default (`m/s^2`); `UomUnitFormat.withSuperscripts(true)` writes `m/s²`. Indriya
+writes superscripts, and some units as single compatibility characters: the cubic metre as `㎥` (U+33A5) and degree
+Celsius as `℃` (U+2103). Indriya writes the micro prefix as the Greek letter mu `μ` (U+03BC); uom uses the micro sign
+`µ` (U+00B5) that `MetricPrefix.MICRO` defines.
+
+```java
+import tech.units.indriya.unit.Units;
+System.out.println(SI.METRE.divide(SI.SECOND.pow(2)) + " " + Units.METRE.divide(Units.SECOND.pow(2))); // prints: m/s^2 m/s²
+System.out.println(SI.CUBIC_METRE + " " + Units.CUBIC_METRE);                         // prints: m³ ㎥
+System.out.println(SI.METRE.pow(3) + " " + Units.METRE.pow(3));                       // prints: m^3 ㎥
+System.out.println(SI.DEGREE_CELSIUS + " " + Units.CELSIUS);                          // prints: °C ℃
+System.out.println(SI.METRE.prefix(MetricPrefix.MICRO) + " " + MetricPrefix.MICRO(Units.METRE)); // prints: µm μm
+```
+
+**Open:** uom does not parse `μ`, `℃` or `㎥`, so text that Indriya wrote does not always read back in uom (see Parsing).
+
+### System units of prefixed derived units
+
+**Open.** The system unit of a prefixed derived unit prints in uom as its decomposition into base units, though it
+equals the named unit: `kPa` has the system unit `kg/(m·s^2)`, which equals `Pa`. Indriya gives `Pa`. A pressure in
+kilopascal converted to system units therefore prints as `5000.0 kg/(m·s^2)`.
+
+```java
+import tech.units.indriya.unit.Units;
+System.out.println(SI.KILOPASCAL.getSystemUnit());                                    // prints: kg/(m·s^2)
+System.out.println(SI.KILOPASCAL.getSystemUnit().equals(SI.PASCAL));                  // prints: true
+System.out.println(MetricPrefix.KILO(Units.PASCAL).getSystemUnit());                  // prints: Pa
+```
+
+## Quantities
+
+### Values are double or BigDecimal in uom
+
+A uom quantity holds a `double` or a `BigDecimal` (F5); any other `Number` becomes a `double`. Indriya keeps the
+`Number` it was given, so an `Integer` stays an `Integer` and prints without a decimal point, and integer division
+gives a `BigDecimal`.
+
+```java
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
+System.out.println(Length.of(1, SI.KILOMETRE));                                        // prints: 1.0 km
+System.out.println(Quantities.getQuantity(1, MetricPrefix.KILO(Units.METRE)));         // prints: 1 km
+System.out.println(Length.of(1, SI.METRE).divide(3).getValue());                      // prints: 0.3333333333333333
+System.out.println(Quantities.getQuantity(1, Units.METRE).divide(3).getValue());      // prints: 0.3333333333333333333333333333333333
+```
+
+### Equality is typed and keeps the precision apart
+
+Quantity `equals` is strict in both: `1 km` does not equal `1000 m`, and `compareTo` gives 0 for them. uom also keeps
+`double` and `BigDecimal` quantities apart (F20) and a typed quantity apart from an untyped one of the same unit;
+Indriya compares the values numerically and has a single quantity class.
+
+```java
+import javax.measure.spi.ServiceProvider;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
+System.out.println(Length.of(1, SI.METRE).equals(Length.of(BigDecimal.ONE, SI.METRE)));   // prints: false
+System.out.println(Quantities.getQuantity(1.0, Units.METRE).equals(Quantities.getQuantity(BigDecimal.ONE, Units.METRE))); // prints: true
+System.out.println(Length.of(1, SI.METRE).isEquivalentTo(Length.of(BigDecimal.ONE, SI.METRE))); // prints: true
+var uomGeneric = ServiceProvider.of("uom").getQuantityFactory(javax.measure.quantity.Dimensionless.class);
+var indriyaGeneric = ServiceProvider.of("Default").getQuantityFactory(javax.measure.quantity.Dimensionless.class);
+System.out.println(Length.of(1, SI.METRE).equals(uomGeneric.create(1, (Unit) SI.METRE)));  // prints: false
+System.out.println(Quantities.getQuantity(1, Units.METRE).equals(indriyaGeneric.create(1, (Unit) Units.METRE))); // prints: true
+```
+
+### isEquivalentTo has a tolerance in uom
+
+uom treats two quantities as equivalent when their values in the same unit agree within a relative tolerance (F20):
+`1e-12` for `double` (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`), `10^(1-p)` for a `BigDecimal` at precision `p`,
+so rounding noise from a conversion does not matter. Indriya compares
+the converted values exactly. Quantities of different dimensions are not equivalent in uom; Indriya throws.
+
+```java
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
+System.out.println(Length.of(1, SI.METRE).isEquivalentTo(Length.of(Math.nextUp(1.0), SI.METRE)));  // prints: true
+System.out.println(Quantities.getQuantity(1.0, Units.METRE).isEquivalentTo(Quantities.getQuantity(Math.nextUp(1.0), Units.METRE))); // prints: false
+System.out.println(Length.of(1, SI.METRE).isEquivalentTo(Length.of(1.000000001, SI.METRE)));       // prints: false
+System.out.println(((Quantity) Length.of(1, SI.METRE)).isEquivalentTo(Time.of(1, SI.SECOND)));      // prints: false
+try {
+    ((Quantity) Quantities.getQuantity(1, Units.METRE)).isEquivalentTo(Quantities.getQuantity(1, Units.SECOND));
+} catch (UnconvertibleException e) {
+    System.out.println("Indriya throws");                                              // prints: Indriya throws
+}
+```
+
+## Formats
+
+### Parsing quantities
+
+The uom quantity format parses the number as a `double` unless `withDecimals(mc)` is set, which keeps the decimal and
+its scale. Indriya parses `1.5` as a `BigDecimal` and `2` as an `Integer`. Neither parses `1.5km` or `1,5 km` with the
+default format (uom reads `1,5 km` with `withLocale(Locale.GERMANY)`).
+
+```java
+import javax.measure.format.QuantityFormat;
+import javax.measure.spi.ServiceProvider;
+QuantityFormat uom = ServiceProvider.of("uom").getFormatService().getQuantityFormat();
+QuantityFormat indriya = ServiceProvider.of("Default").getFormatService().getQuantityFormat();
+System.out.println(uom.parse("1.50 km").getValue() + " " + indriya.parse("1.50 km").getValue());   // prints: 1.5 1.50
+System.out.println(uom.parse("2 m/s").getValue() + " " + indriya.parse("2 m/s").getValue());       // prints: 2.0 2
+System.out.println(new UomQuantityFormat(UomUnitFormat.standard()).withDecimals(MathContext.DECIMAL128).parse("1.50 km").getValue()); // prints: 1.50
+```
+
+### Parsing units
+
+Both parse the SI units and symbols, run-time metric prefixes (`Mm`, `dam`, `mHz`, `kK`) and formulas with `/`, `·`,
+`*` and `^`. The other symbols differ:
+
+| Text | uom | Indriya |
+|---|---|---|
+| `L`, `mL` (litre) | yes | no |
+| `l`, `ml` (litre) | no | yes |
+| `t`, `ha`, `eV`, `Da`, `au` (accepted for use with the SI) | yes | no |
+| `in`, `ft`, `yd`, `mi`, `lb`, `oz` and the other catalogs ([UNITS.md](UNITS.md)) | yes | no |
+| `bit`, `B`, `kB`, `MiB` | yes | no |
+| `1/s`, `1` | yes | no |
+| `kg m/s^2` (a space as product), `s⁻¹` (superscript minus) | yes | no |
+| `one`, `%` | no | yes |
+| `m2` (exponent without `^`) | no | yes |
+| `μm` (Greek mu), `℃`, `m°C` | no | yes |
+| `bar`, `kWh`, `ohm`, `atm`, `mmHg`, `Å`, `°`, `′`, `″`, `um` | no | no |
+
+uom has the degree, arcminute and arcsecond as `deg`, `arcmin` and `arcsec`.
+
+```java
+import javax.measure.format.UnitFormat;
+import javax.measure.spi.ServiceProvider;
+UnitFormat uom = ServiceProvider.of("uom").getFormatService().getUnitFormat();
+UnitFormat indriya = ServiceProvider.of("Default").getFormatService().getUnitFormat();
+System.out.println(uom.parse("kg m/s^2") + " " + uom.parse("L") + " " + uom.parse("MiB"));        // prints: kg·m/s^2 L MiB
+System.out.println(indriya.parse("m2") + " " + indriya.parse("l") + " " + indriya.parse("%"));   // prints: m² l %
+```
+
+### A parsed formula keeps its text
+
+**Open.** A unit that uom parses from a formula keeps the formula, normalised, as its symbol: `m*s^-1` prints as
+`m·s^-1`, though it equals `m/s`. Indriya prints the unit it built: `m/s`.
+
+```java
+import javax.measure.format.UnitFormat;
+import javax.measure.spi.ServiceProvider;
+UnitFormat uom = ServiceProvider.of("uom").getFormatService().getUnitFormat();
+UnitFormat indriya = ServiceProvider.of("Default").getFormatService().getUnitFormat();
+System.out.println(uom.parse("m*s^-1") + " " + uom.parse("m*s^-1").equals(SI.METRE_PER_SECOND));  // prints: m·s^-1 true
+System.out.println(indriya.parse("m*s^-1"));                                                      // prints: m/s
+```
+
+### Format names
+
+Indriya offers several named formats (`SIMPLE_ASCII`, `EBNF`, `LOCAL`, `SIMPLE_DEFAULT` for units; `EBNF`, `LOCAL`,
+`SIMPLE`, `NUMBERDELIMITER` for quantities); uom has one, `default`, for each, configured through `UomUnitFormat` and
+`UomQuantityFormat` (`withSuperscripts`, `withLocale`, `withDecimals`).

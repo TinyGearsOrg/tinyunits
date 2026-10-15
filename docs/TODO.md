@@ -9,12 +9,21 @@ readiness"). Each item says under "Needed by" what, if anything, it blocks.
 
 ## 10. Behaviour comparison with Indriya
 
-**Status:** partly done. Probes against Indriya 2.2 decided offset arithmetic (DR-01), `asType` with alternate units
-(DR-02), offset-unit products (DR-03) and the provider coexistence (DR-05); the behaviour of both libraries on the same
-classpath is a test (`ProviderCoexistenceTest`). Still to probe and record: quantity and unit `equals`, the `isEquivalentTo`
-tolerance, and unit parsing and formatting of the same symbols. Users will compare against the reference implementation first.
+**Status:** probed and documented. Probes against Indriya 2.2 decided offset arithmetic (DR-01), `asType` with alternate
+units (DR-02), offset-unit products (DR-03) and the provider coexistence (DR-05; `ProviderCoexistenceTest`). Equality,
+`isEquivalentTo`, numbers, formats and parsing are compared in [INDRIYA.md](INDRIYA.md), whose examples print both
+libraries' results and run in `DocsSnippetsTest`. Three differences there are marked open and need a decision:
+- The system unit of a prefixed derived unit prints as its decomposition (`kPa.getSystemUnit()` is `kg/(m·s^2)`, equal
+  to `Pa`; Indriya gives `Pa`). Giving it no symbol lets the format find `Pa`, but `N·m` then prints as `J`.
+- Text Indriya writes does not parse in uom: the Greek mu `μ` (U+03BC) as micro, `℃`, `㎥`, `one`, `%`, `l`, `m2`.
+  Accepting some as parse-only aliases conflicts with "look-alike characters are different symbols" (CUSTOM-UNITS.md).
+- A parsed formula keeps its normalised text as its symbol (`m*s^-1` prints `m·s^-1`, equal to `m/s`); Indriya prints
+  `m/s`.
 
-**Needed by:** before 1.0.
+Symbols that neither library parses (`bar`, `kWh`, `atm`, `mmHg`, `Å`, and `°`, `′`, `″`, which uom spells `deg`,
+`arcmin`, `arcsec`) belong to item 13.
+
+**Needed by:** the three decisions before 1.0.
 
 ## 11. Precision promotion rule
 

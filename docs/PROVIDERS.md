@@ -63,4 +63,5 @@ provider, and Indriya with uom as the current provider.
 
 Quantities and units of two implementations are not interchangeable. A uom quantity rejects a unit or quantity of
 another implementation with `UnconvertibleException` (`add`, `to`, `isEquivalentTo` and the others), so convert by value
-and unit explicitly. A quantity written by one implementation is not read by the other.
+and unit explicitly. A quantity written by one implementation is not read by the other. Where the two behave differently
+for the same code (equality, `isEquivalentTo`, formats), see [INDRIYA.md](INDRIYA.md).
