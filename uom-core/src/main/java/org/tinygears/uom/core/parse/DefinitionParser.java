@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,9 +17,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.measure.MeasurementException;
-import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
@@ -38,8 +36,6 @@ public final class DefinitionParser {
             "interface", "long", "native", "new", "package", "private", "protected", "public", "return", "short",
             "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try",
             "void", "volatile", "while", "_", "true", "false", "null", "var", "yield", "record", "sealed", "permits");
-    private static final Map<String, MetricPrefix> PREFIXES = Arrays.stream(MetricPrefix.values())
-            .collect(Collectors.toUnmodifiableMap(MetricPrefix::getSymbol, p -> p));
     private static final UomUnit<?>[] BASES = {BaseUnits.METRE, BaseUnits.KILOGRAM, BaseUnits.SECOND,
         BaseUnits.AMPERE, BaseUnits.KELVIN, BaseUnits.MOLE, BaseUnits.CANDELA, BaseUnits.KELVIN};
 
@@ -236,9 +232,9 @@ public final class DefinitionParser {
         }
         List<String> symbols = List.of(w).subList(2, w.length);
         for (String p : symbols) {
-            MetricPrefix prefix = PREFIXES.get(p);
+            Prefix prefix = Prefixed.PREFIXES.get(p);
             if (prefix == null) {
-                throw new DefinitionException(src, ln, "unknown metric prefix '" + p + "'", null);
+                throw new DefinitionException(src, ln, "unknown prefix '" + p + "'", null);
             }
             String symbol = p + base.symbol();
             checkSymbol(src, ln, symbol);

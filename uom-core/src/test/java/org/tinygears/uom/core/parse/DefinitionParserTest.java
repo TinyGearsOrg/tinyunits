@@ -3,6 +3,7 @@
 package org.tinygears.uom.core.parse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,6 +23,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -301,6 +303,8 @@ class DefinitionParserTest {
         Definitions d = parse(PREFIX_BASE + "@prefixed m k c µ # metric\nx km/s\n");
         assertEquals(List.of("m", "kg", "s", "K", "g", "Hz", "Bq", "°C", "km", "cm", "µm", "x"), symbols(d));
         assertEquals(List.of(new Prefixed("m", List.of("k", "c", "µ"), "test.units", 9)), d.prefixed());
+        assertTrue(d.prefixed().get(0).metric());
+        assertFalse(d.prefixed().get(0).binary());
         MetricPrefix[] prefixes = {MetricPrefix.KILO, MetricPrefix.CENTI, MetricPrefix.MICRO};
         String[] names = {"kilometre", "centimetre", "micrometre"};
         String[] syms = {"km", "cm", "µm"};
@@ -335,10 +339,29 @@ class DefinitionParserTest {
     }
 
     @Test
+    void binaryPrefixes() {
+        Definitions d = parse(BASE + "bit:bit ~\nB:byte 8 bit\n@prefixed B k Ki Mi\n@prefixed bit Ki\n");
+        assertEquals(List.of("m", "kg", "s", "K", "bit", "B", "kB", "KiB", "MiB", "Kibit"), symbols(d));
+        UomUnit<?> byteUnit = find(d, "B").unit();
+        assertEquals(byteUnit.prefix(BinaryPrefix.KIBI), find(d, "KiB").unit());
+        assertEquals(byteUnit.multiply(1048576), find(d, "MiB").unit());
+        assertEquals(byteUnit.multiply(1000), find(d, "kB").unit());
+        assertEquals("kibibyte", find(d, "KiB").name());
+        assertEquals("mebibyte", find(d, "MiB").name());
+        assertEquals("kibibit", find(d, "Kibit").name());
+        Prefixed mixed = d.prefixed().get(0);
+        assertTrue(mixed.metric());
+        assertTrue(mixed.binary());
+        assertFalse(d.prefixed().get(1).metric());
+        assertTrue(d.prefixed().get(1).binary());
+        fails(BASE + "bit:bit ~\n@prefixed bit Ki\n@prefixed Kibit Mi\n", "test.units:7: unit 'Kibit' is already prefixed");
+    }
+
+    @Test
     void prefixedErrors() {
         fails(PREFIX_BASE + "@prefixed zz k\n", "test.units:9: unknown unit 'zz'");
-        fails(PREFIX_BASE + "@prefixed m x\n", "test.units:9: unknown metric prefix 'x'");
-        fails(PREFIX_BASE + "@prefixed m Ki\n", "test.units:9: unknown metric prefix 'Ki'");
+        fails(PREFIX_BASE + "@prefixed m x\n", "test.units:9: unknown prefix 'x'");
+        fails(PREFIX_BASE + "@prefixed m ki\n", "test.units:9: unknown prefix 'ki'");
         fails(PREFIX_BASE + "@prefixed m\n", "test.units:9: expected '@prefixed unit prefix...'");
         fails(PREFIX_BASE + "@prefixed # nothing\n", "test.units:9: expected '@prefixed unit prefix...'");
         fails(PREFIX_BASE + "@prefixed °C k\n", "test.units:9: unit '°C' can not be prefixed");
@@ -360,7 +383,7 @@ class DefinitionParserTest {
                 d.prefixed());
         assertEquals("a", find(d, "km").source());
         assertEquals(5, find(d, "km").line());
-        fails("@include a\n", Map.of("a", BASE + "@prefixed m q x\n"), "a:5: unknown metric prefix 'x'");
+        fails("@include a\n", Map.of("a", BASE + "@prefixed m q x\n"), "a:5: unknown prefix 'x'");
     }
 
     @Test
@@ -381,7 +404,7 @@ class DefinitionParserTest {
         Definitions d = parse(BASE + "@prefixed m µ\n");
         assertEquals(0xB5, d.prefixed().get(0).prefixSymbols().get(0).codePointAt(0));
         assertEquals("µm", find(d, "µm").symbol());
-        fails(BASE + "@prefixed m μ\n", "test.units:5: unknown metric prefix 'μ'");
+        fails(BASE + "@prefixed m μ\n", "test.units:5: unknown prefix 'μ'");
     }
 
     @Test

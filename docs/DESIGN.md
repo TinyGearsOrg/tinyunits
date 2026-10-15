@@ -15,6 +15,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 17 (DR-11)
 | Precision | The lower precision wins, symmetric (F23). |
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
 | Java baseline | Java 17; releases built with JDK 21 (DR-11). |
+| Information units | An `Information` catalog with bit and byte as untyped alternate atoms, metric and binary prefixes (DR-12). |
 
 ### Decision records
 
@@ -181,6 +182,25 @@ behaviour for users is in the linked documents. The full discussion and probe re
   that solved first.
 - *See.* `pom.xml`, `.github/workflows/ci.yml`, REQUIREMENTS section 3.
 
+**DR-12 Information units are a catalog of their own, untyped, with binary prefixes.**
+- *Decision.* `data/information.units` generates `Information` (in `UnitSystems.all()` and so in the standard format):
+  `bit` is a dimensionless alternate atom (`bit ~`, as `rad` is in SI) and `B` is `8 bit`, both `UomUnit<?>`. `@prefixed`
+  accepts the binary prefix symbols (`Ki` to `Yi`) next to the metric ones; a line with a metric prefix makes the unit
+  take metric prefixes at run time, a line with a binary prefix binary ones (`UomSystemOfUnits.isBinaryPrefixable`). A
+  unit that takes binary prefixes takes only the metric prefixes from kilo up. `kB` is 1000 B and `KiB` 1024 B (IEC
+  80000-13).
+- *Why.* Users expect `MiB` to parse, and `Unit.prefix(BinaryPrefix.KIBI)` already worked without a way to read or
+  write the result. The bit and the byte are not SI units, so they do not belong in `SI`. JSR-385 has no information
+  quantity type, and the 33 generated types are a closed set (REQUIREMENTS F14). The kilo rule keeps `dB` (decibel to
+  most readers) and `mB` from parsing as fractions of a byte, which nobody means.
+- *Rejected.* Adding the units to `SI`: lists non-SI units and changes its pinned size. An own `Information` quantity
+  type: extends the closed set and has no `javax.measure.quantity` counterpart for `asType`. Making binary prefixes
+  apply to every prefixable unit: IEC 80000-13 reserves them for information (`Kim` would parse). Restricting the run-time
+  prefixes to the listed ones: changes the rule for every other unit (`Mm` and `dam` parse today).
+- *Revisit if.* Users ask for typed information quantities or a data rate type (`bit/s` works untyped). The bit is
+  dimensionless like the radian, so a quantity in bytes converts to `ONE` (1 B is 8), as 1 rad converts to 1.
+- *See.* [UNITS.md](UNITS.md), [CUSTOM-UNITS.md](CUSTOM-UNITS.md) (`@prefixed`), `UnitFormatSystemsTest`.
+
 ## 2. Modules and data flow
 
 ```
@@ -189,8 +209,8 @@ behaviour for users is in the linked documents. The full discussion and probe re
    si, us-customary,      │        │ writes sources, committed to the repo
    imperial, cgs,         │        v
    cgs-esu, cgs-emu,      │   uom  .quantity   typed interfaces, LengthDouble, LengthDecimal, ...
-   cgs-gaussian           │        .systems    generated catalogs: SI, USCustomary, Imperial, CGS,
-                          │                    ESU, EMU, Gaussian
+   cgs-gaussian,          │        .systems    generated catalogs: SI, USCustomary, Imperial, CGS,
+   information            │                    ESU, EMU, Gaussian, Information
                           │
  user *.units ───────────────> UomSystemOfUnits.load at run time (no built-in resources shipped)
 ```
@@ -198,7 +218,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
 | Module | Contents | Published |
 |--------|----------|-----------|
 | `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
-| `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; no `.units` resources are shipped | yes |
+| `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`, `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; no `.units` resources are shipped | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
 | `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
@@ -388,9 +408,9 @@ the standard's 33 types, no extras) and one `.units` file per unit system: `si.u
 resources: the catalogs are generated only, and users load their own files at run time (below).
 
 **Generator.** `uom-codegen` (not published) reads `data/quantity-types.txt`
-and the seven `.units` files listed in `Generate.CATALOGS` (`si.units` first) and writes the sources of section 4 into
+and the eight `.units` files listed in `Generate.CATALOGS` (`si.units` first) and writes the sources of section 4 into
 `uom/src/main/java/org/tinygears/uom/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
-`CGS`, `ESU`, `EMU`, `Gaussian`) into `uom/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
+`CGS`, `ESU`, `EMU`, `Gaussian`, `Information`) into `uom/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
 file missing from the list is caught by the data-versus-list test, not by the generator. `Generate` takes
 three arguments: `<dataDir> <quantitiesOut> <systemsOut>`.
 
@@ -466,9 +486,11 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   flattened `UNITS` of the systems it extends, then the `@member` units through the owning class (`CGS.UNITS` ends with
   `SI.CENTIMETRE`, `SI.GRAM`, `SI.SECOND`; `Gaussian.UNITS` holds `EMU.GAUSS`); equal units collapse to the first listed.
   `PREFIXABLE` is the own and inherited `@prefixed` symbols restricted to members, and a member keeps the prefixable status
-  of its owner, so `G` is prefixable in `Gaussian` and `g` and `s` in `CGS`.
+  of its owner, so `G` is prefixable in `Gaussian` and `g` and `s` in `CGS`. A line with a metric prefix makes its unit
+  `PREFIXABLE`, one with a binary prefix `BINARY_PREFIXABLE`; that second set and the five-argument `UomSystemOfUnits`
+  constructor are emitted only for a catalog that has one (`Information`).
 - **Prefixed units.** A unit made by a `@prefixed` line is emitted as `<base constant>.prefix(MetricPrefix.X).named(symbol,
-  name)`; the decomposed `transform(Converters.affine(...))` is the fallback when the base is not a constant of the catalog
+  name)`, or `BinaryPrefix.X` for a binary prefix; the decomposed `transform(Converters.affine(...))` is the fallback when the base is not a constant of the catalog
   that an earlier field already initialises (fields initialise in textual order).
 - **Shared instances.** A unit is built once. A factory's `SYSTEM_UNIT` is the `BaseUnits` constant itself when the
   symbol and name agree (`LengthFactory.SYSTEM_UNIT == BaseUnits.METRE`), and a catalog constant equal to a type's system
@@ -505,9 +527,10 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   - Exception: `~` lines register their alternate symbols in the JVM-wide registry permanently (section 3).
 - **Prefixes.** `@prefixed` generates the curated prefixed units (`SI.KILOMETRE`). At run time
   `UomUnitFormat` also resolves a metric prefix on any unit in `SI.PREFIXABLE`, so `Mm` and `dam`
-  parse without a constant; binary prefixes (`MiB`) are not resolved (no byte or bit units either). Only units named in a
-  `@prefixed` line are in `SI.PREFIXABLE`, so only they take prefixes at run time (`Gm`, but not
-  `kmin`). Prefixable symbols of all systems apply (D3). A prefixed power is `km^2` or `km²`, both `(km)^2` (`m²` is a symbol of its own, not a
+  parse without a constant, and a binary prefix on a unit in a `BINARY_PREFIXABLE` set (`Information`: `ZiB`). A unit
+  that takes binary prefixes takes only the metric prefixes from kilo up, so `dB` is not a tenth of a byte (DR-12).
+  Only units named in a `@prefixed` line are prefixable, so only they take prefixes at run time (`Gm`, but not
+  `kmin`, `Kim` or `KiHz`). Prefixable symbols of all systems apply (D3). A prefixed power is `km^2` or `km²`, both `(km)^2` (`m²` is a symbol of its own, not a
   prefixable unit, and as a whole symbol it wins over the exponent reading).
 - **Symbol resolution across systems (D7).** `UomUnitFormat.standard()` resolves labels, then exact symbols across all systems of
   `UnitSystems.all()` (SI first), then a metric prefix on a prefixable unit. Exact symbols win over prefix readings, so `ft` is the

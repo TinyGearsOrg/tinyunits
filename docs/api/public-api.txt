@@ -184,6 +184,8 @@ org.tinygears.uom.core.parse Preferred member public java.lang.String source()
 org.tinygears.uom.core.parse Preferred member public java.lang.String symbol()
 org.tinygears.uom.core.parse Preferred member public org.tinygears.uom.core.parse.Preferred(java.lang.String,java.lang.String,java.lang.String,int)
 org.tinygears.uom.core.parse Preferred type public final record org.tinygears.uom.core.parse.Preferred extends java.lang.Record
+org.tinygears.uom.core.parse Prefixed member public boolean binary()
+org.tinygears.uom.core.parse Prefixed member public boolean metric()
 org.tinygears.uom.core.parse Prefixed member public final boolean equals(java.lang.Object)
 org.tinygears.uom.core.parse Prefixed member public final int hashCode()
 org.tinygears.uom.core.parse Prefixed member public final java.lang.String toString()
@@ -1227,6 +1229,34 @@ org.tinygears.uom.systems Imperial member public static final org.tinygears.uom.
 org.tinygears.uom.systems Imperial member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Volume> QUART_UK
 org.tinygears.uom.systems Imperial member public static final org.tinygears.uom.systems.UomSystemOfUnits SYSTEM
 org.tinygears.uom.systems Imperial type public final class org.tinygears.uom.systems.Imperial
+org.tinygears.uom.systems Information member public static final java.util.List<org.tinygears.uom.core.UomUnit<?>> UNITS
+org.tinygears.uom.systems Information member public static final java.util.Map<java.lang.Class<?>, org.tinygears.uom.core.UomUnit<?>> PREFERRED
+org.tinygears.uom.systems Information member public static final java.util.Set<java.lang.String> BINARY_PREFIXABLE
+org.tinygears.uom.systems Information member public static final java.util.Set<java.lang.String> PREFIXABLE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> BIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> BYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> EXABYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> EXBIBYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> GIBIBIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> GIBIBYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> GIGABIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> GIGABYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> KIBIBIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> KIBIBYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> KILOBIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> KILOBYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> MEBIBIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> MEBIBYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> MEGABIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> MEGABYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> PEBIBYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> PETABYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> TEBIBIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> TEBIBYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> TERABIT
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.core.UomUnit<?> TERABYTE
+org.tinygears.uom.systems Information member public static final org.tinygears.uom.systems.UomSystemOfUnits SYSTEM
+org.tinygears.uom.systems Information type public final class org.tinygears.uom.systems.Information
 org.tinygears.uom.systems SI member public static final java.util.List<org.tinygears.uom.core.UomUnit<?>> UNITS
 org.tinygears.uom.systems SI member public static final java.util.Map<java.lang.Class<?>, org.tinygears.uom.core.UomUnit<?>> PREFERRED
 org.tinygears.uom.systems SI member public static final java.util.Set<java.lang.String> PREFIXABLE
@@ -1437,6 +1467,7 @@ org.tinygears.uom.systems UomServiceProvider member public javax.measure.spi.Sys
 org.tinygears.uom.systems UomServiceProvider member public org.tinygears.uom.systems.UomServiceProvider()
 org.tinygears.uom.systems UomServiceProvider type public final class org.tinygears.uom.systems.UomServiceProvider extends javax.measure.spi.ServiceProvider implements org.tinygears.uom.core.spi.QuantityFactories, org.tinygears.uom.core.spi.UnitTexts
 org.tinygears.uom.systems UomSystemOfUnits member public <Q extends javax.measure.Quantity<Q>> javax.measure.Unit<Q> getUnit(java.lang.Class<Q>)
+org.tinygears.uom.systems UomSystemOfUnits member public boolean isBinaryPrefixable(java.lang.String)
 org.tinygears.uom.systems UomSystemOfUnits member public boolean isPrefixable(java.lang.String)
 org.tinygears.uom.systems UomSystemOfUnits member public java.lang.String getName()
 org.tinygears.uom.systems UomSystemOfUnits member public java.lang.String toString()
@@ -1445,6 +1476,7 @@ org.tinygears.uom.systems UomSystemOfUnits member public java.util.Set<? extends
 org.tinygears.uom.systems UomSystemOfUnits member public java.util.Set<? extends javax.measure.Unit<?>> getUnits(javax.measure.Dimension)
 org.tinygears.uom.systems UomSystemOfUnits member public javax.measure.Unit<?> getUnit(java.lang.String)
 org.tinygears.uom.systems UomSystemOfUnits member public org.tinygears.uom.systems.UomSystemOfUnits(java.lang.String,java.util.List<org.tinygears.uom.core.UomUnit<?>>,java.util.Map<java.lang.Class<?>, org.tinygears.uom.core.UomUnit<?>>,java.util.Set<java.lang.String>)
+org.tinygears.uom.systems UomSystemOfUnits member public org.tinygears.uom.systems.UomSystemOfUnits(java.lang.String,java.util.List<org.tinygears.uom.core.UomUnit<?>>,java.util.Map<java.lang.Class<?>, org.tinygears.uom.core.UomUnit<?>>,java.util.Set<java.lang.String>,java.util.Set<java.lang.String>)
 org.tinygears.uom.systems UomSystemOfUnits member public static org.tinygears.uom.systems.UomSystemOfUnits load(java.lang.String,java.io.Reader,org.tinygears.uom.core.parse.DefinitionParser$Resolver)
 org.tinygears.uom.systems UomSystemOfUnits member public static org.tinygears.uom.systems.UomSystemOfUnits load(java.nio.file.Path) throws java.io.IOException
 org.tinygears.uom.systems UomSystemOfUnits type public final class org.tinygears.uom.systems.UomSystemOfUnits implements javax.measure.spi.SystemOfUnits

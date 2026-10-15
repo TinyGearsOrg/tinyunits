@@ -29,7 +29,7 @@ import org.tinygears.uom.core.parse.Definitions;
 public final class Generate {
     /** The catalog files, one class each; parents precede dependents and SI comes first. */
     public static final List<String> CATALOGS = List.of("si.units", "us-customary.units", "imperial.units",
-            "cgs.units", "cgs-esu.units", "cgs-emu.units", "cgs-gaussian.units");
+            "cgs.units", "cgs-esu.units", "cgs-emu.units", "cgs-gaussian.units", "information.units");
     private static final String TYPES = "quantity-types.txt";
     // Only files starting with both header lines (Markdown: MD_HEADER) count as stale; hand-written files stay.
     private static final String HEADER_1 = "// SPDX-License-Identifier: Apache-2.0";

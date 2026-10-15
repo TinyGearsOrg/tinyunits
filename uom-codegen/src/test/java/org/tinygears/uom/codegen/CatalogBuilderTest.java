@@ -3,6 +3,7 @@
 package org.tinygears.uom.codegen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -245,6 +246,32 @@ class CatalogBuilderTest {
         Set<String> p = catalog("@prefixed s m\n@prefixed m c\n").prefixable();
         assertEquals(Set.of("m", "Hz", "s"), p);
         assertThrows(UnsupportedOperationException.class, () -> p.add("g"));
+    }
+
+    @Test
+    void binaryPrefixableFollowsTheBinaryPrefixesOfALine() {
+        CatalogBuilder.Catalog c = catalog("@prefixed s Ki\n@prefixed m c Mi\n");
+        assertEquals(Set.of("m", "Hz"), c.prefixable());
+        assertEquals(Set.of("s", "m"), c.binaryPrefixable());
+        assertThrows(UnsupportedOperationException.class, () -> c.binaryPrefixable().add("g"));
+    }
+
+    @Test
+    void binaryPrefixableIsOwnExtendedAndPrefixedMembers() {
+        Map<String, String> files = Map.of(
+                "base.units", BASE + "@system Base\nbit:bit ~\n@prefixed bit Ki\n",
+                "parent.units", "@system Parent\n@include base.units\n@member bit\n",
+                "child.units", "@system Child\n@extends parent.units\n");
+        DefinitionParser.Resolver resolver = name -> new StringReader(files.get(name));
+        Map<String, Definitions> parsed = new LinkedHashMap<>();
+        for (String f : List.of("base.units", "parent.units", "child.units")) {
+            parsed.put(f, DefinitionParser.parse(f, new StringReader(files.get(f)), resolver));
+        }
+        Map<String, CatalogBuilder.Catalog> c = CatalogBuilder.catalogs(parsed, types(parsed.get("base.units")));
+        for (String f : files.keySet()) {
+            assertEquals(Set.of("bit"), c.get(f).binaryPrefixable(), f);
+            assertFalse(c.get(f).prefixable().contains("bit"), f);
+        }
     }
 
     @Test

@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import javax.measure.Unit;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.UomUnit;
@@ -62,10 +63,11 @@ class UnnamedUnitTextTest {
         int checked = 0;
         for (UomSystemOfUnits system : UnitSystems.all()) {
             for (Unit<?> known : system.getUnits()) {
-                if (known.getSymbol() == null || !system.isPrefixable(known.getSymbol())) {
+                String symbol = known.getSymbol();
+                if (symbol == null) {
                     continue;
                 }
-                for (MetricPrefix prefix : MetricPrefix.values()) {
+                for (Prefix prefix : SystemsCatalogTest.prefixes(system, symbol)) {
                     UomUnit<?> unit = ((UomUnit<?>) known).prefix(prefix);
                     String text = FORMAT.format(unit);
                     checked++;

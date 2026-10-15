@@ -12,6 +12,8 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -19,7 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.ElectricCharge;
@@ -62,7 +67,9 @@ class SystemsCatalogTest {
             new Catalog("cgs.units", "CGS", CGS.SYSTEM, CGS.UNITS, CGS.PREFIXABLE),
             new Catalog("cgs-esu.units", "ESU", ESU.SYSTEM, ESU.UNITS, ESU.PREFIXABLE),
             new Catalog("cgs-emu.units", "EMU", EMU.SYSTEM, EMU.UNITS, EMU.PREFIXABLE),
-            new Catalog("cgs-gaussian.units", "Gaussian", Gaussian.SYSTEM, Gaussian.UNITS, Gaussian.PREFIXABLE));
+            new Catalog("cgs-gaussian.units", "Gaussian", Gaussian.SYSTEM, Gaussian.UNITS, Gaussian.PREFIXABLE),
+            new Catalog("information.units", "Information", Information.SYSTEM, Information.UNITS,
+                    Information.PREFIXABLE));
 
     static final Map<String, Definitions> PARSED = load();
 
@@ -100,8 +107,27 @@ class SystemsCatalogTest {
     /** The {@code @prefixed} symbols of the parse that are members (an owner's status carries over). */
     static Set<String> prefixable(String file) {
         Set<String> members = members(file);
-        return PARSED.get(file).prefixed().stream().map(Prefixed::unitSymbol).filter(members::contains)
-                .collect(Collectors.toSet());
+        return PARSED.get(file).prefixed().stream().filter(Prefixed::metric).map(Prefixed::unitSymbol)
+                .filter(members::contains).collect(Collectors.toSet());
+    }
+
+    static Set<String> binaryPrefixable(String file) {
+        Set<String> members = members(file);
+        return PARSED.get(file).prefixed().stream().filter(Prefixed::binary).map(Prefixed::unitSymbol)
+                .filter(members::contains).collect(Collectors.toSet());
+    }
+
+    /** The prefixes a format applies to the unit: metric (from kilo up on a binary-prefixable unit), then binary. */
+    static List<Prefix> prefixes(UomSystemOfUnits system, String symbol) {
+        List<Prefix> prefixes = new ArrayList<>();
+        if (system.isPrefixable(symbol)) {
+            Arrays.stream(MetricPrefix.values()).filter(p -> !system.isBinaryPrefixable(symbol) || p.getExponent() >= 3)
+                    .forEach(prefixes::add);
+        }
+        if (system.isBinaryPrefixable(symbol)) {
+            prefixes.addAll(List.of(BinaryPrefix.values()));
+        }
+        return prefixes;
     }
 
     /** Own {@code @preferred} line, else the first extended file's, else null (SI's rule applies). */
@@ -152,6 +178,7 @@ class SystemsCatalogTest {
         pinned.put("ESU", List.of(22, 22));
         pinned.put("EMU", List.of(29, 29));
         pinned.put("Gaussian", List.of(26, 27));
+        pinned.put("Information", List.of(22, 22));
         assertEquals(pinned, sizes);
     }
 
@@ -172,11 +199,15 @@ class SystemsCatalogTest {
     void prefixableAgreesWithTheData() {
         for (Catalog c : CATALOGS) {
             Set<String> expected = prefixable(c.file());
+            Set<String> binary = binaryPrefixable(c.file());
             assertEquals(expected, c.prefixable(), c.name());
             for (String symbol : members(c.file())) {
                 assertEquals(expected.contains(symbol), c.system().isPrefixable(symbol), c.name() + ": " + symbol);
+                assertEquals(binary.contains(symbol), c.system().isBinaryPrefixable(symbol), c.name() + ": " + symbol);
             }
         }
+        assertEquals(Set.of("B", "bit"), Information.PREFIXABLE);
+        assertEquals(Set.of("B", "bit"), Information.BINARY_PREFIXABLE);
         assertEquals(Set.of(), USCustomary.PREFIXABLE);
         assertEquals(Set.of(), Imperial.PREFIXABLE);
         assertEquals(Set.of("Gal", "P", "St", "g", "s"), CGS.PREFIXABLE);
@@ -197,7 +228,8 @@ class SystemsCatalogTest {
                 UomUnit<?> base = (UomUnit<?>) c.system().getUnit(p.unitSymbol());
                 for (String symbol : p.prefixSymbols()) {
                     expected++;
-                    MetricPrefix prefix = java.util.Arrays.stream(MetricPrefix.values())
+                    Prefix prefix = Stream.<Prefix>concat(Arrays.stream(MetricPrefix.values()),
+                                    Arrays.stream(BinaryPrefix.values()))
                             .filter(m -> m.getSymbol().equals(symbol)).findFirst().orElseThrow();
                     String unitSymbol = symbol + p.unitSymbol();
                     UomUnit<?> found = (UomUnit<?>) c.system().getUnit(unitSymbol);
@@ -210,7 +242,7 @@ class SystemsCatalogTest {
             }
         }
         assertEquals(expected, checked);
-        assertEquals(92, checked);
+        assertEquals(112, checked);
     }
 
     // Lets the loop below name a type variable for getUnit(Class<Q>).

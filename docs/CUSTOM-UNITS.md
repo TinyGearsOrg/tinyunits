@@ -2,7 +2,7 @@
 
 A `.units` file defines units in text. `UomSystemOfUnits.load` reads one at run time and returns a system of units
 that formats, parses and converts like the built-in catalogs. The built-in catalogs (`SI`, `USCustomary`, `Imperial`,
-`CGS`, `ESU`, `EMU`, `Gaussian`, see [UNITS.md](UNITS.md)) are generated from files in the same syntax in
+`CGS`, `ESU`, `EMU`, `Gaussian`, `Information`, see [UNITS.md](UNITS.md)) are generated from files in the same syntax in
 [`data/`](../data); those files are not shipped, and a few constructs only matter to the generator (noted below).
 
 Every `units` and `java` block of this document is loaded, compiled and, where it shows `// prints:`, run by
@@ -183,7 +183,7 @@ bad (K + 1)/s
 ### Scaled units
 
 A formula without a special form defines a scaled unit: a factor times a product of powers of other units. Any
-built-in symbol works in a formula, and so does a metric prefix on a prefixable built-in unit (`km`, `µs`; not `kft`,
+built-in symbol works in a formula, and so does a prefix on a prefixable built-in unit (`km`, `µs`, `MiB`; not `kft`,
 since the foot takes no prefix).
 
 ### Affine units: `=`
@@ -208,11 +208,9 @@ dimensionless atom. The formula must be unscaled (`~ 1000 m` is `alternate unit 
 Alternate units are JVM-wide: see the caveats.
 
 ```units
-@system Data
-bit:bit ~               # a dimensionless atom
-B:byte 8 bit
-@prefixed bit k M G
-@prefixed B k M G
+@system Imaging
+px:pixel ~              # a dimensionless atom
+@prefixed px k M
 ```
 
 ### Base units: `!`
@@ -310,7 +308,10 @@ flash:flash_rate ~ 1/s     # dimension 1/s, but its own atom: not the hertz
 Defines the prefixed units (`@prefixed league k` adds `kleague`, named `kiloleague`) and makes the unit prefixable:
 in a format with the system every metric prefix on it parses (`Mleague`, as in the first example). The unit must be
 defined in the user files and be linear; the prefixes are the JSR-385 metric prefix symbols (`µ` is the micro sign
-U+00B5). A prefixed unit is not prefixed again:
+U+00B5) and binary prefix symbols (`Ki`, `Mi`, ... `Yi`), mixed in one line if wanted. A line with a binary prefix
+makes every binary prefix on the unit parse, and then only the metric prefixes from kilo up, as IEC 80000-13 uses them
+for information units (the built-in `Information` system: `kB` and `MiB` parse, `dB` does not). A prefixed unit is not
+prefixed again:
 
 ```units-error
 league:league 3 mi
@@ -350,7 +351,7 @@ Every error names the file and line. The common messages, by cause:
 | a bad `@system` name, or two of them | `invalid system name 'x'`, `duplicate '@system'` |
 | an unknown or mismatched `@preferred` | `unknown quantity type 'X'`, `unit 'x' is not a unit of Speed` |
 | a second `@preferred` for a type | `duplicate preferred unit for 'Length'` |
-| a prefix that is not a metric prefix symbol | `unknown metric prefix 'x'` |
+| a prefix that is neither a metric nor a binary prefix symbol | `unknown prefix 'x'` |
 | `@member` of a unit of the same file, or twice | `unit 'x' is defined in this file`, `duplicate member 'x'` |
 | the same file extended twice | `duplicate '@extends' of 'x.units'` |
 | an offset unit in `@prefixed` | `unit 'x' can not be prefixed` |
@@ -386,9 +387,9 @@ tick 1 s
 
 ## Symbols
 
-A user symbol must not be one that `UomUnitFormat.standard()` resolves: an exact catalog symbol, or a metric prefix on
-a prefixable catalog unit (`km`, `µs`). Labels added with `UomUnitFormat.label` are not visible to the loader.
-`@prefixed u k` checks only the generated `ku` against the built-in symbols, though every metric prefix on `u` is
+A user symbol must not be one that `UomUnitFormat.standard()` resolves: an exact catalog symbol, or a prefix on
+a prefixable catalog unit (`km`, `µs`, `GiB`). Labels added with `UomUnitFormat.label` are not visible to the loader.
+`@prefixed u k` checks only the generated `ku` against the built-in symbols, though every prefix `u` takes is
 readable at run time; an exact built-in symbol wins over such a reading.
 
 Symbols are compared as exact strings, so look-alike characters are different symbols: the Greek small mu U+03BC is

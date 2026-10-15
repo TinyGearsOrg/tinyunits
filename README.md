@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, seven catalogs with prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29) and `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1189 tests (core 521, codegen 172, uom 381, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1195 tests (core 522, codegen 175, uom 383, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
@@ -21,7 +21,7 @@ System.out.println(Length.from(format.parse("20 km")).to(SI.METRE));
 ```
 
 Quantities are typed (`Length`, `Speed`, ... for all 33 JSR-385 quantity types), in `double` or exact `BigDecimal`
-precision; the catalogs `SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU` and `Gaussian` hold the units
+precision; the catalogs `SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian` and `Information` hold the units
 ([docs/UNITS.md](docs/UNITS.md) lists them all), and `quantity.toSystem(system)` converts to the preferred unit of a system.
 
 ## Install
@@ -92,7 +92,7 @@ itself cannot take our interface as its type (`Speed` is not a `Quantity<Speed>`
 
 ## Formats
 
-`UomUnitFormat.standard()` parses and formats unit symbols and formulas (`kg·m/s^2`) over all seven systems. `new UomQuantityFormat(unitFormat)` formats a quantity as value, space, unit, in `Locale.ROOT`; it is immutable:
+`UomUnitFormat.standard()` parses and formats unit symbols and formulas (`kg·m/s^2`) over all eight systems. `new UomQuantityFormat(unitFormat)` formats a quantity as value, space, unit, in `Locale.ROOT`; it is immutable:
 
 - `withLocale(Locale.GERMANY)` writes and reads the number in that locale (`1,5 km`); unit symbols are never localized. Grouping separators are never written and are a parse error unless `withGrouping(true)`.
 - `withDecimals(MathContext.DECIMAL64)` parses to `BigDecimal` quantities that keep every digit and the scale of the text (`1.50 km` has scale 2); the default parses to `double`.

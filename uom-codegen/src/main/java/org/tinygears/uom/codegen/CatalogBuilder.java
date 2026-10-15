@@ -20,6 +20,7 @@ import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Extends;
 import org.tinygears.uom.core.parse.Member;
 import org.tinygears.uom.core.parse.Preferred;
+import org.tinygears.uom.core.parse.Prefixed;
 
 /** Resolves each definition to a catalog constant name and quantity type (decision D5). */
 public final class CatalogBuilder {
@@ -99,9 +100,10 @@ public final class CatalogBuilder {
     /**
      * A catalog class: unit references are qualified by their class ({@code SI.CENTIMETRE}) or are factory system
      * units; {@code units} maps symbols to references in list order, {@code preferred} maps every type name to one.
+     * {@code prefixable} and {@code binaryPrefixable} are the symbols that take a metric and a binary prefix.
      */
     public record Catalog(String file, String className, List<CatalogEntry> entries, Map<String, String> units,
-            Set<String> prefixable, Map<String, String> preferred) {
+            Set<String> prefixable, Set<String> binaryPrefixable, Map<String, String> preferred) {
     }
 
     /**
@@ -148,8 +150,11 @@ public final class CatalogBuilder {
             parent.units().forEach(units::putIfAbsent);
         }
         Set<String> prefixable = new TreeSet<>();
-        d.prefixed().stream().filter(p -> p.source().equals(file)).forEach(p -> prefixable.add(p.unitSymbol()));
+        Set<String> binaryPrefixable = new TreeSet<>();
+        d.prefixed().stream().filter(p -> p.source().equals(file))
+                .forEach(p -> addPrefixable(p, prefixable, binaryPrefixable));
         parents.forEach(p -> prefixable.addAll(p.prefixable()));
+        parents.forEach(p -> binaryPrefixable.addAll(p.binaryPrefixable()));
         for (Member m : d.members()) {
             Definition def = bySymbol.get(m.symbol());
             if (def == null) {
@@ -161,13 +166,12 @@ public final class CatalogBuilder {
                         + def.source() + "', which is not a catalog generated before '" + file + "'");
             }
             units.putIfAbsent(m.symbol(), owner.units().get(m.symbol()));
-            if (d.prefixed().stream().anyMatch(p -> p.source().equals(def.source())
-                    && p.unitSymbol().equals(m.symbol()))) {
-                prefixable.add(m.symbol());
-            }
+            d.prefixed().stream().filter(p -> p.source().equals(def.source()) && p.unitSymbol().equals(m.symbol()))
+                    .forEach(p -> addPrefixable(p, prefixable, binaryPrefixable));
         }
         // UomSystemOfUnits rejects a prefixable symbol that is not one of its units.
         prefixable.retainAll(units.keySet());
+        binaryPrefixable.retainAll(units.keySet());
         Map<String, String> fallback = !parents.isEmpty() ? parents.get(0).preferred()
                 : done.isEmpty() ? null : done.values().iterator().next().preferred();
         Map<String, String> own = ownPreferred(file, d, types, bySymbol, units, cls);
@@ -181,7 +185,18 @@ public final class CatalogBuilder {
             preferred.put(t.name(), ref);
         }
         return new Catalog(file, cls, entries, Collections.unmodifiableMap(units),
-                Collections.unmodifiableSet(prefixable), Collections.unmodifiableMap(preferred));
+                Collections.unmodifiableSet(prefixable), Collections.unmodifiableSet(binaryPrefixable),
+                Collections.unmodifiableMap(preferred));
+    }
+
+    /** A line with a metric prefix makes its unit metric-prefixable, one with a binary prefix binary-prefixable. */
+    private static void addPrefixable(Prefixed p, Set<String> prefixable, Set<String> binaryPrefixable) {
+        if (p.metric()) {
+            prefixable.add(p.unitSymbol());
+        }
+        if (p.binary()) {
+            binaryPrefixable.add(p.unitSymbol());
+        }
     }
 
     /** Type name to unit reference, from the {@code @preferred} lines of {@code file} itself. */

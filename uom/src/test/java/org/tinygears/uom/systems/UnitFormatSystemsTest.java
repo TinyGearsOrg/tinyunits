@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +17,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Stream;
+import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import org.junit.jupiter.api.Test;
@@ -27,6 +31,8 @@ import org.tinygears.uom.systems.SystemsCatalogTest.Catalog;
 /** The standard format over all seven systems (D7). */
 class UnitFormatSystemsTest {
     private static final List<Catalog> CATALOGS = SystemsCatalogTest.CATALOGS;
+    private static final List<Prefix> ALL_PREFIXES = Stream.<Prefix>concat(Arrays.stream(MetricPrefix.values()),
+            Arrays.stream(BinaryPrefix.values())).toList();
     private final UomUnitFormat format = UomUnitFormat.standard();
 
     private UomUnit<?> parse(String text) {
@@ -70,9 +76,9 @@ class UnitFormatSystemsTest {
         int exact = 0;
         int prefixed = 0;
         for (Catalog c : CATALOGS) {
-            for (String symbol : c.prefixable()) {
+            for (String symbol : SystemsCatalogTest.members(c.file())) {
                 UomUnit<?> unit = c.system().lookup(symbol).orElseThrow();
-                for (MetricPrefix p : MetricPrefix.values()) {
+                for (Prefix p : SystemsCatalogTest.prefixes(c.system(), symbol)) {
                     String text = p.getSymbol() + symbol;
                     UomUnit<?> parsed = parse(text);
                     assertEquals(parsed, format.parse(format.format(parsed)), text);
@@ -87,10 +93,33 @@ class UnitFormatSystemsTest {
                 }
             }
         }
-        int expected = CATALOGS.stream().mapToInt(c -> SystemsCatalogTest.prefixable(c.file()).size()).sum()
-                * MetricPrefix.values().length;
+        int expected = CATALOGS.stream().mapToInt(c -> SystemsCatalogTest.members(c.file()).stream()
+                .mapToInt(s -> SystemsCatalogTest.prefixes(c.system(), s).size()).sum()).sum();
         assertEquals(expected, exact + prefixed);
         assertTrue(exact > 0 && prefixed > 0, exact + " " + prefixed);
+    }
+
+    @Test
+    void informationUnitsTakeKiloAndUpAndBinaryPrefixes() {
+        assertSame(Information.KILOBYTE, parse("kB"));
+        assertSame(Information.MEBIBYTE, parse("MiB"));
+        assertEquals(Information.BYTE.prefix(MetricPrefix.ZETTA), parse("ZB"));
+        assertEquals(Information.BYTE.prefix(BinaryPrefix.YOBI), parse("YiB"));
+        assertEquals("yobibyte", parse("YiB").getName());
+        assertEquals(Information.BIT.prefix(BinaryPrefix.PEBI), parse("Pibit"));
+        assertEquals(Information.BIT.multiply(8), Information.BYTE);
+        for (String text : List.of("dB", "hB", "daB", "mB", "µbit", "cbit", "KiKiB", "Kim", "Mis", "GiHz", "kiB")) {
+            assertThrows(MeasurementParseException.class, () -> format.parse(text), text);
+        }
+        assertSame(Information.GIBIBYTE, parse("GiB"));
+        assertEquals("KiB", format.format(Information.BYTE.multiply(1024)));
+        assertEquals("Zibit", format.format(Information.BIT.prefix(BinaryPrefix.ZEBI)));
+        assertEquals("kB", format.format(Information.BIT.multiply(8000)));
+        assertEquals("B", format.format(Information.BIT.multiply(8)));
+        // A tenth of a byte has no prefixed text: it is not the decibel.
+        assertEquals("4|5·bit", format.format(Information.BYTE.divide(10)));
+        assertEquals("MiB/s", format.format(Information.MEBIBYTE.divide(SI.SECOND)));
+        assertEquals(Information.MEBIBYTE.divide(SI.SECOND), parse("MiB/s"));
     }
 
     @Test
@@ -142,15 +171,16 @@ class UnitFormatSystemsTest {
         int refused = 0;
         for (Catalog c : CATALOGS.subList(1, CATALOGS.size())) {
             Set<String> prefixable = SystemsCatalogTest.prefixable(c.file());
+            Set<String> binary = SystemsCatalogTest.binaryPrefixable(c.file());
             for (String symbol : SystemsCatalogTest.members(c.file())) {
-                if (prefixable.contains(symbol)) {
+                if (prefixable.contains(symbol) || binary.contains(symbol)) {
                     continue;
                 }
                 // A prefix before a symbol with a superscript reads as a power of the prefixed rest (km² is (km)^2).
                 if (symbol.matches(".*[\u2070\u00B9\u00B2\u00B3\u2074-\u2079]$")) {
                     continue;
                 }
-                for (MetricPrefix p : MetricPrefix.values()) {
+                for (Prefix p : ALL_PREFIXES) {
                     String text = p.getSymbol() + symbol;
                     if (!symbols.containsKey(text)) {
                         assertThrows(MeasurementParseException.class, () -> format.parse(text), text);

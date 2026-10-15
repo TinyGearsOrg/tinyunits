@@ -148,7 +148,7 @@ class QuantitySerializationTest {
     @Test
     void everyCatalogUnitRoundTrips() throws Exception {
         List<UomUnit<?>> catalog = QuantityCheck.catalog();
-        assertEquals(298, catalog.size());
+        assertEquals(320, catalog.size());
         for (UomUnit<?> u : catalog) {
             UomUnit<?> copy = (UomUnit<?>) roundTrip(u);
             assertEquals(u, copy);
@@ -178,7 +178,7 @@ class QuantitySerializationTest {
             }
             String out = run(List.of(JAVA, "-XX:-UsePerfData", "-cp", System.getProperty("java.class.path"),
                     QuantityCheck.class.getName(), "units", file.toString()));
-            assertTrue(out.contains("ok units 298"), out);
+            assertTrue(out.contains("ok units 320"), out);
         } finally {
             Files.deleteIfExists(file);
         }

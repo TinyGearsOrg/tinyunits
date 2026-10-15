@@ -58,7 +58,7 @@ class ToSystemTest {
     @Test
     @SuppressWarnings({"unchecked", "rawtypes"})
     void everyTypeInEverySystem() {
-        assertEquals(7, UnitSystems.all().size());
+        assertEquals(8, UnitSystems.all().size());
         assertEquals(33, QuantityTypes.types().size());
         for (UomSystemOfUnits system : UnitSystems.all()) {
             for (Class<?> type : QuantityTypes.types()) {

@@ -57,5 +57,8 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
   ([docs/UNITS.md](docs/UNITS.md)), the user documentation, the release verification script and a CI workflow
   (JDK 17, 21 and 25).
 - Java 17 is the baseline (was 21); releases are still built with JDK 21.
+- The `Information` catalog: the bit and the byte with decimal and binary prefixes (`kB`, `MiB`, `Kibit`; IEC
+  80000-13). `@prefixed` accepts binary prefix symbols (`Ki` to `Yi`), and the unit format reads and writes binary
+  prefixes on the units that take them; such a unit takes only the metric prefixes from kilo up (`dB` does not parse).
 
 [Unreleased]: https://github.com/TinyGearsOrg/tinyunits/commits/main

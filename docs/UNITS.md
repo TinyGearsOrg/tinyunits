@@ -15,6 +15,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | [ESU](#esu) | `data/cgs-esu.units` | 22 |
 | [EMU](#emu) | `data/cgs-emu.units` | 29 |
 | [Gaussian](#gaussian) | `data/cgs-gaussian.units` | 27 |
+| [Information](#information) | `data/information.units` | 22 |
 
 ## SI
 
@@ -349,3 +350,30 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 | `Mx` | maxwell | MagneticFlux | `1e-8 Wb` |  |
 | `Oe` | oersted | - | `250 pi^-1 A/m` |  |
 | `Gb` | gilbert | ElectricCurrent | `2.5 pi^-1 A` |  |
+
+## Information
+
+| Symbol | Name | Quantity type | Factor | Offset |
+|---|---|---|---|---|
+| `bit` | bit | - | `1 bit` |  |
+| `B` | byte | - | `8 bit` |  |
+| `kbit` | kilobit | - | `1000 bit` |  |
+| `Mbit` | megabit | - | `1000000 bit` |  |
+| `Gbit` | gigabit | - | `1000000000 bit` |  |
+| `Tbit` | terabit | - | `1000000000000 bit` |  |
+| `Kibit` | kibibit | - | `1024 bit` |  |
+| `Mibit` | mebibit | - | `1048576 bit` |  |
+| `Gibit` | gibibit | - | `1073741824 bit` |  |
+| `Tibit` | tebibit | - | `1099511627776 bit` |  |
+| `kB` | kilobyte | - | `8000 bit` |  |
+| `MB` | megabyte | - | `8000000 bit` |  |
+| `GB` | gigabyte | - | `8000000000 bit` |  |
+| `TB` | terabyte | - | `8000000000000 bit` |  |
+| `PB` | petabyte | - | `8000000000000000 bit` |  |
+| `EB` | exabyte | - | `8000000000000000000 bit` |  |
+| `KiB` | kibibyte | - | `8192 bit` |  |
+| `MiB` | mebibyte | - | `8388608 bit` |  |
+| `GiB` | gibibyte | - | `8589934592 bit` |  |
+| `TiB` | tebibyte | - | `8796093022208 bit` |  |
+| `PiB` | pebibyte | - | `9007199254740992 bit` |  |
+| `EiB` | exbibyte | - | `9223372036854775808 bit` |  |

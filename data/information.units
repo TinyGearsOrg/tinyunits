@@ -1,0 +1,12 @@
+# Information units, from IEC 80000-13:2008: the bit and the byte (8 bit), with decimal and binary prefixes.
+# Not SI units: the bit is an alternate dimensionless atom, as the radian is in si.units.
+# Format: symbol:name formula [Type]; '~' defines an alternate unit; '#' starts a comment.
+
+@system Information
+
+bit:bit ~
+B:byte 8 bit
+
+# Kilo and up only: other metric prefixes do not apply to these units (no dB).
+@prefixed bit k M G T Ki Mi Gi Ti
+@prefixed B k M G T P E Ki Mi Gi Ti Pi Ei

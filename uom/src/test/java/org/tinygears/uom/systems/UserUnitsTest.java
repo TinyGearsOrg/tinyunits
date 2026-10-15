@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.measure.BinaryPrefix;
 import javax.measure.MeasurementException;
 import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
@@ -529,6 +530,31 @@ class UserUnitsTest {
         assertTrue(s.isPrefixable("gs"));
         assertEquals(List.of("gs"), s.getUnits().stream().map(Unit::getSymbol).toList());
         assertEquals(SI.GRAM.multiply(2e-6), UomUnitFormat.standard().with(s).parse("µgs"));
+    }
+
+    @Test
+    void binaryPrefixesInAUserFile() {
+        UomSystemOfUnits binary = load("@system Imaging\npx:pixel ~\n@prefixed px Ki\n");
+        assertFalse(binary.isPrefixable("px"));
+        assertTrue(binary.isBinaryPrefixable("px"));
+        UomUnitFormat f = UomUnitFormat.standard().with(binary);
+        assertEquals(binary.getUnit("px").multiply(1048576), f.parse("Mipx"));
+        assertEquals("mebipixel", f.parse("Mipx").getName());
+        // Without a metric prefix in a line the unit takes none.
+        assertThrows(MeasurementParseException.class, () -> f.parse("kpx"));
+
+        UomSystemOfUnits both = load("@system Imaging\npx:pixel ~\n@prefixed px k Ki\n");
+        assertTrue(both.isPrefixable("px"));
+        UomUnitFormat g = UomUnitFormat.standard().with(both);
+        assertEquals(both.getUnit("px").multiply(1000000), g.parse("Mpx"));
+        assertThrows(MeasurementParseException.class, () -> g.parse("mpx"));
+        assertEquals("Gipx", g.format(both.getUnit("px").prefix(BinaryPrefix.GIBI)));
+
+        String base = "@system Base\npx:pixel ~\n@prefixed px Ki\n";
+        assertTrue(load("@extends base.units\n@system Child\n", Map.of("base.units", base)).isBinaryPrefixable("px"));
+        UomSystemOfUnits member = load("@include e.units\n@member px\n", Map.of("e.units", base));
+        assertTrue(member.isBinaryPrefixable("px"));
+        assertFalse(member.isPrefixable("px"));
     }
 
     @Test

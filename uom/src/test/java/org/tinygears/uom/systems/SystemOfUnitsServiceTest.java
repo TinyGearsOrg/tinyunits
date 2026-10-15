@@ -42,10 +42,10 @@ class SystemOfUnitsServiceTest {
     @Test
     void available() {
         List<UomSystemOfUnits> all = List.of(SI.SYSTEM, USCustomary.SYSTEM, Imperial.SYSTEM, CGS.SYSTEM, ESU.SYSTEM,
-                EMU.SYSTEM, Gaussian.SYSTEM);
+                EMU.SYSTEM, Gaussian.SYSTEM, Information.SYSTEM);
         assertEquals(all, List.copyOf(service.getAvailableSystemsOfUnits()));
         assertEquals(all, UnitSystems.all());
-        assertEquals(List.of("SI", "USCustomary", "Imperial", "CGS", "ESU", "EMU", "Gaussian"),
+        assertEquals(List.of("SI", "USCustomary", "Imperial", "CGS", "ESU", "EMU", "Gaussian", "Information"),
                 service.getAvailableSystemsOfUnits().stream().map(s -> s.getName()).toList());
     }
 

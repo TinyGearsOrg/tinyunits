@@ -105,7 +105,8 @@ class UnitTableEmitterTest {
     @Test
     void realSectionsFollowTheCatalogOrder() {
         List<String> headings = TABLE.lines().filter(l -> l.startsWith("## ") && !l.equals("## Systems")).toList();
-        assertEquals(List.of("## SI", "## USCustomary", "## Imperial", "## CGS", "## ESU", "## EMU", "## Gaussian"),
+        assertEquals(List.of("## SI", "## USCustomary", "## Imperial", "## CGS", "## ESU", "## EMU", "## Gaussian",
+                "## Information"),
                 headings);
         assertTrue(TABLE.contains("| [ESU](#esu) | `data/cgs-esu.units` | 22 |\n"), TABLE);
     }

@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import javax.measure.MeasurementException;
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import javax.measure.Unit;
 import org.junit.jupiter.api.Test;
 import org.tinygears.uom.core.UomUnit;
@@ -78,8 +79,8 @@ class ShiftGrammarRegressionTest {
     private static Set<String> prefixedSymbols() {
         Set<String> prefixed = new LinkedHashSet<>();
         for (SystemsCatalogTest.Catalog c : SystemsCatalogTest.CATALOGS) {
-            for (String symbol : c.prefixable()) {
-                for (MetricPrefix p : MetricPrefix.values()) {
+            for (String symbol : SystemsCatalogTest.members(c.file())) {
+                for (Prefix p : SystemsCatalogTest.prefixes(c.system(), symbol)) {
                     prefixed.add(p.getSymbol() + symbol);
                 }
             }

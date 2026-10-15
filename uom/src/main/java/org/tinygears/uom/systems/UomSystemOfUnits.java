@@ -44,9 +44,10 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     private final Set<UomUnit<?>> units;
     private final Map<Class<?>, UomUnit<?>> preferred;
     private final Set<String> prefixable;
+    private final Set<String> binaryPrefixable;
 
     /**
-     * A system; a unit without a symbol, a duplicate symbol or a prefixable symbol that is not a unit symbol throws IllegalArgumentException.
+     * A system whose units take no binary prefix; see {@link #UomSystemOfUnits(String, List, Map, Set, Set)}.
      *
      * @param name the name
      * @param units the units, in lookup and listing order
@@ -55,6 +56,20 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      */
     public UomSystemOfUnits(String name, List<UomUnit<?>> units, Map<Class<?>, UomUnit<?>> preferred,
             Set<String> prefixable) {
+        this(name, units, preferred, prefixable, Set.of());
+    }
+
+    /**
+     * A system; a unit without a symbol, a duplicate symbol or a prefixable symbol that is not a unit symbol throws IllegalArgumentException.
+     *
+     * @param name the name
+     * @param units the units, in lookup and listing order
+     * @param preferred the unit of each quantity type
+     * @param prefixable the symbols that take a metric prefix
+     * @param binaryPrefixable the symbols that take a binary prefix ({@code Ki}, {@code Mi}, ...)
+     */
+    public UomSystemOfUnits(String name, List<UomUnit<?>> units, Map<Class<?>, UomUnit<?>> preferred,
+            Set<String> prefixable, Set<String> binaryPrefixable) {
         this.name = Objects.requireNonNull(name, "name");
         Map<String, UomUnit<?>> index = new LinkedHashMap<>();
         for (UomUnit<?> unit : Objects.requireNonNull(units, "units")) {
@@ -70,9 +85,12 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         this.units = Collections.unmodifiableSet(new LinkedHashSet<>(index.values()));
         this.preferred = Map.copyOf(Objects.requireNonNull(preferred, "preferred"));
         this.prefixable = Set.copyOf(Objects.requireNonNull(prefixable, "prefixable"));
-        for (String symbol : this.prefixable) {
-            if (!index.containsKey(symbol)) {
-                throw new IllegalArgumentException("prefixable symbol is not a unit symbol: " + symbol);
+        this.binaryPrefixable = Set.copyOf(Objects.requireNonNull(binaryPrefixable, "binaryPrefixable"));
+        for (Set<String> symbols : List.of(this.prefixable, this.binaryPrefixable)) {
+            for (String symbol : symbols) {
+                if (!index.containsKey(symbol)) {
+                    throw new IllegalArgumentException("prefixable symbol is not a unit symbol: " + symbol);
+                }
             }
         }
     }
@@ -136,8 +154,8 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * {@code asType}. Nothing is registered globally, except that {@code ~} lines register their alternate-unit
      * symbols in the JVM-wide registry permanently: loading the same definition again works, a different one for
      * the same symbol is an error until the JVM restarts. {@code @prefixed u k} checks only the generated
-     * {@code ku} against the built-in symbols, though every metric prefix on {@code u} is readable at run time; an
-     * exact built-in symbol wins over such a reading.
+     * {@code ku} against the built-in symbols, though every prefix {@code u} takes (see {@link UomUnitFormat}) is
+     * readable at run time; an exact built-in symbol wins over such a reading.
      *
      * @param name the file name in messages and the default system name
      * @param reader the content of the root file
@@ -197,7 +215,12 @@ public final class UomSystemOfUnits implements SystemOfUnits {
             }
         }
         Set<String> prefixable = new LinkedHashSet<>();
-        d.prefixed().stream().filter(p -> p.source().equals(source)).forEach(p -> prefixable.add(p.unitSymbol()));
+        Set<String> binaryPrefixable = new LinkedHashSet<>();
+        for (Prefixed p : d.prefixed()) {
+            if (p.source().equals(source)) {
+                addPrefixable(p, prefixable, binaryPrefixable);
+            }
+        }
         List<UomSystemOfUnits> parents = new ArrayList<>();
         for (Extends x : d.extended()) {
             UomSystemOfUnits system = loaded.get(x.file());
@@ -215,6 +238,9 @@ public final class UomSystemOfUnits implements SystemOfUnits {
                 if (system.isPrefixable(symbol)) {
                     prefixable.add(symbol);
                 }
+                if (system.isBinaryPrefixable(symbol)) {
+                    binaryPrefixable.add(symbol);
+                }
             }
         }
         for (Member m : d.members()) {
@@ -222,11 +248,12 @@ public final class UomSystemOfUnits implements SystemOfUnits {
             units.putIfAbsent(m.symbol(), def.unit());
             for (Prefixed p : d.prefixed()) {
                 if (p.source().equals(def.source()) && p.unitSymbol().equals(m.symbol())) {
-                    prefixable.add(m.symbol());
+                    addPrefixable(p, prefixable, binaryPrefixable);
                 }
             }
         }
         prefixable.retainAll(units.keySet());
+        binaryPrefixable.retainAll(units.keySet());
 
         Map<String, Class<?>> types = new HashMap<>();
         QuantityTypes.types().forEach(t -> types.put(t.getSimpleName(), t));
@@ -258,7 +285,17 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         for (Class<?> type : QuantityTypes.types()) {
             preferred.computeIfAbsent(type, fallback::get);
         }
-        return new UomSystemOfUnits(name, List.copyOf(units.values()), preferred, prefixable);
+        return new UomSystemOfUnits(name, List.copyOf(units.values()), preferred, prefixable, binaryPrefixable);
+    }
+
+    /** A line with a metric prefix makes its unit metric-prefixable, one with a binary prefix binary-prefixable. */
+    private static void addPrefixable(Prefixed p, Set<String> prefixable, Set<String> binaryPrefixable) {
+        if (p.metric()) {
+            prefixable.add(p.unitSymbol());
+        }
+        if (p.binary()) {
+            binaryPrefixable.add(p.unitSymbol());
+        }
     }
 
     /** Every symbol, in list order, aliases included. */
@@ -321,6 +358,17 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      */
     public boolean isPrefixable(String unitSymbol) {
         return prefixable.contains(unitSymbol);
+    }
+
+    /**
+     * Whether binary prefixes ({@code Ki}, {@code Mi}, ...) apply to the unit with this symbol. Such a unit takes
+     * only the metric prefixes from kilo up in a format, as IEC 80000-13 uses them ({@code kB}, not {@code dB}).
+     *
+     * @param unitSymbol the unit symbol
+     * @return true if binary-prefixable
+     */
+    public boolean isBinaryPrefixable(String unitSymbol) {
+        return binaryPrefixable.contains(unitSymbol);
     }
 
     @Override

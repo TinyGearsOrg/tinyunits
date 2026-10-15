@@ -14,12 +14,12 @@ public final class UnitSystems {
     }
 
     /**
-     * The systems: SI, US customary, Imperial, CGS, ESU, EMU and Gaussian.
+     * The systems: SI, US customary, Imperial, CGS, ESU, EMU, Gaussian and Information.
      *
      * @return the systems
      */
     public static List<UomSystemOfUnits> all() {
         return List.of(SI.SYSTEM, USCustomary.SYSTEM, Imperial.SYSTEM, CGS.SYSTEM, ESU.SYSTEM, EMU.SYSTEM,
-                Gaussian.SYSTEM);
+                Gaussian.SYSTEM, Information.SYSTEM);
     }
 }

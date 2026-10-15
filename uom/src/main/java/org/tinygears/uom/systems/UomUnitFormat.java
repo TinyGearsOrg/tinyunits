@@ -18,7 +18,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.format.UnitFormat;
@@ -30,13 +33,16 @@ import org.tinygears.uom.core.parse.FormulaException;
 
 /**
  * Formats units by label or symbol and parses unit formulas such as {@code kg·m/s^2} over systems of units.
- * Symbols resolve as labels, then exact symbols, then a metric prefix on a prefixable unit. Thread-safe.
+ * Symbols resolve as labels, then exact symbols, then a metric or binary prefix on a prefixable unit ({@code km},
+ * {@code MiB}). A unit that takes binary prefixes takes only the metric prefixes from kilo up ({@code kB}, not
+ * {@code dB}). Thread-safe.
  */
 public final class UomUnitFormat implements UnitFormat {
     private static final String EXCLUDED = "*/()^|=#[]!~@,·+-";
     private static final int MAX_POWER = 30;
-    private static final List<MetricPrefix> PREFIXES = Arrays.stream(MetricPrefix.values())
-            .sorted(Comparator.comparingInt((MetricPrefix p) -> p.getSymbol().length()).reversed())
+    private static final List<Prefix> PREFIXES = Stream.<Prefix>concat(Arrays.stream(MetricPrefix.values()),
+                    Arrays.stream(BinaryPrefix.values()))
+            .sorted(Comparator.comparingInt((Prefix p) -> p.getSymbol().length()).reversed())
             .toList();
 
     private static final Pattern EXPONENT = Pattern.compile("\\^(-?)(\\d+)");
@@ -47,7 +53,7 @@ public final class UomUnitFormat implements UnitFormat {
     private final boolean superscripts;
     private final Map<String, UomUnit<?>> aliases = new ConcurrentHashMap<>();
     private final Map<UomUnit<?>, String> labels = new ConcurrentHashMap<>();
-    // The prefixable units, and all units, of the systems by unit, built when first needed.
+    // The units that take a metric or binary prefix, and all units, of the systems by unit, built when first needed.
     private volatile Map<UomUnit<?>, String> prefixable;
     private volatile Map<UomUnit<?>, String> symbols;
 
@@ -148,7 +154,7 @@ public final class UomUnitFormat implements UnitFormat {
 
     /**
      * The first of these texts that parses back to an equal unit: the label, the symbol, the symbol of an equal
-     * unit of the systems, a metric prefix on a prefixable unit of the systems ({@code mHz}, {@code pW}), a power of ten from
+     * unit of the systems, a prefix on a prefixable unit of the systems ({@code mHz}, {@code pW}, {@code KiB}), a power of ten from
      * 10 up times a unit of the systems ({@code 1000·min}), an exact formula such as {@code 1|1000·m/s}. An offset unit with factor {@code f} and
      * offset {@code o} formats as the formula of {@code f} shifted by {@code o/f}: a plain decimal if it terminates
      * and is not longer than the exact fraction, else the fraction: {@code K + 5}, {@code 5|9·K + 459.67},
@@ -240,13 +246,13 @@ public final class UomUnitFormat implements UnitFormat {
         }
     }
 
-    /** {@code mHz} or {@code pW}: a metric prefix on a prefixable unit of the systems that reads back as {@code u}. */
+    /** {@code mHz}, {@code pW} or {@code KiB}: a prefix on a prefixable unit of the systems that reads back as {@code u}. */
     private String prefixed(UomUnit<?> u) {
         if (!u.toSystemConverter().isLinear() || u.toSystemConverter().factor().signum() <= 0) {
             return null;
         }
         Map<UomUnit<?>, String> units = prefixable();
-        for (MetricPrefix prefix : PREFIXES) {
+        for (Prefix prefix : PREFIXES) {
             Factor value = Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent());
             String symbol = units.get(u.transform(Converters.scale(Factor.ONE.divide(value))));
             if (symbol != null && parsesTo(prefix.getSymbol() + symbol, u)) {
@@ -295,7 +301,8 @@ public final class UomUnitFormat implements UnitFormat {
             units = new HashMap<>();
             for (UomSystemOfUnits system : systems) {
                 for (Unit<?> known : system.getUnits()) {
-                    if (known.getSymbol() != null && system.isPrefixable(known.getSymbol())) {
+                    String symbol = known.getSymbol();
+                    if (symbol != null && (system.isPrefixable(symbol) || system.isBinaryPrefixable(symbol))) {
                         units.putIfAbsent((UomUnit<?>) known, known.getSymbol());
                     }
                 }
@@ -399,7 +406,7 @@ public final class UomUnitFormat implements UnitFormat {
     }
 
     /**
-     * The unit of an exact symbol of the systems, else of a metric prefix on a prefixable unit; never a label.
+     * The unit of an exact symbol of the systems, else of a prefix on a prefixable unit; never a label.
      *
      * @param symbol the symbol
      * @return the unit, or empty
@@ -419,16 +426,16 @@ public final class UomUnitFormat implements UnitFormat {
                 return new Found(system, unit.get());
             }
         }
-        for (MetricPrefix prefix : PREFIXES) {
+        for (Prefix prefix : PREFIXES) {
             String p = prefix.getSymbol();
             if (symbol.length() > p.length() && symbol.startsWith(p)) {
                 String rest = symbol.substring(p.length());
                 for (UomSystemOfUnits system : systems) {
                     Optional<UomUnit<?>> unit = system.lookup(rest);
-                    if (system.isPrefixable(rest) && unit.isPresent()) {
+                    if (takes(system, rest, prefix) && unit.isPresent()) {
                         UomUnit<?> u = unit.get();
-                        return new Found(system,
-                                u.prefix(prefix).named(symbol, prefix.name().toLowerCase(Locale.ROOT) + u.getName()));
+                        return new Found(system, u.prefix(prefix).named(symbol,
+                                prefix.getName().toLowerCase(Locale.ROOT) + u.getName()));
                     }
                 }
             }
@@ -436,9 +443,17 @@ public final class UomUnitFormat implements UnitFormat {
         return null;
     }
 
+    /** Whether {@code prefix} applies to the unit {@code symbol} of {@code system}; see the class comment. */
+    private static boolean takes(UomSystemOfUnits system, String symbol, Prefix prefix) {
+        if (prefix instanceof BinaryPrefix) {
+            return system.isBinaryPrefixable(symbol);
+        }
+        return system.isPrefixable(symbol) && (!system.isBinaryPrefixable(symbol) || prefix.getExponent() >= 3);
+    }
+
     /**
      * Adds {@code label} as an alias that parses to {@code unit} and formats it; a previous holder of the
-     * same label loses it. Rejects labels that would not parse back or that name a different unit of the systems, exactly or as a metric prefix on a prefixable unit.
+     * same label loses it. Rejects labels that would not parse back or that name a different unit of the systems, exactly or as a prefix on a prefixable unit.
      */
     @Override
     public synchronized void label(Unit<?> unit, String label) {
@@ -451,7 +466,7 @@ public final class UomUnitFormat implements UnitFormat {
                 || label.chars().anyMatch(c -> Character.isWhitespace(c) || EXCLUDED.indexOf(c) >= 0)) {
             throw new IllegalArgumentException("invalid label: '" + label + "'");
         }
-        // An exact symbol, or a metric prefix on a prefixable unit ("Gm" is the gigametre, not a label for seconds).
+        // An exact symbol, or a prefix on a prefixable unit ("Gm" is the gigametre, not a label for seconds).
         Found existing = resolve(systems, label);
         if (existing != null && !existing.unit().equals(u)) {
             throw new IllegalArgumentException("label '" + label + "' is the symbol of " + existing.unit().getName());

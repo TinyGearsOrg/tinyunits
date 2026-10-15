@@ -1,19 +1,11 @@
 # TODO
 
 Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when to revisit
-them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-11); the last version of this file with the full discussion is
-`git show 5d734d3:docs/TODO.md`. The groups: an owner-requested follow-up (7), gaps against the JSR-385 reference
-implementation Indriya (10, 11, 13, 14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and
-18), open defects and hardening carried over from the milestone reviews (21 to 32), then the steps before the first release
-("Release readiness"). Each item says under "Needed by" what, if anything, it blocks.
-
-## 7. Binary prefixes and byte units
-
-**Status:** not implemented. `BinaryPrefix` (`MiB`) is not resolved by the unit format or `@prefixed`, and no bit or byte
-units exist; `UomUnit.prefix(BinaryPrefix.KIBI)` works on a unit. Needs bit and byte definitions (IEC 80000-13), a binary
-prefix directive and run-time resolution, and a decision whether information units belong in 1.0.
-
-**Needed by:** nothing; decide before 1.0.
+them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-12); the last version of this file with the full discussion is
+`git show 5d734d3:docs/TODO.md`. The groups: gaps against the JSR-385 reference implementation Indriya (10, 11, 13,
+14), the base units of a system (15), an AGENTS.md (16), pre-commit and formatting (17 and 18), open defects and
+hardening carried over from the milestone reviews (21 to 32), then the steps before the first release ("Release
+readiness"). Each item says under "Needed by" what, if anything, it blocks.
 
 ## 10. Behaviour comparison with Indriya
 
@@ -39,9 +31,8 @@ the rationale prominently, or offer a strict no-mixing mode (not provided today)
 - Typed quantity products and quotients (`Length` / `Time` returning `Speed`): out of scope; `multiply` and `divide` return
   untyped results and need `asType` or `X.from` (DR-10).
 - Closed set of 33 generated quantity types.
-- Unit sets and formats beyond the seven catalogs and the standard format (for example UCUM, and unit sets of the separate
+- Unit sets and formats beyond the eight catalogs and the standard format (for example UCUM, and unit sets of the separate
   unitsofmeasurement projects): unchecked.
-- Byte and bit units and binary prefixes: item 7.
 - Poise, stokes and oersted are untyped `UomUnit<?>` constants; extra quantity types (`DynamicViscosity`,
   `KinematicViscosity`, `MagneticFieldStrength`) would type them and extend `data/quantity-types.txt`.
 

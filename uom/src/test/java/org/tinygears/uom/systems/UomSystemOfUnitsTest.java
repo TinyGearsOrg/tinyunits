@@ -126,6 +126,9 @@ class UomSystemOfUnitsTest {
         var e = assertThrows(IllegalArgumentException.class,
                 () -> new UomSystemOfUnits("D", List.of(M), Map.of(), Set.of("zz")));
         assertEquals("prefixable symbol is not a unit symbol: zz", e.getMessage());
+        e = assertThrows(IllegalArgumentException.class,
+                () -> new UomSystemOfUnits("D", List.of(M), Map.of(), Set.of(), Set.of("zz")));
+        assertEquals("prefixable symbol is not a unit symbol: zz", e.getMessage());
     }
 
     @Test
@@ -138,6 +141,8 @@ class UomSystemOfUnitsTest {
                 () -> new UomSystemOfUnits("n", List.of(), null, Set.of())).getMessage());
         assertEquals("prefixable", assertThrows(NullPointerException.class,
                 () -> new UomSystemOfUnits("n", List.of(), Map.of(), null)).getMessage());
+        assertEquals("binaryPrefixable", assertThrows(NullPointerException.class,
+                () -> new UomSystemOfUnits("n", List.of(), Map.of(), Set.of(), null)).getMessage());
         var withNull = new ArrayList<UomUnit<?>>();
         withNull.add(null);
         assertEquals("unit", assertThrows(NullPointerException.class,
@@ -152,6 +157,10 @@ class UomSystemOfUnitsTest {
         assertTrue(sys.isPrefixable("m"));
         assertFalse(sys.isPrefixable("km"));
         assertFalse(sys.isPrefixable("x"));
+        assertFalse(sys.isBinaryPrefixable("m"));
+        var binary = new UomSystemOfUnits("B", List.of(M, KM), Map.of(), Set.of(), Set.of("m"));
+        assertFalse(binary.isPrefixable("m"));
+        assertTrue(binary.isBinaryPrefixable("m"));
     }
 
     @Test
