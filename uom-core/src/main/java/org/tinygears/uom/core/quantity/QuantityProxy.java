@@ -337,7 +337,7 @@ final class QuantityProxy implements Serializable {
     }
 
     private static InvalidObjectException invalid(String message, Throwable cause) {
-        return new InvalidObjectException("invalid quantity: " + message, cause);
+        return (InvalidObjectException) new InvalidObjectException("invalid quantity: " + message).initCause(cause);
     }
 
     /** Wraps an unexpected failure; one without a message is named by its class. */

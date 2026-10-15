@@ -432,7 +432,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             if (e % n != 0) {
                 throw new ArithmeticException("exponent " + e + " of " + a.symbol() + " not divisible by " + n);
             }
-            m.put(a, Math.divideExact(e, n));
+            m.put(a, Math.toIntExact((long) e / n));
         });
         return of(m, Converters.scale(toSystem.factor().root(n)), null, null);
     }
@@ -524,7 +524,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
                 }
                 return of(atomMap(atoms, exponents), toSystem, symbol, name);
             } catch (RuntimeException e) {
-                throw new InvalidObjectException("invalid unit: " + e.getMessage(), e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid unit: " + e.getMessage()).initCause(e);
             }
         }
     }

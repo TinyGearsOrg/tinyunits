@@ -1,7 +1,7 @@
 # uom: Design
 
 Status: implemented, nothing published yet; the decisions taken are recorded in section 1. Companion to `REQUIREMENTS.md` (requirement IDs F1 to F24 and
-N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven, multi-module.
+N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 17 (DR-11). Maven, multi-module.
 
 ## 1. Decisions
 
@@ -14,6 +14,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 21. Maven,
 | User extension | Users load their own `.units` files at run time (`UomSystemOfUnits.load`) and get `Unit<?>` back (F18). User-defined quantity types are out of scope. |
 | Precision | The lower precision wins, symmetric (F23). |
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
+| Java baseline | Java 17; releases built with JDK 21 (DR-11). |
 
 ### Decision records
 
@@ -162,6 +163,23 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Revisit if.* Fluent chaining is wanted: add an instance method on a new `UomQuantity` additively; `from` blocks nothing.
   Typed products, if relations between types are declared. Code: `SourceEmitter` (interface template and registry).
 - *See.* README, "Typed quantities and unit declarations"; `FromTest`.
+
+**DR-11 Java 17 is the baseline.**
+- *Decision.* `maven.compiler.release` is 17 and the enforcer requires JDK 17 or later; CI builds on JDK 17, 21 and 25,
+  and releases are still built and checked with JDK 21 (RELEASING step 5).
+- *Why.* Much of the JSR-385 audience is on older JDKs (Indriya targets Java 8). Going from 21 to 17 cost three APIs:
+  `Math.divideExact` (18) became `Math.toIntExact((long) a / n)`, which keeps the `MIN_VALUE / -1` overflow that
+  `UomDimensionTest.rootEdgeCases` pins; `BigDecimal.TWO` (19) became `BigDecimal.valueOf(2)`;
+  `InvalidObjectException(String, Throwable)` (19) became `initCause`. Tests: two `BigDecimal.TWO` and one
+  `List.reversed()` (21).
+- *Rejected.* Java 11: about 70 syntax sites in main (16 records, 6 of them public API types in `core.parse`, pattern
+  `instanceof`, text blocks, switch rules, one `sealed`) and more in tests. Java 8: also a multi-release jar for
+  `module-info`, about 70 uses of Java 9 to 11 APIs and a changed generator output. Measured estimates in
+  `git show ba4f92f:docs/TODO.md`, item 9.
+- *Revisit if.* Users ask for 11 or 8. The javadoc tool of JDK 17 warns "no comment" on the serialized form of the
+  `Serializable` records `UomDimension` and `UnitAtom`, which fails the `release` profile, so a release on JDK 17 needs
+  that solved first.
+- *See.* `pom.xml`, `.github/workflows/ci.yml`, REQUIREMENTS section 3.
 
 ## 2. Modules and data flow
 
@@ -536,7 +554,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 - Semantics tests: precision mixing, equality and equivalence, alternate units, offset units,
   roots of non-perfect powers.
 - Serialization round trip (every catalog unit; 33 types x {double, decimal} x {ABSOLUTE, RELATIVE}; golden files);
-  module-path and class-path runs, including fresh-JVM reads. The CI workflow runs `mvn -B verify` on JDK 21 and 25, and
+  module-path and class-path runs, including fresh-JVM reads. The CI workflow runs `mvn -B verify` on JDK 17, 21 and 25, and
   `scripts/verify-release.sh` checks a consumer project on the class path, the module path and in a `jlink` image.
 - **Serialization (F12, D1).** Serialization proxies for `Factor`, `UomDimension`, `UnitAtom`, the
   converters, `UomUnit` and the quantity base classes. Each class returns its proxy from `writeReplace` and throws

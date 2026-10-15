@@ -414,7 +414,7 @@ public final class Factor implements Serializable {
         // An irrational value is never a midpoint: widen until a +-2 ulp bracket rounds to one double.
         for (int p = 25; ; p *= 2) {
             BigDecimal x = decimalValue(new MathContext(p));
-            BigDecimal err = x.ulp().multiply(BigDecimal.TWO);
+            BigDecimal err = x.ulp().multiply(BigDecimal.valueOf(2));
             double lo = x.subtract(err).doubleValue();
             if (lo == x.add(err).doubleValue()) {
                 return lo;
@@ -589,7 +589,7 @@ public final class Factor implements Serializable {
                 }
                 return of(numerator, denominator, piExponent, rootIndex);
             } catch (RuntimeException e) {
-                throw new InvalidObjectException("invalid factor: " + e.getMessage(), e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid factor: " + e.getMessage()).initCause(e);
             }
         }
     }

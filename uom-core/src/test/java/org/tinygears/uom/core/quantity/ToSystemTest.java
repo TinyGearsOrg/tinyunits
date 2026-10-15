@@ -93,7 +93,7 @@ class ToSystemTest {
     void untypedQuantitiesHaveNoSystemUnit() {
         SystemOfUnits all = system("Test", Map.of(Length.class, METRE, Untyped.class, METRE.multiply(METRE)));
         Quantity<?> area = new TestLengthImpl(2, METRE).multiply(new TestLengthImpl(3, METRE));
-        Quantity<?> decimalArea = new TestLengthDecimalImpl(BigDecimal.TWO, METRE)
+        Quantity<?> decimalArea = new TestLengthDecimalImpl(BigDecimal.valueOf(2), METRE)
                 .multiply(new TestLengthDecimalImpl(BigDecimal.ONE, METRE));
         assertEquals(UNSUPPORTED + "Untyped", assertThrows(UnsupportedOperationException.class,
                 () -> ((UntypedDoubleQuantity) area).toSystem(EMPTY)).getMessage());

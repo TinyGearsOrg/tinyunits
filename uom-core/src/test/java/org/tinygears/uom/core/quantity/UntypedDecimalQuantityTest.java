@@ -180,7 +180,7 @@ class UntypedDecimalQuantityTest {
     @Test
     void scaleOfResultsIsAbsolute() {
         TestLengthDecimalImpl relative =
-                new TestLengthDecimalImpl(BigDecimal.TWO, METRE, Quantity.Scale.RELATIVE, DECIMAL128);
+                new TestLengthDecimalImpl(BigDecimal.valueOf(2), METRE, Quantity.Scale.RELATIVE, DECIMAL128);
         assertSame(Quantity.Scale.ABSOLUTE, relative.multiply(q("3", SECOND)).getScale());
         assertSame(Quantity.Scale.ABSOLUTE, relative.divide(q("3", SECOND)).getScale());
         assertSame(Quantity.Scale.ABSOLUTE, relative.inverse().getScale());

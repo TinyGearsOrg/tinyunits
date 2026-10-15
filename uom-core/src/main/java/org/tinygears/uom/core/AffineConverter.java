@@ -243,7 +243,7 @@ final class AffineConverter implements UomConverter, Serializable {
                 // Validated above; the package-private constructor keeps the stored values and the step list.
                 return new AffineConverter(factor, offset, List.copyOf(steps));
             } catch (RuntimeException e) {
-                throw new InvalidObjectException("invalid converter: " + e.getMessage(), e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid converter: " + e.getMessage()).initCause(e);
             }
         }
 

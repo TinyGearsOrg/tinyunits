@@ -46,7 +46,7 @@ temporary repository). Exit status: 0 passed, 1 a check failed (with the reason)
 Parses the workflow and the dependabot configuration (python3 with PyYAML) and fails when: a workflow file other than
 `ci.yml` exists; the triggers are not exactly `push` and `pull_request` (no `pull_request_target`); `permissions` is not
 exactly `contents: read` or a job sets its own; the workflow mentions `secrets`, `github.token` or `GITHUB_TOKEN`; a
-job is not `build` (matrix JDK 21 and 25), `generated` or `release-check`, lacks `timeout-minutes` or runs a command
+job is not `build` (matrix JDK 17, 21 and 25), `generated` or `release-check`, lacks `timeout-minutes` or runs a command
 containing deploy, `-Prelease`, publish, central, gpg, `git push`/`git tag` or `gh release`; an action is not
 `actions/checkout` or `actions/setup-java` at a major tag, checkout keeps credentials, setup-java is not Temurin or sets
 a Maven cache outside `build`; the run commands differ from the CI block of `CONTRIBUTING.md`; dependabot does not

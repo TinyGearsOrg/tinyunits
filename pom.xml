@@ -56,7 +56,7 @@
   </issueManagement>
 
   <properties>
-    <maven.compiler.release>21</maven.compiler.release>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Reproducible-build timestamp of the archive entries. At each release, set it in the version-change
          commit to the release date or to the committer date of the previous commit (git log -1, format %cI). -->
@@ -182,7 +182,7 @@
             <configuration>
               <rules>
                 <requireJavaVersion>
-                  <version>[21,)</version>
+                  <version>[17,)</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
                   <version>[3.9,)</version>

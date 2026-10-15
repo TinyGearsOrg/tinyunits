@@ -66,9 +66,9 @@ dynamic proxies in the picture.
 ## 3. Constraints
 
 - Build with Maven. Multi-module.
-- Java baseline 21 (the unit-api 2.2 dependency itself targets Java 8, which is compatible).
+- Java baseline 17 (the unit-api 2.2 dependency itself targets Java 8, which is compatible); see DESIGN DR-11.
 - License Apache-2.0 (already in the repository).
-- No dynamic proxies. The library works on the class path and the module path on JDK 21 through
+- No dynamic proxies. The library works on the class path and the module path on JDK 17 through
   the current JDK. Consumers need no annotation processing.
 - The code generator is an internal developer tool that emits plain Java source; a
   code-generation library dependency is allowed only if it earns its weight.
@@ -104,7 +104,7 @@ internal tool and is not.
 5. ~~**Catalog authoring.**~~ Resolved: data files in the original `.units` syntax (F15 to F19).
    Syntax, build time versus run time (both), and the explicit `[Type]` marker are settled in
    `DESIGN.md`.
-6. ~~**Java baseline.**~~ Resolved: Java 21.
+6. ~~**Java baseline.**~~ Resolved: Java 17 (DESIGN DR-11).
 7. ~~**Group id and naming.**~~ Resolved: group id `org.tinygears`, project name `uom`, artifacts
    `uom-*`. The Java package prefix `org.tinygears.uom` is assumed. The GitHub repository is still
    named `tinyunits`.
@@ -139,7 +139,7 @@ internal tool and is not.
    passing for every unit.
 4. Units can be parsed from and formatted to their symbols, and quantities are formatted. Met.
 5. Quantities and units survive Java serialization round trips. Met.
-6. The library works on the module path and on the class path, on JDK 21 and the current JDK. Met locally (`scripts/verify-release.sh` on Temurin 21 and JDK 25); the CI workflow runs the build on JDK 21 and 25 once the
+6. The library works on the module path and on the class path, on JDK 17 and the current JDK. Met locally (`mvn verify` on Temurin 17, `scripts/verify-release.sh` on Temurin 21 and JDK 25); the CI workflow runs the build on JDK 17, 21 and 25 once the
    branch is pushed.
 7. Artifacts are published to Maven Central with the documentation from N7. Prepared, not executed: the documentation
    exists and the release is the owner's action (`docs/RELEASING.md`).

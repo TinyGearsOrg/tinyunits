@@ -5,7 +5,7 @@
 # repositories, checks the installed files and POMs, reproducibility, jlink and a consumer project (scripts/README.md).
 # Usage: scripts/verify-release.sh [--jdk <JDK home>] [--require-jlink] [--self-test]
 #   internal (used by --self-test): --check <repo> | --compare <repo1> <repo2> | --consumer <repo>
-# Requires: bash, mvn (3.9+), a JDK 21+ (jar, javac, jlink), unzip, python3.
+# Requires: bash, mvn (3.9+), a JDK 17+ (jar, javac, jlink), unzip, python3.
 # Exits 1 with a message on the first failed check.
 set -euo pipefail
 
@@ -185,7 +185,7 @@ consumer() { # <repo>
     [[ ":$cp:" == *":$repo/org/tinygears/$a/$v/$a-$v.jar:"* ]] || fail "consumer: $a not resolved from $repo"
   done
   mkdir -p "$c/cp"
-  javac --release 21 -encoding UTF-8 -cp "$cp" -d "$c/cp" "$c/src/main/java/org/tinygears/uom/examples/Examples.java" \
+  javac --release 17 -encoding UTF-8 -cp "$cp" -d "$c/cp" "$c/src/main/java/org/tinygears/uom/examples/Examples.java" \
     || fail "consumer: javac on the class path failed"
   run_examples "class path" java -cp "$c/cp:$cp" "$MAIN"
   CONSUMER_PATH=$c/target/uom-consumer-1.jar:$cp

@@ -242,7 +242,7 @@ for mode, eff in (('default', default), ('release', rel)):
         rules = {r.tag: r for r in enf.findall('executions/execution/configuration/rules/*')}
         if 'enforce' not in [text(g, '.') for g in enf.findall('executions/execution/goals/goal')]:
             fail(a + ": maven-enforcer-plugin has no enforce goal")
-        for rule, version in (('requireJavaVersion', '[21,)'), ('requireMavenVersion', '[3.9,)'),
+        for rule, version in (('requireJavaVersion', '[17,)'), ('requireMavenVersion', '[3.9,)'),
                               ('banDuplicatePomDependencyVersions', None), ('dependencyConvergence', None)):
             if rule not in rules:
                 fail("%s: enforcer rule %s is missing" % (a, rule))

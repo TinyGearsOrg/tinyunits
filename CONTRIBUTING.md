@@ -2,7 +2,7 @@
 
 ## Build
 
-Java 21 or later and Maven 3.9 or later (the enforcer checks both). From the repository root:
+Java 17 or later and Maven 3.9 or later (the enforcer checks both). From the repository root:
 
 ```
 mvn -q -B clean verify
@@ -41,7 +41,7 @@ header. Generated Java files start with `// SPDX-License-Identifier: Apache-2.0`
   `--self-test` proves its checks fail) and `bash scripts/check-workflows.sh` (the CI workflow and dependabot
   configuration). [scripts/README.md](scripts/README.md) lists what each script checks.
 
-Before a pull request, run what the CI runs (`mvn -B verify` on JDK 21 and 25, the rest on one JDK):
+Before a pull request, run what the CI runs (`mvn -B verify` on JDK 17, 21 and 25, the rest on JDK 21):
 
 ```
 mvn -B verify

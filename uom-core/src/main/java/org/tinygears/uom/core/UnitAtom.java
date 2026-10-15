@@ -105,7 +105,7 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
                         : UomUnit.atomMap(definitionAtoms, definitionExponents);
                 return AlternateUnits.restore(symbol, dimension, definition);
             } catch (RuntimeException e) {
-                throw new InvalidObjectException("invalid unit atom: " + e.getMessage(), e);
+                throw (InvalidObjectException) new InvalidObjectException("invalid unit atom: " + e.getMessage()).initCause(e);
             }
         }
     }

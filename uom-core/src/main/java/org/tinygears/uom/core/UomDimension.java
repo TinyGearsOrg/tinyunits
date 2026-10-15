@@ -107,7 +107,7 @@ public record UomDimension(int length, int mass, int time, int current, int temp
             if (a[i] % n != 0) {
                 throw new ArithmeticException("Dimension " + this + " has no integer " + n + "-th root");
             }
-            a[i] = Math.divideExact(a[i], n);
+            a[i] = Math.toIntExact((long) a[i] / n);
         }
         return of(a);
     }

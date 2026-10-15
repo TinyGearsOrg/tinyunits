@@ -326,8 +326,9 @@ class CgsDataTest {
     private static Map<String, String> preferred(String file) {
         Map<String, String> result = new HashMap<>();
         Definitions defs = parsed.get(file);
-        for (Extends e : defs.extended().reversed()) {
-            result.putAll(preferred(e.file()));
+        List<Extends> extended = defs.extended();
+        for (int i = extended.size() - 1; i >= 0; i--) {
+            result.putAll(preferred(extended.get(i).file()));
         }
         defs.preferred().stream().filter(p -> p.source().equals(file))
                 .forEach(p -> result.put(p.quantityType(), p.symbol()));

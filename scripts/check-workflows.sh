@@ -34,7 +34,7 @@ self_test() {
     "third-party-action|sub(CI, 'actions/setup-java@v6', 'someone/setup-java@v6')|action 'someone/setup-java@v6' is not an allowed action at a major tag"
     "no-timeout|sub(CI, '    timeout-minutes: 45\n', '')|job release-check has no timeout-minutes"
     "no-concurrency|drop(CI, 'concurrency:', 'cancel-in-progress: true')|concurrency group must contain github.ref"
-    "matrix|sub(CI, 'java: [21, 25]', 'java: [21]')|build matrix java is [21], expected [21, 25]"
+    "matrix|sub(CI, 'java: [17, 21, 25]', 'java: [21, 25]')|build matrix java is [21, 25], expected [17, 21, 25]"
     "distribution|sub(CI, 'distribution: temurin', 'distribution: zulu')|setup-java distribution is 'zulu'"
     "missing-job|drop(CI, '  generated:', 'git status --porcelain)\"\n')|jobs are ['build', 'release-check'], expected ['build', 'generated', 'release-check']"
     "no-require-jlink|sub(CI, 'verify-release.sh --require-jlink', 'verify-release.sh')|the run commands differ from the CI block of CONTRIBUTING.md"
@@ -171,8 +171,8 @@ for name, job in jobs.items():
                     fail("job %s runs a forbidden command: '%s'" % (name, line.strip()))
                 commands.append(line.strip())
 matrix = ((jobs['build'].get('strategy') or {}).get('matrix') or {}).get('java')
-if matrix != [21, 25]:
-    fail("build matrix java is %s, expected [21, 25]" % matrix)
+if matrix != [17, 21, 25]:
+    fail("build matrix java is %s, expected [17, 21, 25]" % matrix)
 
 # the fenced block after "run what the CI runs" in CONTRIBUTING.md, in job order
 contrib = (root / 'CONTRIBUTING.md').read_text()
