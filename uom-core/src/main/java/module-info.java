@@ -5,6 +5,7 @@
  * definition parser and the base classes of the quantities. Most programs use the module {@code org.tinygears.uom},
  * which adds the typed quantities, the unit catalogs and the service provider.
  */
+@SuppressWarnings("module") // the qualified export names org.tinygears.uom, which is compiled later
 module org.tinygears.uom.core {
     requires transitive java.measure;
 
