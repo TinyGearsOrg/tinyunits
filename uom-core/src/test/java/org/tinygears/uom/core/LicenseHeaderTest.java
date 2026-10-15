@@ -1,8 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.core;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,11 +16,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LicenseHeaderTest {
 
-    private static final String HEADER = "// SPDX-License-Identifier: Apache-2.0";
+    // config/license-header.txt with any year; Spotless writes it, the generator writes it with its own year.
+    private static final Pattern HEADER = Pattern.compile(
+            Pattern.quote(header().get(0)) + "\\R"
+                    + Pattern.quote(header().get(1)).replace("$YEAR", "\\E\\d{4}\\Q")
+                    + header().stream().skip(2).map(l -> "\\R" + Pattern.quote(l)).collect(Collectors.joining())
+                    + "\\R");
     private static final Set<String> SKIPPED_DIRS = Set.of("target", ".superpowers", ".git", ".worktrees");
 
     @Test
@@ -32,7 +49,17 @@ class LicenseHeaderTest {
                     .sorted()
                     .toList();
         }
-        assertTrue(violations.isEmpty(), () -> "Missing SPDX header in:\n" + String.join("\n", violations));
+        assertTrue(
+                violations.isEmpty(),
+                () -> "Missing license header (config/license-header.txt) in:\n" + String.join("\n", violations));
+    }
+
+    @Test
+    void theHeaderTakesAnyYearAndNothingElse() {
+        String header = String.join("\n", header()) + "\n";
+        assertTrue(HEADER.matcher(header.replace("$YEAR", "2031") + "package x;\n").lookingAt());
+        assertFalse(HEADER.matcher(header.replace("$YEAR", "20x1")).lookingAt());
+        assertFalse(HEADER.matcher("// SPDX-License-Identifier: Apache-2.0\n\npackage x;\n").lookingAt());
     }
 
     /** Matches {@code <module>/src/**}, outside skipped directories. */
@@ -48,15 +75,21 @@ class LicenseHeaderTest {
         return true;
     }
 
+    private static List<String> header() {
+        try {
+            return Files.readAllLines(Path.of("../config/license-header.txt"), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
     private static boolean hasHeader(Path file) {
         try {
             String text = Files.readString(file, StandardCharsets.UTF_8);
             if (text.startsWith("\uFEFF")) {
                 text = text.substring(1);
             }
-            int nl = text.indexOf('\n');
-            String first = nl < 0 ? text : text.substring(0, nl);
-            return first.stripTrailing().equals(HEADER);
+            return HEADER.matcher(text).lookingAt();
         } catch (IOException e) {
             throw new java.io.UncheckedIOException(e);
         }

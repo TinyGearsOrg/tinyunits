@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
@@ -12,6 +20,7 @@ import java.util.stream.Stream;
 import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
 import javax.measure.Prefix;
+
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Prefixed;
@@ -19,7 +28,8 @@ import org.tinygears.uom.core.parse.Prefixed;
 /** Writes the catalog class of typed unit constants and its system of units. */
 public final class CatalogEmitter {
     private static final String PACKAGE = "org.tinygears.uom.systems";
-    private static final List<Enum<?>> PREFIXES = Stream.<Enum<?>>concat(Arrays.stream(MetricPrefix.values()),
+    private static final List<Enum<?>> PREFIXES = Stream.<Enum<?>>concat(
+            Arrays.stream(MetricPrefix.values()),
             Arrays.stream(BinaryPrefix.values())).toList();
     private static final String INDENT = "                    ";
 
@@ -35,20 +45,24 @@ public final class CatalogEmitter {
      * The catalog class source with, after its units, a constant for the system unit of each of {@code extras}: quantity
      * types whose system unit has a symbol that no definition can carry ({@code m/s}). It is the factory's own unit.
      */
-    public static String catalog(CatalogBuilder.Catalog catalog, Definitions definitions,
-            List<QuantityTypeSpec> extras) {
+    public static String catalog(
+            CatalogBuilder.Catalog catalog,
+            Definitions definitions,
+            List<QuantityTypeSpec> extras
+    ) {
         String className = catalog.className();
         Imports imports = new Imports(PACKAGE, taken(catalog, extras));
         String unitClass = imports.name("org.tinygears.uom.core.UomUnit");
         List<String> files = dataFiles(catalog.file(), definitions);
-        StringBuilder out = new StringBuilder("""
-                /** The $C units; generated from $J. */
-                public final class $C {
+        StringBuilder out = new StringBuilder(
+                """
+                        /** The $C units; generated from $J. */
+                        public final class $C {
 
-                    private $C() {
-                    }
-                """.replace("$J", join(files.stream().map(f -> "{@code data/" + f + "}").toList()))
-                .replace("$C", className));
+                            private $C() {
+                            }
+                        """.replace("$J", join(files.stream().map(f -> "{@code data/" + f + "}").toList()))
+                        .replace("$C", className));
         Set<String> emitted = new TreeSet<>();
         for (CatalogEntry e : catalog.entries()) {
             Definition d = e.definition();
@@ -82,44 +96,53 @@ public final class CatalogEmitter {
                     .append("}, the system unit of ").append(t.name()).append(". */\n    public static final ")
                     .append(unitClass).append('<').append(imports.name("javax.measure.quantity." + t.name()))
                     .append("> ").append(constant).append(" =\n            ").append(unitClass).append(".unchecked(")
-                    .append(imports.name("org.tinygears.uom.quantity." + t.name() + "Factory")).append(".SYSTEM_UNIT);\n");
+                    .append(imports.name("org.tinygears.uom.quantity." + t.name() + "Factory"))
+                    .append(".SYSTEM_UNIT);\n");
         }
         String list = imports.name("java.util.List");
-        out.append("\n    /** The units of this catalog. */\n    public static final ").append(list).append('<').append(unitClass).append("<?>> UNITS =\n")
+        out.append("\n    /** The units of this catalog. */\n    public static final ").append(list).append('<')
+                .append(unitClass).append("<?>> UNITS =\n")
                 .append("            ").append(list).append(".<").append(unitClass).append("<?>>of(")
                 .append(args(catalog.units().values().stream().map(r -> local(r, className, imports)).toList()))
                 .append(";\n");
         String set = imports.name("java.util.Set");
-        out.append("\n    /** The symbols that take a prefix in this system. */\n    public static final ").append(set).append("<String> PREFIXABLE =\n            ").append(set)
+        out.append("\n    /** The symbols that take a prefix in this system. */\n    public static final ").append(set)
+                .append("<String> PREFIXABLE =\n            ").append(set)
                 .append(".of(")
                 .append(args(catalog.prefixable().stream().sorted().map(UnitExpressionEmitter::literal).toList()))
                 .append(";\n");
         boolean binary = !catalog.binaryPrefixable().isEmpty();
         if (binary) {
-            out.append("\n    /** The symbols that take a binary prefix in this system. */\n    public static final ").append(set)
+            out.append("\n    /** The symbols that take a binary prefix in this system. */\n    public static final ")
+                    .append(set)
                     .append("<String> BINARY_PREFIXABLE =\n            ").append(set).append(".of(")
-                    .append(args(catalog.binaryPrefixable().stream().sorted().map(UnitExpressionEmitter::literal)
-                            .toList()))
+                    .append(
+                            args(
+                                    catalog.binaryPrefixable().stream().sorted().map(UnitExpressionEmitter::literal)
+                                            .toList()))
                     .append(";\n");
         }
         String map = imports.name("java.util.Map");
         List<String> pairs = new ArrayList<>();
-        catalog.preferred().forEach((type, ref) -> pairs.add(map + ".entry("
-                + imports.name("javax.measure.quantity." + type) + ".class, " + local(ref, className, imports) + ")"));
-        out.append("\n    /** The preferred unit of each quantity type. */\n    public static final ").append(map).append("<Class<?>, ").append(unitClass)
+        catalog.preferred().forEach(
+                (type, ref) -> pairs.add(
+                        map + ".entry("
+                                + imports.name("javax.measure.quantity." + type) + ".class, "
+                                + local(ref, className, imports) + ")"));
+        out.append("\n    /** The preferred unit of each quantity type. */\n    public static final ").append(map)
+                .append("<Class<?>, ").append(unitClass)
                 .append("<?>> PREFERRED =\n            ").append(map).append(".<Class<?>, ").append(unitClass)
                 .append("<?>>ofEntries(").append(args(pairs)).append(";\n");
         String system = imports.name("org.tinygears.uom.systems.UomSystemOfUnits");
-        out.append("\n    /** This system of units. */\n    public static final ").append(system).append(" SYSTEM =\n            new ").append(system)
+        out.append("\n    /** This system of units. */\n    public static final ").append(system)
+                .append(" SYSTEM =\n            new ").append(system)
                 .append('(').append(UnitExpressionEmitter.literal(className))
                 .append(", UNITS, PREFERRED, PREFIXABLE").append(binary ? ", BINARY_PREFIXABLE" : "").append(");\n");
-        return """
-                // SPDX-License-Identifier: Apache-2.0
-                // Generated by uom-codegen from $H; do not edit.
+        return Headers.java(join(files.stream().map(f -> "data/" + f).toList())) + """
 
                 package org.tinygears.uom.systems;
 
-                """.replace("$H", join(files.stream().map(f -> "data/" + f).toList())) + imports.block()
+                """ + imports.block()
                 + out.append("}\n");
     }
 
@@ -127,8 +150,13 @@ public final class CatalogEmitter {
      * A unit made by a {@code @prefixed} line, as its base constant with the prefix applied, or null if {@code d} is
      * not one or its base is not a constant of this catalog's units that an earlier field already initialised.
      */
-    private static String prefixed(Definition d, CatalogBuilder.Catalog catalog, Definitions definitions,
-            Set<String> emitted, Imports imports) {
+    private static String prefixed(
+            Definition d,
+            CatalogBuilder.Catalog catalog,
+            Definitions definitions,
+            Set<String> emitted,
+            Imports imports
+    ) {
         for (Prefixed p : definitions.prefixed()) {
             if (!p.source().equals(d.source()) || p.line() != d.line()) {
                 continue;
@@ -159,8 +187,14 @@ public final class CatalogEmitter {
      * classes it references ({@code SI.METRE}). A field also shadows a type in {@code Map.entry(...)}.
      */
     private static Set<String> taken(CatalogBuilder.Catalog catalog, List<QuantityTypeSpec> extras) {
-        Set<String> taken = new TreeSet<>(List.of(catalog.className(), "UNITS", "PREFIXABLE", "BINARY_PREFIXABLE",
-                "PREFERRED", "SYSTEM"));
+        Set<String> taken = new TreeSet<>(
+                List.of(
+                        catalog.className(),
+                        "UNITS",
+                        "PREFIXABLE",
+                        "BINARY_PREFIXABLE",
+                        "PREFERRED",
+                        "SYSTEM"));
         catalog.entries().forEach(e -> taken.add(e.constantName()));
         extras.forEach(t -> taken.add(constantName(t)));
         Stream.concat(catalog.units().values().stream(), catalog.preferred().values().stream())

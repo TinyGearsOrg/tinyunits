@@ -1,0 +1,6 @@
+#Organize Import Order
+#Read by the Spotless importOrder step (pom.xml): java and javax, all others, this project, then static imports.
+0=java|javax
+1=
+2=org.tinygears.uom
+3=\#

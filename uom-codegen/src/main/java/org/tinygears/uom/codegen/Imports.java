@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
@@ -69,7 +77,8 @@ public final class Imports {
 
     /** The short name of a class that is imported or in the package, else the qualified one. */
     private String known(String qualified) {
-        return inPackage(qualified) || qualified.equals(bySimpleName.get(simple(qualified))) ? simple(qualified)
+        return inPackage(qualified) || qualified.equals(bySimpleName.get(simple(qualified)))
+                ? simple(qualified)
                 : qualified;
     }
 
@@ -81,13 +90,33 @@ public final class Imports {
         return qualified.substring(0, Math.max(qualified.lastIndexOf('.'), 0)).equals(pkg);
     }
 
-    /** One sorted {@code import} line per imported class and a blank line, or nothing without imports. */
+    /**
+     * One {@code import} line per imported class in the groups of the Spotless import order ({@code java} and
+     * {@code javax}, the others, {@code org.tinygears.uom}), each sorted and followed by a blank line; nothing without
+     * imports.
+     */
     public String block() {
         if (bySimpleName.isEmpty()) {
             return "";
         }
+        // The groups of config/import-order.importorder, each sorted, a blank line between them.
         StringBuilder out = new StringBuilder();
-        new TreeSet<>(bySimpleName.values()).forEach(q -> out.append("import ").append(q).append(";\n"));
-        return out.append('\n').toString();
+        for (int group = 0; group < 3; group++) {
+            int g = group;
+            Set<String> names = new TreeSet<>(bySimpleName.values());
+            names.removeIf(q -> group(q) != g);
+            names.forEach(q -> out.append("import ").append(q).append(";\n"));
+            if (!names.isEmpty()) {
+                out.append('\n');
+            }
+        }
+        return out.toString();
+    }
+
+    private static int group(String qualified) {
+        if (qualified.startsWith("java.") || qualified.startsWith("javax.")) {
+            return 0;
+        }
+        return qualified.startsWith("org.tinygears.uom.") ? 2 : 1;
     }
 }

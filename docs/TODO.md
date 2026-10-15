@@ -3,9 +3,8 @@
 Open work only. The item numbers are stable IDs: a gap is a finished item; the decisions, with their rationale and when
 to revisit them, are in [DESIGN.md](DESIGN.md) section 1 (DR-01 to DR-14); the last version of this file with the full
 discussion is `git show 5d734d3:docs/TODO.md`. The groups: gaps against the JSR-385 reference implementation Indriya
-(10, 13, 14), pre-commit and formatting (17 and 18), open defects and hardening carried over from the milestone reviews
-(21 to 32), then the steps before the first release ("Release readiness"). Each item says under "Needed by" what, if
-anything, it blocks.
+(10, 13, 14), pre-commit (17), open defects and hardening carried over from the milestone reviews (21 to 32), then the
+steps before the first release ("Release readiness"). Each item says under "Needed by" what, if anything, it blocks.
 
 ## 10. Behaviour comparison with Indriya
 
@@ -51,31 +50,12 @@ first second implementation. Re-run the TCK in CI and publish the result rather 
 
 **Status:** not started. There is no `.pre-commit-config.yaml`; the checks run only in CI and by hand (`scripts/check-pom.sh`,
 `scripts/check-javadoc.sh`, `scripts/check-workflows.sh`). Add a config whose hooks are cheap and local: the formatting
-check (item 18), whitespace and end-of-file fixers, a check that generated files are not edited by hand (regenerate and
+check (`spotless:check`), whitespace and end-of-file fixers, a check that generated files are not edited by hand (regenerate and
 diff, or a header check), the `scripts/check-*.sh` scripts that need no network, and a commit-message hook for the
 conventional prefixes of `CONTRIBUTING.md`. Keep `mvn clean verify` out of the hooks (too slow); CI stays the gate.
 Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
-**Needed by:** nothing; do together with item 18.
-
-## 18. Code formatting
-
-**Status:** not started. No formatter or style check is configured (no Spotless, Checkstyle, formatter plugin or
-`.editorconfig`); the code is formatted by convention only (4-space indent, no tabs, lines up to about 126 characters in
-the files sampled). Decide the style, apply it once in a single `style:` commit, and enforce it.
-
-**Options:**
-- **A. Spotless** with google-java-format (AOSP style for 4 spaces) or a custom Eclipse profile, run as `spotless:check` in
-  `verify` and `spotless:apply` locally.
-- **B. Checkstyle** for rules only (indent, line length, imports, no tabs); no auto-format.
-- **C. `.editorconfig` only** (indent, line length, final newline), no enforcement.
-
-**Points to settle:** the generated sources are committed and must stay byte-identical to the generator output, so either
-exclude them from the formatter or make the generator emit formatted code (the golden tests in `uom-codegen` pin its
-output); the line-length limit; whether the check fails the build or only warns. A formatting-only commit also moves
-`git blame`, so list it in `.git-blame-ignore-revs`.
-
-**Needed by:** nothing; do before accepting outside contributions.
+**Needed by:** nothing.
 
 ## 21. Formats and parsing
 
@@ -190,10 +170,8 @@ stable before 1.0).
   pinned by a test. `SourceEmitter.literal` escapes only backslash and quote.
 - `QuantityTypes.factory` is a linear if-chain (fine for 33 types); `DefinitionParser.prefixed` scans the definitions list
   although a symbol map exists.
-- The `--add-modules`/`--add-reads java.compiler` test-compile arguments of the `uom-codegen` pom are likely redundant now
-  that main code requires `java.compiler`.
 - `docs/UNITS.md` lists Gaussian as 27 rows for 26 distinct units (`Fr` and `statC`): label the generated column as
-  symbols. Generated lines over 120 columns: item 18.
+  symbols.
 
 **Needed by:** nothing.
 

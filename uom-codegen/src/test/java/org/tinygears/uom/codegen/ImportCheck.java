@@ -1,4 +1,12 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 package org.tinygears.uom.codegen;
 
@@ -12,9 +20,13 @@ import java.util.regex.Pattern;
 /** Checks the import block of a generated source against its body. */
 final class ImportCheck {
     private static final Pattern LAYOUT = Pattern.compile(
-            "// [^\n]*\n// [^\n]*\n\npackage [\\w.]+;\n\n((?:import [\\w.]+;\n)+\n)?(?!import |\n)", Pattern.DOTALL);
+            Pattern.quote(Headers.LICENSE)
+                    // import groups (config/import-order.importorder), each followed by a blank line
+                    + "// [^\n]*\n\npackage [\\w.]+;\n\n((?:import [\\w.]+;\n)+\n)*(?!import |\n)",
+            Pattern.DOTALL);
     private static final Pattern IMPORT = Pattern.compile("^import ([\\w.]+);$", Pattern.MULTILINE);
-    private static final Pattern NON_CODE = Pattern.compile("//[^\n]*|/\\*.*?\\*/|\"(?:\\\\.|[^\"\\\\])*\"",
+    private static final Pattern NON_CODE = Pattern.compile(
+            "//[^\n]*|/\\*.*?\\*/|\"(?:\\\\.|[^\"\\\\])*\"",
             Pattern.DOTALL);
     private static final Pattern STANDARD_TYPE = Pattern.compile("javax\\.measure\\.quantity\\.(\\w+)");
 
