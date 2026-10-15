@@ -36,7 +36,7 @@ class ExamplesTest {
                 Map.entry("serialization", "unit: true km/h | quantity: true 1.50 km"),
                 Map.entry("locales", "1,5 km | 1.5 km"),
                 Map.entry("offsetUnits", "K + 5 | parses back equal: true | 2·K + 136.575"),
-                Map.entry("decimalParse", "1.50 km | scale 2 | true"),
+                Map.entry("decimalParse", "1.5 km Double | 1.234567890 km scale 9 | /3 0.4115226 km | 2.0 kg·m/s BigDecimal"),
                 Map.entry("userUnits", "Medieval | 2.0 league = 9.656064 km = 48.0 furlong")), Examples.all());
     }
 

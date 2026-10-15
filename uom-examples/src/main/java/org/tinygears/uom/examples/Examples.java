@@ -232,12 +232,24 @@ public final class Examples {
                 + " | " + format.format(SI.DEGREE_CELSIUS.multiply(2));
     }
 
-    /** withDecimals parses exact BigDecimal quantities: the digits and the scale of the text are kept. */
+    /**
+     * Parsing gives double quantities by default; withDecimals gives BigDecimal quantities that keep every digit and
+     * the scale of the text. The parsed object has the quantity type of its unit, so Length.from narrows it.
+     */
     static String decimalParse() {
-        UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard()).withDecimals(MathContext.DECIMAL64);
-        Quantity<?> parsed = format.parse("1.50 km");
-        BigDecimal value = (BigDecimal) parsed.getValue();
-        return parsed + " | scale " + value.scale() + " | " + (parsed instanceof Length);
+        UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard());
+        // The default reads the number as a double: 1.50 becomes 1.5.
+        Quantity<?> plain = format.parse("1.50 km");
+        // The context, 7 digits here, applies to later arithmetic; the parsed value is never rounded to it.
+        UomQuantityFormat decimals = format.withDecimals(MathContext.DECIMAL32);
+        Length length = Length.from(decimals.parse("1.234567890 km"));
+        BigDecimal value = (BigDecimal) length.getValue();
+        // A unit without a quantity type gives an untyped decimal quantity.
+        Quantity<?> momentum = decimals.parse("2.0 kg·m/s");
+        return plain + " " + plain.getValue().getClass().getSimpleName()
+                + " | " + length + " scale " + value.scale()
+                + " | /3 " + length.divide(3)
+                + " | " + momentum + " " + momentum.getValue().getClass().getSimpleName();
     }
 
     /** User units: a .units text loaded at run time, used in parsing and as a target system. */
