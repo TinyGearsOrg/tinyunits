@@ -152,6 +152,14 @@ class CatalogBuilderTest {
     }
 
     @Test
+    void constantNamesAreAscii() {
+        // every character outside A-Z and 0-9, a non-ASCII letter included, becomes '_'
+        Map<String, CatalogEntry> e = bySymbol(build(BASE + "y:électron 2 s\nz:Ångström_star 3 s\n"));
+        assertEquals("_LECTRON", e.get("y").constantName());
+        assertEquals("_NGSTR_M_STAR", e.get("z").constantName());
+    }
+
+    @Test
     void errors() {
         fails("y:metre 1000 m\n", "duplicate constant name 'METRE' ('m' and 'y')");
         fails("y:other 2 s [Length]\n", "unit 'y' is not a unit of Length");

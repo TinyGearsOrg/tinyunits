@@ -31,12 +31,15 @@ public interface Area extends javax.measure.quantity.Area, Comparable<Quantity<j
     Area to(Unit<javax.measure.quantity.Area> unit);
 
     /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
-     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
-     * type), a foreign unit UnconvertibleException.
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
      *
      * @param system the system of units
      * @return the converted quantity
+     * @throws NullPointerException if {@code system} is null
+     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
+     *     systems of this library have one for every standard type)
+     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
+     *     implementation
      */
     Area toSystem(SystemOfUnits system);
 

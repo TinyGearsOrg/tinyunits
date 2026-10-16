@@ -6,7 +6,7 @@ Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section
 
 ## Systems
 
-| System | Data file | Units |
+| System | Data file | Symbols |
 |---|---|---|
 | [SI](#si) | `data/si.units` | 128 |
 | [USCustomary](#uscustomary) | `data/us-customary.units` | 35 |

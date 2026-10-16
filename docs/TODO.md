@@ -127,28 +127,12 @@ stable before 1.0).
 **Status:** open, low priority.
 - `load(Path)` checks real-path containment, then reads the real path: a symbolic link swapped in between (TOCTOU) is not
   defended against; acceptable for local files, say so in the guide.
-- The parser has quadratic loops for very many `@prefixed` or `@member` lines (20,000 lines take about 5 s).
+- The parser has a quadratic loop for very many `@member` lines (20,000 lines take about 5 s); `@prefixed` looks its unit
+  up in a map.
 - A nested file with two `@system` lines is not rejected when included (only as the root); parent systems are parsed
   twice (inside the root parse and as systems of their own).
 - Fallback preferred units are not members of the system (`USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but `getUnit("s")`
   is null): decide whether to list them.
-
-**Needed by:** nothing.
-
-## 28. Generator and data hygiene
-
-**Status:** open, small items in `uom-codegen` and `data/`.
-- The `to(system)` Javadoc of the typed interfaces (now `toSystem`) uses plain text for the exceptions and omits the
-  `NullPointerException`: fix in `SourceEmitter` and regenerate.
-- `QuantityTypesParser` uses `Class.forName(name)`, which initializes the class; use `Class.forName(fqn, false, loader)`.
-- The `generate` profile paths depend on the invocation directory (use `${maven.multiModuleProjectDirectory}`);
-  `Generate` loses the reason in I/O error messages and `System.exit` under `exec:java` prints no BUILD FAILURE summary.
-- Constant names replace non-ASCII letters with `_` (`électron` becomes `_LECTRON`): deliberate, but neither commented nor
-  pinned by a test. `SourceEmitter.literal` escapes only backslash and quote.
-- `QuantityTypes.factory` is a linear if-chain (fine for 33 types); `DefinitionParser.prefixed` scans the definitions list
-  although a symbol map exists.
-- `docs/UNITS.md` lists Gaussian as 27 rows for 26 distinct units (`Fr` and `statC`): label the generated column as
-  symbols.
 
 **Needed by:** nothing.
 

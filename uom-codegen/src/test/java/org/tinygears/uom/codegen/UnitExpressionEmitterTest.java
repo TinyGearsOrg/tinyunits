@@ -155,6 +155,9 @@ class UnitExpressionEmitterTest {
     @Test
     void escapes() {
         assertEquals("\"a\\\\b\\\"c\"", UnitExpressionEmitter.literal("a\\b\"c"));
+        // control characters as octal escapes: a unicode escape of a line break would end the literal
+        assertEquals("\"a\\012b\\011c\\177\"", UnitExpressionEmitter.literal("a\nb\tc\u007f"));
+        assertEquals("\"µm°\"", UnitExpressionEmitter.literal("µm°"));
     }
 
     @Test

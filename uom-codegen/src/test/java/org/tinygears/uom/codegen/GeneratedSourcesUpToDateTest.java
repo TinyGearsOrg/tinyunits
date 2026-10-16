@@ -442,7 +442,19 @@ class GeneratedSourcesUpToDateTest {
                 tmp.resolve("s").toString(),
                 docs());
         assertEquals(1, r.status());
-        assertTrue(r.err().contains("si.units:0: cannot read si.units"), r.err());
+        // the reason of the I/O error is kept
+        String nowhere = tmp.resolve("nowhere").resolve("si.units").toString();
+        assertTrue(
+                r.err().contains(
+                        "si.units:0: cannot read si.units (java.nio.file.NoSuchFileException: " + nowhere + ")"),
+                r.err());
+    }
+
+    @Test
+    void mainThrowsInsteadOfExitingSoMavenReportsTheFailure() {
+        assertEquals(
+                "generation failed with status 2",
+                assertThrows(IllegalStateException.class, () -> Generate.main(new String[0])).getMessage());
     }
 
     @Test

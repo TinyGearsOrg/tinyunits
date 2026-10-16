@@ -51,6 +51,7 @@ public final class CatalogBuilder {
         Map<String, Definition> byConstant = new HashMap<>();
         List<CatalogEntry> result = new ArrayList<>();
         for (Definition d : definitions) {
+            // Deliberately ASCII: any other character, a non-ASCII letter included, becomes '_' (électron: _LECTRON).
             String constant = d.name().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]", "_");
             if (!SourceVersion.isName(constant)) {
                 throw error(d, "invalid constant name '" + constant + "' for '" + d.symbol() + "'");

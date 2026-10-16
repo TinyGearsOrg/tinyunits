@@ -170,7 +170,9 @@ public final class QuantityTypesParser {
 
     private static boolean isQuantity(String name) {
         try {
-            Class<?> c = Class.forName("javax.measure.quantity." + name);
+            // only the type is checked, so the class is not initialized
+            Class<?> c = Class
+                    .forName("javax.measure.quantity." + name, false, QuantityTypesParser.class.getClassLoader());
             return c.isInterface() && Quantity.class.isAssignableFrom(c);
         } catch (ClassNotFoundException e) {
             return false;

@@ -31,12 +31,15 @@ public interface Time extends javax.measure.quantity.Time, Comparable<Quantity<j
     Time to(Unit<javax.measure.quantity.Time> unit);
 
     /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context; a system
-     * without one throws UnsupportedOperationException (the systems of this library have one for every standard
-     * type), a foreign unit UnconvertibleException.
+     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
      *
      * @param system the system of units
      * @return the converted quantity
+     * @throws NullPointerException if {@code system} is null
+     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
+     *     systems of this library have one for every standard type)
+     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
+     *     implementation
      */
     Time toSystem(SystemOfUnits system);
 

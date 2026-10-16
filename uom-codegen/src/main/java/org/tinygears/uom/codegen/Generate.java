@@ -57,10 +57,14 @@ public final class Generate {
     private Generate() {
     }
 
+    /**
+     * Runs {@link #run} and throws if it fails, so that {@code exec:java} ends with a BUILD FAILURE; the messages are
+     * already printed.
+     */
     public static void main(String[] args) {
         int status = run(args, System.err);
         if (status != 0) {
-            System.exit(status);
+            throw new IllegalStateException("generation failed with status " + status);
         }
     }
 
@@ -93,10 +97,14 @@ public final class Generate {
             write(out.docs(), docsOut);
             return 0;
         } catch (GenerationException e) {
-            err.println(e.getMessage());
+            Throwable cause = e.getCause() instanceof UncheckedIOException u ? u.getCause() : e.getCause();
+            err.println(cause instanceof IOException io ? e.getMessage() + " (" + io + ")" : e.getMessage());
             return 1;
-        } catch (IOException | UncheckedIOException e) {
-            err.println(e.getMessage());
+        } catch (IOException e) {
+            err.println(e);
+            return 1;
+        } catch (UncheckedIOException e) {
+            err.println(e.getCause());
             return 1;
         }
     }

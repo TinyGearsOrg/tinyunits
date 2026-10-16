@@ -45,7 +45,7 @@ public final class UnitTableEmitter {
 
                 ## Systems
 
-                | System | Data file | Units |
+                | System | Data file | Symbols |
                 |---|---|---|
                 """);
         catalogs.values().forEach(

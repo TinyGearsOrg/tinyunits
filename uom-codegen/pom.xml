@@ -164,8 +164,8 @@
   </build>
 
   <profiles>
-    <!-- Run from the repository root: mvn -q -B -Pgenerate -pl uom-codegen -am process-classes
-         (the relative paths below resolve against the invocation directory). -->
+    <!-- mvn -q -B -Pgenerate -pl uom-codegen -am process-classes; the paths resolve against the repository root,
+         which .mvn/ marks, wherever Maven is started. -->
     <profile>
       <id>generate</id>
       <build>
@@ -183,10 +183,10 @@
                 <configuration>
                   <mainClass>org.tinygears.uom.codegen.Generate</mainClass>
                   <arguments>
-                    <argument>data</argument>
-                    <argument>uom/src/main/java/org/tinygears/uom/quantity</argument>
-                    <argument>uom/src/main/java/org/tinygears/uom/systems</argument>
-                    <argument>docs</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/data</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom/src/main/java/org/tinygears/uom/quantity</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom/src/main/java/org/tinygears/uom/systems</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/docs</argument>
                   </arguments>
                 </configuration>
               </execution>

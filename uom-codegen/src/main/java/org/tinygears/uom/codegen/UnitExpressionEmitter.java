@@ -135,6 +135,17 @@ public final class UnitExpressionEmitter {
 
     /** A Java string literal for {@code s}. */
     static String literal(String s) {
-        return '"' + s.replace("\\", "\\\\").replace("\"", "\\\"") + '"';
+        StringBuilder out = new StringBuilder("\"");
+        for (char c : s.toCharArray()) {
+            if (c == '\\' || c == '"') {
+                out.append('\\').append(c);
+            } else if (c < 0x20 || c == 0x7f) {
+                // octal, not a unicode escape: javac translates those before it reads the literal
+                out.append(String.format("\\%03o", (int) c));
+            } else {
+                out.append(c);
+            }
+        }
+        return out.append('"').toString();
     }
 }

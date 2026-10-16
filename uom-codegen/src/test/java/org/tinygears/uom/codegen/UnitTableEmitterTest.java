@@ -70,7 +70,7 @@ class UnitTableEmitterTest {
 
                 ## Systems
 
-                | System | Data file | Units |
+                | System | Data file | Symbols |
                 |---|---|---|
                 | [A](#a) | `data/a.units` | 8 |
                 | [B](#b) | `data/b.units` | 3 |

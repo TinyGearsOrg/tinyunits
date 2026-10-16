@@ -125,6 +125,8 @@ public final class DefinitionParser {
     private final Function<String, UomUnit<?>> known;
     private final Map<String, UomUnit<?>> units = new HashMap<>();
     private final List<Definition> definitions = new ArrayList<>();
+    // the definitions by symbol, which is unique, so that @prefixed finds its unit without a scan
+    private final Map<String, Definition> bySymbol = new HashMap<>();
     private final List<Preferred> preferred = new ArrayList<>();
     private final List<Prefixed> prefixed = new ArrayList<>();
     private final Set<String> prefixedSymbols = new HashSet<>();
@@ -296,8 +298,10 @@ public final class DefinitionParser {
         if (w.length < 3) {
             throw new DefinitionException(src, ln, "expected '@prefixed unit prefix...'", null);
         }
-        Definition base = definitions.stream().filter(d -> d.symbol().equals(w[1])).findFirst()
-                .orElseThrow(() -> new DefinitionException(src, ln, "unknown unit '" + w[1] + "'", null));
+        Definition base = bySymbol.get(w[1]);
+        if (base == null) {
+            throw new DefinitionException(src, ln, "unknown unit '" + w[1] + "'", null);
+        }
         if (prefixedSymbols.contains(w[1])) {
             throw new DefinitionException(src, ln, "unit '" + w[1] + "' is already prefixed", null);
         }
@@ -316,7 +320,7 @@ public final class DefinitionParser {
             UomUnit<?> unit = base.unit().prefix(prefix).named(symbol, name);
             units.put(symbol, unit);
             prefixedSymbols.add(symbol);
-            definitions.add(new Definition(symbol, name, unit, null, base.explicitType(), src, ln));
+            define(new Definition(symbol, name, unit, null, base.explicitType(), src, ln));
         }
         prefixed.add(new Prefixed(base.symbol(), symbols, src, ln));
     }
@@ -409,7 +413,12 @@ public final class DefinitionParser {
         }
         UomUnit<?> named = unit.named(symbol, name);
         units.put(symbol, named);
-        definitions.add(new Definition(symbol, name, named, alternateOf, type, src, ln));
+        define(new Definition(symbol, name, named, alternateOf, type, src, ln));
+    }
+
+    private void define(Definition d) {
+        definitions.add(d);
+        bySymbol.put(d.symbol(), d);
     }
 
     private UomUnit<?> evaluate(String formula) throws FormulaException {
