@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- From server/config/eclipse-java-formatter.xml of Eclipse Open VSX (https://github.com/eclipse-openvsx/openvsx,
-     EPL-2.0), unchanged except for the profile name. Read by the Spotless Eclipse step (pom.xml). -->
+     EPL-2.0), with the profile name, join_wrapped_lines and the wrapping of extends and implements changed. Read by the
+     Spotless Eclipse step (pom.xml) and by the generator (uom-codegen JavaFormatter). -->
 <profiles version="13">
     <profile kind="CodeFormatterProfile" name="uom" version="13">
         <setting id="org.eclipse.jdt.core.formatter.tabulation.char" value="space"/>
@@ -9,10 +10,17 @@
         <setting id="org.eclipse.jdt.core.formatter.lineSplit" value="120"/>
         <setting id="org.eclipse.jdt.core.formatter.comment.line_length" value="120"/>
         <setting id="org.eclipse.jdt.core.formatter.use_tabs_only_for_leading_indentations" value="false"/>
-        <!-- false so a pre-existing line break before a wrapped array initializer's
-             closing brace is preserved rather than collapsed back - otherwise
-             ClosingBraceFix's edits get undone the next time the formatter runs -->
-        <setting id="org.eclipse.jdt.core.formatter.join_wrapped_lines" value="false"/>
+        <!-- true (Open VSX: false, for a closing-brace step this build does not have): the formatter alone decides
+             the line breaks, so code that fits in lineSplit is one line however the input was broken, and generated
+             and hand-written code look alike -->
+        <setting id="org.eclipse.jdt.core.formatter.join_wrapped_lines" value="true"/>
+
+        <!-- 16 = WRAP_COMPACT: a type declaration that does not fit wraps its extends or implements clause onto one
+             continuation line ("implements A, B {") instead of the default keyword on a line of its own -->
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_superclass_in_type_declaration" value="16"/>
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_type_declaration" value="16"/>
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_record_declaration" value="16"/>
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_enum_declaration" value="16"/>
         <setting id="org.eclipse.jdt.core.formatter.insert_new_line_at_end_of_file_if_missing" value="insert"/>
 
         <!-- default Eclipse profile puts a space before the colon in switch labels, e.g.

@@ -33,21 +33,24 @@ header. Generated Java files start with the license header (see Formatting) foll
 
 The Java sources are formatted by the [Spotless](https://github.com/diffplug/spotless) Maven plugin with the Eclipse
 formatter profile `config/eclipse-java-formatter.xml` (from the Open VSX project: 4 spaces, 120 columns, one argument
-per line once a call wraps), the import order `config/import-order.importorder` (`java` and `javax`, the others,
-`org.tinygears.uom`, then static imports) and the license header `config/license-header.txt`. `mvn verify` runs
-`spotless:check` and fails on unformatted code; fix it with
+per line once a call wraps; unlike Open VSX it joins lines, so the formatter alone decides the line breaks, and it wraps
+`extends` and `implements` onto one continuation line), the import order `config/import-order.importorder` (`java` and
+`javax`, the others, `org.tinygears.uom`, then static imports) and the license header `config/license-header.txt`.
+`mvn verify` runs `spotless:check` and fails on unformatted code; fix it with
 
 ```
 mvn -q -B spotless:apply
 ```
 
-The generator formats its output itself with the same profile, import order and header (`JavaFormatter`, through
-the Eclipse JDT jars the Spotless step uses), so regenerated files are already formatted and `spotless:check` covers
-them too; when you change the Eclipse version in the parent POM, change the JDT versions in `uom-codegen/pom.xml` with
-it. Spotless leaves the header of `package-info.java` and `module-info.java` alone: write it there by hand. `LicenseHeaderTest` checks every
-Java file. The `.mvn/` directory marks the repository root, so the configuration files resolve from any module.
-`.git-blame-ignore-revs` lists the commit that formatted the code; `git config blame.ignoreRevsFile
-.git-blame-ignore-revs` makes `git blame` skip it.
+The generator formats its output itself with the same profile, import order and header (`JavaFormatter`, through the
+Eclipse JDT jars the Spotless step uses), so regenerated files are already formatted and `spotless:check` covers them
+too; when you change the Eclipse version in the parent POM, change the JDT versions in `uom-codegen/pom.xml` with it.
+Spotless leaves the header of `package-info.java` and `module-info.java` alone: write it there by hand.
+`LicenseHeaderTest` checks every Java file. The `.mvn/` directory marks the repository root, so the configuration files
+resolve from any module. Spotless skips files it has formatted before (`target/spotless-index`) and does not notice a
+change of the files in `config/`: after changing them, run `mvn -q -B clean spotless:apply`. `.git-blame-ignore-revs`
+lists the commits that only reformatted code; `git config blame.ignoreRevsFile .git-blame-ignore-revs` makes `git blame`
+skip them.
 
 ## Tests
 
