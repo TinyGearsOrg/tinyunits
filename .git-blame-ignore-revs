@@ -4,3 +4,6 @@
 
 # style: apply the formatter and the license header
 258c300c2523dcc9ba831a57c17966bdc848d49f
+
+# style: reformat with joined lines and compact extends and implements
+34010f79457a15ec744a28807cf0c05510947d20
