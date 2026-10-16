@@ -94,24 +94,7 @@ dynamic proxies in the picture.
 See `DESIGN.md`: `uom-core` and `uom` are published; `uom-codegen` is an
 internal tool and is not.
 
-## 6. Open questions
-
-1. ~~**JSR-385 version and TCK.**~~ Resolved: unit-api 2.2, TCK `unit-tck` 2.2 exists. Still to
-   verify in a spike: whether the TCK runs against an implementation other than Indriya.
-2. ~~**Custom quantity dimensions.**~~ Deferred: user-defined quantity types are out of scope
-   for 1.0. Open for a later release: how a custom type declares and checks its dimension.
-3. ~~**Precision promotion.**~~ Resolved, see F23.
-4. ~~**Equality.**~~ Resolved, see F20 to F22. The standard defines `isEquivalentTo` for
-   quantities and units but says nothing about `Quantity.equals`.
-5. ~~**Catalog authoring.**~~ Resolved: data files in the original `.units` syntax (F15 to F19).
-   Syntax, build time versus run time (both), and the explicit `[Type]` marker are settled in
-   `DESIGN.md`.
-6. ~~**Java baseline.**~~ Resolved: Java 17 (DESIGN DR-11).
-7. ~~**Group id and naming.**~~ Resolved: group id `org.tinygears`, project name `uom`, artifacts
-   `uom-*`. The Java package prefix `org.tinygears.uom` is assumed. The GitHub repository is still
-   named `tinyunits`.
-
-## 7. Risks
+## 6. Risks
 
 - **Scope.** Own implementation of the whole unit API plus two precisions plus four unit
   systems is a large project. Mitigation: staged delivery (core and double first, then
@@ -131,7 +114,7 @@ internal tool and is not.
 - **Electromagnetic CGS semantics.** Treating ESU/EMU/Gaussian as conversion factors converts
   values but not formulas; the documentation must say so (README, "Systems of units").
 
-## 8. Acceptance criteria for 1.0
+## 7. Acceptance criteria for 1.0
 
 1. A user obtains typed `double` and `BigDecimal` quantities for all built-in quantity types
    without writing any implementation, and can add units by loading their own `.units` files. Met.

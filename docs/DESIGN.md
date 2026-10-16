@@ -241,7 +241,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
   (`si.system`, "for now, only SI is supported").
 - *Revisit if.* Users of uom need system base units for JSR-385 types, or the separate library needs more of
   `uom-core` than the methods above.
-- *See.* README, "Systems of units"; REQUIREMENTS section 2 (out of scope) and section 7.
+- *See.* README, "Systems of units"; REQUIREMENTS section 2 (out of scope) and section 6.
 
 **DR-14 Mixing precisions: the decimal wins.**
 - *Decision.* An operation on a `double` and a `BigDecimal` quantity (add, subtract, multiply, divide, `compareTo`) is
