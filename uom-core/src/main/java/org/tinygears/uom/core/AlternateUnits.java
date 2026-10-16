@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.measure.MeasurementException;
 
+import org.tinygears.uom.core.spi.Providers;
+
 /** Registry of atom symbols, so each symbol names one definition. */
 final class AlternateUnits {
 
@@ -55,7 +57,8 @@ final class AlternateUnits {
     /**
      * Resolves an atom read from a stream without registering it, so untrusted data cannot bind a symbol: a
      * registered symbol must match (same definition, or the same atom when none is given) and gives the
-     * registered atom; an unregistered one gives an equal, unregistered atom. Without a definition (a base atom,
+     * registered atom; an unregistered one gives an equal, unregistered atom. A symbol is unregistered only once the
+     * catalogs of our provider are loaded, so a fresh JVM checks a catalog atom as well. Without a definition (a base atom,
      * or an unregistered atom written again) only symbol and dimension are compared: a weaker check, but
      * harmless since atoms are equal by symbol and dimension.
      */
@@ -73,6 +76,10 @@ final class AlternateUnits {
             atoms = unit.atoms();
         }
         Registered existing = REGISTRY.get(symbol);
+        if (existing == null) {
+            Providers.loadCatalogs();
+            existing = REGISTRY.get(symbol);
+        }
         return existing == null ? atom : matching(existing, atom, atoms);
     }
 

@@ -35,6 +35,7 @@ import javax.measure.Unit;
 import javax.measure.UnitConverter;
 import javax.measure.spi.QuantityFactory;
 
+import org.tinygears.uom.core.internal.SerialForm;
 import org.tinygears.uom.core.spi.Providers;
 
 /**
@@ -542,8 +543,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             SerialForm.writeObjects(out, atoms, TOO_MANY_ATOMS);
             SerialForm.writeInts(out, exponents, TOO_MANY_EXPONENTS);
             out.writeUnshared(toSystem);
-            out.writeUnshared(symbol);
-            out.writeUnshared(name);
+            SerialForm.writeString(out, symbol, "invalid unit: symbol");
+            SerialForm.writeString(out, name, "invalid unit: name");
         }
 
         @Serial
@@ -552,17 +553,14 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             atoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, TOO_MANY_ATOMS);
             exponents = SerialForm.readInts(in, TOO_MANY_EXPONENTS);
             toSystem = SerialForm.read(in, UomConverter.class);
-            symbol = SerialForm.read(in, String.class);
-            name = SerialForm.read(in, String.class);
+            symbol = SerialForm.readString(in, "invalid unit: symbol");
+            name = SerialForm.readString(in, "invalid unit: name");
         }
 
         @Serial
         private Object readResolve() throws InvalidObjectException {
             try {
                 Objects.requireNonNull(toSystem, "null converter");
-                if (toSystem.factor().isZero()) {
-                    throw new ArithmeticException("zero scale factor");
-                }
                 return of(atomMap(atoms, exponents), toSystem, symbol, name);
             } catch (RuntimeException e) {
                 throw (InvalidObjectException) new InvalidObjectException("invalid unit: " + e.getMessage())

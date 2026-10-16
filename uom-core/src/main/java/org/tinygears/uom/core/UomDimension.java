@@ -21,6 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.measure.Dimension;
 
+import org.tinygears.uom.core.internal.SerialForm;
+
 /**
  * Product of the seven SI base dimensions with integer exponents; serializable through a proxy.
  *

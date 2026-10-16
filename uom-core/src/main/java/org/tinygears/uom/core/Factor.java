@@ -22,6 +22,7 @@ import java.math.MathContext;
 import java.util.Objects;
 
 import org.tinygears.uom.core.internal.Decimals;
+import org.tinygears.uom.core.internal.SerialForm;
 
 /**
  * Exact number {@code sign(n) * (|n|/d * pi^k)^(1/r)}, kept in a normal form: gcd-reduced, {@code d > 0},

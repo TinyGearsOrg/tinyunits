@@ -110,11 +110,12 @@ class ApiSurfaceTest {
                             || line.startsWith("org.tinygears.uom.core.spi "),
                     line);
         }
-        // The spi package is exported to uom only and holds exactly the provider hook.
+        // The spi package is exported to uom only and holds exactly the provider hooks.
         assertEquals(
                 List.of(
                         "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.Providers",
                         "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.QuantityFactories",
+                        "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitCatalogs",
                         "org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitTexts"),
                 hidden.stream().filter(l -> l.startsWith("org.tinygears.uom.core.spi ")).sorted().toList());
     }

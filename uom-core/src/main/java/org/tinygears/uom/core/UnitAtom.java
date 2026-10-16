@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
+import org.tinygears.uom.core.internal.SerialForm;
+
 /**
  * An irreducible unit: one of the SI base units or an alternate unit. Serializable through a proxy that carries
  * an alternate atom's definition; reading checks it against the registry but never registers it.
@@ -92,7 +94,7 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
         @Serial
         private void writeObject(ObjectOutputStream out) throws IOException {
             out.defaultWriteObject();
-            out.writeUnshared(symbol);
+            SerialForm.writeString(out, symbol, "invalid unit atom: symbol");
             out.writeUnshared(dimension);
             SerialForm.writeObjects(out, definitionAtoms, TOO_MANY_ATOMS);
             SerialForm.writeInts(out, definitionExponents, TOO_MANY_EXPONENTS);
@@ -101,7 +103,7 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
         @Serial
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             in.defaultReadObject();
-            symbol = SerialForm.read(in, String.class);
+            symbol = SerialForm.readString(in, "invalid unit atom: symbol");
             dimension = SerialForm.read(in, UomDimension.class);
             definitionAtoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, TOO_MANY_ATOMS);
             definitionExponents = SerialForm.readInts(in, TOO_MANY_EXPONENTS);

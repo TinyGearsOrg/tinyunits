@@ -342,11 +342,17 @@ class QuantitySerializationTest {
     void forgedAlternateAtomIsRejectedWhetherOrNotTheCatalogIsLoaded() throws Exception {
         // A kHz whose Hz atom is defined as rad/s: same dimension, a different definition than the registered Hz.
         UomUnit<?> fake = SI.RADIAN.divide(SI.SECOND).alternate("Hzx").multiply(1000);
-        byte[] bytes = replaceAll(
-                QuantityCheck
-                        .write(create(javax.measure.quantity.Frequency.class, 50.0, fake, Quantity.Scale.ABSOLUTE)),
-                "Hzx",
-                "Hz");
+        // Reading the typed quantity loads its type, the bare unit loads nothing of the catalogs.
+        assertForgedAtomRejected(
+                replaceAll(
+                        QuantityCheck.write(
+                                create(javax.measure.quantity.Frequency.class, 50.0, fake, Quantity.Scale.ABSOLUTE)),
+                        "Hzx",
+                        "Hz"));
+        assertForgedAtomRejected(replaceAll(QuantityCheck.write(fake), "Hzx", "Hz"));
+    }
+
+    private static void assertForgedAtomRejected(byte[] bytes) throws Exception {
         Path file = Files.createTempFile("forged", ".ser");
         try {
             Files.write(file, bytes);

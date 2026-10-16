@@ -25,6 +25,7 @@ import java.util.Objects;
 import javax.measure.UnitConverter;
 
 import org.tinygears.uom.core.internal.Decimals;
+import org.tinygears.uom.core.internal.SerialForm;
 
 /**
  * Serializable through a proxy: one step is rebuilt with {@link Converters}; several are validated and rebuilt
@@ -278,7 +279,12 @@ final class AffineConverter implements UomConverter, Serializable {
                     }
                 }
                 // Steps grouped otherwise may not fold exactly left to right; a decimal fold checks them then.
-                if (folded ? !f.equals(factor) || !o.equals(offset) : !decimalFoldAgrees()) {
+                Boolean agrees = folded ? Boolean.valueOf(f.equals(factor) && o.equals(offset)) : decimalFoldAgrees();
+                if (agrees == null) {
+                    // Steps that cannot be checked are not trusted: the converter is read as one step.
+                    return Converters.affine(factor, offset);
+                }
+                if (!agrees) {
                     throw new IllegalArgumentException("steps do not compose to x -> " + factor + " * x + " + offset);
                 }
                 // Validated above; the package-private constructor keeps the stored values and the step list.
@@ -291,16 +297,17 @@ final class AffineConverter implements UomConverter, Serializable {
 
         /**
          * Left fold of the steps to 60 digits against the stored values, within 1e-40 relative to the largest
-         * term (1e-40 absolute if all are zero). Parts over 4096 bits or values without a decimal skip the check.
+         * term (1e-40 absolute if all are zero). Null if the check cannot be made: a part over 4096 bits or a value
+         * without a decimal.
          */
-        private boolean decimalFoldAgrees() {
+        private Boolean decimalFoldAgrees() {
             List<Factor> all = new ArrayList<>(List.of(factor, offset));
             all.addAll(List.of(stepFactors));
             all.addAll(List.of(stepOffsets));
             if (all.stream().anyMatch(
                     x -> x.numerator().bitLength() > MAX_DECIMAL_BITS
                             || x.denominator().bitLength() > MAX_DECIMAL_BITS)) {
-                return true;
+                return null;
             }
             try {
                 BigDecimal f = stepFactors[0].decimalValue(FOLD);
@@ -314,7 +321,7 @@ final class AffineConverter implements UomConverter, Serializable {
                 }
                 return close(f, factor.decimalValue(FOLD), f.abs()) && close(o, offset.decimalValue(FOLD), terms);
             } catch (ArithmeticException e) {
-                return true;
+                return null;
             }
         }
 

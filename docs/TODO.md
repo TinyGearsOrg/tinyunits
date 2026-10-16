@@ -105,23 +105,6 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 **Needed by:** decide before 1.0 (user-visible behaviour of `load`).
 
-## 26. Serialization hardening residuals
-
-**Status:** open, low risk (untrusted streams need the documented `ObjectInputFilter`; the serialized form is not promised
-stable before 1.0).
-- A multi-step converter whose inexact fold has a part over 4096 bits skips the decimal fold check, so a forged identity
-  converter with huge irrational parts is accepted and its `getConversionSteps()` contradicts `convert()`.
-- No dimension exponent range check (the proxy checks null and length 7); the zero-factor check lives only in the unit
-  proxy.
-- Untyped quantity reads depend on `SI` being loaded: a forged `Hz` atom inside an untyped `Hz·m` is accepted in a fresh
-  JVM that has not touched `SI`. Re-serializing an unregistered atom drops its definition, and definition-less atoms match
-  on symbol and dimension only.
-- `QuantityProxy` repeats a typed `read` and a bounded byte read of `SerialForm` because `SerialForm` is package-private
-  in an exported package: move both into the non-exported `org.tinygears.uom.core.internal`.
-- Strings in a stream (symbols, names) are unbounded except by the filter.
-
-**Needed by:** before 1.0, when the serialized form is promised stable.
-
 ## 27. User-unit loader
 
 **Status:** open, low priority.

@@ -122,6 +122,7 @@ org.tinygears.uom.core module exports org.tinygears.uom.core.quantity
 org.tinygears.uom.core module exports org.tinygears.uom.core.spi to [org.tinygears.uom]
 org.tinygears.uom.core module requires transitive java.measure
 org.tinygears.uom.core.internal hidden org.tinygears.uom.core.internal.Decimals
+org.tinygears.uom.core.internal hidden org.tinygears.uom.core.internal.SerialForm
 org.tinygears.uom.core.parse Definition member public final boolean equals(java.lang.Object)
 org.tinygears.uom.core.parse Definition member public final int hashCode()
 org.tinygears.uom.core.parse Definition member public final java.lang.String toString()
@@ -266,6 +267,7 @@ org.tinygears.uom.core.quantity UntypedDoubleQuantity member public static org.t
 org.tinygears.uom.core.quantity UntypedDoubleQuantity type public final class org.tinygears.uom.core.quantity.UntypedDoubleQuantity extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<org.tinygears.uom.core.quantity.Untyped, org.tinygears.uom.core.quantity.Untyped> implements org.tinygears.uom.core.quantity.Untyped
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.Providers
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.QuantityFactories
+org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitCatalogs
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitTexts
 org.tinygears.uom module exports org.tinygears.uom.quantity
 org.tinygears.uom module exports org.tinygears.uom.systems
@@ -1466,7 +1468,8 @@ org.tinygears.uom.systems UomServiceProvider member public java.lang.String unit
 org.tinygears.uom.systems UomServiceProvider member public javax.measure.spi.FormatService getFormatService()
 org.tinygears.uom.systems UomServiceProvider member public javax.measure.spi.SystemOfUnitsService getSystemOfUnitsService()
 org.tinygears.uom.systems UomServiceProvider member public org.tinygears.uom.systems.UomServiceProvider()
-org.tinygears.uom.systems UomServiceProvider type public final class org.tinygears.uom.systems.UomServiceProvider extends javax.measure.spi.ServiceProvider implements org.tinygears.uom.core.spi.QuantityFactories, org.tinygears.uom.core.spi.UnitTexts
+org.tinygears.uom.systems UomServiceProvider member public void loadCatalogs()
+org.tinygears.uom.systems UomServiceProvider type public final class org.tinygears.uom.systems.UomServiceProvider extends javax.measure.spi.ServiceProvider implements org.tinygears.uom.core.spi.QuantityFactories, org.tinygears.uom.core.spi.UnitCatalogs, org.tinygears.uom.core.spi.UnitTexts
 org.tinygears.uom.systems UomSystemOfUnits member public <Q extends javax.measure.Quantity<Q>> javax.measure.Unit<Q> getUnit(java.lang.Class<Q>)
 org.tinygears.uom.systems UomSystemOfUnits member public boolean isBinaryPrefixable(java.lang.String)
 org.tinygears.uom.systems UomSystemOfUnits member public boolean isPrefixable(java.lang.String)

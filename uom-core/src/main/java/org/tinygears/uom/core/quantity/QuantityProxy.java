@@ -64,6 +64,7 @@ import javax.measure.quantity.Volume;
 import javax.measure.spi.QuantityFactory;
 
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.internal.SerialForm;
 import org.tinygears.uom.core.spi.Providers;
 
 /**
@@ -233,47 +234,29 @@ final class QuantityProxy implements Serializable {
     @Serial
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        kind = read(in, String.class);
+        kind = SerialForm.readString(in, "invalid quantity: kind");
         if (kind == null) {
             throw invalid("null kind");
         }
         if (!DOUBLE.equals(kind) && !UNTYPED_DOUBLE.equals(kind) && !isDecimal(kind)) {
             throw invalid("unknown kind " + kind);
         }
-        type = read(in, String.class);
+        type = SerialForm.readString(in, "invalid quantity: type");
         typeClass = typeClass();
         if (typeClass != Untyped.class) {
             // Before the unit: the factory may register the type's alternate atoms, whatever was loaded before.
             factory = factory();
         }
-        unit = read(in, UomUnit.class);
-        scale = read(in, String.class);
+        unit = SerialForm.read(in, UomUnit.class);
+        scale = SerialForm.readString(in, "invalid quantity: scale");
         if (isDecimal(kind)) {
-            int n = in.readInt();
-            if (n < -1) {
-                throw new InvalidObjectException("negative length " + n);
-            }
-            if (n > MAX_VALUE_BYTES) {
-                throw new InvalidObjectException(VALUE_TOO_LARGE);
-            }
-            if (n >= 0) {
-                unscaled = new byte[n];
-                in.readFully(unscaled);
-            }
+            unscaled = SerialForm.readBytes(in, MAX_VALUE_BYTES, VALUE_TOO_LARGE);
             decimalScale = in.readInt();
             precision = in.readInt();
-            roundingMode = read(in, String.class);
+            roundingMode = SerialForm.readString(in, "invalid quantity: rounding mode");
         } else {
             bits = in.readLong();
         }
-    }
-
-    private static <T> T read(ObjectInputStream in, Class<T> type) throws IOException, ClassNotFoundException {
-        Object o = in.readObject();
-        if (o != null && !type.isInstance(o)) {
-            throw new InvalidObjectException("expected " + type.getSimpleName() + ", got " + o.getClass().getName());
-        }
-        return type.cast(o);
     }
 
     @Serial

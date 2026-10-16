@@ -353,6 +353,27 @@ class QuantitySerializationTest {
     }
 
     @Test
+    void textsLongerThan10000CharactersAreRejected() {
+        String tooLong = "x".repeat(10_001);
+        assertInvalid(
+                "invalid quantity: kind longer than 10000 characters",
+                doubleProxy(tooLong, LENGTH, METRE, "ABSOLUTE", 1));
+        assertInvalid(
+                "invalid quantity: type longer than 10000 characters",
+                doubleProxy("double", tooLong, METRE, "ABSOLUTE", 1));
+        assertInvalid(
+                "invalid quantity: scale longer than 10000 characters",
+                doubleProxy("double", LENGTH, METRE, tooLong, 1));
+        assertInvalid(
+                "invalid quantity: rounding mode longer than 10000 characters",
+                decimalProxy(new byte[] { 1 }, 0, 7, tooLong));
+        // at the bound the text is read and fails as an unknown kind
+        assertInvalid(
+                "invalid quantity: unknown kind " + "x".repeat(10_000),
+                doubleProxy("x".repeat(10_000), LENGTH, METRE, "ABSOLUTE", 1));
+    }
+
+    @Test
     void forgedDecimalsAreRejected() {
         assertInvalid("invalid quantity: null value", decimalProxy(null, 0, 0, "HALF_UP"));
         assertInvalid("invalid quantity: empty value", decimalProxy(new byte[0], 0, 0, "HALF_UP"));

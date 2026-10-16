@@ -21,24 +21,30 @@ import javax.measure.spi.SystemOfUnitsService;
 
 /**
  * Test-only provider: returns the factory a test put in {@link #FACTORIES}, otherwise one that only reports the
- * system unit in {@link #SYSTEM_UNITS}.
+ * system unit of the type.
  */
 public class TestServiceProvider extends ServiceProvider {
 
-    /** The system units the tests need, fixed so that no test depends on another one's registrations. */
-    public static final Map<Class<?>, Unit<?>> SYSTEM_UNITS = Map.of(
-            javax.measure.quantity.Length.class,
-            BaseUnits.METRE,
-            javax.measure.quantity.Speed.class,
-            BaseUnits.METRE.divide(BaseUnits.SECOND),
-            javax.measure.quantity.Frequency.class,
-            BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz"),
-            javax.measure.quantity.Radioactivity.class,
-            BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Bq"),
-            javax.measure.quantity.Angle.class,
-            BaseUnits.ONE.alternate("rad"),
-            javax.measure.quantity.Dimensionless.class,
-            BaseUnits.ONE);
+    /**
+     * The system units the tests need, fixed so that no test depends on another one's registrations. A holder, so
+     * listing the providers registers no alternate unit.
+     */
+    private static final class SystemUnits {
+        static final Map<Class<?>, Unit<?>> UNITS = Map.of(
+                javax.measure.quantity.Length.class,
+                BaseUnits.METRE,
+                javax.measure.quantity.Speed.class,
+                BaseUnits.METRE.divide(BaseUnits.SECOND),
+                javax.measure.quantity.Frequency.class,
+                BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz"),
+                javax.measure.quantity.Radioactivity.class,
+                BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Bq"),
+                javax.measure.quantity.Angle.class,
+                BaseUnits.ONE.alternate("rad"),
+                javax.measure.quantity.Dimensionless.class,
+                BaseUnits.ONE);
+    }
+
     public static final Map<Class<?>, QuantityFactory<?>> FACTORIES = new ConcurrentHashMap<>();
 
     /** Created by the service loader. */
@@ -62,7 +68,7 @@ public class TestServiceProvider extends ServiceProvider {
         if (factory != null) {
             return (QuantityFactory<Q>) factory;
         }
-        Unit<?> unit = SYSTEM_UNITS.get(type);
+        Unit<?> unit = SystemUnits.UNITS.get(type);
         if (unit == null) {
             throw new IllegalArgumentException("no system unit for " + type.getName());
         }

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core;
+package org.tinygears.uom.core.internal;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -21,10 +21,13 @@ import java.util.function.IntFunction;
  * Stream helpers for the serialization proxies. Objects are written unshared, so the bytes depend on values only,
  * never on object identity; lengths are read before anything is allocated and are bounded.
  */
-final class SerialForm {
+public final class SerialForm {
 
     /** Bound on atoms per unit or definition and on conversion steps. */
-    static final int MAX_ELEMENTS = 1000;
+    public static final int MAX_ELEMENTS = 1000;
+
+    /** Bound on the length of a string (symbol, name, quantity field), as on a formula of the unit format. */
+    public static final int MAX_TEXT = 10_000;
 
     private SerialForm() {
     }
@@ -36,7 +39,7 @@ final class SerialForm {
         }
     }
 
-    static void writeObjects(ObjectOutputStream out, Object[] a, String tooMany) throws IOException {
+    public static void writeObjects(ObjectOutputStream out, Object[] a, String tooMany) throws IOException {
         if (a != null) {
             checkLength(a.length, tooMany);
         }
@@ -48,7 +51,7 @@ final class SerialForm {
         }
     }
 
-    static <T> T[] readObjects(ObjectInputStream in, Class<T> type, IntFunction<T[]> array, String tooMany)
+    public static <T> T[] readObjects(ObjectInputStream in, Class<T> type, IntFunction<T[]> array, String tooMany)
             throws IOException, ClassNotFoundException {
         int n = readLength(in, MAX_ELEMENTS, tooMany);
         if (n < 0) {
@@ -61,7 +64,7 @@ final class SerialForm {
         return a;
     }
 
-    static void writeInts(ObjectOutputStream out, int[] a, String tooMany) throws IOException {
+    public static void writeInts(ObjectOutputStream out, int[] a, String tooMany) throws IOException {
         if (a != null) {
             checkLength(a.length, tooMany);
         }
@@ -73,7 +76,7 @@ final class SerialForm {
         }
     }
 
-    static int[] readInts(ObjectInputStream in, String tooMany) throws IOException {
+    public static int[] readInts(ObjectInputStream in, String tooMany) throws IOException {
         int n = readLength(in, MAX_ELEMENTS, tooMany);
         if (n < 0) {
             return null;
@@ -85,14 +88,14 @@ final class SerialForm {
         return a;
     }
 
-    static void writeBytes(ObjectOutputStream out, byte[] b) throws IOException {
+    public static void writeBytes(ObjectOutputStream out, byte[] b) throws IOException {
         out.writeInt(b == null ? -1 : b.length);
         if (b != null) {
             out.write(b);
         }
     }
 
-    static byte[] readBytes(ObjectInputStream in, int max, String tooMany) throws IOException {
+    public static byte[] readBytes(ObjectInputStream in, int max, String tooMany) throws IOException {
         int n = readLength(in, max, tooMany);
         if (n < 0) {
             return null;
@@ -114,7 +117,27 @@ final class SerialForm {
         return n;
     }
 
-    static <T> T read(ObjectInputStream in, Class<T> type) throws IOException, ClassNotFoundException {
+    /** Writes {@code s}, refusing one the reader would reject, so the failure is at the writing end. */
+    public static void writeString(ObjectOutputStream out, String s, String what) throws IOException {
+        if (s != null && s.length() > MAX_TEXT) {
+            throw new NotSerializableException(what + " longer than " + MAX_TEXT + " characters");
+        }
+        out.writeUnshared(s);
+    }
+
+    /**
+     * A string of at most {@link #MAX_TEXT} characters, or null. The bound applies after reading: the input filter
+     * bounds the bytes read; this keeps longer texts out of the objects.
+     */
+    public static String readString(ObjectInputStream in, String what) throws IOException, ClassNotFoundException {
+        String s = read(in, String.class);
+        if (s != null && s.length() > MAX_TEXT) {
+            throw new InvalidObjectException(what + " longer than " + MAX_TEXT + " characters");
+        }
+        return s;
+    }
+
+    public static <T> T read(ObjectInputStream in, Class<T> type) throws IOException, ClassNotFoundException {
         Object o = in.readObject();
         if (o != null && !type.isInstance(o)) {
             throw new InvalidObjectException("expected " + type.getSimpleName() + ", got " + o.getClass().getName());

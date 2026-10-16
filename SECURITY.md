@@ -16,9 +16,11 @@ see. Reports are answered on a best-effort basis; a fix is released before the d
 
 Units and quantities are `Serializable` through serialization proxies. A proxy rebuilds the object through the public
 factories, so reading re-checks the invariants and a forged stream that violates them fails with
-`InvalidObjectException`. One known gap: the steps of a multi-step converter that do not fold exactly and have a part
-over 4096 bits are not checked against its stored factor and offset. A quantity reads back through the factory of the
-current `ServiceProvider`. Systems and formats are not serializable. The serialized form may change in any release
+`InvalidObjectException`. The steps of a multi-step converter that cannot be checked against its factor and offset
+(a part over 4096 bits) are dropped, so it reads as one step. An alternate atom whose symbol is not registered, even
+after the catalogs are loaded (an atom of a user `.units` file that is not loaded), cannot be checked and reads as an
+unregistered atom. A quantity reads back through the factory of this implementation's provider, else of the current
+`ServiceProvider`. Systems and formats are not serializable. The serialized form may change in any release
 before 1.0 (see [docs/API.md](docs/API.md)).
 
 The checks run after the JDK has read the stream: the JDK allocates its arrays and strings, and resolves its classes,

@@ -659,14 +659,19 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   `InvalidObjectException("proxy required")` from `readObject`; each proxy (`serialVersionUID = 1L`) rebuilds the object
   through the public factories in `readResolve`, so every invariant is re-checked and any violation is an
   `InvalidObjectException`. Proxies write values unshared with bounded lengths (at most 1000 atoms or conversion
-  steps, `NotSerializableException` on write), so the bytes depend on values only.
+  steps, texts of at most 10000 characters, `NotSerializableException` on write), so the bytes depend on values only.
+  Dimension exponents have no range check: dimension arithmetic uses exact `int` operations and throws on overflow.
   - A unit is its atoms and exponents, converter factor and offset (with the conversion steps), symbol and name; the
     converter cache is transient. A multi-step converter is checked against its steps when they fold exactly, else by
-    a 60-digit decimal fold within 1e-40.
+    a 60-digit decimal fold within 1e-40. Steps that cannot be checked (a part over 4096 bits, or no decimal value)
+    are dropped: the converter reads as one step, so its steps never contradict what it converts.
   - An alternate atom carries its symbol, dimension and definition. On read the dimension must match the definition
-    and a registered symbol must have the identical definition; it resolves to the registered atom. An unregistered
-    symbol gives an equal, unregistered atom. Reading never registers (untrusted data must not bind symbols or grow the
-    registry), so a fresh JVM can read without touching `SI`.
+    and a registered symbol must have the identical definition; it resolves to the registered atom. Before a symbol
+    counts as unregistered, our provider loads its catalogs (the `spi.UnitCatalogs` hook), so a fresh JVM checks a
+    catalog atom such as `Hz` without touching `SI` first. A symbol still unregistered (an atom of a user file that is
+    not loaded) gives an equal, unregistered atom, which is written again without its definition; atoms without a
+    definition match on symbol and dimension only. Reading never registers (untrusted data must not bind symbols or
+    grow the registry).
   - A quantity is its kind (`double` or decimal, typed or untyped), standard type (an allow-list of the 33 interfaces
     and `Untyped`, never `Class.forName`), unit, `Scale`, value (raw bits, or unscaled bytes and scale) and
     `MathContext`. A typed read resolves the provider first, creates through

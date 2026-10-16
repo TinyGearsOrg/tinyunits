@@ -528,6 +528,24 @@ class UnitSerializationTest {
     }
 
     @Test
+    void stepsThatCannotBeCheckedAreNotTrusted() throws Exception {
+        // an identity whose steps claim shifts by two roots: they fold neither exactly nor, at over 4096 bits, in decimal
+        Factor huge = Factor.of(BigInteger.TWO.pow(5000).add(BigInteger.ONE), BigInteger.ONE, 0, 2);
+        Factor r2 = Factor.ofLong(2).root(2);
+        UomConverter copy = (UomConverter) deserialize(
+                serialize(
+                        new AffineConverter.Proxy(
+                                Factor.ONE,
+                                Factor.ZERO,
+                                new Factor[] { Factor.ONE, Factor.ONE },
+                                new Factor[] { huge, r2 })));
+        // read as one step, so the steps agree with what it converts
+        assertTrue(copy.isIdentity());
+        assertEquals(List.of(copy), copy.getConversionSteps());
+        assertEquals(5.0, copy.convert(5.0));
+    }
+
+    @Test
     void stepsGroupedOtherwiseStillRoundTrip() throws Exception {
         Factor r2 = Factor.ofLong(2).root(2);
         UomUnit<?> u = KELVIN.shift(1).transform(Converters.shift(r2).concatenate(Converters.shift(r2.negate())));
@@ -748,6 +766,36 @@ class UnitSerializationTest {
         assertEquals(List.of(m, s), List.copyOf(speed.atoms().keySet()));
         assertEquals("v", speed.getSymbol());
         assertEquals("speed", speed.getName());
+    }
+
+    @Test
+    void textsLongerThan10000CharactersAreNeitherWrittenNorRead() throws Exception {
+        String atTheBound = "n".repeat(10_000);
+        String tooLong = atTheBound + "n";
+        UomUnit<?> named = METRE.multiply(3).named("tri", atTheBound);
+        UomUnit<?> copy = (UomUnit<?>) deserialize(serialize(named));
+        assertEquals(atTheBound, copy.getName());
+        assertEquals(
+                "invalid unit: name longer than 10000 characters",
+                assertThrows(NotSerializableException.class, () -> serialize(METRE.multiply(3).named("tri", tooLong)))
+                        .getMessage());
+        // The writer refuses them, so the stream is forged by replacing the strings as they are written.
+        assertEquals(
+                "invalid unit: name longer than 10000 characters",
+                assertThrows(
+                        InvalidObjectException.class,
+                        () -> readReplacing(named, o -> o == atTheBound ? tooLong : o)).getMessage());
+        assertEquals(
+                "invalid unit: symbol longer than 10000 characters",
+                assertThrows(
+                        InvalidObjectException.class,
+                        () -> readReplacing(named, o -> "tri".equals(o) ? "t".repeat(10_001) : o)).getMessage());
+        UomUnit<?> alternate = METRE.divide(SECOND).alternate("vel");
+        assertEquals(
+                "invalid unit atom: symbol longer than 10000 characters",
+                assertThrows(
+                        InvalidObjectException.class,
+                        () -> readReplacing(alternate, o -> "vel".equals(o) ? "v".repeat(10_001) : o)).getMessage());
     }
 
     /** Twin of a class: same field names and types, no proxy. */
