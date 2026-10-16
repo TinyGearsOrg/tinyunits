@@ -125,8 +125,30 @@ class AbstractDoubleQuantityMixedTest {
         assertDecimal("1e400", a.multiply((Quantity<?>) huge));
         assertDecimal("1e-400", a.divide((Quantity<?>) huge));
         assertEquals(-1, a.compareTo(huge));
-        // isEquivalentTo keeps the double rule: the decimal is taken to a double.
-        assertThrows(ArithmeticException.class, () -> a.isEquivalentTo(huge));
+        // isEquivalentTo keeps the double tolerance, compared in decimal.
+        assertFalse(a.isEquivalentTo(huge));
+        assertFalse(huge.isEquivalentTo(a));
+    }
+
+    @Test
+    void equivalenceOfDoubleAndDecimalIsDecimalWithTheDoubleTolerance() {
+        // just above the double range, within the tolerance of Double.MAX_VALUE
+        BigDecimal max = new BigDecimal(Double.MAX_VALUE);
+        TestLengthDecimalImpl above = new TestLengthDecimalImpl(max.add(max.scaleByPowerOfTen(-13)), METRE);
+        assertTrue(d(Double.MAX_VALUE, METRE).isEquivalentTo(above));
+        assertTrue(above.isEquivalentTo(d(Double.MAX_VALUE, METRE)));
+        TestLengthDecimalImpl beyond = new TestLengthDecimalImpl(max.add(max.scaleByPowerOfTen(-11)), METRE);
+        assertFalse(d(Double.MAX_VALUE, METRE).isEquivalentTo(beyond));
+        assertFalse(beyond.isEquivalentTo(d(Double.MAX_VALUE, METRE)));
+        // a NaN or infinite double is equivalent to no decimal
+        for (double v : new double[] { Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY }) {
+            assertFalse(d(v, METRE).isEquivalentTo(q("1e400", METRE)), () -> "" + v);
+            assertFalse(q("1e400", METRE).isEquivalentTo(d(v, METRE)), () -> "" + v);
+        }
+        // in range, as before: units convert and the tolerance is relative
+        assertTrue(q("2000", METRE).isEquivalentTo(d(2, KILOMETRE)));
+        assertTrue(q("0.1000000000000001", METRE).isEquivalentTo(d(0.1, METRE)));
+        assertFalse(q("0.10000000001", METRE).isEquivalentTo(d(0.1, METRE)));
     }
 
     @Test

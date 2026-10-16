@@ -82,8 +82,6 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
   (pi at p=761 with `HALF_UP`, the degree factor at 762 to 763, sqrt(2) at p=2706); with `UNNECESSARY` it returns a value
   instead of throwing. Fix by Ziv-style evaluation: retry with more guard digits until the rounding decision is
   unambiguous.
-- `isEquivalentTo` of a decimal outside the `double` range against a `double` quantity throws `ArithmeticException`
-  (confirmed for `1e400 m`; `compareTo` is decimal since DR-14 and gives the sign); `false` is the expected answer.
 - The `isEquivalentTo` tolerance `10^(1-p)` is 1 at precision 1, so any two same-sign values within a factor of two are
   equivalent: document it or require a minimum precision.
 - Cost: guard digits grow with the operand's precision (multiplying a 3,000,000-digit value takes 28 s) and a huge

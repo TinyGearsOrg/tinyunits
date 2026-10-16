@@ -175,7 +175,8 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * Converts {@code that} into this unit and compares within the relative {@link #EQUIVALENCE_TOLERANCE}, which
      * is asymmetric near zero for offset units. Two {@code RELATIVE} quantities are compared as differences (factor
      * only, no offset), otherwise as points. NaN is equivalent to nothing; incompatible dimensions give false
-     * (compareTo throws). A decimal operand outside the double range throws {@link ArithmeticException}.
+     * (compareTo throws). A decimal operand is compared in decimal with the same tolerance, so a value outside the
+     * {@code double} range is not equivalent to this one; a NaN or infinite value is equivalent to no decimal.
      *
      * @throws NullPointerException if {@code that} is null
      */
@@ -186,8 +187,16 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             return false;
         }
-        double a = value;
         UomConverter c = thatUnit.getConverterTo(unit);
+        if (Precision.kind(that.getValue()) == Precision.Kind.DECIMAL) {
+            if (!Double.isFinite(value)) {
+                return false;
+            }
+            BigDecimal b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
+                    .convert(Precision.toDecimal(that.getValue()), MathContext.DECIMAL128);
+            return Precision.equivalentAsDoubles(Precision.toDecimal(value), b);
+        }
+        double a = value;
         double b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
                 .convert(Precision.toDouble(that.getValue()));
         if (a == b) {

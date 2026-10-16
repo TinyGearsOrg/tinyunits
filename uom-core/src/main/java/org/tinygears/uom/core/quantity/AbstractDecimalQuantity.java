@@ -304,8 +304,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * Converts {@code that} into this unit (by the factor only if both are {@code RELATIVE}) and compares within
      * the relative tolerance {@code 10^(1-p)}, {@code p}
      * the lowest non-zero precision of both contexts (34 if unlimited); against a {@code double} operand the
-     * {@code double} rule applies, and a value of this quantity outside the double range throws
-     * {@link ArithmeticException}. At precision 1 the tolerance is 10^0 (degenerate by design). Incompatible
+     * {@code double} tolerance applies, compared in decimal, so a value outside the {@code double} range is not
+     * equivalent to it, and a NaN or infinite operand is equivalent to nothing. At precision 1 the tolerance is 10^0 (degenerate by design). Incompatible
      * dimensions give false (compareTo throws).
      *
      * @throws NullPointerException if {@code that} is null
@@ -318,11 +318,16 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
             return false;
         }
         Number n = that.getValue();
+        UomConverter c = thatUnit.getConverterTo(unit);
         if (Precision.kind(n) == Precision.Kind.DOUBLE) {
-            return toDouble().isEquivalentTo(that);
+            if (!Double.isFinite(n.doubleValue())) {
+                return false;
+            }
+            BigDecimal b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
+                    .convert(Precision.toDecimal(n), MathContext.DECIMAL128);
+            return Precision.equivalentAsDoubles(value, b);
         }
         MathContext mc = Precision.calculation(contextWith(that));
-        UomConverter c = thatUnit.getConverterTo(unit);
         BigDecimal b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
                 .convert(Precision.toDecimal(n), mc);
         BigDecimal bound = value.abs().max(b.abs()).scaleByPowerOfTen(1 - mc.getPrecision());

@@ -26,6 +26,8 @@ final class Precision {
     /** Largest context precision: it caps the digits, so the work, of every rounded result. */
     static final int MAX_PRECISION = 100_000;
 
+    private static final BigDecimal DOUBLE_TOLERANCE = BigDecimal.valueOf(AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE);
+
     enum Kind {
         EXACT, DOUBLE, DECIMAL
     }
@@ -93,6 +95,16 @@ final class Precision {
             throw new ArithmeticException("precision out of range: " + mc.getPrecision());
         }
         return mc;
+    }
+
+    /**
+     * Whether {@code a} and {@code b} agree within {@link AbstractDoubleQuantity#EQUIVALENCE_TOLERANCE}, the
+     * tolerance of a {@code double} operand, compared in decimal so that values outside the {@code double} range
+     * compare too.
+     */
+    static boolean equivalentAsDoubles(BigDecimal a, BigDecimal b) {
+        BigDecimal bound = a.abs().max(b.abs()).multiply(DOUBLE_TOLERANCE);
+        return a.compareTo(b) == 0 || a.subtract(b).abs().compareTo(bound) <= 0;
     }
 
     /** The lower precision; 0 is unlimited and highest; equal precision keeps {@code a}. */
