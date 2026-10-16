@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Radioactivity} of this implementation. */
 public interface Radioactivity
-        extends
-            javax.measure.quantity.Radioactivity,
-            Comparable<Quantity<javax.measure.quantity.Radioactivity>> {
+        extends javax.measure.quantity.Radioactivity, Comparable<Quantity<javax.measure.quantity.Radioactivity>> {
 
     @Override
     Radioactivity add(Quantity<javax.measure.quantity.Radioactivity> addend);
@@ -87,11 +85,7 @@ public interface Radioactivity
      * @param scale the scale
      * @return the quantity
      */
-    static Radioactivity of(
-            double value,
-            Unit<javax.measure.quantity.Radioactivity> unit,
-            Quantity.Scale scale
-    ) {
+    static Radioactivity of(double value, Unit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface Radioactivity
      * @param scale the scale
      * @return the quantity
      */
-    static Radioactivity of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Radioactivity> unit,
-            Quantity.Scale scale
-    ) {
+    static Radioactivity of(BigDecimal value, Unit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale) {
         return RadioactivityFactory.INSTANCE.of(value, unit, scale);
     }
 

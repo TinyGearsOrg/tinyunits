@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link CatalyticActivity} quantities. */
-public final class CatalyticActivityFactory
-        implements
-            QuantityFactory<javax.measure.quantity.CatalyticActivity> {
+public final class CatalyticActivityFactory implements QuantityFactory<javax.measure.quantity.CatalyticActivity> {
 
     /** The system unit of {@link CatalyticActivity}. */
     public static final UomUnit<javax.measure.quantity.CatalyticActivity> SYSTEM_UNIT = UomUnit

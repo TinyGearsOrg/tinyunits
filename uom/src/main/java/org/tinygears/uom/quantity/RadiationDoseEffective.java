@@ -19,10 +19,8 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.RadiationDoseEffective} of this implementation. */
-public interface RadiationDoseEffective
-        extends
-            javax.measure.quantity.RadiationDoseEffective,
-            Comparable<Quantity<javax.measure.quantity.RadiationDoseEffective>> {
+public interface RadiationDoseEffective extends javax.measure.quantity.RadiationDoseEffective,
+        Comparable<Quantity<javax.measure.quantity.RadiationDoseEffective>> {
 
     @Override
     RadiationDoseEffective add(Quantity<javax.measure.quantity.RadiationDoseEffective> addend);

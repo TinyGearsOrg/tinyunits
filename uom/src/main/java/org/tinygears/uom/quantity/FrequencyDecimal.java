@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class FrequencyDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Frequency, Frequency>
-        implements
-            Frequency {
+final class FrequencyDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Frequency, Frequency>
+        implements Frequency {
 
     @Serial
     private static final long serialVersionUID = 1L;

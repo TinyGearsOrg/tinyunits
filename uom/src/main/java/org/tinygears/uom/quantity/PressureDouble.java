@@ -20,29 +20,18 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class PressureDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Pressure, Pressure>
-        implements
-            Pressure {
+final class PressureDouble extends AbstractDoubleQuantity<javax.measure.quantity.Pressure, Pressure>
+        implements Pressure {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    PressureDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    PressureDouble(double value, UomUnit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Pressure create(
-            double value,
-            UomUnit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    protected Pressure create(double value, UomUnit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         return new PressureDouble(value, unit, scale);
     }
 

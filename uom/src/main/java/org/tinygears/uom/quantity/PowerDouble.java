@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class PowerDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Power, Power>
-        implements
-            Power {
+final class PowerDouble extends AbstractDoubleQuantity<javax.measure.quantity.Power, Power> implements Power {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    PowerDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    PowerDouble(double value, UomUnit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Power create(
-            double value,
-            UomUnit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    protected Power create(double value, UomUnit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         return new PowerDouble(value, unit, scale);
     }
 

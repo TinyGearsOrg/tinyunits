@@ -20,20 +20,13 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class ElectricCurrentDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.ElectricCurrent, ElectricCurrent>
-        implements
-            ElectricCurrent {
+final class ElectricCurrentDouble extends
+        AbstractDoubleQuantity<javax.measure.quantity.ElectricCurrent, ElectricCurrent> implements ElectricCurrent {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    ElectricCurrentDouble(
-            double value,
-            UomUnit<javax.measure.quantity.ElectricCurrent> unit,
-            Quantity.Scale scale
-    ) {
+    ElectricCurrentDouble(double value, UomUnit<javax.measure.quantity.ElectricCurrent> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 

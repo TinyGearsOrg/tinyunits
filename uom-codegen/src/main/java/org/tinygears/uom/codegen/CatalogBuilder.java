@@ -59,8 +59,8 @@ public final class CatalogBuilder {
             if (previous != null) {
                 throw error(
                         d,
-                        "duplicate constant name '" + constant + "' ('" + previous.symbol() + "' and '"
-                                + d.symbol() + "')");
+                        "duplicate constant name '" + constant + "' ('" + previous.symbol() + "' and '" + d.symbol()
+                                + "')");
             }
             String type = type(d, types, byName);
             result.add(new CatalogEntry(d, constant, type, shared(d, type, byName, claimed)));
@@ -80,8 +80,8 @@ public final class CatalogBuilder {
             }
             return spec.name();
         }
-        List<String> matches = types.stream().filter(t -> t.systemUnit().equals(system))
-                .map(QuantityTypeSpec::name).toList();
+        List<String> matches = types.stream().filter(t -> t.systemUnit().equals(system)).map(QuantityTypeSpec::name)
+                .toList();
         if (matches.size() > 1) {
             throw error(
                     d,
@@ -97,12 +97,7 @@ public final class CatalogBuilder {
      * a later one with another symbol or name (an alias) keeps its own unit. A type named by {@code =>} has a symbol no
      * definition can carry ({@code m/s}), so every definition equal to its system unit is an alias.
      */
-    private static String shared(
-            Definition d,
-            String type,
-            Map<String, QuantityTypeSpec> byName,
-            Set<String> claimed
-    ) {
+    private static String shared(Definition d, String type, Map<String, QuantityTypeSpec> byName, Set<String> claimed) {
         QuantityTypeSpec spec = type == null ? null : byName.get(type);
         if (spec == null || spec.explicit() || !d.unit().equals(spec.systemUnit())) {
             return null;
@@ -154,8 +149,7 @@ public final class CatalogBuilder {
                 throw new GenerationException(
                         file,
                         0,
-                        "duplicate system '" + d.system() + "' (also in " + previous
-                                + ")");
+                        "duplicate system '" + d.system() + "' (also in " + previous + ")");
             }
             done.put(file, catalog(file, d, types, done, claimed));
         });
@@ -185,8 +179,7 @@ public final class CatalogBuilder {
                 throw new GenerationException(
                         x.source(),
                         x.line(),
-                        "'" + x.file()
-                                + "' is not a catalog generated before '" + file + "'");
+                        "'" + x.file() + "' is not a catalog generated before '" + file + "'");
             }
             parents.add(parent);
             parent.units().forEach(units::putIfAbsent);
@@ -207,8 +200,8 @@ public final class CatalogBuilder {
                 throw new GenerationException(
                         m.source(),
                         m.line(),
-                        "unit '" + m.symbol() + "' is defined in '"
-                                + def.source() + "', which is not a catalog generated before '" + file + "'");
+                        "unit '" + m.symbol() + "' is defined in '" + def.source()
+                                + "', which is not a catalog generated before '" + file + "'");
             }
             units.putIfAbsent(m.symbol(), owner.units().get(m.symbol()));
             d.prefixed().stream().filter(p -> p.source().equals(def.source()) && p.unitSymbol().equals(m.symbol()))
@@ -274,30 +267,23 @@ public final class CatalogBuilder {
                 throw new GenerationException(
                         p.source(),
                         p.line(),
-                        "unit '" + p.symbol() + "' is not a unit of "
-                                + cls);
+                        "unit '" + p.symbol() + "' is not a unit of " + cls);
             }
             QuantityTypeSpec spec = byName.get(p.quantityType());
             if (spec == null) {
-                throw new GenerationException(
-                        p.source(),
-                        p.line(),
-                        "unknown quantity type '" + p.quantityType()
-                                + "'");
+                throw new GenerationException(p.source(), p.line(), "unknown quantity type '" + p.quantityType() + "'");
             }
             if (!spec.systemUnit().equals(def.unit().getSystemUnit())) {
                 throw new GenerationException(
                         p.source(),
                         p.line(),
-                        "unit '" + p.symbol() + "' is not a unit of "
-                                + spec.name());
+                        "unit '" + p.symbol() + "' is not a unit of " + spec.name());
             }
             if (result.putIfAbsent(spec.name(), units.get(p.symbol())) != null) {
                 throw new GenerationException(
                         p.source(),
                         p.line(),
-                        "duplicate preferred unit for '" + spec.name()
-                                + "'");
+                        "duplicate preferred unit for '" + spec.name() + "'");
             }
         }
         return result;

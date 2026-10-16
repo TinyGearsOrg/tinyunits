@@ -102,15 +102,13 @@ public final class QuantityTypesParser {
                         throw new GenerationException(
                                 source,
                                 ln,
-                                "explicit name for an already named unit '"
-                                        + symbol + "'");
+                                "explicit name for an already named unit '" + symbol + "'");
                     }
                     if (def == null && !evaluatesTo(parts[0], unit, bySymbol)) {
                         throw new GenerationException(
                                 source,
                                 ln,
-                                "explicit symbol '" + parts[0]
-                                        + "' does not evaluate to the unit");
+                                "explicit symbol '" + parts[0] + "' does not evaluate to the unit");
                     }
                     if (def == null && (bySymbol.containsKey(parts[0]) || !explicitSymbols.add(parts[0]))) {
                         throw new GenerationException(source, ln, "duplicate symbol '" + parts[0] + "'");
@@ -135,8 +133,7 @@ public final class QuantityTypesParser {
         return List.copyOf(result);
     }
 
-    private static UomUnit<?> evaluate(String formula, Map<String, Definition> bySymbol)
-            throws FormulaException {
+    private static UomUnit<?> evaluate(String formula, Map<String, Definition> bySymbol) throws FormulaException {
         return FormulaEvaluator.evaluate(formula, s -> {
             Definition d = bySymbol.get(s);
             return d == null ? null : d.unit();

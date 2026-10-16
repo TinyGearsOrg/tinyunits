@@ -53,10 +53,7 @@ import org.tinygears.uom.core.spi.Providers;
  * @param <R> the typed interface returned by conversions
  */
 public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
-        implements
-            Quantity<Q>,
-            Comparable<Quantity<Q>>,
-            Serializable {
+        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -177,8 +174,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         Unit<Q> target = system.getUnit(quantityType());
         if (target == null) {
             throw new UnsupportedOperationException(
-                    "system " + system.getName() + " has no unit for type "
-                            + quantityType().getSimpleName());
+                    "system " + system.getName() + " has no unit for type " + quantityType().getSimpleName());
         }
         return to(target);
     }
@@ -299,8 +295,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         int digits = guardDigits(contextWith(that), b);
         Ratio g = Ratio.of(tb.factor().divide(ta.factor()), digits);
         Ratio h = Ratio.of(tb.offset().add(ta.offset().negate()).divide(ta.factor()), digits);
-        BigDecimal d = value.multiply(g.den).multiply(h.den)
-                .subtract(b.multiply(g.num).multiply(h.den)).subtract(h.num.multiply(g.den));
+        BigDecimal d = value.multiply(g.den).multiply(h.den).subtract(b.multiply(g.num).multiply(h.den))
+                .subtract(h.num.multiply(g.den));
         return ta.factor().signum() * d.signum();
     }
 

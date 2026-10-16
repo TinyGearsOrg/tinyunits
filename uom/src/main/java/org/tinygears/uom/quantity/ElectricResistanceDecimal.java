@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 final class ElectricResistanceDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.ElectricResistance, ElectricResistance>
-        implements
-            ElectricResistance {
+        extends AbstractDecimalQuantity<javax.measure.quantity.ElectricResistance, ElectricResistance>
+        implements ElectricResistance {
 
     @Serial
     private static final long serialVersionUID = 1L;

@@ -148,12 +148,7 @@ class AbstractDoubleQuantityTest {
         assertThrows(NullPointerException.class, () -> q(1, METRE).compareTo(null));
 
         List<TestLengthImpl> list = new ArrayList<>(
-                List.of(
-                        q(Double.NaN, METRE),
-                        q(2, KILOMETRE),
-                        q(5, METRE),
-                        q(1, KILOMETRE),
-                        q(-3, METRE)));
+                List.of(q(Double.NaN, METRE), q(2, KILOMETRE), q(5, METRE), q(1, KILOMETRE), q(-3, METRE)));
         list.sort(null);
         assertEquals(List.of(q(-3, METRE), q(5, METRE), q(1, KILOMETRE), q(2, KILOMETRE), q(Double.NaN, METRE)), list);
     }

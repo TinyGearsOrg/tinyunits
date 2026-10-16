@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Frequency} quantities. */
-public final class FrequencyFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Frequency> {
+public final class FrequencyFactory implements QuantityFactory<javax.measure.quantity.Frequency> {
 
     /** The system unit of {@link Frequency}. */
     public static final UomUnit<javax.measure.quantity.Frequency> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class FrequencyFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Frequency of(
-            double value,
-            Unit<javax.measure.quantity.Frequency> unit,
-            Quantity.Scale scale
-    ) {
+    public Frequency of(double value, Unit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Frequency> u) {
             return new FrequencyDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class FrequencyFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Frequency of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Frequency> unit,
-            Quantity.Scale scale
-    ) {
+    public Frequency of(BigDecimal value, Unit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -129,11 +119,7 @@ public final class FrequencyFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Frequency create(
-            Number value,
-            Unit<javax.measure.quantity.Frequency> unit,
-            Quantity.Scale scale
-    ) {
+    public Frequency create(Number value, Unit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link AmountOfSubstance} quantities. */
-public final class AmountOfSubstanceFactory
-        implements
-            QuantityFactory<javax.measure.quantity.AmountOfSubstance> {
+public final class AmountOfSubstanceFactory implements QuantityFactory<javax.measure.quantity.AmountOfSubstance> {
 
     /** The system unit of {@link AmountOfSubstance}. */
     public static final UomUnit<javax.measure.quantity.AmountOfSubstance> SYSTEM_UNIT = UomUnit

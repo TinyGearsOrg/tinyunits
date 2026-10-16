@@ -148,11 +148,7 @@ class AbstractDecimalQuantityTest {
         assertNotEquals(q("1", METRE), q("2", METRE));
         assertNotEquals(
                 q("1", METRE),
-                new TestLengthDecimalImpl(
-                        BigDecimal.ONE,
-                        METRE,
-                        Quantity.Scale.RELATIVE,
-                        MathContext.DECIMAL128));
+                new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL128));
         assertNotEquals(q("1.5", METRE), new TestLengthImpl(1.5, METRE));
         assertNotEquals(new TestLengthImpl(1.5, METRE), q("1.5", METRE));
         assertNotEquals(q("1", METRE), null);
@@ -233,9 +229,8 @@ class AbstractDecimalQuantityTest {
         assertThrows(NullPointerException.class, () -> q.withMathContext(null));
         assertEquals(
                 "precision out of range: 100001",
-                assertThrows(
-                        ArithmeticException.class,
-                        () -> q.withMathContext(new MathContext(100_001))).getMessage());
+                assertThrows(ArithmeticException.class, () -> q.withMathContext(new MathContext(100_001)))
+                        .getMessage());
     }
 
     @Test

@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Volume} quantities. */
-public final class VolumeFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Volume> {
+public final class VolumeFactory implements QuantityFactory<javax.measure.quantity.Volume> {
 
     /** The system unit of {@link Volume}. */
     public static final UomUnit<javax.measure.quantity.Volume> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class VolumeFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Volume of(
-            double value,
-            Unit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    public Volume of(double value, Unit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Volume> u) {
             return new VolumeDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class VolumeFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Volume of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    public Volume of(BigDecimal value, Unit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -106,12 +96,7 @@ public final class VolumeFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Volume of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Volume of(BigDecimal value, Unit<javax.measure.quantity.Volume> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Volume> u) {
             return new VolumeDecimal(value, u, scale, mc);
@@ -129,11 +114,7 @@ public final class VolumeFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Volume create(
-            Number value,
-            Unit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    public Volume create(Number value, Unit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

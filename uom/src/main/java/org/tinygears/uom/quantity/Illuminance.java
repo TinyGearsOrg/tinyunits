@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Illuminance} of this implementation. */
 public interface Illuminance
-        extends
-            javax.measure.quantity.Illuminance,
-            Comparable<Quantity<javax.measure.quantity.Illuminance>> {
+        extends javax.measure.quantity.Illuminance, Comparable<Quantity<javax.measure.quantity.Illuminance>> {
 
     @Override
     Illuminance add(Quantity<javax.measure.quantity.Illuminance> addend);
@@ -87,11 +85,7 @@ public interface Illuminance
      * @param scale the scale
      * @return the quantity
      */
-    static Illuminance of(
-            double value,
-            Unit<javax.measure.quantity.Illuminance> unit,
-            Quantity.Scale scale
-    ) {
+    static Illuminance of(double value, Unit<javax.measure.quantity.Illuminance> unit, Quantity.Scale scale) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface Illuminance
      * @param scale the scale
      * @return the quantity
      */
-    static Illuminance of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Illuminance> unit,
-            Quantity.Scale scale
-    ) {
+    static Illuminance of(BigDecimal value, Unit<javax.measure.quantity.Illuminance> unit, Quantity.Scale scale) {
         return IlluminanceFactory.INSTANCE.of(value, unit, scale);
     }
 

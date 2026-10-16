@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class TimeDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Time, Time>
-        implements
-            Time {
+final class TimeDouble extends AbstractDoubleQuantity<javax.measure.quantity.Time, Time> implements Time {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    TimeDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    TimeDouble(double value, UomUnit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Time create(
-            double value,
-            UomUnit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    protected Time create(double value, UomUnit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         return new TimeDouble(value, unit, scale);
     }
 

@@ -81,70 +81,45 @@ public final class EMU {
 
     /** The abampere, {@code abA}. */
     public static final UomUnit<ElectricCurrent> ABAMPERE = UomUnit.unchecked(
-            BaseUnits.AMPERE
-                    .transform(Converters.affine(Factor.of(10L, 1L), Factor.ZERO))
-                    .named("abA", "abampere"));
+            BaseUnits.AMPERE.transform(Converters.affine(Factor.of(10L, 1L), Factor.ZERO)).named("abA", "abampere"));
 
     /** The abcoulomb, {@code abC}. */
     public static final UomUnit<ElectricCharge> ABCOULOMB = UomUnit.unchecked(
-            BaseUnits.AMPERE
-                    .multiply(BaseUnits.SECOND)
-                    .transform(Converters.affine(Factor.of(10L, 1L), Factor.ZERO))
+            BaseUnits.AMPERE.multiply(BaseUnits.SECOND).transform(Converters.affine(Factor.of(10L, 1L), Factor.ZERO))
                     .named("abC", "abcoulomb"));
 
     /** The abvolt, {@code abV}. */
     public static final UomUnit<ElectricPotential> ABVOLT = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(3))
-                    .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO))
-                    .named("abV", "abvolt"));
+            BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
+                    .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("abV", "abvolt"));
 
     /** The abohm, {@code abΩ}. */
     public static final UomUnit<ElectricResistance> ABOHM = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE.pow(2))
+            BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(3))
-                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
-                    .named("abΩ", "abohm"));
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abΩ", "abohm"));
 
     /** The abfarad, {@code abF}. */
     public static final UomUnit<ElectricCapacitance> ABFARAD = UomUnit.unchecked(
-            BaseUnits.AMPERE
-                    .pow(2)
-                    .multiply(BaseUnits.SECOND.pow(4))
-                    .divide(BaseUnits.KILOGRAM)
+            BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2))
-                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
-                    .named("abF", "abfarad"));
+                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO)).named("abF", "abfarad"));
 
     /** The abhenry, {@code abH}. */
     public static final UomUnit<ElectricInductance> ABHENRY = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE.pow(2))
+            BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
-                    .named("abH", "abhenry"));
+                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abH", "abhenry"));
 
     /** The gauss, {@code G}. */
     public static final UomUnit<MagneticFluxDensity> GAUSS = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO))
-                    .named("G", "gauss"));
+            BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO)).named("G", "gauss"));
 
     /** The maxwell, {@code Mx}. */
     public static final UomUnit<MagneticFlux> MAXWELL = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.AMPERE)
-                    .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO))
-                    .named("Mx", "maxwell"));
+            BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("Mx", "maxwell"));
 
     /** The gilbert, {@code Gb}. */
     public static final UomUnit<ElectricCurrent> GILBERT = UomUnit.unchecked(
@@ -155,30 +130,21 @@ public final class EMU {
 
     /** The oersted, {@code Oe}. */
     public static final UomUnit<?> OERSTED = UomUnit.unchecked(
-            BaseUnits.AMPERE
-                    .divide(BaseUnits.METRE)
-                    .transform(
-                            Converters
-                                    .affine(Factor.of(new BigInteger("250"), new BigInteger("1"), -1, 1), Factor.ZERO))
+            BaseUnits.AMPERE.divide(BaseUnits.METRE).transform(
+                    Converters.affine(Factor.of(new BigInteger("250"), new BigInteger("1"), -1, 1), Factor.ZERO))
                     .named("Oe", "oersted"));
 
     /** The milligauss, {@code mG}. */
-    public static final UomUnit<MagneticFluxDensity> MILLIGAUSS = UomUnit.unchecked(
-            GAUSS
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mG", "milligauss"));
+    public static final UomUnit<MagneticFluxDensity> MILLIGAUSS = UomUnit
+            .unchecked(GAUSS.prefix(MetricPrefix.MILLI).named("mG", "milligauss"));
 
     /** The microgauss, {@code µG}. */
-    public static final UomUnit<MagneticFluxDensity> MICROGAUSS = UomUnit.unchecked(
-            GAUSS
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µG", "microgauss"));
+    public static final UomUnit<MagneticFluxDensity> MICROGAUSS = UomUnit
+            .unchecked(GAUSS.prefix(MetricPrefix.MICRO).named("µG", "microgauss"));
 
     /** The nanogauss, {@code nG}. */
-    public static final UomUnit<MagneticFluxDensity> NANOGAUSS = UomUnit.unchecked(
-            GAUSS
-                    .prefix(MetricPrefix.NANO)
-                    .named("nG", "nanogauss"));
+    public static final UomUnit<MagneticFluxDensity> NANOGAUSS = UomUnit
+            .unchecked(GAUSS.prefix(MetricPrefix.NANO).named("nG", "nanogauss"));
 
     /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS = List.<UomUnit<?>>of(
@@ -213,13 +179,7 @@ public final class EMU {
             SI.SECOND);
 
     /** The symbols that take a prefix in this system. */
-    public static final Set<String> PREFIXABLE = Set.of(
-            "G",
-            "Gal",
-            "P",
-            "St",
-            "g",
-            "s");
+    public static final Set<String> PREFIXABLE = Set.of("G", "Gal", "P", "St", "g", "s");
 
     /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED = Map.<Class<?>, UomUnit<?>>ofEntries(

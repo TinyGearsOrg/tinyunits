@@ -88,9 +88,8 @@ class ToSystemTest {
     void systemWithoutUnitForTheType() {
         assertEquals(
                 UNSUPPORTED + "Length",
-                assertThrows(
-                        UnsupportedOperationException.class,
-                        () -> new TestLengthImpl(1, METRE).toSystem(EMPTY)).getMessage());
+                assertThrows(UnsupportedOperationException.class, () -> new TestLengthImpl(1, METRE).toSystem(EMPTY))
+                        .getMessage());
         assertEquals(
                 UNSUPPORTED + "Length",
                 assertThrows(
@@ -111,8 +110,7 @@ class ToSystemTest {
                                 BigDecimal.ONE,
                                 mps,
                                 Quantity.Scale.ABSOLUTE,
-                                MathContext.DECIMAL128)
-                                .toSystem(KM))
+                                MathContext.DECIMAL128).toSystem(KM))
                         .getMessage());
     }
 
@@ -121,9 +119,8 @@ class ToSystemTest {
         SystemOfUnits unnamed = system(null, Map.of());
         assertEquals(
                 "system null has no unit for type Length",
-                assertThrows(
-                        UnsupportedOperationException.class,
-                        () -> new TestLengthImpl(1, METRE).toSystem(unnamed)).getMessage());
+                assertThrows(UnsupportedOperationException.class, () -> new TestLengthImpl(1, METRE).toSystem(unnamed))
+                        .getMessage());
     }
 
     @Test
@@ -134,9 +131,8 @@ class ToSystemTest {
                 .multiply(new TestLengthDecimalImpl(BigDecimal.ONE, METRE));
         assertEquals(
                 UNSUPPORTED + "Untyped",
-                assertThrows(
-                        UnsupportedOperationException.class,
-                        () -> ((UntypedDoubleQuantity) area).toSystem(EMPTY)).getMessage());
+                assertThrows(UnsupportedOperationException.class, () -> ((UntypedDoubleQuantity) area).toSystem(EMPTY))
+                        .getMessage());
         assertEquals(
                 UNSUPPORTED + "Untyped",
                 assertThrows(
@@ -169,9 +165,8 @@ class ToSystemTest {
     void nullSystem() {
         assertEquals(
                 "system",
-                assertThrows(
-                        NullPointerException.class,
-                        () -> new TestLengthImpl(1, METRE).toSystem(null)).getMessage());
+                assertThrows(NullPointerException.class, () -> new TestLengthImpl(1, METRE).toSystem(null))
+                        .getMessage());
         assertEquals(
                 "system",
                 assertThrows(
@@ -192,7 +187,6 @@ class ToSystemTest {
         assertEquals(Untyped.class, UntypedDoubleQuantity.of(1, METRE).quantityType());
         assertEquals(
                 Untyped.class,
-                UntypedDecimalQuantity.of(BigDecimal.ONE, METRE, MathContext.DECIMAL128)
-                        .quantityType());
+                UntypedDecimalQuantity.of(BigDecimal.ONE, METRE, MathContext.DECIMAL128).quantityType());
     }
 }

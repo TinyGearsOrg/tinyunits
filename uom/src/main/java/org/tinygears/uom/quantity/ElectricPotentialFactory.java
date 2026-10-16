@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link ElectricPotential} quantities. */
-public final class ElectricPotentialFactory
-        implements
-            QuantityFactory<javax.measure.quantity.ElectricPotential> {
+public final class ElectricPotentialFactory implements QuantityFactory<javax.measure.quantity.ElectricPotential> {
 
     /** The system unit of {@link ElectricPotential}. */
     public static final UomUnit<javax.measure.quantity.ElectricPotential> SYSTEM_UNIT = UomUnit.unchecked(

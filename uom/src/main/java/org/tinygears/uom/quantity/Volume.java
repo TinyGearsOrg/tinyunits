@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Volume} of this implementation. */
-public interface Volume
-        extends
-            javax.measure.quantity.Volume,
-            Comparable<Quantity<javax.measure.quantity.Volume>> {
+public interface Volume extends javax.measure.quantity.Volume, Comparable<Quantity<javax.measure.quantity.Volume>> {
 
     @Override
     Volume add(Quantity<javax.measure.quantity.Volume> addend);
@@ -87,11 +84,7 @@ public interface Volume
      * @param scale the scale
      * @return the quantity
      */
-    static Volume of(
-            double value,
-            Unit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    static Volume of(double value, Unit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         return VolumeFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Volume
      * @param scale the scale
      * @return the quantity
      */
-    static Volume of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    static Volume of(BigDecimal value, Unit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         return VolumeFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Volume
      * @param mc the math context
      * @return the quantity
      */
-    static Volume of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Volume of(BigDecimal value, Unit<javax.measure.quantity.Volume> unit, Quantity.Scale scale, MathContext mc) {
         return VolumeFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

@@ -38,9 +38,7 @@ public final class UomTckConfiguration implements ServiceConfiguration {
 
     @Override
     public Collection<Class> getQuantityClasses() {
-        return QuantityTypes.types().stream()
-                .map(type -> (Class) quantityClass((Class) type))
-                .toList();
+        return QuantityTypes.types().stream().map(type -> (Class) quantityClass((Class) type)).toList();
     }
 
     private static <Q extends Quantity<Q>> Class<?> quantityClass(Class<Q> type) {
@@ -99,10 +97,8 @@ public final class UomTckConfiguration implements ServiceConfiguration {
 
     @Override
     public Collection<UnitConverter> getUnitConverters4Test() {
-        return List.of(
-                Converters.IDENTITY,
-                Converters.scale(Factor.ofLong(1000)),
-                Converters.shift(Factor.ofLong(273)));
+        return List
+                .of(Converters.IDENTITY, Converters.scale(Factor.ofLong(1000)), Converters.shift(Factor.ofLong(273)));
     }
 
     @Override

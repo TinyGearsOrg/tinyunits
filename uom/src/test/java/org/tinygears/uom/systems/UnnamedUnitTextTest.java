@@ -85,8 +85,8 @@ class UnnamedUnitTextTest {
                         bad.add(prefix + " " + known.getSymbol() + ": " + text);
                     }
                     // A prefix on a prefixable unit is never left as a long formula.
-                    if (text.contains("|") || text.contains("·") && !text.contains("/")
-                            && Character.isDigit(text.charAt(0))) {
+                    if (text.contains("|")
+                            || text.contains("·") && !text.contains("/") && Character.isDigit(text.charAt(0))) {
                         bad.add("formula " + prefix + " " + known.getSymbol() + ": " + text);
                     }
                 }

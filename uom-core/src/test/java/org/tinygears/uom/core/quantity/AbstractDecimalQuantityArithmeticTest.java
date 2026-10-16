@@ -139,9 +139,7 @@ class AbstractDecimalQuantityArithmeticTest {
                 "1",
                 METRE,
                 UNLIMITED,
-                q("2e400", METRE, UNLIMITED).divide(
-                        new BigDecimal(huge).multiply(
-                                BigDecimal.valueOf(2))));
+                q("2e400", METRE, UNLIMITED).divide(new BigDecimal(huge).multiply(BigDecimal.valueOf(2))));
         assertDecimal("9007199254740993", METRE, q("0", METRE).add(new Foreign<>(9007199254740993L, METRE)));
         assertDecimal("1e400", METRE, UNLIMITED, q("0", METRE, UNLIMITED).add(new Foreign<>(huge, METRE)));
     }
@@ -225,8 +223,7 @@ class AbstractDecimalQuantityArithmeticTest {
         assertEquals(7, ((BigDecimal) r.getValue()).precision());
         assertEquals(
                 new BigDecimal("1.234568"),
-                q("0", METRE).add(q("1.2345678", METRE, MathContext.DECIMAL32))
-                        .getValue());
+                q("0", METRE).add(q("1.2345678", METRE, MathContext.DECIMAL32)).getValue());
     }
 
     @Test
@@ -290,8 +287,7 @@ class AbstractDecimalQuantityArithmeticTest {
         assertEquals(0, q("1.0", METRE).compareTo(q("1.00", METRE)));
         assertEquals(
                 1,
-                q("1.000000000000000000000000000000000000001", METRE, UNLIMITED)
-                        .compareTo(q("1", METRE, UNLIMITED)));
+                q("1.000000000000000000000000000000000000001", METRE, UNLIMITED).compareTo(q("1", METRE, UNLIMITED)));
         assertEquals(1, q("2", METRE).compareTo(new Foreign<>(1, METRE)));
     }
 
@@ -376,8 +372,7 @@ class AbstractDecimalQuantityArithmeticTest {
             assertDecimal("1E+99999", KILOMETRE, q("1e99999", KILOMETRE).add(q("1e-99999", METRE)));
             assertEquals(
                     100_000,
-                    ((BigDecimal) q("1e99999", METRE, UNLIMITED).add(q("1", METRE, UNLIMITED))
-                            .getValue()).precision());
+                    ((BigDecimal) q("1e99999", METRE, UNLIMITED).add(q("1", METRE, UNLIMITED)).getValue()).precision());
             assertEquals(1, q("1e99999", CELSIUS).compareTo(q("1e-99999", KELVIN)));
             assertDecimal("2E+99999", CELSIUS, q("1e99999", CELSIUS).multiply(2));
         });
@@ -398,8 +393,7 @@ class AbstractDecimalQuantityArithmeticTest {
 
     @Test
     void irrationalFactorsAreApproximatedBeyondTheContext() {
-        UomUnit<Length> piOver180 = UomUnit.unchecked(
-                METRE.scaledBy(Factor.PI.divide(Factor.ofLong(180))));
+        UomUnit<Length> piOver180 = UomUnit.unchecked(METRE.scaledBy(Factor.PI.divide(Factor.ofLong(180))));
         assertDecimal("4.141592653589793238462643383279503", METRE, q("1", METRE).add(q("180", piOver180)));
         assertDecimal(
                 "4.141592653589793238462643383279503",
@@ -423,10 +417,7 @@ class AbstractDecimalQuantityArithmeticTest {
         // pi = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803...
         String pi34 = "3.141592653589793238462643383279503";
         String pi70 = "3.141592653589793238462643383279502884197169399375105820974944592307816";
-        assertDecimal(
-                "-1.158028306006248941790250554076922E-34",
-                METRE,
-                q("-" + pi34, METRE).add(q("1", PI_M)));
+        assertDecimal("-1.158028306006248941790250554076922E-34", METRE, q("-" + pi34, METRE).add(q("1", PI_M)));
         assertDecimal(
                 "-1.158028306006248941790250554076922E-34",
                 METRE,

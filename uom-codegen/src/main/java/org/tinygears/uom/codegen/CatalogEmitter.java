@@ -28,9 +28,8 @@ import org.tinygears.uom.core.parse.Prefixed;
 /** Writes the catalog class of typed unit constants and its system of units. */
 public final class CatalogEmitter {
     private static final String PACKAGE = "org.tinygears.uom.systems";
-    private static final List<Enum<?>> PREFIXES = Stream.<Enum<?>>concat(
-            Arrays.stream(MetricPrefix.values()),
-            Arrays.stream(BinaryPrefix.values())).toList();
+    private static final List<Enum<?>> PREFIXES = Stream
+            .<Enum<?>>concat(Arrays.stream(MetricPrefix.values()), Arrays.stream(BinaryPrefix.values())).toList();
     private static final String INDENT = "                    ";
 
     private CatalogEmitter() {
@@ -101,21 +100,19 @@ public final class CatalogEmitter {
         }
         String list = imports.name("java.util.List");
         out.append("\n    /** The units of this catalog. */\n    public static final ").append(list).append('<')
-                .append(unitClass).append("<?>> UNITS =\n")
-                .append("            ").append(list).append(".<").append(unitClass).append("<?>>of(")
+                .append(unitClass).append("<?>> UNITS =\n").append("            ").append(list).append(".<")
+                .append(unitClass).append("<?>>of(")
                 .append(args(catalog.units().values().stream().map(r -> local(r, className, imports)).toList()))
                 .append(";\n");
         String set = imports.name("java.util.Set");
         out.append("\n    /** The symbols that take a prefix in this system. */\n    public static final ").append(set)
-                .append("<String> PREFIXABLE =\n            ").append(set)
-                .append(".of(")
+                .append("<String> PREFIXABLE =\n            ").append(set).append(".of(")
                 .append(args(catalog.prefixable().stream().sorted().map(UnitExpressionEmitter::literal).toList()))
                 .append(";\n");
         boolean binary = !catalog.binaryPrefixable().isEmpty();
         if (binary) {
             out.append("\n    /** The symbols that take a binary prefix in this system. */\n    public static final ")
-                    .append(set)
-                    .append("<String> BINARY_PREFIXABLE =\n            ").append(set).append(".of(")
+                    .append(set).append("<String> BINARY_PREFIXABLE =\n            ").append(set).append(".of(")
                     .append(
                             args(
                                     catalog.binaryPrefixable().stream().sorted().map(UnitExpressionEmitter::literal)
@@ -126,24 +123,21 @@ public final class CatalogEmitter {
         List<String> pairs = new ArrayList<>();
         catalog.preferred().forEach(
                 (type, ref) -> pairs.add(
-                        map + ".entry("
-                                + imports.name("javax.measure.quantity." + type) + ".class, "
+                        map + ".entry(" + imports.name("javax.measure.quantity." + type) + ".class, "
                                 + local(ref, className, imports) + ")"));
         out.append("\n    /** The preferred unit of each quantity type. */\n    public static final ").append(map)
-                .append("<Class<?>, ").append(unitClass)
-                .append("<?>> PREFERRED =\n            ").append(map).append(".<Class<?>, ").append(unitClass)
-                .append("<?>>ofEntries(").append(args(pairs)).append(";\n");
+                .append("<Class<?>, ").append(unitClass).append("<?>> PREFERRED =\n            ").append(map)
+                .append(".<Class<?>, ").append(unitClass).append("<?>>ofEntries(").append(args(pairs)).append(";\n");
         String system = imports.name("org.tinygears.uom.systems.UomSystemOfUnits");
         out.append("\n    /** This system of units. */\n    public static final ").append(system)
-                .append(" SYSTEM =\n            new ").append(system)
-                .append('(').append(UnitExpressionEmitter.literal(className))
-                .append(", UNITS, PREFERRED, PREFIXABLE").append(binary ? ", BINARY_PREFIXABLE" : "").append(");\n");
+                .append(" SYSTEM =\n            new ").append(system).append('(')
+                .append(UnitExpressionEmitter.literal(className)).append(", UNITS, PREFERRED, PREFIXABLE")
+                .append(binary ? ", BINARY_PREFIXABLE" : "").append(");\n");
         return Headers.java(join(files.stream().map(f -> "data/" + f).toList())) + """
 
                 package org.tinygears.uom.systems;
 
-                """ + imports.block()
-                + out.append("}\n");
+                """ + imports.block() + out.append("}\n");
     }
 
     /**
@@ -188,13 +182,7 @@ public final class CatalogEmitter {
      */
     private static Set<String> taken(CatalogBuilder.Catalog catalog, List<QuantityTypeSpec> extras) {
         Set<String> taken = new TreeSet<>(
-                List.of(
-                        catalog.className(),
-                        "UNITS",
-                        "PREFIXABLE",
-                        "BINARY_PREFIXABLE",
-                        "PREFERRED",
-                        "SYSTEM"));
+                List.of(catalog.className(), "UNITS", "PREFIXABLE", "BINARY_PREFIXABLE", "PREFERRED", "SYSTEM"));
         catalog.entries().forEach(e -> taken.add(e.constantName()));
         extras.forEach(t -> taken.add(constantName(t)));
         Stream.concat(catalog.units().values().stream(), catalog.preferred().values().stream())

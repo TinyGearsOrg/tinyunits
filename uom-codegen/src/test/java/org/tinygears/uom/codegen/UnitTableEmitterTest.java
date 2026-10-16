@@ -26,41 +26,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UnitTableEmitterTest {
-    private static final Map<String, String> SAMPLE = Map.of(
-            "a.units",
-            """
-                    @system A
-                    m:metre !L
-                    s:second !T
-                    K:kelvin !Θ
-                    min:minute 60 s
-                    °C:degree_Celsius K = x + 273.15
-                    th:third_metre 1|3 m
-                    pm:pi_metre pi|180 m
-                    @prefixed m k
-                    """,
-            "b.units",
-            """
-                    @system B
-                    @include a.units
-                    @member m km
-                    ft:foot 0.3048 m
-                    """);
+    private static final Map<String, String> SAMPLE = Map.of("a.units", """
+            @system A
+            m:metre !L
+            s:second !T
+            K:kelvin !Θ
+            min:minute 60 s
+            °C:degree_Celsius K = x + 273.15
+            th:third_metre 1|3 m
+            pm:pi_metre pi|180 m
+            @prefixed m k
+            """, "b.units", """
+            @system B
+            @include a.units
+            @member m km
+            ft:foot 0.3048 m
+            """);
 
     private static String sample() {
         Map<String, Definitions> parsed = new LinkedHashMap<>();
         for (String f : List.of("a.units", "b.units")) {
             parsed.put(
                     f,
-                    DefinitionParser.parse(
-                            f,
-                            new StringReader(SAMPLE.get(f)),
-                            name -> new StringReader(SAMPLE.get(name))));
+                    DefinitionParser
+                            .parse(f, new StringReader(SAMPLE.get(f)), name -> new StringReader(SAMPLE.get(name))));
         }
-        List<QuantityTypeSpec> types = QuantityTypesParser.parse(
-                "types.txt",
-                new StringReader("Length m\nTemperature K\n"),
-                parsed.get("a.units"));
+        List<QuantityTypeSpec> types = QuantityTypesParser
+                .parse("types.txt", new StringReader("Length m\nTemperature K\n"), parsed.get("a.units"));
         return UnitTableEmitter.table(CatalogBuilder.catalogs(parsed, types), types);
     }
 

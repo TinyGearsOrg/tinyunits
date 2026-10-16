@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class ForceDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Force, Force>
-        implements
-            Force {
+final class ForceDouble extends AbstractDoubleQuantity<javax.measure.quantity.Force, Force> implements Force {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    ForceDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    ForceDouble(double value, UomUnit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Force create(
-            double value,
-            UomUnit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    protected Force create(double value, UomUnit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         return new ForceDouble(value, unit, scale);
     }
 

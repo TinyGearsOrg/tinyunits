@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Speed} quantities. */
-public final class SpeedFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Speed> {
+public final class SpeedFactory implements QuantityFactory<javax.measure.quantity.Speed> {
 
     /** The system unit of {@link Speed}. */
     public static final UomUnit<javax.measure.quantity.Speed> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class SpeedFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Speed of(
-            double value,
-            Unit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    public Speed of(double value, Unit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Speed> u) {
             return new SpeedDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class SpeedFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Speed of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    public Speed of(BigDecimal value, Unit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -106,12 +96,7 @@ public final class SpeedFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Speed of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Speed of(BigDecimal value, Unit<javax.measure.quantity.Speed> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Speed> u) {
             return new SpeedDecimal(value, u, scale, mc);
@@ -129,11 +114,7 @@ public final class SpeedFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Speed create(
-            Number value,
-            Unit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    public Speed create(Number value, Unit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

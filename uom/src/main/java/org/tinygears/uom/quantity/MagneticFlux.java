@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.MagneticFlux} of this implementation. */
 public interface MagneticFlux
-        extends
-            javax.measure.quantity.MagneticFlux,
-            Comparable<Quantity<javax.measure.quantity.MagneticFlux>> {
+        extends javax.measure.quantity.MagneticFlux, Comparable<Quantity<javax.measure.quantity.MagneticFlux>> {
 
     @Override
     MagneticFlux add(Quantity<javax.measure.quantity.MagneticFlux> addend);
@@ -87,11 +85,7 @@ public interface MagneticFlux
      * @param scale the scale
      * @return the quantity
      */
-    static MagneticFlux of(
-            double value,
-            Unit<javax.measure.quantity.MagneticFlux> unit,
-            Quantity.Scale scale
-    ) {
+    static MagneticFlux of(double value, Unit<javax.measure.quantity.MagneticFlux> unit, Quantity.Scale scale) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface MagneticFlux
      * @param scale the scale
      * @return the quantity
      */
-    static MagneticFlux of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.MagneticFlux> unit,
-            Quantity.Scale scale
-    ) {
+    static MagneticFlux of(BigDecimal value, Unit<javax.measure.quantity.MagneticFlux> unit, Quantity.Scale scale) {
         return MagneticFluxFactory.INSTANCE.of(value, unit, scale);
     }
 

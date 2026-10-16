@@ -20,20 +20,13 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class AccelerationDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Acceleration, Acceleration>
-        implements
-            Acceleration {
+final class AccelerationDouble extends AbstractDoubleQuantity<javax.measure.quantity.Acceleration, Acceleration>
+        implements Acceleration {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    AccelerationDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Acceleration> unit,
-            Quantity.Scale scale
-    ) {
+    AccelerationDouble(double value, UomUnit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 

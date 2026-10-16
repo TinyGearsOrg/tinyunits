@@ -415,10 +415,9 @@ public final class Factor implements Serializable {
             int shift = Math.max(0, 56 + den.bitLength() - n.bitLength());
             BigInteger[] qr = n.shiftLeft(shift).divideAndRemainder(den);
             BigInteger q = qr[1].signum() == 0 ? qr[0] : qr[0].setBit(0);
-            double d = Decimals.divide(
-                    new BigDecimal(q),
-                    new BigDecimal(BigInteger.ONE.shiftLeft(shift)),
-                    MathContext.UNLIMITED).doubleValue();
+            double d = Decimals
+                    .divide(new BigDecimal(q), new BigDecimal(BigInteger.ONE.shiftLeft(shift)), MathContext.UNLIMITED)
+                    .doubleValue();
             return signum() < 0 ? -d : d;
         }
         // An irrational value is never a midpoint: widen until a +-2 ulp bracket rounds to one double.
@@ -463,11 +462,10 @@ public final class Factor implements Serializable {
             // The truncated root rounded HALF_UP is the correctly rounded root (irrational: never a tie), and
             // BigInteger.sqrt is twice as fast as BigDecimal.sqrt on JDK 21.
             BigDecimal root = new BigDecimal(
-                    BigInteger.valueOf(10_005).multiply(BigInteger.TEN.pow(2 * (p + 10)))
-                            .sqrt(),
+                    BigInteger.valueOf(10_005).multiply(BigInteger.TEN.pow(2 * (p + 10))).sqrt(),
                     p + 10).round(mc);
-            BigDecimal pi = new BigDecimal(pqt[1].multiply(BigInteger.valueOf(426_880)))
-                    .multiply(root, mc).divide(new BigDecimal(pqt[2]), mc);
+            BigDecimal pi = new BigDecimal(pqt[1].multiply(BigInteger.valueOf(426_880))).multiply(root, mc)
+                    .divide(new BigDecimal(pqt[2]), mc);
             return pi.round(new MathContext(p));
         });
     }
@@ -613,8 +611,7 @@ public final class Factor implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Factor f
-                && num.equals(f.num) && den.equals(f.den) && piExp == f.piExp && index == f.index;
+        return o instanceof Factor f && num.equals(f.num) && den.equals(f.den) && piExp == f.piExp && index == f.index;
     }
 
     @Override

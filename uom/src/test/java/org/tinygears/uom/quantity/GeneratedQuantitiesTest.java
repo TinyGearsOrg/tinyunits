@@ -92,8 +92,7 @@ class GeneratedQuantitiesTest {
     void temperatureOffsets() {
         assertEquals(373.15, Temperature.of(100, CELSIUS).to(KELVIN).getValue().doubleValue(), 1e-12);
         assertTrue(
-                Temperature.of(2, CELSIUS).add(Temperature.of(2, KELVIN))
-                        .isEquivalentTo(Temperature.of(4, CELSIUS)));
+                Temperature.of(2, CELSIUS).add(Temperature.of(2, KELVIN)).isEquivalentTo(Temperature.of(4, CELSIUS)));
         // Javadoc rule applied literally: 275.15 K + 274.15 K = 549.3 K = 276.15 degC
         assertEquals(
                 276.15,

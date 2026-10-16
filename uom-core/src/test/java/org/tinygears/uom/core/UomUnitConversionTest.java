@@ -65,10 +65,8 @@ class UomUnitConversionTest {
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
     void foreignUnitIsRejected() {
-        Unit<Length> foreign = (Unit<Length>) java.lang.reflect.Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class<?>[] { Unit.class },
-                (p, m, a) -> null);
+        Unit<Length> foreign = (Unit<Length>) java.lang.reflect.Proxy
+                .newProxyInstance(getClass().getClassLoader(), new Class<?>[] { Unit.class }, (p, m, a) -> null);
         assertThrows(UnconvertibleException.class, () -> METRE.getConverterTo(foreign));
         assertThrows(UnconvertibleException.class, () -> METRE.getConverterToAny(foreign));
         assertFalse(METRE.isEquivalentTo(foreign));

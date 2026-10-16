@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Acceleration} quantities. */
-public final class AccelerationFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Acceleration> {
+public final class AccelerationFactory implements QuantityFactory<javax.measure.quantity.Acceleration> {
 
     /** The system unit of {@link Acceleration}. */
     public static final UomUnit<javax.measure.quantity.Acceleration> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class AccelerationFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Acceleration of(
-            double value,
-            Unit<javax.measure.quantity.Acceleration> unit,
-            Quantity.Scale scale
-    ) {
+    public Acceleration of(double value, Unit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Acceleration> u) {
             return new AccelerationDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class AccelerationFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Acceleration of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Acceleration> unit,
-            Quantity.Scale scale
-    ) {
+    public Acceleration of(BigDecimal value, Unit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -129,11 +119,7 @@ public final class AccelerationFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Acceleration create(
-            Number value,
-            Unit<javax.measure.quantity.Acceleration> unit,
-            Quantity.Scale scale
-    ) {
+    public Acceleration create(Number value, Unit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

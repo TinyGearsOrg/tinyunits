@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class MassDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Mass, Mass>
-        implements
-            Mass {
+final class MassDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Mass, Mass> implements Mass {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    MassDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    MassDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Mass> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class MassDecimal
     }
 
     @Override
-    protected Mass createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    protected Mass createDouble(double value, UomUnit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         return new MassDouble(value, unit, scale);
     }
 

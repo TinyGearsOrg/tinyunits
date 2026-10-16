@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Pressure} quantities. */
-public final class PressureFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Pressure> {
+public final class PressureFactory implements QuantityFactory<javax.measure.quantity.Pressure> {
 
     /** The system unit of {@link Pressure}. */
     public static final UomUnit<javax.measure.quantity.Pressure> SYSTEM_UNIT = UomUnit.unchecked(
@@ -58,11 +56,7 @@ public final class PressureFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Pressure of(
-            double value,
-            Unit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    public Pressure of(double value, Unit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Pressure> u) {
             return new PressureDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class PressureFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Pressure of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    public Pressure of(BigDecimal value, Unit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -129,11 +119,7 @@ public final class PressureFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Pressure create(
-            Number value,
-            Unit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    public Pressure create(Number value, Unit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

@@ -75,8 +75,8 @@ class UnitExpressionEmitterTest {
     static UomUnit<?> evaluate(String formula) throws Exception {
         return FormulaEvaluator.evaluate(
                 formula,
-                s -> DEFS.definitions().stream()
-                        .filter(d -> d.symbol().equals(s)).findFirst().map(Definition::unit).orElse(null));
+                s -> DEFS.definitions().stream().filter(d -> d.symbol().equals(s)).findFirst().map(Definition::unit)
+                        .orElse(null));
     }
 
     /** Imports for a class {@code E} in the unnamed package. */
@@ -136,17 +136,11 @@ class UnitExpressionEmitterTest {
 
     @Test
     void undefinedAtom() {
-        UomUnit<?> unit = UomUnit.of(
-                Map.of(new UnitAtom("x\"y", UomDimension.NONE), 1),
-                Converters.IDENTITY,
-                null,
-                null);
+        UomUnit<?> unit = UomUnit
+                .of(Map.of(new UnitAtom("x\"y", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
         GenerationException e = assertThrows(
                 GenerationException.class,
-                () -> UnitExpressionEmitter.emit(
-                        unit,
-                        DEFS,
-                        imports()));
+                () -> UnitExpressionEmitter.emit(unit, DEFS, imports()));
         assertEquals("no definition for alternate unit 'x\"y'", e.getMessage());
     }
 
@@ -175,10 +169,7 @@ class UnitExpressionEmitterTest {
                 List.of());
         GenerationException e = assertThrows(
                 GenerationException.class,
-                () -> UnitExpressionEmitter.emit(
-                        x,
-                        cyclic,
-                        imports()));
+                () -> UnitExpressionEmitter.emit(x, cyclic, imports()));
         assertEquals("alternate unit definitions nest too deeply at 'x'", e.getMessage());
     }
 

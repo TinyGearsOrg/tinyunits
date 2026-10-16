@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 final class ElectricCapacitanceDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.ElectricCapacitance, ElectricCapacitance>
-        implements
-            ElectricCapacitance {
+        extends AbstractDecimalQuantity<javax.measure.quantity.ElectricCapacitance, ElectricCapacitance>
+        implements ElectricCapacitance {
 
     @Serial
     private static final long serialVersionUID = 1L;

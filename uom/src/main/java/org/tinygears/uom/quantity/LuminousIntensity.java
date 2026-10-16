@@ -19,10 +19,8 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.LuminousIntensity} of this implementation. */
-public interface LuminousIntensity
-        extends
-            javax.measure.quantity.LuminousIntensity,
-            Comparable<Quantity<javax.measure.quantity.LuminousIntensity>> {
+public interface LuminousIntensity extends javax.measure.quantity.LuminousIntensity,
+        Comparable<Quantity<javax.measure.quantity.LuminousIntensity>> {
 
     @Override
     LuminousIntensity add(Quantity<javax.measure.quantity.LuminousIntensity> addend);

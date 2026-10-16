@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link ElectricCharge} quantities. */
-public final class ElectricChargeFactory
-        implements
-            QuantityFactory<javax.measure.quantity.ElectricCharge> {
+public final class ElectricChargeFactory implements QuantityFactory<javax.measure.quantity.ElectricCharge> {
 
     /** The system unit of {@link ElectricCharge}. */
     public static final UomUnit<javax.measure.quantity.ElectricCharge> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class ElectricChargeFactory
      * @param scale the scale
      * @return the quantity
      */
-    public ElectricCharge of(
-            double value,
-            Unit<javax.measure.quantity.ElectricCharge> unit,
-            Quantity.Scale scale
-    ) {
+    public ElectricCharge of(double value, Unit<javax.measure.quantity.ElectricCharge> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricCharge> u) {
             return new ElectricChargeDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class ElectricChargeFactory
      * @param scale the scale
      * @return the quantity
      */
-    public ElectricCharge of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.ElectricCharge> unit,
-            Quantity.Scale scale
-    ) {
+    public ElectricCharge of(BigDecimal value, Unit<javax.measure.quantity.ElectricCharge> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -129,11 +119,7 @@ public final class ElectricChargeFactory
      * not rounded; all others a double one.
      */
     @Override
-    public ElectricCharge create(
-            Number value,
-            Unit<javax.measure.quantity.ElectricCharge> unit,
-            Quantity.Scale scale
-    ) {
+    public ElectricCharge create(Number value, Unit<javax.measure.quantity.ElectricCharge> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

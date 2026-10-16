@@ -92,8 +92,8 @@ public final class Examples {
         Unit<?> millikelvin = unitFormat.parse("mK");
         Unit<?> squareKm = unitFormat.parse("km^2");
         Quantity<?> parsed = quantityFormat.parse("20 km");
-        return unitFormat.format(SI.KILOMETRE) + " " + millikelvin + " " + squareKm
-                + " | " + parsed.getValue() + " " + parsed.getUnit();
+        return unitFormat.format(SI.KILOMETRE) + " " + millikelvin + " " + squareKm + " | " + parsed.getValue() + " "
+                + parsed.getUnit();
     }
 
     /** Plain JSR-385 code finds the implementation through the service provider. */
@@ -101,8 +101,7 @@ public final class Examples {
         ServiceProvider provider = ServiceProvider.current();
         Mass mass = Mass.of(2, SI.KILOGRAM);
         Quantity<javax.measure.quantity.Mass> viaFactory = provider
-                .getQuantityFactory(javax.measure.quantity.Mass.class)
-                .create(2, SI.KILOGRAM);
+                .getQuantityFactory(javax.measure.quantity.Mass.class).create(2, SI.KILOGRAM);
         return provider.getClass().getSimpleName() + " " + mass.isEquivalentTo(viaFactory);
     }
 
@@ -118,9 +117,8 @@ public final class Examples {
         Length decimal = Length.of(new BigDecimal("0.1"), SI.METRE).add(Length.of(new BigDecimal("0.2"), SI.METRE));
         Length binary = Length.of(0.1, SI.METRE).add(Length.of(0.2, SI.METRE));
         Length third = Length.of(BigDecimal.ONE, SI.METRE).divide(3);
-        return decimal + " equals 0.3 m: " + decimal.equals(Length.of(new BigDecimal("0.3"), SI.METRE))
-                + " | " + binary + " equals 0.3 m: " + binary.equals(Length.of(0.3, SI.METRE))
-                + " | 1/3 m = " + third;
+        return decimal + " equals 0.3 m: " + decimal.equals(Length.of(new BigDecimal("0.3"), SI.METRE)) + " | " + binary
+                + " equals 0.3 m: " + binary.equals(Length.of(0.3, SI.METRE)) + " | 1/3 m = " + third;
     }
 
     /**
@@ -141,11 +139,8 @@ public final class Examples {
     static String contexts() {
         Length precise = Length.of(new BigDecimal("1.23456789"), SI.METRE);
         Length rounded = precise.toDecimal(new MathContext(4));
-        Length viaFactory = Length.of(
-                new BigDecimal("1.23456789"),
-                SI.METRE,
-                Quantity.Scale.ABSOLUTE,
-                MathContext.DECIMAL32);
+        Length viaFactory = Length
+                .of(new BigDecimal("1.23456789"), SI.METRE, Quantity.Scale.ABSOLUTE, MathContext.DECIMAL32);
         return rounded + " | " + viaFactory.divide(3) + " | "
                 + precise.toDouble().getValue().getClass().getSimpleName();
     }
@@ -173,10 +168,10 @@ public final class Examples {
         Temperature boiling = Temperature.of(100, SI.DEGREE_CELSIUS);
         Temperature exact = Temperature.of(new BigDecimal("100"), SI.DEGREE_CELSIUS);
         return foot + " = " + foot.toSystem(CGS.SYSTEM) + " | " + boiling + " = " + boiling.toSystem(USCustomary.SYSTEM)
-                + " | exact " + exact.toSystem(USCustomary.SYSTEM)
-                + " | " + Volume.of(1, USCustomary.GALLON_US).to(SI.LITRE)
-                + " vs " + Volume.of(1, Imperial.GALLON_UK).to(SI.LITRE)
-                + " | " + ElectricCharge.of(1, SI.COULOMB).toSystem(Gaussian.SYSTEM);
+                + " | exact " + exact.toSystem(USCustomary.SYSTEM) + " | "
+                + Volume.of(1, USCustomary.GALLON_US).to(SI.LITRE) + " vs "
+                + Volume.of(1, Imperial.GALLON_UK).to(SI.LITRE) + " | "
+                + ElectricCharge.of(1, SI.COULOMB).toSystem(Gaussian.SYSTEM);
     }
 
     /**
@@ -190,9 +185,9 @@ public final class Examples {
         Quantity<?> rate = format.parse("100 Mbit/s");
         Time transfer = Time.from(file.divide(rate));
         Dimensionless size = Dimensionless.from(file);
-        return file + " / " + rate + " = " + transfer.to(SI.SECOND)
-                + " | " + size.to(Information.MEGABYTE.asType(javax.measure.quantity.Dimensionless.class))
-                + " | " + units.format(Information.BYTE.multiply(1024)) + " vs "
+        return file + " / " + rate + " = " + transfer.to(SI.SECOND) + " | "
+                + size.to(Information.MEGABYTE.asType(javax.measure.quantity.Dimensionless.class)) + " | "
+                + units.format(Information.BYTE.multiply(1024)) + " vs "
                 + units.format(Information.BYTE.multiply(1000));
     }
 
@@ -200,8 +195,8 @@ public final class Examples {
     static String serialization() {
         Unit<?> unit = SI.KILOMETRE.divide(SI.HOUR);
         Length length = Length.of(new BigDecimal("1.50"), SI.KILOMETRE);
-        return "unit: " + roundTrip(unit).equals(unit) + " " + roundTrip(unit)
-                + " | quantity: " + roundTrip(length).equals(length) + " " + roundTrip(length);
+        return "unit: " + roundTrip(unit).equals(unit) + " " + roundTrip(unit) + " | quantity: "
+                + roundTrip(length).equals(length) + " " + roundTrip(length);
     }
 
     /** The filter the README recommends for streams that are not trusted. */
@@ -238,8 +233,8 @@ public final class Examples {
         UomUnitFormat format = UomUnitFormat.standard();
         Unit<?> shifted = SI.KELVIN.shift(5);
         String text = format.format(shifted);
-        return text + " | parses back equal: " + format.parse(text).equals(shifted)
-                + " | " + format.format(SI.DEGREE_CELSIUS.multiply(2));
+        return text + " | parses back equal: " + format.parse(text).equals(shifted) + " | "
+                + format.format(SI.DEGREE_CELSIUS.multiply(2));
     }
 
     /**
@@ -256,10 +251,8 @@ public final class Examples {
         BigDecimal value = (BigDecimal) length.getValue();
         // A unit without a quantity type gives an untyped decimal quantity.
         Quantity<?> momentum = decimals.parse("2.0 kg·m/s");
-        return plain + " " + plain.getValue().getClass().getSimpleName()
-                + " | " + length + " scale " + value.scale()
-                + " | /3 " + length.divide(3)
-                + " | " + momentum + " " + momentum.getValue().getClass().getSimpleName();
+        return plain + " " + plain.getValue().getClass().getSimpleName() + " | " + length + " scale " + value.scale()
+                + " | /3 " + length.divide(3) + " | " + momentum + " " + momentum.getValue().getClass().getSimpleName();
     }
 
     /** User units: a .units text loaded at run time, used in parsing and as a target system. */
@@ -273,8 +266,8 @@ public final class Examples {
         UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval.units", new StringReader(file), null);
         UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
         Length distance = Length.from(format.parse("2 league"));
-        return medieval.getName() + " | " + distance + " = " + distance.to(SI.KILOMETRE)
-                + " = " + distance.toSystem(medieval);
+        return medieval.getName() + " | " + distance + " = " + distance.to(SI.KILOMETRE) + " = "
+                + distance.toSystem(medieval);
     }
 
     static Map<String, String> all() {

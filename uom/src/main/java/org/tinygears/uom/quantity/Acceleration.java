@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Acceleration} of this implementation. */
 public interface Acceleration
-        extends
-            javax.measure.quantity.Acceleration,
-            Comparable<Quantity<javax.measure.quantity.Acceleration>> {
+        extends javax.measure.quantity.Acceleration, Comparable<Quantity<javax.measure.quantity.Acceleration>> {
 
     @Override
     Acceleration add(Quantity<javax.measure.quantity.Acceleration> addend);
@@ -87,11 +85,7 @@ public interface Acceleration
      * @param scale the scale
      * @return the quantity
      */
-    static Acceleration of(
-            double value,
-            Unit<javax.measure.quantity.Acceleration> unit,
-            Quantity.Scale scale
-    ) {
+    static Acceleration of(double value, Unit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale) {
         return AccelerationFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface Acceleration
      * @param scale the scale
      * @return the quantity
      */
-    static Acceleration of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Acceleration> unit,
-            Quantity.Scale scale
-    ) {
+    static Acceleration of(BigDecimal value, Unit<javax.measure.quantity.Acceleration> unit, Quantity.Scale scale) {
         return AccelerationFactory.INSTANCE.of(value, unit, scale);
     }
 

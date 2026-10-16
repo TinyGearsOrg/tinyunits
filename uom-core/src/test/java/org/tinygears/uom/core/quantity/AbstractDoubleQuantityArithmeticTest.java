@@ -140,10 +140,8 @@ class AbstractDoubleQuantityArithmeticTest {
     @Test
     void foreignQuantityFails() {
         @SuppressWarnings("unchecked")
-        Unit<Length> foreignUnit = (Unit<Length>) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class<?>[] { Unit.class },
-                (p, m, a) -> null);
+        Unit<Length> foreignUnit = (Unit<Length>) Proxy
+                .newProxyInstance(getClass().getClassLoader(), new Class<?>[] { Unit.class }, (p, m, a) -> null);
         @SuppressWarnings("unchecked")
         Quantity<Length> foreign = (Quantity<Length>) Proxy.newProxyInstance(
                 getClass().getClassLoader(),

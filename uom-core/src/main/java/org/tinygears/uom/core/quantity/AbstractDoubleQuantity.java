@@ -48,10 +48,7 @@ import org.tinygears.uom.core.spi.Providers;
  * @param <R> the typed interface returned by conversions
  */
 public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
-        implements
-            Quantity<Q>,
-            Comparable<Quantity<Q>>,
-            Serializable {
+        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -148,8 +145,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         Unit<Q> target = system.getUnit(quantityType());
         if (target == null) {
             throw new UnsupportedOperationException(
-                    "system " + system.getName() + " has no unit for type "
-                            + quantityType().getSimpleName());
+                    "system " + system.getName() + " has no unit for type " + quantityType().getSimpleName());
         }
         return to(target);
     }

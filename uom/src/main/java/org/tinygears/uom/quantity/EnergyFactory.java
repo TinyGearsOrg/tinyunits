@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Energy} quantities. */
-public final class EnergyFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Energy> {
+public final class EnergyFactory implements QuantityFactory<javax.measure.quantity.Energy> {
 
     /** The system unit of {@link Energy}. */
     public static final UomUnit<javax.measure.quantity.Energy> SYSTEM_UNIT = UomUnit.unchecked(
@@ -58,11 +56,7 @@ public final class EnergyFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Energy of(
-            double value,
-            Unit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    public Energy of(double value, Unit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Energy> u) {
             return new EnergyDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class EnergyFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Energy of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    public Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -106,12 +96,7 @@ public final class EnergyFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Energy of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Energy> u) {
             return new EnergyDecimal(value, u, scale, mc);
@@ -129,11 +114,7 @@ public final class EnergyFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Energy create(
-            Number value,
-            Unit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    public Energy create(Number value, Unit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

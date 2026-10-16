@@ -183,10 +183,8 @@ class DecimalParseTest {
         Quantity<?> micro = D64.parse("2.50 µm");
         assertSameDecimal(Length.of(d("2.50"), SI.MICROMETRE, Scale.ABSOLUTE, MathContext.DECIMAL64), micro, "µm");
         Quantity<?> untyped = D64.parse("1.20 kg·m^5/s");
-        UntypedDecimalQuantity expected = UntypedDecimalQuantity.of(
-                d("1.20"),
-                (UomUnit<?>) UNITS.parse("kg·m^5/s"),
-                MathContext.DECIMAL64);
+        UntypedDecimalQuantity expected = UntypedDecimalQuantity
+                .of(d("1.20"), (UomUnit<?>) UNITS.parse("kg·m^5/s"), MathContext.DECIMAL64);
         assertSameDecimal(expected, untyped, "untyped");
         Quantity<?> number = D64.parse("  7.0  ");
         assertSameDecimal(
@@ -227,11 +225,7 @@ class DecimalParseTest {
                 "invalid number '1,5E-100000': scale out of range: 100001",
                 0);
         assertEquals(100000, ((BigDecimal) D64.parse("1E-100000 m").getValue()).scale());
-        assertFails(
-                D64,
-                "1E+99999999999 m",
-                "invalid number '1E+99999999999': scale out of range: -99999999999",
-                0);
+        assertFails(D64, "1E+99999999999 m", "invalid number '1E+99999999999': scale out of range: -99999999999", 0);
         assertFails(
                 D64,
                 "1E-9999999999999999999999 m",
@@ -334,11 +328,8 @@ class DecimalParseTest {
     @Test
     void unlimitedContext() {
         UomQuantityFormat f = ROOT.withDecimals(MathContext.UNLIMITED);
-        Length q = Length.of(
-                d("0.1000000000000000000000000000000000000001"),
-                SI.METRE,
-                Scale.ABSOLUTE,
-                MathContext.UNLIMITED);
+        Length q = Length
+                .of(d("0.1000000000000000000000000000000000000001"), SI.METRE, Scale.ABSOLUTE, MathContext.UNLIMITED);
         assertSameDecimal(q, f.parse(f.format(q)), "unlimited");
     }
 
@@ -432,22 +423,16 @@ class DecimalParseTest {
             UomQuantityFormat f = ROOT.withLocale(Locale.forLanguageTag(tag)).withDecimals(MathContext.DECIMAL128);
             for (UomUnit<?> unit : units) {
                 for (String s : DECIMALS) {
-                    Quantity<?> parsed = f.parse(
-                            f.format(
-                                    UntypedDecimalQuantity.of(
-                                            d(s),
-                                            unit,
-                                            MathContext.DECIMAL128)));
+                    Quantity<?> parsed = f
+                            .parse(f.format(UntypedDecimalQuantity.of(d(s), unit, MathContext.DECIMAL128)));
                     assertEquals(unit, parsed.getUnit(), tag + " " + s);
                     assertEquals(d(s), parsed.getValue(), tag + " " + s);
                 }
             }
             Quantity<?> untyped = f.parse(
                     f.format(
-                            UntypedDecimalQuantity.of(
-                                    d("-1.50"),
-                                    (UomUnit<?>) UNITS.parse("kg·m^5/s"),
-                                    MathContext.DECIMAL128)));
+                            UntypedDecimalQuantity
+                                    .of(d("-1.50"), (UomUnit<?>) UNITS.parse("kg·m^5/s"), MathContext.DECIMAL128)));
             assertInstanceOf(UntypedDecimalQuantity.class, untyped, tag);
         }
     }

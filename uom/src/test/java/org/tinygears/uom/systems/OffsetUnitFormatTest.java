@@ -230,9 +230,7 @@ class OffsetUnitFormatTest {
     private static UomUnit<?> randomOp(UomUnit<?> u, List<UomUnit<?>> catalog, Random r) {
         return switch (r.nextInt(12)) {
             case 0 -> u.multiply(
-                    r.nextInt(20) == 0
-                            ? -r.nextInt(1, 50)
-                            : BigDecimal.valueOf(r.nextInt(1, 100_000), r.nextInt(6)));
+                    r.nextInt(20) == 0 ? -r.nextInt(1, 50) : BigDecimal.valueOf(r.nextInt(1, 100_000), r.nextInt(6)));
             case 1 -> u.divide(r.nextInt(1, 2000));
             case 2 -> u.pow(r.nextInt(-3, 4));
             case 3 -> u.root(r.nextInt(1, 3));

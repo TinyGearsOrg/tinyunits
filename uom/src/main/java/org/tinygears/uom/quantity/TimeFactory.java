@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Time} quantities. */
-public final class TimeFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Time> {
+public final class TimeFactory implements QuantityFactory<javax.measure.quantity.Time> {
 
     /** The system unit of {@link Time}. */
     public static final UomUnit<javax.measure.quantity.Time> SYSTEM_UNIT = UomUnit.unchecked(BaseUnits.SECOND);
@@ -57,11 +55,7 @@ public final class TimeFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Time of(
-            double value,
-            Unit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    public Time of(double value, Unit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Time> u) {
             return new TimeDouble(value, u, scale);
         }
@@ -87,11 +81,7 @@ public final class TimeFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Time of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    public Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -105,12 +95,7 @@ public final class TimeFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Time of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Time> u) {
             return new TimeDecimal(value, u, scale, mc);
@@ -128,11 +113,7 @@ public final class TimeFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Time create(
-            Number value,
-            Unit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    public Time create(Number value, Unit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link LuminousFlux} quantities. */
-public final class LuminousFluxFactory
-        implements
-            QuantityFactory<javax.measure.quantity.LuminousFlux> {
+public final class LuminousFluxFactory implements QuantityFactory<javax.measure.quantity.LuminousFlux> {
 
     /** The system unit of {@link LuminousFlux}. */
     public static final UomUnit<javax.measure.quantity.LuminousFlux> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class LuminousFluxFactory
      * @param scale the scale
      * @return the quantity
      */
-    public LuminousFlux of(
-            double value,
-            Unit<javax.measure.quantity.LuminousFlux> unit,
-            Quantity.Scale scale
-    ) {
+    public LuminousFlux of(double value, Unit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.LuminousFlux> u) {
             return new LuminousFluxDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class LuminousFluxFactory
      * @param scale the scale
      * @return the quantity
      */
-    public LuminousFlux of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.LuminousFlux> unit,
-            Quantity.Scale scale
-    ) {
+    public LuminousFlux of(BigDecimal value, Unit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -129,11 +119,7 @@ public final class LuminousFluxFactory
      * not rounded; all others a double one.
      */
     @Override
-    public LuminousFlux create(
-            Number value,
-            Unit<javax.measure.quantity.LuminousFlux> unit,
-            Quantity.Scale scale
-    ) {
+    public LuminousFlux create(Number value, Unit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

@@ -38,14 +38,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 /** A unit reachable through a base unit, a factory, a catalog constant or a preferred map is one object. */
 class SharedUnitsTest {
-    private static final List<Class<?>> CATALOGS = List.of(
-            SI.class,
-            USCustomary.class,
-            Imperial.class,
-            CGS.class,
-            ESU.class,
-            EMU.class,
-            Gaussian.class);
+    private static final List<Class<?>> CATALOGS = List
+            .of(SI.class, USCustomary.class, Imperial.class, CGS.class, ESU.class, EMU.class, Gaussian.class);
 
     @Test
     void baseUnitsAreTheCatalogAndFactoryUnits() {
@@ -76,8 +70,7 @@ class SharedUnitsTest {
             String name = type.getSimpleName();
             assertSame(
                     unit,
-                    Class.forName("org.tinygears.uom.quantity." + name + "Factory").getField("SYSTEM_UNIT")
-                            .get(null),
+                    Class.forName("org.tinygears.uom.quantity." + name + "Factory").getField("SYSTEM_UNIT").get(null),
                     name);
             assertSame(unit, SI.PREFERRED.get(type), name);
             assertSame(unit, SI.SYSTEM.getUnit((Class) type), name);

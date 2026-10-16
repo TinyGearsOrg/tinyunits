@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class PowerDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Power, Power>
-        implements
-            Power {
+final class PowerDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Power, Power> implements Power {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    PowerDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    PowerDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Power> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class PowerDecimal
     }
 
     @Override
-    protected Power createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    protected Power createDouble(double value, UomUnit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         return new PowerDouble(value, unit, scale);
     }
 

@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 final class ElectricPotentialDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.ElectricPotential, ElectricPotential>
-        implements
-            ElectricPotential {
+        extends AbstractDecimalQuantity<javax.measure.quantity.ElectricPotential, ElectricPotential>
+        implements ElectricPotential {
 
     @Serial
     private static final long serialVersionUID = 1L;

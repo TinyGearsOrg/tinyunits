@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 final class ElectricInductanceDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.ElectricInductance, ElectricInductance>
-        implements
-            ElectricInductance {
+        extends AbstractDecimalQuantity<javax.measure.quantity.ElectricInductance, ElectricInductance>
+        implements ElectricInductance {
 
     @Serial
     private static final long serialVersionUID = 1L;

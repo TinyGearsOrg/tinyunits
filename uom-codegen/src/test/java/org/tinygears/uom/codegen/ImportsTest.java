@@ -66,9 +66,7 @@ class ImportsTest {
                                 + "java.util.Set s;"));
         assertEquals(
                 "// Map\nMap m; /* Map */",
-                imports.resolve(
-                        "// java.util.Map\njava.util.Map m; "
-                                + "/* java.util.Map */"));
+                imports.resolve("// java.util.Map\njava.util.Map m; " + "/* java.util.Map */"));
         assertEquals("import java.util.Map;\nimport java.util.Set;\n\n", imports.block());
     }
 

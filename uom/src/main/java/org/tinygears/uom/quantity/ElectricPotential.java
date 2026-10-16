@@ -19,10 +19,8 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.ElectricPotential} of this implementation. */
-public interface ElectricPotential
-        extends
-            javax.measure.quantity.ElectricPotential,
-            Comparable<Quantity<javax.measure.quantity.ElectricPotential>> {
+public interface ElectricPotential extends javax.measure.quantity.ElectricPotential,
+        Comparable<Quantity<javax.measure.quantity.ElectricPotential>> {
 
     @Override
     ElectricPotential add(Quantity<javax.measure.quantity.ElectricPotential> addend);

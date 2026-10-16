@@ -35,8 +35,7 @@ final class LegacyFormulaEvaluator {
         this.lookup = lookup;
     }
 
-    static UomUnit<?> evaluate(String formula, Function<String, UomUnit<?>> lookup)
-            throws FormulaException {
+    static UomUnit<?> evaluate(String formula, Function<String, UomUnit<?>> lookup) throws FormulaException {
         if (formula.length() > MAX_LENGTH) {
             throw new FormulaException("formula too long", 1);
         }

@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class AccelerationDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Acceleration, Acceleration>
-        implements
-            Acceleration {
+final class AccelerationDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Acceleration, Acceleration>
+        implements Acceleration {
 
     @Serial
     private static final long serialVersionUID = 1L;

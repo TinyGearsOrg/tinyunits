@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class SpeedDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Speed, Speed>
-        implements
-            Speed {
+final class SpeedDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Speed, Speed> implements Speed {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    SpeedDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    SpeedDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Speed> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class SpeedDecimal
     }
 
     @Override
-    protected Speed createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    protected Speed createDouble(double value, UomUnit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         return new SpeedDouble(value, unit, scale);
     }
 

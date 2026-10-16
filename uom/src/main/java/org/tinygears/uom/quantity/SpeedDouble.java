@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class SpeedDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Speed, Speed>
-        implements
-            Speed {
+final class SpeedDouble extends AbstractDoubleQuantity<javax.measure.quantity.Speed, Speed> implements Speed {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    SpeedDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    SpeedDouble(double value, UomUnit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Speed create(
-            double value,
-            UomUnit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    protected Speed create(double value, UomUnit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         return new SpeedDouble(value, unit, scale);
     }
 

@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Temperature} quantities. */
-public final class TemperatureFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Temperature> {
+public final class TemperatureFactory implements QuantityFactory<javax.measure.quantity.Temperature> {
 
     /** The system unit of {@link Temperature}. */
     public static final UomUnit<javax.measure.quantity.Temperature> SYSTEM_UNIT = UomUnit.unchecked(BaseUnits.KELVIN);
@@ -57,11 +55,7 @@ public final class TemperatureFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Temperature of(
-            double value,
-            Unit<javax.measure.quantity.Temperature> unit,
-            Quantity.Scale scale
-    ) {
+    public Temperature of(double value, Unit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Temperature> u) {
             return new TemperatureDouble(value, u, scale);
         }
@@ -87,11 +81,7 @@ public final class TemperatureFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Temperature of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Temperature> unit,
-            Quantity.Scale scale
-    ) {
+    public Temperature of(BigDecimal value, Unit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -128,11 +118,7 @@ public final class TemperatureFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Temperature create(
-            Number value,
-            Unit<javax.measure.quantity.Temperature> unit,
-            Quantity.Scale scale
-    ) {
+    public Temperature create(Number value, Unit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

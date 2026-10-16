@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Length} of this implementation. */
-public interface Length
-        extends
-            javax.measure.quantity.Length,
-            Comparable<Quantity<javax.measure.quantity.Length>> {
+public interface Length extends javax.measure.quantity.Length, Comparable<Quantity<javax.measure.quantity.Length>> {
 
     @Override
     Length add(Quantity<javax.measure.quantity.Length> addend);
@@ -87,11 +84,7 @@ public interface Length
      * @param scale the scale
      * @return the quantity
      */
-    static Length of(
-            double value,
-            Unit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    static Length of(double value, Unit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         return LengthFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Length
      * @param scale the scale
      * @return the quantity
      */
-    static Length of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         return LengthFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Length
      * @param mc the math context
      * @return the quantity
      */
-    static Length of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit, Quantity.Scale scale, MathContext mc) {
         return LengthFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

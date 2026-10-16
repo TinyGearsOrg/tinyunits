@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Force} quantities. */
-public final class ForceFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Force> {
+public final class ForceFactory implements QuantityFactory<javax.measure.quantity.Force> {
 
     /** The system unit of {@link Force}. */
     public static final UomUnit<javax.measure.quantity.Force> SYSTEM_UNIT = UomUnit.unchecked(
@@ -58,11 +56,7 @@ public final class ForceFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Force of(
-            double value,
-            Unit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    public Force of(double value, Unit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Force> u) {
             return new ForceDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class ForceFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Force of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    public Force of(BigDecimal value, Unit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -106,12 +96,7 @@ public final class ForceFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Force of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Force of(BigDecimal value, Unit<javax.measure.quantity.Force> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Force> u) {
             return new ForceDecimal(value, u, scale, mc);
@@ -129,11 +114,7 @@ public final class ForceFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Force create(
-            Number value,
-            Unit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    public Force create(Number value, Unit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

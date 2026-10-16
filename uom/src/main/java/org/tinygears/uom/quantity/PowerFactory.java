@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Power} quantities. */
-public final class PowerFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Power> {
+public final class PowerFactory implements QuantityFactory<javax.measure.quantity.Power> {
 
     /** The system unit of {@link Power}. */
     public static final UomUnit<javax.measure.quantity.Power> SYSTEM_UNIT = UomUnit.unchecked(
@@ -58,11 +56,7 @@ public final class PowerFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Power of(
-            double value,
-            Unit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    public Power of(double value, Unit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Power> u) {
             return new PowerDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class PowerFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Power of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    public Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -106,12 +96,7 @@ public final class PowerFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Power of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Power> u) {
             return new PowerDecimal(value, u, scale, mc);
@@ -129,11 +114,7 @@ public final class PowerFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Power create(
-            Number value,
-            Unit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    public Power create(Number value, Unit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

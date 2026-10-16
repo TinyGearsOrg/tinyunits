@@ -20,29 +20,18 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class IlluminanceDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Illuminance, Illuminance>
-        implements
-            Illuminance {
+final class IlluminanceDouble extends AbstractDoubleQuantity<javax.measure.quantity.Illuminance, Illuminance>
+        implements Illuminance {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    IlluminanceDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Illuminance> unit,
-            Quantity.Scale scale
-    ) {
+    IlluminanceDouble(double value, UomUnit<javax.measure.quantity.Illuminance> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Illuminance create(
-            double value,
-            UomUnit<javax.measure.quantity.Illuminance> unit,
-            Quantity.Scale scale
-    ) {
+    protected Illuminance create(double value, UomUnit<javax.measure.quantity.Illuminance> unit, Quantity.Scale scale) {
         return new IlluminanceDouble(value, unit, scale);
     }
 

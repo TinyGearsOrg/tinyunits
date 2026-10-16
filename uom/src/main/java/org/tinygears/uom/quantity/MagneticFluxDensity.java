@@ -19,10 +19,8 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.MagneticFluxDensity} of this implementation. */
-public interface MagneticFluxDensity
-        extends
-            javax.measure.quantity.MagneticFluxDensity,
-            Comparable<Quantity<javax.measure.quantity.MagneticFluxDensity>> {
+public interface MagneticFluxDensity extends javax.measure.quantity.MagneticFluxDensity,
+        Comparable<Quantity<javax.measure.quantity.MagneticFluxDensity>> {
 
     @Override
     MagneticFluxDensity add(Quantity<javax.measure.quantity.MagneticFluxDensity> addend);

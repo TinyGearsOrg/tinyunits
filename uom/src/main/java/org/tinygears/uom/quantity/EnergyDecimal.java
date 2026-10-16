@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class EnergyDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Energy, Energy>
-        implements
-            Energy {
+final class EnergyDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Energy, Energy> implements Energy {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    EnergyDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    EnergyDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Energy> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class EnergyDecimal
     }
 
     @Override
-    protected Energy createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    protected Energy createDouble(double value, UomUnit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         return new EnergyDouble(value, unit, scale);
     }
 

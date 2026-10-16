@@ -32,9 +32,7 @@ import javax.measure.Dimension;
  * @param luminosity the exponent of luminous intensity
  */
 public record UomDimension(int length, int mass, int time, int current, int temperature, int amount, int luminosity)
-        implements
-            Dimension,
-            Serializable {
+        implements Dimension, Serializable {
 
     public static final UomDimension NONE = new UomDimension(0, 0, 0, 0, 0, 0, 0);
     public static final UomDimension LENGTH = new UomDimension(1, 0, 0, 0, 0, 0, 0);

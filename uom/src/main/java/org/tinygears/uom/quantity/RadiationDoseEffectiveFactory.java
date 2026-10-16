@@ -26,8 +26,7 @@ import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link RadiationDoseEffective} quantities. */
 public final class RadiationDoseEffectiveFactory
-        implements
-            QuantityFactory<javax.measure.quantity.RadiationDoseEffective> {
+        implements QuantityFactory<javax.measure.quantity.RadiationDoseEffective> {
 
     /** The system unit of {@link RadiationDoseEffective}. */
     public static final UomUnit<javax.measure.quantity.RadiationDoseEffective> SYSTEM_UNIT = UomUnit

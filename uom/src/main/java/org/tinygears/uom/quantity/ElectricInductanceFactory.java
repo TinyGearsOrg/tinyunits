@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link ElectricInductance} quantities. */
-public final class ElectricInductanceFactory
-        implements
-            QuantityFactory<javax.measure.quantity.ElectricInductance> {
+public final class ElectricInductanceFactory implements QuantityFactory<javax.measure.quantity.ElectricInductance> {
 
     /** The system unit of {@link ElectricInductance}. */
     public static final UomUnit<javax.measure.quantity.ElectricInductance> SYSTEM_UNIT = UomUnit.unchecked(

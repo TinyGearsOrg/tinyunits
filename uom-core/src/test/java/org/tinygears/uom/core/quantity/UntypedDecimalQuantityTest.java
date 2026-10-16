@@ -364,10 +364,8 @@ class UntypedDecimalQuantityTest {
 
     @Test
     void foreignUnit() {
-        Unit<?> foreignUnit = (Unit<?>) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class<?>[] { Unit.class },
-                (p, m, a) -> null);
+        Unit<?> foreignUnit = (Unit<?>) Proxy
+                .newProxyInstance(getClass().getClassLoader(), new Class<?>[] { Unit.class }, (p, m, a) -> null);
         Quantity<?> foreign = foreign(BigDecimal.ONE, foreignUnit);
         UnconvertibleException e = assertThrows(UnconvertibleException.class, () -> q("1", METRE).multiply(foreign));
         assertTrue(e.getMessage().contains("foreign unit implementation"), e.getMessage());

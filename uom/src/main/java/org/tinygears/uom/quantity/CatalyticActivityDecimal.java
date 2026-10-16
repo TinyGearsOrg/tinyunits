@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 final class CatalyticActivityDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.CatalyticActivity, CatalyticActivity>
-        implements
-            CatalyticActivity {
+        extends AbstractDecimalQuantity<javax.measure.quantity.CatalyticActivity, CatalyticActivity>
+        implements CatalyticActivity {
 
     @Serial
     private static final long serialVersionUID = 1L;

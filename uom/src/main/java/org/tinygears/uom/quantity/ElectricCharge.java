@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.ElectricCharge} of this implementation. */
 public interface ElectricCharge
-        extends
-            javax.measure.quantity.ElectricCharge,
-            Comparable<Quantity<javax.measure.quantity.ElectricCharge>> {
+        extends javax.measure.quantity.ElectricCharge, Comparable<Quantity<javax.measure.quantity.ElectricCharge>> {
 
     @Override
     ElectricCharge add(Quantity<javax.measure.quantity.ElectricCharge> addend);
@@ -87,11 +85,7 @@ public interface ElectricCharge
      * @param scale the scale
      * @return the quantity
      */
-    static ElectricCharge of(
-            double value,
-            Unit<javax.measure.quantity.ElectricCharge> unit,
-            Quantity.Scale scale
-    ) {
+    static ElectricCharge of(double value, Unit<javax.measure.quantity.ElectricCharge> unit, Quantity.Scale scale) {
         return ElectricChargeFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface ElectricCharge
      * @param scale the scale
      * @return the quantity
      */
-    static ElectricCharge of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.ElectricCharge> unit,
-            Quantity.Scale scale
-    ) {
+    static ElectricCharge of(BigDecimal value, Unit<javax.measure.quantity.ElectricCharge> unit, Quantity.Scale scale) {
         return ElectricChargeFactory.INSTANCE.of(value, unit, scale);
     }
 

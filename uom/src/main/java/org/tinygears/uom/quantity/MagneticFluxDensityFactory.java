@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link MagneticFluxDensity} quantities. */
-public final class MagneticFluxDensityFactory
-        implements
-            QuantityFactory<javax.measure.quantity.MagneticFluxDensity> {
+public final class MagneticFluxDensityFactory implements QuantityFactory<javax.measure.quantity.MagneticFluxDensity> {
 
     /** The system unit of {@link MagneticFluxDensity}. */
     public static final UomUnit<javax.measure.quantity.MagneticFluxDensity> SYSTEM_UNIT = UomUnit

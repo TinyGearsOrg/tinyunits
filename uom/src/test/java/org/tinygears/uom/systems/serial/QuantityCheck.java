@@ -73,11 +73,7 @@ public final class QuantityCheck {
         m.put("length-double", Length.of(2.5, SI.KILOMETRE));
         m.put(
                 "length-decimal32",
-                Length.of(
-                        new BigDecimal("1.23456789012"),
-                        SI.METRE,
-                        Quantity.Scale.ABSOLUTE,
-                        MathContext.DECIMAL32));
+                Length.of(new BigDecimal("1.23456789012"), SI.METRE, Quantity.Scale.ABSOLUTE, MathContext.DECIMAL32));
         m.put("temperature-relative", Temperature.of(-5.0, SI.KELVIN, Quantity.Scale.RELATIVE));
         m.put("celsius-decimal", Temperature.of(new BigDecimal("21.50"), SI.DEGREE_CELSIUS));
         m.put("untyped-double", UntypedDoubleQuantity.of(3.0, SI.METRE.multiply(SI.SECOND)));
@@ -120,8 +116,8 @@ public final class QuantityCheck {
             check(
                     e.getValue() == Untyped.class
                             ? name.startsWith("org.tinygears.uom.core.quantity.Untyped")
-                            : name.startsWith("org.tinygears.uom.quantity.") && (name.endsWith("Double")
-                                    || name.endsWith("Decimal")),
+                            : name.startsWith("org.tinygears.uom.quantity.")
+                                    && (name.endsWith("Double") || name.endsWith("Decimal")),
                     e.getKey() + " has class " + name);
             read.put(e.getKey(), q);
         }

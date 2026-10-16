@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.ElectricCurrent} of this implementation. */
 public interface ElectricCurrent
-        extends
-            javax.measure.quantity.ElectricCurrent,
-            Comparable<Quantity<javax.measure.quantity.ElectricCurrent>> {
+        extends javax.measure.quantity.ElectricCurrent, Comparable<Quantity<javax.measure.quantity.ElectricCurrent>> {
 
     @Override
     ElectricCurrent add(Quantity<javax.measure.quantity.ElectricCurrent> addend);
@@ -87,11 +85,7 @@ public interface ElectricCurrent
      * @param scale the scale
      * @return the quantity
      */
-    static ElectricCurrent of(
-            double value,
-            Unit<javax.measure.quantity.ElectricCurrent> unit,
-            Quantity.Scale scale
-    ) {
+    static ElectricCurrent of(double value, Unit<javax.measure.quantity.ElectricCurrent> unit, Quantity.Scale scale) {
         return ElectricCurrentFactory.INSTANCE.of(value, unit, scale);
     }
 

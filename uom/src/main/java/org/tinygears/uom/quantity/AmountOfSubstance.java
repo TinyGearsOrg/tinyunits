@@ -19,10 +19,8 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.AmountOfSubstance} of this implementation. */
-public interface AmountOfSubstance
-        extends
-            javax.measure.quantity.AmountOfSubstance,
-            Comparable<Quantity<javax.measure.quantity.AmountOfSubstance>> {
+public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubstance,
+        Comparable<Quantity<javax.measure.quantity.AmountOfSubstance>> {
 
     @Override
     AmountOfSubstance add(Quantity<javax.measure.quantity.AmountOfSubstance> addend);

@@ -198,14 +198,12 @@ class FormulaEvaluatorTest {
 
     @Test
     void lookupFailureIsWrappedWithColumn() {
-        FormulaException e = assertThrows(
-                FormulaException.class,
-                () -> FormulaEvaluator.evaluate("m  zz", n -> {
-                    if (n.equals("zz")) {
-                        throw new IllegalStateException("boom");
-                    }
-                    return METRE;
-                }));
+        FormulaException e = assertThrows(FormulaException.class, () -> FormulaEvaluator.evaluate("m  zz", n -> {
+            if (n.equals("zz")) {
+                throw new IllegalStateException("boom");
+            }
+            return METRE;
+        }));
         assertTrue(e.getMessage().contains("boom"));
         assertEquals(4, e.column());
         assertInstanceOf(IllegalStateException.class, e.getCause());
@@ -216,11 +214,9 @@ class FormulaEvaluatorTest {
         class Silent extends RuntimeException {
             private static final long serialVersionUID = 1L;
         }
-        FormulaException e = assertThrows(
-                FormulaException.class,
-                () -> FormulaEvaluator.evaluate("m", n -> {
-                    throw new Silent();
-                }));
+        FormulaException e = assertThrows(FormulaException.class, () -> FormulaEvaluator.evaluate("m", n -> {
+            throw new Silent();
+        }));
         assertTrue(e.getMessage().contains("Silent"));
     }
 

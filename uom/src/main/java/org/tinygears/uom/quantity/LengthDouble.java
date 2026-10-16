@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class LengthDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Length, Length>
-        implements
-            Length {
+final class LengthDouble extends AbstractDoubleQuantity<javax.measure.quantity.Length, Length> implements Length {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    LengthDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    LengthDouble(double value, UomUnit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Length create(
-            double value,
-            UomUnit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    protected Length create(double value, UomUnit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         return new LengthDouble(value, unit, scale);
     }
 

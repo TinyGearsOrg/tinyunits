@@ -60,9 +60,8 @@ class ShiftGrammarRegressionTest {
 
     /** The legacy evaluator reads no superscript exponents; they are tested in SuperscriptTest. */
     private static boolean superscripts(String formula) {
-        return formula.chars().anyMatch(
-                c -> "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079\u207B"
-                        .indexOf(c) >= 0);
+        return formula.chars()
+                .anyMatch(c -> "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079\u207B".indexOf(c) >= 0);
     }
 
     private static Outcome before(String formula) {

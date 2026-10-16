@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class MassDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Mass, Mass>
-        implements
-            Mass {
+final class MassDouble extends AbstractDoubleQuantity<javax.measure.quantity.Mass, Mass> implements Mass {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    MassDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    MassDouble(double value, UomUnit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Mass create(
-            double value,
-            UomUnit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    protected Mass create(double value, UomUnit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         return new MassDouble(value, unit, scale);
     }
 

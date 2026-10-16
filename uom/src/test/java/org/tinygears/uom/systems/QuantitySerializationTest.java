@@ -180,17 +180,12 @@ class QuantitySerializationTest {
             assertEquals(u.getName(), copy.getName());
             assertEquals(u.getDimension(), copy.getDimension());
             // In a quantity of the first type it measures, or untyped.
-            Class<?> type = QuantityTypes.types().stream().filter(
-                    t -> QuantityTypes.factory(cast(t)).getSystemUnit()
-                            .getDimension().equals(u.getDimension()))
+            Class<?> type = QuantityTypes.types().stream()
+                    .filter(t -> QuantityTypes.factory(cast(t)).getSystemUnit().getDimension().equals(u.getDimension()))
                     .findFirst().orElse(null);
             Quantity<?> q = type == null
                     ? UntypedDoubleQuantity.of(7.5, u)
-                    : create(
-                            type,
-                            7.5,
-                            u,
-                            Quantity.Scale.ABSOLUTE);
+                    : create(type, 7.5, u, Quantity.Scale.ABSOLUTE);
             assertSameQuantity(q, roundTrip(q));
         }
     }
@@ -322,8 +317,8 @@ class QuantitySerializationTest {
         byte[] bytes = QuantityCheck.write(Length.of(1.0, SI.METRE));
         InvalidObjectException e = assertThrows(
                 InvalidObjectException.class,
-                () -> QuantityCheck.read(
-                        replaceString(bytes, "javax.measure.quantity.Length", "javax.measure.quantity.Time")));
+                () -> QuantityCheck
+                        .read(replaceString(bytes, "javax.measure.quantity.Length", "javax.measure.quantity.Time")));
         assertEquals(
                 "invalid quantity: unit m of dimension L does not measure javax.measure.quantity.Time",
                 e.getMessage());
@@ -334,8 +329,7 @@ class QuantitySerializationTest {
         assertEquals("invalid quantity: unknown type org.tinygears.uom.quantity.Length", e.getMessage());
         e = assertThrows(
                 InvalidObjectException.class,
-                () -> QuantityCheck.read(
-                        replaceString(bytes, "ABSOLUTE", "RELATIVE?")));
+                () -> QuantityCheck.read(replaceString(bytes, "ABSOLUTE", "RELATIVE?")));
         assertEquals("invalid quantity: unknown scale RELATIVE?", e.getMessage());
     }
 
@@ -344,12 +338,8 @@ class QuantitySerializationTest {
         // A kHz whose Hz atom is defined as rad/s: same dimension, a different definition than the registered Hz.
         UomUnit<?> fake = SI.RADIAN.divide(SI.SECOND).alternate("Hzx").multiply(1000);
         byte[] bytes = replaceAll(
-                QuantityCheck.write(
-                        create(
-                                javax.measure.quantity.Frequency.class,
-                                50.0,
-                                fake,
-                                Quantity.Scale.ABSOLUTE)),
+                QuantityCheck
+                        .write(create(javax.measure.quantity.Frequency.class, 50.0, fake, Quantity.Scale.ABSOLUTE)),
                 "Hzx",
                 "Hz");
         Path file = Files.createTempFile("forged", ".ser");

@@ -19,10 +19,8 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.CatalyticActivity} of this implementation. */
-public interface CatalyticActivity
-        extends
-            javax.measure.quantity.CatalyticActivity,
-            Comparable<Quantity<javax.measure.quantity.CatalyticActivity>> {
+public interface CatalyticActivity extends javax.measure.quantity.CatalyticActivity,
+        Comparable<Quantity<javax.measure.quantity.CatalyticActivity>> {
 
     @Override
     CatalyticActivity add(Quantity<javax.measure.quantity.CatalyticActivity> addend);

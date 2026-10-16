@@ -49,13 +49,8 @@ class ConvertersDecimalTest {
         assertEquals(new BigDecimal("-17.77777777777778"), fast(F_TO_C, "1e-20000000", MathContext.DECIMAL64));
         assertEquals(
                 new BigDecimal("-17.77777777777777"),
-                fast(
-                        F_TO_C,
-                        "1e-20000000",
-                        new MathContext(16, RoundingMode.CEILING)));
-        assertEquals(
-                new BigDecimal("5.555555555555556E+19999999"),
-                fast(F_TO_C, "1e+20000000", MathContext.DECIMAL64));
+                fast(F_TO_C, "1e-20000000", new MathContext(16, RoundingMode.CEILING)));
+        assertEquals(new BigDecimal("5.555555555555556E+19999999"), fast(F_TO_C, "1e+20000000", MathContext.DECIMAL64));
         assertEquals(
                 new BigDecimal("5.555555555555555E+19999999"),
                 fast(F_TO_C, "1e+20000000", new MathContext(16, RoundingMode.DOWN)));
@@ -79,8 +74,7 @@ class ConvertersDecimalTest {
             { "-2.5e100", "HALF_EVEN", "-2E+100" },
             { "-2.5e100", "HALF_UP", "-2E+100" },
             { "-2.5e100", "FLOOR", "-3E+100" },
-            { "2.5e100", "DOWN", "2E+100" },
-        };
+            { "2.5e100", "DOWN", "2E+100" }, };
         for (String[] t : cases) {
             MathContext mc = new MathContext(1, RoundingMode.valueOf(t[1]));
             assertEquals(new BigDecimal(t[2]), fast(plusOne, t[0], mc), () -> String.join(" ", t));
@@ -91,8 +85,7 @@ class ConvertersDecimalTest {
             { "-1e-200", "HALF_UP", "2" },
             { "-1e-200", "HALF_EVEN", "2" },
             { "1e-200", "FLOOR", "2" },
-            { "-1e-200", "CEILING", "3" },
-        };
+            { "-1e-200", "CEILING", "3" }, };
         for (String[] t : small) {
             MathContext mc = new MathContext(1, RoundingMode.valueOf(t[1]));
             assertEquals(new BigDecimal(t[2]), fast(plusHalf5, t[0], mc), () -> String.join(" ", t));

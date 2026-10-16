@@ -411,15 +411,13 @@ public final class SourceEmitter {
     }
 
     public static String registry(List<QuantityTypeSpec> specs) {
-        String types = specs.stream()
-                .map(s -> "            javax.measure.quantity." + s.name() + ".class")
+        String types = specs.stream().map(s -> "            javax.measure.quantity." + s.name() + ".class")
                 .collect(Collectors.joining(",\n"));
         String branches = specs.stream()
                 .map(
                         s -> "        if (type == javax.measure.quantity." + s.name() + ".class) {\n"
                                 + "            return (javax.measure.spi.QuantityFactory<Q>) " + s.name()
-                                + "Factory.INSTANCE;\n"
-                                + "        }\n")
+                                + "Factory.INSTANCE;\n" + "        }\n")
                 .collect(Collectors.joining());
         Imports imports = imports(specs);
         String body = imports.resolve(REGISTRY.replace("$S", types).replace("$F", branches));

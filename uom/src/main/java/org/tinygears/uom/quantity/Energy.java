@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Energy} of this implementation. */
-public interface Energy
-        extends
-            javax.measure.quantity.Energy,
-            Comparable<Quantity<javax.measure.quantity.Energy>> {
+public interface Energy extends javax.measure.quantity.Energy, Comparable<Quantity<javax.measure.quantity.Energy>> {
 
     @Override
     Energy add(Quantity<javax.measure.quantity.Energy> addend);
@@ -87,11 +84,7 @@ public interface Energy
      * @param scale the scale
      * @return the quantity
      */
-    static Energy of(
-            double value,
-            Unit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    static Energy of(double value, Unit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         return EnergyFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Energy
      * @param scale the scale
      * @return the quantity
      */
-    static Energy of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    static Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         return EnergyFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Energy
      * @param mc the math context
      * @return the quantity
      */
-    static Energy of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Energy of(BigDecimal value, Unit<javax.measure.quantity.Energy> unit, Quantity.Scale scale, MathContext mc) {
         return EnergyFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

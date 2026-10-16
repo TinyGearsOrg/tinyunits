@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class PressureDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Pressure, Pressure>
-        implements
-            Pressure {
+final class PressureDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Pressure, Pressure>
+        implements Pressure {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -49,11 +46,7 @@ final class PressureDecimal
     }
 
     @Override
-    protected Pressure createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    protected Pressure createDouble(double value, UomUnit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         return new PressureDouble(value, unit, scale);
     }
 

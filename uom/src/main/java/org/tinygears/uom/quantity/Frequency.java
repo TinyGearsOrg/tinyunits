@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Frequency} of this implementation. */
 public interface Frequency
-        extends
-            javax.measure.quantity.Frequency,
-            Comparable<Quantity<javax.measure.quantity.Frequency>> {
+        extends javax.measure.quantity.Frequency, Comparable<Quantity<javax.measure.quantity.Frequency>> {
 
     @Override
     Frequency add(Quantity<javax.measure.quantity.Frequency> addend);
@@ -87,11 +85,7 @@ public interface Frequency
      * @param scale the scale
      * @return the quantity
      */
-    static Frequency of(
-            double value,
-            Unit<javax.measure.quantity.Frequency> unit,
-            Quantity.Scale scale
-    ) {
+    static Frequency of(double value, Unit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         return FrequencyFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface Frequency
      * @param scale the scale
      * @return the quantity
      */
-    static Frequency of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Frequency> unit,
-            Quantity.Scale scale
-    ) {
+    static Frequency of(BigDecimal value, Unit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         return FrequencyFactory.INSTANCE.of(value, unit, scale);
     }
 

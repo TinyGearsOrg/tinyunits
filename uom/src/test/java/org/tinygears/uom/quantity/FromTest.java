@@ -56,11 +56,9 @@ class FromTest {
         assertEquals(product.getUnit(), speed.getUnit());
         assertInstanceOf(Speed.class, speed);
         // The value, unit, scale and the decimal kind stay.
-        Quantity<?> decimal = Length.of(
-                new BigDecimal("36"),
-                SI.KILOMETRE,
-                Quantity.Scale.RELATIVE,
-                MathContext.DECIMAL32).divide(Time.of(new BigDecimal("1"), SI.HOUR));
+        Quantity<?> decimal = Length
+                .of(new BigDecimal("36"), SI.KILOMETRE, Quantity.Scale.RELATIVE, MathContext.DECIMAL32)
+                .divide(Time.of(new BigDecimal("1"), SI.HOUR));
         Speed exact = Speed.from(decimal);
         assertInstanceOf(BigDecimal.class, exact.getValue());
         assertEquals(decimal.getValue(), exact.getValue());

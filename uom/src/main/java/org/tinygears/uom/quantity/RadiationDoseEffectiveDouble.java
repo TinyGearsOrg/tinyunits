@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
 final class RadiationDoseEffectiveDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
-        implements
-            RadiationDoseEffective {
+        extends AbstractDoubleQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
+        implements RadiationDoseEffective {
 
     @Serial
     private static final long serialVersionUID = 1L;

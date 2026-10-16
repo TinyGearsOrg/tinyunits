@@ -20,29 +20,18 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class TemperatureDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Temperature, Temperature>
-        implements
-            Temperature {
+final class TemperatureDouble extends AbstractDoubleQuantity<javax.measure.quantity.Temperature, Temperature>
+        implements Temperature {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    TemperatureDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Temperature> unit,
-            Quantity.Scale scale
-    ) {
+    TemperatureDouble(double value, UomUnit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Temperature create(
-            double value,
-            UomUnit<javax.measure.quantity.Temperature> unit,
-            Quantity.Scale scale
-    ) {
+    protected Temperature create(double value, UomUnit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale) {
         return new TemperatureDouble(value, unit, scale);
     }
 

@@ -19,10 +19,8 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.ElectricConductance} of this implementation. */
-public interface ElectricConductance
-        extends
-            javax.measure.quantity.ElectricConductance,
-            Comparable<Quantity<javax.measure.quantity.ElectricConductance>> {
+public interface ElectricConductance extends javax.measure.quantity.ElectricConductance,
+        Comparable<Quantity<javax.measure.quantity.ElectricConductance>> {
 
     @Override
     ElectricConductance add(Quantity<javax.measure.quantity.ElectricConductance> addend);

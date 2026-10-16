@@ -296,8 +296,8 @@ public final class DefinitionParser {
         if (w.length < 3) {
             throw new DefinitionException(src, ln, "expected '@prefixed unit prefix...'", null);
         }
-        Definition base = definitions.stream().filter(d -> d.symbol().equals(w[1])).findFirst().orElseThrow(
-                () -> new DefinitionException(src, ln, "unknown unit '" + w[1] + "'", null));
+        Definition base = definitions.stream().filter(d -> d.symbol().equals(w[1])).findFirst()
+                .orElseThrow(() -> new DefinitionException(src, ln, "unknown unit '" + w[1] + "'", null));
         if (prefixedSymbols.contains(w[1])) {
             throw new DefinitionException(src, ln, "unit '" + w[1] + "' is already prefixed", null);
         }

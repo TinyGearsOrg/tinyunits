@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class AreaDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Area, Area>
-        implements
-            Area {
+final class AreaDouble extends AbstractDoubleQuantity<javax.measure.quantity.Area, Area> implements Area {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    AreaDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    AreaDouble(double value, UomUnit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Area create(
-            double value,
-            UomUnit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    protected Area create(double value, UomUnit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         return new AreaDouble(value, unit, scale);
     }
 

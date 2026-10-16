@@ -96,137 +96,78 @@ public final class Information {
     }
 
     /** The bit, {@code bit}. */
-    public static final UomUnit<?> BIT = UomUnit.unchecked(
-            BaseUnits.ONE
-                    .alternate("bit")
-                    .named("bit", "bit"));
+    public static final UomUnit<?> BIT = UomUnit.unchecked(BaseUnits.ONE.alternate("bit").named("bit", "bit"));
 
     /** The byte, {@code B}. */
     public static final UomUnit<?> BYTE = UomUnit.unchecked(
-            BaseUnits.ONE
-                    .alternate("bit")
-                    .transform(Converters.affine(Factor.of(8L, 1L), Factor.ZERO))
+            BaseUnits.ONE.alternate("bit").transform(Converters.affine(Factor.of(8L, 1L), Factor.ZERO))
                     .named("B", "byte"));
 
     /** The kilobit, {@code kbit}. */
-    public static final UomUnit<?> KILOBIT = UomUnit.unchecked(
-            BIT
-                    .prefix(MetricPrefix.KILO)
-                    .named("kbit", "kilobit"));
+    public static final UomUnit<?> KILOBIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.KILO).named("kbit", "kilobit"));
 
     /** The megabit, {@code Mbit}. */
-    public static final UomUnit<?> MEGABIT = UomUnit.unchecked(
-            BIT
-                    .prefix(MetricPrefix.MEGA)
-                    .named("Mbit", "megabit"));
+    public static final UomUnit<?> MEGABIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.MEGA).named("Mbit", "megabit"));
 
     /** The gigabit, {@code Gbit}. */
-    public static final UomUnit<?> GIGABIT = UomUnit.unchecked(
-            BIT
-                    .prefix(MetricPrefix.GIGA)
-                    .named("Gbit", "gigabit"));
+    public static final UomUnit<?> GIGABIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.GIGA).named("Gbit", "gigabit"));
 
     /** The terabit, {@code Tbit}. */
-    public static final UomUnit<?> TERABIT = UomUnit.unchecked(
-            BIT
-                    .prefix(MetricPrefix.TERA)
-                    .named("Tbit", "terabit"));
+    public static final UomUnit<?> TERABIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.TERA).named("Tbit", "terabit"));
 
     /** The kibibit, {@code Kibit}. */
-    public static final UomUnit<?> KIBIBIT = UomUnit.unchecked(
-            BIT
-                    .prefix(BinaryPrefix.KIBI)
-                    .named("Kibit", "kibibit"));
+    public static final UomUnit<?> KIBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.KIBI).named("Kibit", "kibibit"));
 
     /** The mebibit, {@code Mibit}. */
-    public static final UomUnit<?> MEBIBIT = UomUnit.unchecked(
-            BIT
-                    .prefix(BinaryPrefix.MEBI)
-                    .named("Mibit", "mebibit"));
+    public static final UomUnit<?> MEBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.MEBI).named("Mibit", "mebibit"));
 
     /** The gibibit, {@code Gibit}. */
-    public static final UomUnit<?> GIBIBIT = UomUnit.unchecked(
-            BIT
-                    .prefix(BinaryPrefix.GIBI)
-                    .named("Gibit", "gibibit"));
+    public static final UomUnit<?> GIBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.GIBI).named("Gibit", "gibibit"));
 
     /** The tebibit, {@code Tibit}. */
-    public static final UomUnit<?> TEBIBIT = UomUnit.unchecked(
-            BIT
-                    .prefix(BinaryPrefix.TEBI)
-                    .named("Tibit", "tebibit"));
+    public static final UomUnit<?> TEBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.TEBI).named("Tibit", "tebibit"));
 
     /** The kilobyte, {@code kB}. */
-    public static final UomUnit<?> KILOBYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(MetricPrefix.KILO)
-                    .named("kB", "kilobyte"));
+    public static final UomUnit<?> KILOBYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.KILO).named("kB", "kilobyte"));
 
     /** The megabyte, {@code MB}. */
-    public static final UomUnit<?> MEGABYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MB", "megabyte"));
+    public static final UomUnit<?> MEGABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.MEGA).named("MB", "megabyte"));
 
     /** The gigabyte, {@code GB}. */
-    public static final UomUnit<?> GIGABYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(MetricPrefix.GIGA)
-                    .named("GB", "gigabyte"));
+    public static final UomUnit<?> GIGABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.GIGA).named("GB", "gigabyte"));
 
     /** The terabyte, {@code TB}. */
-    public static final UomUnit<?> TERABYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(MetricPrefix.TERA)
-                    .named("TB", "terabyte"));
+    public static final UomUnit<?> TERABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.TERA).named("TB", "terabyte"));
 
     /** The petabyte, {@code PB}. */
-    public static final UomUnit<?> PETABYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(MetricPrefix.PETA)
-                    .named("PB", "petabyte"));
+    public static final UomUnit<?> PETABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.PETA).named("PB", "petabyte"));
 
     /** The exabyte, {@code EB}. */
-    public static final UomUnit<?> EXABYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(MetricPrefix.EXA)
-                    .named("EB", "exabyte"));
+    public static final UomUnit<?> EXABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.EXA).named("EB", "exabyte"));
 
     /** The kibibyte, {@code KiB}. */
-    public static final UomUnit<?> KIBIBYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(BinaryPrefix.KIBI)
-                    .named("KiB", "kibibyte"));
+    public static final UomUnit<?> KIBIBYTE = UomUnit
+            .unchecked(BYTE.prefix(BinaryPrefix.KIBI).named("KiB", "kibibyte"));
 
     /** The mebibyte, {@code MiB}. */
-    public static final UomUnit<?> MEBIBYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(BinaryPrefix.MEBI)
-                    .named("MiB", "mebibyte"));
+    public static final UomUnit<?> MEBIBYTE = UomUnit
+            .unchecked(BYTE.prefix(BinaryPrefix.MEBI).named("MiB", "mebibyte"));
 
     /** The gibibyte, {@code GiB}. */
-    public static final UomUnit<?> GIBIBYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(BinaryPrefix.GIBI)
-                    .named("GiB", "gibibyte"));
+    public static final UomUnit<?> GIBIBYTE = UomUnit
+            .unchecked(BYTE.prefix(BinaryPrefix.GIBI).named("GiB", "gibibyte"));
 
     /** The tebibyte, {@code TiB}. */
-    public static final UomUnit<?> TEBIBYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(BinaryPrefix.TEBI)
-                    .named("TiB", "tebibyte"));
+    public static final UomUnit<?> TEBIBYTE = UomUnit
+            .unchecked(BYTE.prefix(BinaryPrefix.TEBI).named("TiB", "tebibyte"));
 
     /** The pebibyte, {@code PiB}. */
-    public static final UomUnit<?> PEBIBYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(BinaryPrefix.PEBI)
-                    .named("PiB", "pebibyte"));
+    public static final UomUnit<?> PEBIBYTE = UomUnit
+            .unchecked(BYTE.prefix(BinaryPrefix.PEBI).named("PiB", "pebibyte"));
 
     /** The exbibyte, {@code EiB}. */
-    public static final UomUnit<?> EXBIBYTE = UomUnit.unchecked(
-            BYTE
-                    .prefix(BinaryPrefix.EXBI)
-                    .named("EiB", "exbibyte"));
+    public static final UomUnit<?> EXBIBYTE = UomUnit
+            .unchecked(BYTE.prefix(BinaryPrefix.EXBI).named("EiB", "exbibyte"));
 
     /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS = List.<UomUnit<?>>of(
@@ -254,14 +195,10 @@ public final class Information {
             EXBIBYTE);
 
     /** The symbols that take a prefix in this system. */
-    public static final Set<String> PREFIXABLE = Set.of(
-            "B",
-            "bit");
+    public static final Set<String> PREFIXABLE = Set.of("B", "bit");
 
     /** The symbols that take a binary prefix in this system. */
-    public static final Set<String> BINARY_PREFIXABLE = Set.of(
-            "B",
-            "bit");
+    public static final Set<String> BINARY_PREFIXABLE = Set.of("B", "bit");
 
     /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED = Map.<Class<?>, UomUnit<?>>ofEntries(

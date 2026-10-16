@@ -137,10 +137,8 @@ class DocsSnippetsTest {
         List<Block> blocks = all();
         assertTrue(blocks.stream().filter(b -> b.tag().startsWith("units")).count() >= 12, "units blocks");
         assertTrue(blocks.stream().filter(b -> b.tag().equals("java")).count() >= 8, "java blocks");
-        String units = String.join(
-                "\n",
-                blocks.stream().filter(b -> b.tag().equals("units")).map(Block::text)
-                        .toList());
+        String units = String
+                .join("\n", blocks.stream().filter(b -> b.tag().equals("units")).map(Block::text).toList());
         for (String feature : List.of(
                 "@system ",
                 "@include ",
@@ -155,18 +153,14 @@ class DocsSnippetsTest {
                 "pi")) {
             assertTrue(units.contains(feature), "no loading units block uses '" + feature + "'");
         }
-        String errors = String.join(
-                "\n",
-                blocks.stream().filter(b -> b.tag().equals("units-error"))
-                        .map(Block::text).toList());
+        String errors = String
+                .join("\n", blocks.stream().filter(b -> b.tag().equals("units-error")).map(Block::text).toList());
         assertTrue(errors.contains(" !"), "no units-error block shows a base unit");
     }
 
     private static UomSystemOfUnits load(Block b, Map<String, String> files) {
-        return UomSystemOfUnits.load(
-                b.name() != null ? b.name() : "example.units",
-                new StringReader(b.text()),
-                name -> {
+        return UomSystemOfUnits
+                .load(b.name() != null ? b.name() : "example.units", new StringReader(b.text()), name -> {
                     String text = files.get(b.doc() + "/" + name);
                     return text == null ? null : new StringReader(text);
                 });
@@ -186,8 +180,8 @@ class DocsSnippetsTest {
         String name = "Snippet" + b.line();
         Class<?> c = compile(
                 name,
-                imports + "public class " + name
-                        + " {\n public static void run() throws Exception {\n" + body + "}\n}\n",
+                imports + "public class " + name + " {\n public static void run() throws Exception {\n" + body
+                        + "}\n}\n",
                 b);
         if (expected.isEmpty()) {
             return;

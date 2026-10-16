@@ -143,14 +143,10 @@ class SystemConversionTest {
     void ergFromChargeTimesPotential() {
         assertEquals(
                 Rat.of(1, 1),
-                ratio(
-                        ESU.STATCOULOMB.multiply(ESU.STATVOLT).asType(javax.measure.quantity.Energy.class),
-                        CGS.ERG));
+                ratio(ESU.STATCOULOMB.multiply(ESU.STATVOLT).asType(javax.measure.quantity.Energy.class), CGS.ERG));
         assertEquals(
                 Rat.of(1, 1),
-                ratio(
-                        EMU.ABCOULOMB.multiply(EMU.ABVOLT).asType(javax.measure.quantity.Energy.class),
-                        CGS.ERG));
+                ratio(EMU.ABCOULOMB.multiply(EMU.ABVOLT).asType(javax.measure.quantity.Energy.class), CGS.ERG));
         Energy e = (Energy) ElectricCharge.of(BigDecimal.ONE, ESU.STATCOULOMB)
                 .multiply(ElectricPotential.of(BigDecimal.ONE, ESU.STATVOLT))
                 .asType(javax.measure.quantity.Energy.class);
@@ -159,9 +155,7 @@ class SystemConversionTest {
                 .multiply(ElectricPotential.of(BigDecimal.ONE, EMU.ABVOLT)).asType(javax.measure.quantity.Energy.class);
         assertValue("1", f.to(CGS.ERG));
         // double path
-        Energy d = (Energy) ElectricCharge.of(1.0, EMU.ABCOULOMB).multiply(
-                ElectricPotential
-                        .of(1.0, EMU.ABVOLT))
+        Energy d = (Energy) ElectricCharge.of(1.0, EMU.ABCOULOMB).multiply(ElectricPotential.of(1.0, EMU.ABVOLT))
                 .asType(javax.measure.quantity.Energy.class);
         assertEquals(1.0, d.to(CGS.ERG).getValue().doubleValue(), 1e-12);
     }
@@ -171,8 +165,7 @@ class SystemConversionTest {
         assertEquals(
                 Rat.of(1, 1),
                 ratio(
-                        EMU.GAUSS.multiply(CGS.SQUARE_CENTIMETRE)
-                                .asType(javax.measure.quantity.MagneticFlux.class),
+                        EMU.GAUSS.multiply(CGS.SQUARE_CENTIMETRE).asType(javax.measure.quantity.MagneticFlux.class),
                         EMU.MAXWELL));
         MagneticFlux m = (MagneticFlux) MagneticFluxDensity.of(BigDecimal.ONE, EMU.GAUSS)
                 .multiply(Area.of(BigDecimal.ONE, CGS.SQUARE_CENTIMETRE))
@@ -292,8 +285,7 @@ class SystemConversionTest {
                 Temperature.of(new BigDecimal("491.67"), USCustomary.DEGREE_RANKINE, ABS, UNL).to(SI.KELVIN));
         assertValue(
                 "100",
-                Temperature.of(new BigDecimal("212"), USCustomary.DEGREE_FAHRENHEIT, ABS, UNL)
-                        .to(SI.DEGREE_CELSIUS));
+                Temperature.of(new BigDecimal("212"), USCustomary.DEGREE_FAHRENHEIT, ABS, UNL).to(SI.DEGREE_CELSIUS));
     }
 
     // (b) round trips
@@ -315,8 +307,8 @@ class SystemConversionTest {
                 // intermediate value x f + o in SI; a pi factor (Gb, Oe) has no rational form, so only the
                 // tolerance check applies to it
                 UomConverter c = u.getConverterTo(s);
-                boolean rational = c.factor().isExact() && c.offset().isExact()
-                        && c.factor().piExponent() == 0 && c.offset().piExponent() == 0;
+                boolean rational = c.factor().isExact() && c.offset().isExact() && c.factor().piExponent() == 0
+                        && c.offset().piExponent() == 0;
                 Rat mid = !rational
                         ? null
                         : Rat.of("7.25").mul(new Rat(c.factor().numerator(), c.factor().denominator()))

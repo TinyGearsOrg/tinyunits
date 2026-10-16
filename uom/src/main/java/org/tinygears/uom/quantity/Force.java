@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Force} of this implementation. */
-public interface Force
-        extends
-            javax.measure.quantity.Force,
-            Comparable<Quantity<javax.measure.quantity.Force>> {
+public interface Force extends javax.measure.quantity.Force, Comparable<Quantity<javax.measure.quantity.Force>> {
 
     @Override
     Force add(Quantity<javax.measure.quantity.Force> addend);
@@ -87,11 +84,7 @@ public interface Force
      * @param scale the scale
      * @return the quantity
      */
-    static Force of(
-            double value,
-            Unit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    static Force of(double value, Unit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         return ForceFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Force
      * @param scale the scale
      * @return the quantity
      */
-    static Force of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    static Force of(BigDecimal value, Unit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         return ForceFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Force
      * @param mc the math context
      * @return the quantity
      */
-    static Force of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Force of(BigDecimal value, Unit<javax.measure.quantity.Force> unit, Quantity.Scale scale, MathContext mc) {
         return ForceFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

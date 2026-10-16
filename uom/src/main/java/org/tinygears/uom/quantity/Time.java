@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Time} of this implementation. */
-public interface Time
-        extends
-            javax.measure.quantity.Time,
-            Comparable<Quantity<javax.measure.quantity.Time>> {
+public interface Time extends javax.measure.quantity.Time, Comparable<Quantity<javax.measure.quantity.Time>> {
 
     @Override
     Time add(Quantity<javax.measure.quantity.Time> addend);
@@ -87,11 +84,7 @@ public interface Time
      * @param scale the scale
      * @return the quantity
      */
-    static Time of(
-            double value,
-            Unit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    static Time of(double value, Unit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Time
      * @param scale the scale
      * @return the quantity
      */
-    static Time of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         return TimeFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Time
      * @param mc the math context
      * @return the quantity
      */
-    static Time of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Time of(BigDecimal value, Unit<javax.measure.quantity.Time> unit, Quantity.Scale scale, MathContext mc) {
         return TimeFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

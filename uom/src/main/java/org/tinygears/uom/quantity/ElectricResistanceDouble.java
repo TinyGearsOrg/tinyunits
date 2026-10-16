@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
 final class ElectricResistanceDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.ElectricResistance, ElectricResistance>
-        implements
-            ElectricResistance {
+        extends AbstractDoubleQuantity<javax.measure.quantity.ElectricResistance, ElectricResistance>
+        implements ElectricResistance {
 
     @Serial
     private static final long serialVersionUID = 1L;

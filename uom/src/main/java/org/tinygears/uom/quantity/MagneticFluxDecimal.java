@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class MagneticFluxDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.MagneticFlux, MagneticFlux>
-        implements
-            MagneticFlux {
+final class MagneticFluxDecimal extends AbstractDecimalQuantity<javax.measure.quantity.MagneticFlux, MagneticFlux>
+        implements MagneticFlux {
 
     @Serial
     private static final long serialVersionUID = 1L;

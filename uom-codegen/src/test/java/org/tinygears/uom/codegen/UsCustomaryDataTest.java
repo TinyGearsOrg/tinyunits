@@ -74,9 +74,8 @@ class UsCustomaryDataTest {
     }
 
     private static Definitions parse(String file) throws IOException {
-        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(
-                DATA.resolve(name),
-                StandardCharsets.UTF_8);
+        DefinitionParser.Resolver resolver = name -> Files
+                .newBufferedReader(DATA.resolve(name), StandardCharsets.UTF_8);
         try (Reader in = resolver.open(file)) {
             return DefinitionParser.parse(file, in, resolver);
         }

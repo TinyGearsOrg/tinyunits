@@ -22,16 +22,8 @@ import org.tinygears.uom.systems.SI;
 
 /** Run by {@code InitOrderTest} in a fresh JVM: initialises {@code args[0]} first, then every other class. */
 public final class FirstTouch {
-    public static final List<String> CATALOGS = List.of(
-            "SI",
-            "USCustomary",
-            "Imperial",
-            "CGS",
-            "ESU",
-            "EMU",
-            "Gaussian",
-            "UnitSystems",
-            "UomServiceProvider");
+    public static final List<String> CATALOGS = List
+            .of("SI", "USCustomary", "Imperial", "CGS", "ESU", "EMU", "Gaussian", "UnitSystems", "UomServiceProvider");
 
     private FirstTouch() {
     }

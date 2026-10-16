@@ -66,9 +66,7 @@ class QuantityTypesRegistryTest {
     void registry() throws Exception {
         assertEquals(TYPES, QuantityTypes.types());
         assertEquals(BaseUnits.METRE, QuantityTypes.factory(javax.measure.quantity.Length.class).getSystemUnit());
-        var e = assertThrows(
-                IllegalArgumentException.class,
-                () -> QuantityTypes.factory(Probe.class));
+        var e = assertThrows(IllegalArgumentException.class, () -> QuantityTypes.factory(Probe.class));
         assertEquals("no quantity factory for " + Probe.class.getName(), e.getMessage());
         assertThrows(UnsupportedOperationException.class, () -> QuantityTypes.types().clear());
     }

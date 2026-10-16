@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Angle} quantities. */
-public final class AngleFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Angle> {
+public final class AngleFactory implements QuantityFactory<javax.measure.quantity.Angle> {
 
     /** The system unit of {@link Angle}. */
     public static final UomUnit<javax.measure.quantity.Angle> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class AngleFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Angle of(
-            double value,
-            Unit<javax.measure.quantity.Angle> unit,
-            Quantity.Scale scale
-    ) {
+    public Angle of(double value, Unit<javax.measure.quantity.Angle> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Angle> u) {
             return new AngleDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class AngleFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Angle of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Angle> unit,
-            Quantity.Scale scale
-    ) {
+    public Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -106,12 +96,7 @@ public final class AngleFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Angle of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Angle> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Angle> u) {
             return new AngleDecimal(value, u, scale, mc);
@@ -129,11 +114,7 @@ public final class AngleFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Angle create(
-            Number value,
-            Unit<javax.measure.quantity.Angle> unit,
-            Quantity.Scale scale
-    ) {
+    public Angle create(Number value, Unit<javax.measure.quantity.Angle> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

@@ -31,12 +31,9 @@ import javax.measure.Prefix;
  */
 public record Prefixed(String unitSymbol, List<String> prefixSymbols, String source, int line) {
     /** The metric and binary prefixes by symbol; the two families share no symbol. */
-    static final Map<String, Prefix> PREFIXES = Stream.concat(
-            Arrays.stream(MetricPrefix.values()),
-            Arrays.stream(BinaryPrefix.values())).collect(
-                    Collectors.toUnmodifiableMap(
-                            Prefix::getSymbol,
-                            Function.identity()));
+    static final Map<String, Prefix> PREFIXES = Stream
+            .concat(Arrays.stream(MetricPrefix.values()), Arrays.stream(BinaryPrefix.values()))
+            .collect(Collectors.toUnmodifiableMap(Prefix::getSymbol, Function.identity()));
 
     /**
      * Copies the prefix list.

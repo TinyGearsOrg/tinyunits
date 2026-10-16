@@ -51,8 +51,7 @@ public final class UnitTableEmitter {
         catalogs.values().forEach(
                 c -> out.append("| [").append(c.className()).append("](#")
                         .append(c.className().toLowerCase(Locale.ROOT)).append(") | `data/").append(c.file())
-                        .append("` | ")
-                        .append(c.units().size()).append(" |\n"));
+                        .append("` | ").append(c.units().size()).append(" |\n"));
         for (CatalogBuilder.Catalog c : catalogs.values()) {
             out.append("\n## ").append(c.className())
                     .append("\n\n| Symbol | Name | Quantity type | Factor | Offset |\n|---|---|---|---|---|\n");
@@ -64,8 +63,8 @@ public final class UnitTableEmitter {
                         ? spec.systemSymbol()
                         : d.unit().getSystemUnit().getSymbol();
                 Factor offset = d.unit().toSystemConverter().offset();
-                out.append("| ").append(cell("`" + d.symbol() + "`")).append(" | ").append(cell(d.name()))
-                        .append(" | ").append(e.quantityType() == null ? "-" : e.quantityType()).append(" | ")
+                out.append("| ").append(cell("`" + d.symbol() + "`")).append(" | ").append(cell(d.name())).append(" | ")
+                        .append(e.quantityType() == null ? "-" : e.quantityType()).append(" | ")
                         .append(
                                 cell(
                                         "`" + number(d.unit().toSystemConverter().factor())

@@ -203,8 +203,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
                         r.transferTo(w);
                     } catch (IOException e) {
                         throw new UncheckedIOException(
-                                "cannot read '" + name
-                                        + "': the resolver returned a failing, closed or reused reader",
+                                "cannot read '" + name + "': the resolver returned a failing, closed or reused reader",
                                 e);
                     }
                     text = w.toString();
@@ -292,8 +291,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
                 throw new DefinitionException(
                         p.source(),
                         p.line(),
-                        "unknown quantity type '" + p.quantityType()
-                                + "'",
+                        "unknown quantity type '" + p.quantityType() + "'",
                         null);
             }
             UomUnit<?> unit = units.get(p.symbol());
@@ -301,24 +299,21 @@ public final class UomSystemOfUnits implements SystemOfUnits {
                 throw new DefinitionException(
                         p.source(),
                         p.line(),
-                        "unit '" + p.symbol() + "' is not a unit of "
-                                + name,
+                        "unit '" + p.symbol() + "' is not a unit of " + name,
                         null);
             }
             if (!QuantityTypes.factory((Class) type).getSystemUnit().equals(unit.getSystemUnit())) {
                 throw new DefinitionException(
                         p.source(),
                         p.line(),
-                        "unit '" + p.symbol() + "' is not a unit of "
-                                + p.quantityType(),
+                        "unit '" + p.symbol() + "' is not a unit of " + p.quantityType(),
                         null);
             }
             if (preferred.putIfAbsent(type, unit) != null) {
                 throw new DefinitionException(
                         p.source(),
                         p.line(),
-                        "duplicate preferred unit for '"
-                                + p.quantityType() + "'",
+                        "duplicate preferred unit for '" + p.quantityType() + "'",
                         null);
             }
         }

@@ -105,8 +105,8 @@ class SiDataTest {
     void symbolsAreUnique() {
         List<String> symbols = defs.definitions().stream().map(Definition::symbol).toList();
         assertEquals(symbols.size(), new HashSet<>(symbols).size(), symbols.toString());
-        List<String> prefixed = defs.definitions().stream().filter(SiDataTest::isPrefixed)
-                .map(Definition::symbol).toList();
+        List<String> prefixed = defs.definitions().stream().filter(SiDataTest::isPrefixed).map(Definition::symbol)
+                .toList();
         int listed = defs.prefixed().stream().mapToInt(p -> p.prefixSymbols().size()).sum();
         assertEquals(listed, prefixed.size());
         assertEquals(listed, new HashSet<>(prefixed).size());

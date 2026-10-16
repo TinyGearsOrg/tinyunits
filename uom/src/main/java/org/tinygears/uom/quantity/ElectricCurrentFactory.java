@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link ElectricCurrent} quantities. */
-public final class ElectricCurrentFactory
-        implements
-            QuantityFactory<javax.measure.quantity.ElectricCurrent> {
+public final class ElectricCurrentFactory implements QuantityFactory<javax.measure.quantity.ElectricCurrent> {
 
     /** The system unit of {@link ElectricCurrent}. */
     public static final UomUnit<javax.measure.quantity.ElectricCurrent> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class ElectricCurrentFactory
      * @param scale the scale
      * @return the quantity
      */
-    public ElectricCurrent of(
-            double value,
-            Unit<javax.measure.quantity.ElectricCurrent> unit,
-            Quantity.Scale scale
-    ) {
+    public ElectricCurrent of(double value, Unit<javax.measure.quantity.ElectricCurrent> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.ElectricCurrent> u) {
             return new ElectricCurrentDouble(value, u, scale);
         }

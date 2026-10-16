@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Mass} of this implementation. */
-public interface Mass
-        extends
-            javax.measure.quantity.Mass,
-            Comparable<Quantity<javax.measure.quantity.Mass>> {
+public interface Mass extends javax.measure.quantity.Mass, Comparable<Quantity<javax.measure.quantity.Mass>> {
 
     @Override
     Mass add(Quantity<javax.measure.quantity.Mass> addend);
@@ -87,11 +84,7 @@ public interface Mass
      * @param scale the scale
      * @return the quantity
      */
-    static Mass of(
-            double value,
-            Unit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    static Mass of(double value, Unit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         return MassFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Mass
      * @param scale the scale
      * @return the quantity
      */
-    static Mass of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    static Mass of(BigDecimal value, Unit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         return MassFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Mass
      * @param mc the math context
      * @return the quantity
      */
-    static Mass of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Mass of(BigDecimal value, Unit<javax.measure.quantity.Mass> unit, Quantity.Scale scale, MathContext mc) {
         return MassFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

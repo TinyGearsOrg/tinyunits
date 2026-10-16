@@ -49,11 +49,9 @@ import org.tinygears.uom.core.parse.FormulaException;
 public final class UomUnitFormat implements UnitFormat {
     private static final String EXCLUDED = "*/()^|=#[]!~@,·+-";
     private static final int MAX_POWER = 30;
-    private static final List<Prefix> PREFIXES = Stream.<Prefix>concat(
-            Arrays.stream(MetricPrefix.values()),
-            Arrays.stream(BinaryPrefix.values()))
-            .sorted(Comparator.comparingInt((Prefix p) -> p.getSymbol().length()).reversed())
-            .toList();
+    private static final List<Prefix> PREFIXES = Stream
+            .<Prefix>concat(Arrays.stream(MetricPrefix.values()), Arrays.stream(BinaryPrefix.values()))
+            .sorted(Comparator.comparingInt((Prefix p) -> p.getSymbol().length()).reversed()).toList();
 
     private static final Pattern EXPONENT = Pattern.compile("\\^(-?)(\\d+)");
     private static final String SUPERSCRIPT_DIGITS = "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";
@@ -136,14 +134,13 @@ public final class UomUnitFormat implements UnitFormat {
                     UomUnit<?> label = aliases.get(symbol);
                     if (label != null && !label.equals(unit)) {
                         throw new IllegalArgumentException(
-                                "symbol '" + symbol + "' of " + system.getName()
-                                        + " is the label of " + label);
+                                "symbol '" + symbol + "' of " + system.getName() + " is the label of " + label);
                     }
                     Found other = resolve(all, symbol);
                     if (other != null && !other.unit().equals(unit)) {
                         throw new IllegalArgumentException(
-                                "symbol '" + symbol + "' of " + system.getName()
-                                        + " is a different unit in " + other.system().getName());
+                                "symbol '" + symbol + "' of " + system.getName() + " is a different unit in "
+                                        + other.system().getName());
                     }
                 }
                 all.add(system);
@@ -447,9 +444,8 @@ public final class UomUnitFormat implements UnitFormat {
                         UomUnit<?> u = unit.get();
                         return new Found(
                                 system,
-                                u.prefix(prefix).named(
-                                        symbol,
-                                        prefix.getName().toLowerCase(Locale.ROOT) + u.getName()));
+                                u.prefix(prefix)
+                                        .named(symbol, prefix.getName().toLowerCase(Locale.ROOT) + u.getName()));
                     }
                 }
             }

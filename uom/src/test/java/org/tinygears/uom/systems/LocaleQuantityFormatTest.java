@@ -305,13 +305,11 @@ class LocaleQuantityFormatTest {
                         UntypedDecimalQuantity.of(new BigDecimal("1E+3"), SI.KILOMETRE, MathContext.DECIMAL64)));
         assertEquals(
                 "1×10^+3 km",
-                sv.format(
-                        UntypedDecimalQuantity.of(new BigDecimal("1E+3"), SI.KILOMETRE, MathContext.DECIMAL64)));
+                sv.format(UntypedDecimalQuantity.of(new BigDecimal("1E+3"), SI.KILOMETRE, MathContext.DECIMAL64)));
         assertParses(sv, "1×10^+3 km", 1000, SI.KILOMETRE);
         assertEquals(
                 "\u22121,50 km",
-                sv.format(
-                        UntypedDecimalQuantity.of(new BigDecimal("-1.50"), SI.KILOMETRE, MathContext.DECIMAL64)));
+                sv.format(UntypedDecimalQuantity.of(new BigDecimal("-1.50"), SI.KILOMETRE, MathContext.DECIMAL64)));
     }
 
     /** The JDK's DecimalFormat writes a bidi mark (Cf) before the minus sign in these locales. */
@@ -373,8 +371,7 @@ class LocaleQuantityFormatTest {
         assertFalse(de.equals(de.withDecimals(MathContext.DECIMAL64)));
         assertEquals(
                 de.withDecimals(MathContext.DECIMAL64),
-                root.withDecimals(MathContext.DECIMAL64).withLocale(
-                        Locale.forLanguageTag("de-DE")));
+                root.withDecimals(MathContext.DECIMAL64).withLocale(Locale.forLanguageTag("de-DE")));
         assertEquals("UomQuantityFormat[locale=de-DE, grouping=false, decimals=off]", de.toString());
         assertEquals("UomQuantityFormat[locale=und, grouping=true, decimals=off]", root.withGrouping(true).toString());
     }
@@ -605,9 +602,7 @@ class LocaleQuantityFormatTest {
         assertEquals(
                 "locale x-test cannot round trip numbers: exponent separator '10^' starts with a digit, sign"
                         + " or separator",
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> root.withSymbols(x, digitExponent)).getMessage());
+                assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, digitExponent)).getMessage());
         DecimalFormatSymbols emptyExponent = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         emptyExponent.setExponentSeparator("");
         assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, emptyExponent));
@@ -622,9 +617,8 @@ class LocaleQuantityFormatTest {
             separatorMinus.setMinusSign(c);
             assertEquals(
                     "locale x-test cannot round trip numbers: minus sign '" + c + "' collides with a separator",
-                    assertThrows(
-                            IllegalArgumentException.class,
-                            () -> root.withSymbols(x, separatorMinus)).getMessage());
+                    assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, separatorMinus))
+                            .getMessage());
         }
         DecimalFormatSymbols dashGroup = DecimalFormatSymbols.getInstance(Locale.GERMANY);
         dashGroup.setMinusSign('\u2212');
@@ -641,9 +635,7 @@ class LocaleQuantityFormatTest {
             assertEquals(
                     "locale x-test cannot round trip numbers: exponent separator '" + first
                             + "' starts with a digit, sign or separator",
-                    assertThrows(
-                            IllegalArgumentException.class,
-                            () -> root.withSymbols(x, bad)).getMessage(),
+                    assertThrows(IllegalArgumentException.class, () -> root.withSymbols(x, bad)).getMessage(),
                     first);
         }
         DecimalFormatSymbols arabicDigitExponent = DecimalFormatSymbols.getInstance(Locale.forLanguageTag("ar-EG"));

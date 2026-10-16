@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link ElectricResistance} quantities. */
-public final class ElectricResistanceFactory
-        implements
-            QuantityFactory<javax.measure.quantity.ElectricResistance> {
+public final class ElectricResistanceFactory implements QuantityFactory<javax.measure.quantity.ElectricResistance> {
 
     /** The system unit of {@link ElectricResistance}. */
     public static final UomUnit<javax.measure.quantity.ElectricResistance> SYSTEM_UNIT = UomUnit.unchecked(

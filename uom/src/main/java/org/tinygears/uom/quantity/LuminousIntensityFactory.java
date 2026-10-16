@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link LuminousIntensity} quantities. */
-public final class LuminousIntensityFactory
-        implements
-            QuantityFactory<javax.measure.quantity.LuminousIntensity> {
+public final class LuminousIntensityFactory implements QuantityFactory<javax.measure.quantity.LuminousIntensity> {
 
     /** The system unit of {@link LuminousIntensity}. */
     public static final UomUnit<javax.measure.quantity.LuminousIntensity> SYSTEM_UNIT = UomUnit

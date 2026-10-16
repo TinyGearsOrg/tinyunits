@@ -79,10 +79,8 @@ public final class Gaussian {
 
     /** The franklin, {@code Fr}. */
     public static final UomUnit<ElectricCharge> FRANKLIN = UomUnit.unchecked(
-            BaseUnits.AMPERE
-                    .multiply(BaseUnits.SECOND)
-                    .transform(Converters.affine(Factor.of(1L, 2997924580L), Factor.ZERO))
-                    .named("Fr", "franklin"));
+            BaseUnits.AMPERE.multiply(BaseUnits.SECOND)
+                    .transform(Converters.affine(Factor.of(1L, 2997924580L), Factor.ZERO)).named("Fr", "franklin"));
 
     /** The units of this catalog. */
     public static final List<UomUnit<?>> UNITS = List.<UomUnit<?>>of(
@@ -115,13 +113,7 @@ public final class Gaussian {
             EMU.GILBERT);
 
     /** The symbols that take a prefix in this system. */
-    public static final Set<String> PREFIXABLE = Set.of(
-            "G",
-            "Gal",
-            "P",
-            "St",
-            "g",
-            "s");
+    public static final Set<String> PREFIXABLE = Set.of("G", "Gal", "P", "St", "g", "s");
 
     /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, UomUnit<?>> PREFERRED = Map.<Class<?>, UomUnit<?>>ofEntries(

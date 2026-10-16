@@ -98,14 +98,12 @@ class FactorTest {
         assertEquals(Factor.of(-3, 2), Factor.of(BigInteger.valueOf(6), BigInteger.valueOf(-4), 0, 1));
         assertEquals(
                 "root index must be positive: 0",
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, 0)).getMessage());
+                assertThrows(IllegalArgumentException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ONE, 0, 0))
+                        .getMessage());
         assertEquals(
                 "division by zero",
-                assertThrows(
-                        ArithmeticException.class,
-                        () -> Factor.of(BigInteger.ONE, BigInteger.ZERO, 0, 1)).getMessage());
+                assertThrows(ArithmeticException.class, () -> Factor.of(BigInteger.ONE, BigInteger.ZERO, 0, 1))
+                        .getMessage());
         assertEquals(
                 "factor too large",
                 assertThrows(
@@ -199,10 +197,8 @@ class FactorTest {
     /** Reference pi by Machin's formula, 16 atan(1/5) - 4 atan(1/239). */
     private static BigDecimal machin(int digits) {
         MathContext mc = new MathContext(digits + 10);
-        return atanInverse(5, mc).multiply(BigDecimal.valueOf(16)).subtract(
-                atanInverse(239, mc).multiply(
-                        BigDecimal.valueOf(4)))
-                .round(new MathContext(digits));
+        return atanInverse(5, mc).multiply(BigDecimal.valueOf(16))
+                .subtract(atanInverse(239, mc).multiply(BigDecimal.valueOf(4))).round(new MathContext(digits));
     }
 
     private static BigDecimal atanInverse(int x, MathContext mc) {
@@ -349,9 +345,7 @@ class FactorTest {
     void hugeRootIndexReducesQuicklyWithoutOverflow() {
         BigInteger one = BigInteger.ONE;
         BigInteger three = BigInteger.valueOf(3);
-        Factor f = assertTimeoutPreemptively(
-                Duration.ofSeconds(2),
-                () -> Factor.of(three, one, 1, Integer.MAX_VALUE));
+        Factor f = assertTimeoutPreemptively(Duration.ofSeconds(2), () -> Factor.of(three, one, 1, Integer.MAX_VALUE));
         assertEquals(Integer.MAX_VALUE, f.rootIndex());
         assertEquals(1, f.piExponent());
         assertEquals(ONE, Factor.of(one, one, 0, Integer.MAX_VALUE));
@@ -385,11 +379,7 @@ class FactorTest {
                 assertEquals(ZERO, f);
                 continue;
             }
-            BigInteger[] ref = referenceReduce(
-                    n.divide(g).multiply(BigInteger.valueOf(d.signum())),
-                    d.divide(g),
-                    k,
-                    r);
+            BigInteger[] ref = referenceReduce(n.divide(g).multiply(BigInteger.valueOf(d.signum())), d.divide(g), k, r);
             assertEquals(ref[0], f.numerator());
             assertEquals(ref[1], f.denominator());
             assertEquals(ref[2].intValue(), f.piExponent());

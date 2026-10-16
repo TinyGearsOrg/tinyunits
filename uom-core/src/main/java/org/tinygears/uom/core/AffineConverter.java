@@ -127,9 +127,7 @@ final class AffineConverter implements UomConverter, Serializable {
             // negative-scale adjustments reproduce it without the alignment.
             BigDecimal n = b.signum() == 0
                     ? t
-                    : t.signum() == 0
-                            ? b.setScale(Math.max(0, Math.min(t.scale(), guard)))
-                            : addFar(t, b, guard);
+                    : t.signum() == 0 ? b.setScale(Math.max(0, Math.min(t.scale(), guard))) : addFar(t, b, guard);
             BigDecimal q = Decimals.divide(n, d, mc);
             return q.scale() >= 0
                     ? q
@@ -253,8 +251,7 @@ final class AffineConverter implements UomConverter, Serializable {
                 }
                 // Steps grouped otherwise may not fold exactly left to right; a decimal fold checks them then.
                 if (folded ? !f.equals(factor) || !o.equals(offset) : !decimalFoldAgrees()) {
-                    throw new IllegalArgumentException(
-                            "steps do not compose to x -> " + factor + " * x + " + offset);
+                    throw new IllegalArgumentException("steps do not compose to x -> " + factor + " * x + " + offset);
                 }
                 // Validated above; the package-private constructor keeps the stored values and the step list.
                 return new AffineConverter(factor, offset, List.copyOf(steps));

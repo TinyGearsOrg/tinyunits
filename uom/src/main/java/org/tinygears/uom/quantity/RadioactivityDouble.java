@@ -20,20 +20,13 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class RadioactivityDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Radioactivity, Radioactivity>
-        implements
-            Radioactivity {
+final class RadioactivityDouble extends AbstractDoubleQuantity<javax.measure.quantity.Radioactivity, Radioactivity>
+        implements Radioactivity {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    RadioactivityDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Radioactivity> unit,
-            Quantity.Scale scale
-    ) {
+    RadioactivityDouble(double value, UomUnit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 

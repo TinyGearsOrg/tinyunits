@@ -184,8 +184,7 @@ public final class SI {
 
     /** The degree Celsius, {@code °C}. */
     public static final UomUnit<Temperature> DEGREE_CELSIUS = UomUnit.unchecked(
-            BaseUnits.KELVIN
-                    .transform(Converters.affine(Factor.ONE, Factor.of(5463L, 20L)))
+            BaseUnits.KELVIN.transform(Converters.affine(Factor.ONE, Factor.of(5463L, 20L)))
                     .named("°C", "degree Celsius"));
 
     /** The square metre, {@code m²}. */
@@ -196,53 +195,36 @@ public final class SI {
 
     /** The gram, {@code g}. */
     public static final UomUnit<Mass> GRAM = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
-                    .named("g", "gram"));
+            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("g", "gram"));
 
     /** The minute, {@code min}. */
     public static final UomUnit<Time> MINUTE = UomUnit.unchecked(
-            BaseUnits.SECOND
-                    .transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO))
-                    .named("min", "minute"));
+            BaseUnits.SECOND.transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO)).named("min", "minute"));
 
     /** The hour, {@code h}. */
     public static final UomUnit<Time> HOUR = UomUnit.unchecked(
-            BaseUnits.SECOND
-                    .transform(Converters.affine(Factor.of(3600L, 1L), Factor.ZERO))
-                    .named("h", "hour"));
+            BaseUnits.SECOND.transform(Converters.affine(Factor.of(3600L, 1L), Factor.ZERO)).named("h", "hour"));
 
     /** The day, {@code d}. */
     public static final UomUnit<Time> DAY = UomUnit.unchecked(
-            BaseUnits.SECOND
-                    .transform(Converters.affine(Factor.of(86400L, 1L), Factor.ZERO))
-                    .named("d", "day"));
+            BaseUnits.SECOND.transform(Converters.affine(Factor.of(86400L, 1L), Factor.ZERO)).named("d", "day"));
 
     /** The hectare, {@code ha}. */
     public static final UomUnit<Area> HECTARE = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .pow(2)
-                    .transform(Converters.affine(Factor.of(10000L, 1L), Factor.ZERO))
+            BaseUnits.METRE.pow(2).transform(Converters.affine(Factor.of(10000L, 1L), Factor.ZERO))
                     .named("ha", "hectare"));
 
     /** The litre, {@code L}. */
     public static final UomUnit<Volume> LITRE = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .pow(3)
-                    .transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO))
-                    .named("L", "litre"));
+            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("L", "litre"));
 
     /** The tonne, {@code t}. */
     public static final UomUnit<Mass> TONNE = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO))
-                    .named("t", "tonne"));
+            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("t", "tonne"));
 
     /** The electronvolt, {@code eV}. */
     public static final UomUnit<Energy> ELECTRONVOLT = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .multiply(BaseUnits.METRE.pow(2))
-                    .divide(BaseUnits.SECOND.pow(2))
+            BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(
                             Converters.affine(
                                     Factor.of(
@@ -255,553 +237,375 @@ public final class SI {
 
     /** The dalton, {@code Da}. */
     public static final UomUnit<Mass> DALTON = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .transform(
-                            Converters.affine(
-                                    Factor.of(
-                                            new BigInteger("8302695333"),
-                                            new BigInteger("5000000000000000000000000000000000000"),
-                                            0,
-                                            1),
-                                    Factor.ZERO))
+            BaseUnits.KILOGRAM.transform(
+                    Converters.affine(
+                            Factor.of(
+                                    new BigInteger("8302695333"),
+                                    new BigInteger("5000000000000000000000000000000000000"),
+                                    0,
+                                    1),
+                            Factor.ZERO))
                     .named("Da", "dalton"));
 
     /** The astronomical unit, {@code au}. */
     public static final UomUnit<Length> ASTRONOMICAL_UNIT = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .transform(Converters.affine(Factor.of(149597870700L, 1L), Factor.ZERO))
+            BaseUnits.METRE.transform(Converters.affine(Factor.of(149597870700L, 1L), Factor.ZERO))
                     .named("au", "astronomical unit"));
 
     /** The degree, {@code deg}. */
     public static final UomUnit<Angle> DEGREE = UomUnit.unchecked(
-            BaseUnits.ONE
-                    .alternate("rad")
+            BaseUnits.ONE.alternate("rad")
                     .transform(
                             Converters.affine(Factor.of(new BigInteger("1"), new BigInteger("180"), 1, 1), Factor.ZERO))
                     .named("deg", "degree"));
 
     /** The arcminute, {@code arcmin}. */
     public static final UomUnit<Angle> ARCMINUTE = UomUnit.unchecked(
-            BaseUnits.ONE
-                    .alternate("rad")
-                    .transform(
-                            Converters
-                                    .affine(Factor.of(new BigInteger("1"), new BigInteger("10800"), 1, 1), Factor.ZERO))
+            BaseUnits.ONE.alternate("rad").transform(
+                    Converters.affine(Factor.of(new BigInteger("1"), new BigInteger("10800"), 1, 1), Factor.ZERO))
                     .named("arcmin", "arcminute"));
 
     /** The arcsecond, {@code arcsec}. */
     public static final UomUnit<Angle> ARCSECOND = UomUnit.unchecked(
-            BaseUnits.ONE
-                    .alternate("rad")
-                    .transform(
-                            Converters.affine(
-                                    Factor.of(new BigInteger("1"), new BigInteger("648000"), 1, 1),
-                                    Factor.ZERO))
+            BaseUnits.ONE.alternate("rad").transform(
+                    Converters.affine(Factor.of(new BigInteger("1"), new BigInteger("648000"), 1, 1), Factor.ZERO))
                     .named("arcsec", "arcsecond"));
 
     /** The kilometre, {@code km}. */
-    public static final UomUnit<Length> KILOMETRE = UomUnit.unchecked(
-            METRE
-                    .prefix(MetricPrefix.KILO)
-                    .named("km", "kilometre"));
+    public static final UomUnit<Length> KILOMETRE = UomUnit
+            .unchecked(METRE.prefix(MetricPrefix.KILO).named("km", "kilometre"));
 
     /** The centimetre, {@code cm}. */
-    public static final UomUnit<Length> CENTIMETRE = UomUnit.unchecked(
-            METRE
-                    .prefix(MetricPrefix.CENTI)
-                    .named("cm", "centimetre"));
+    public static final UomUnit<Length> CENTIMETRE = UomUnit
+            .unchecked(METRE.prefix(MetricPrefix.CENTI).named("cm", "centimetre"));
 
     /** The millimetre, {@code mm}. */
-    public static final UomUnit<Length> MILLIMETRE = UomUnit.unchecked(
-            METRE
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mm", "millimetre"));
+    public static final UomUnit<Length> MILLIMETRE = UomUnit
+            .unchecked(METRE.prefix(MetricPrefix.MILLI).named("mm", "millimetre"));
 
     /** The micrometre, {@code µm}. */
-    public static final UomUnit<Length> MICROMETRE = UomUnit.unchecked(
-            METRE
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µm", "micrometre"));
+    public static final UomUnit<Length> MICROMETRE = UomUnit
+            .unchecked(METRE.prefix(MetricPrefix.MICRO).named("µm", "micrometre"));
 
     /** The nanometre, {@code nm}. */
-    public static final UomUnit<Length> NANOMETRE = UomUnit.unchecked(
-            METRE
-                    .prefix(MetricPrefix.NANO)
-                    .named("nm", "nanometre"));
+    public static final UomUnit<Length> NANOMETRE = UomUnit
+            .unchecked(METRE.prefix(MetricPrefix.NANO).named("nm", "nanometre"));
 
     /** The picometre, {@code pm}. */
-    public static final UomUnit<Length> PICOMETRE = UomUnit.unchecked(
-            METRE
-                    .prefix(MetricPrefix.PICO)
-                    .named("pm", "picometre"));
+    public static final UomUnit<Length> PICOMETRE = UomUnit
+            .unchecked(METRE.prefix(MetricPrefix.PICO).named("pm", "picometre"));
 
     /** The milligram, {@code mg}. */
-    public static final UomUnit<Mass> MILLIGRAM = UomUnit.unchecked(
-            GRAM
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mg", "milligram"));
+    public static final UomUnit<Mass> MILLIGRAM = UomUnit
+            .unchecked(GRAM.prefix(MetricPrefix.MILLI).named("mg", "milligram"));
 
     /** The microgram, {@code µg}. */
-    public static final UomUnit<Mass> MICROGRAM = UomUnit.unchecked(
-            GRAM
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µg", "microgram"));
+    public static final UomUnit<Mass> MICROGRAM = UomUnit
+            .unchecked(GRAM.prefix(MetricPrefix.MICRO).named("µg", "microgram"));
 
     /** The millisecond, {@code ms}. */
-    public static final UomUnit<Time> MILLISECOND = UomUnit.unchecked(
-            SECOND
-                    .prefix(MetricPrefix.MILLI)
-                    .named("ms", "millisecond"));
+    public static final UomUnit<Time> MILLISECOND = UomUnit
+            .unchecked(SECOND.prefix(MetricPrefix.MILLI).named("ms", "millisecond"));
 
     /** The microsecond, {@code µs}. */
-    public static final UomUnit<Time> MICROSECOND = UomUnit.unchecked(
-            SECOND
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µs", "microsecond"));
+    public static final UomUnit<Time> MICROSECOND = UomUnit
+            .unchecked(SECOND.prefix(MetricPrefix.MICRO).named("µs", "microsecond"));
 
     /** The nanosecond, {@code ns}. */
-    public static final UomUnit<Time> NANOSECOND = UomUnit.unchecked(
-            SECOND
-                    .prefix(MetricPrefix.NANO)
-                    .named("ns", "nanosecond"));
+    public static final UomUnit<Time> NANOSECOND = UomUnit
+            .unchecked(SECOND.prefix(MetricPrefix.NANO).named("ns", "nanosecond"));
 
     /** The picosecond, {@code ps}. */
-    public static final UomUnit<Time> PICOSECOND = UomUnit.unchecked(
-            SECOND
-                    .prefix(MetricPrefix.PICO)
-                    .named("ps", "picosecond"));
+    public static final UomUnit<Time> PICOSECOND = UomUnit
+            .unchecked(SECOND.prefix(MetricPrefix.PICO).named("ps", "picosecond"));
 
     /** The milliampere, {@code mA}. */
-    public static final UomUnit<ElectricCurrent> MILLIAMPERE = UomUnit.unchecked(
-            AMPERE
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mA", "milliampere"));
+    public static final UomUnit<ElectricCurrent> MILLIAMPERE = UomUnit
+            .unchecked(AMPERE.prefix(MetricPrefix.MILLI).named("mA", "milliampere"));
 
     /** The microampere, {@code µA}. */
-    public static final UomUnit<ElectricCurrent> MICROAMPERE = UomUnit.unchecked(
-            AMPERE
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µA", "microampere"));
+    public static final UomUnit<ElectricCurrent> MICROAMPERE = UomUnit
+            .unchecked(AMPERE.prefix(MetricPrefix.MICRO).named("µA", "microampere"));
 
     /** The millikelvin, {@code mK}. */
-    public static final UomUnit<Temperature> MILLIKELVIN = UomUnit.unchecked(
-            KELVIN
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mK", "millikelvin"));
+    public static final UomUnit<Temperature> MILLIKELVIN = UomUnit
+            .unchecked(KELVIN.prefix(MetricPrefix.MILLI).named("mK", "millikelvin"));
 
     /** The microkelvin, {@code µK}. */
-    public static final UomUnit<Temperature> MICROKELVIN = UomUnit.unchecked(
-            KELVIN
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µK", "microkelvin"));
+    public static final UomUnit<Temperature> MICROKELVIN = UomUnit
+            .unchecked(KELVIN.prefix(MetricPrefix.MICRO).named("µK", "microkelvin"));
 
     /** The nanokelvin, {@code nK}. */
-    public static final UomUnit<Temperature> NANOKELVIN = UomUnit.unchecked(
-            KELVIN
-                    .prefix(MetricPrefix.NANO)
-                    .named("nK", "nanokelvin"));
+    public static final UomUnit<Temperature> NANOKELVIN = UomUnit
+            .unchecked(KELVIN.prefix(MetricPrefix.NANO).named("nK", "nanokelvin"));
 
     /** The millicandela, {@code mcd}. */
-    public static final UomUnit<LuminousIntensity> MILLICANDELA = UomUnit.unchecked(
-            CANDELA
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mcd", "millicandela"));
+    public static final UomUnit<LuminousIntensity> MILLICANDELA = UomUnit
+            .unchecked(CANDELA.prefix(MetricPrefix.MILLI).named("mcd", "millicandela"));
 
     /** The kilocandela, {@code kcd}. */
-    public static final UomUnit<LuminousIntensity> KILOCANDELA = UomUnit.unchecked(
-            CANDELA
-                    .prefix(MetricPrefix.KILO)
-                    .named("kcd", "kilocandela"));
+    public static final UomUnit<LuminousIntensity> KILOCANDELA = UomUnit
+            .unchecked(CANDELA.prefix(MetricPrefix.KILO).named("kcd", "kilocandela"));
 
     /** The millimole, {@code mmol}. */
-    public static final UomUnit<AmountOfSubstance> MILLIMOLE = UomUnit.unchecked(
-            MOLE
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mmol", "millimole"));
+    public static final UomUnit<AmountOfSubstance> MILLIMOLE = UomUnit
+            .unchecked(MOLE.prefix(MetricPrefix.MILLI).named("mmol", "millimole"));
 
     /** The millikatal, {@code mkat}. */
-    public static final UomUnit<CatalyticActivity> MILLIKATAL = UomUnit.unchecked(
-            KATAL
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mkat", "millikatal"));
+    public static final UomUnit<CatalyticActivity> MILLIKATAL = UomUnit
+            .unchecked(KATAL.prefix(MetricPrefix.MILLI).named("mkat", "millikatal"));
 
     /** The microkatal, {@code µkat}. */
-    public static final UomUnit<CatalyticActivity> MICROKATAL = UomUnit.unchecked(
-            KATAL
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µkat", "microkatal"));
+    public static final UomUnit<CatalyticActivity> MICROKATAL = UomUnit
+            .unchecked(KATAL.prefix(MetricPrefix.MICRO).named("µkat", "microkatal"));
 
     /** The nanokatal, {@code nkat}. */
-    public static final UomUnit<CatalyticActivity> NANOKATAL = UomUnit.unchecked(
-            KATAL
-                    .prefix(MetricPrefix.NANO)
-                    .named("nkat", "nanokatal"));
+    public static final UomUnit<CatalyticActivity> NANOKATAL = UomUnit
+            .unchecked(KATAL.prefix(MetricPrefix.NANO).named("nkat", "nanokatal"));
 
     /** The kilokatal, {@code kkat}. */
-    public static final UomUnit<CatalyticActivity> KILOKATAL = UomUnit.unchecked(
-            KATAL
-                    .prefix(MetricPrefix.KILO)
-                    .named("kkat", "kilokatal"));
+    public static final UomUnit<CatalyticActivity> KILOKATAL = UomUnit
+            .unchecked(KATAL.prefix(MetricPrefix.KILO).named("kkat", "kilokatal"));
 
     /** The kilohertz, {@code kHz}. */
-    public static final UomUnit<Frequency> KILOHERTZ = UomUnit.unchecked(
-            HERTZ
-                    .prefix(MetricPrefix.KILO)
-                    .named("kHz", "kilohertz"));
+    public static final UomUnit<Frequency> KILOHERTZ = UomUnit
+            .unchecked(HERTZ.prefix(MetricPrefix.KILO).named("kHz", "kilohertz"));
 
     /** The megahertz, {@code MHz}. */
-    public static final UomUnit<Frequency> MEGAHERTZ = UomUnit.unchecked(
-            HERTZ
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MHz", "megahertz"));
+    public static final UomUnit<Frequency> MEGAHERTZ = UomUnit
+            .unchecked(HERTZ.prefix(MetricPrefix.MEGA).named("MHz", "megahertz"));
 
     /** The gigahertz, {@code GHz}. */
-    public static final UomUnit<Frequency> GIGAHERTZ = UomUnit.unchecked(
-            HERTZ
-                    .prefix(MetricPrefix.GIGA)
-                    .named("GHz", "gigahertz"));
+    public static final UomUnit<Frequency> GIGAHERTZ = UomUnit
+            .unchecked(HERTZ.prefix(MetricPrefix.GIGA).named("GHz", "gigahertz"));
 
     /** The terahertz, {@code THz}. */
-    public static final UomUnit<Frequency> TERAHERTZ = UomUnit.unchecked(
-            HERTZ
-                    .prefix(MetricPrefix.TERA)
-                    .named("THz", "terahertz"));
+    public static final UomUnit<Frequency> TERAHERTZ = UomUnit
+            .unchecked(HERTZ.prefix(MetricPrefix.TERA).named("THz", "terahertz"));
 
     /** The kilonewton, {@code kN}. */
-    public static final UomUnit<Force> KILONEWTON = UomUnit.unchecked(
-            NEWTON
-                    .prefix(MetricPrefix.KILO)
-                    .named("kN", "kilonewton"));
+    public static final UomUnit<Force> KILONEWTON = UomUnit
+            .unchecked(NEWTON.prefix(MetricPrefix.KILO).named("kN", "kilonewton"));
 
     /** The millinewton, {@code mN}. */
-    public static final UomUnit<Force> MILLINEWTON = UomUnit.unchecked(
-            NEWTON
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mN", "millinewton"));
+    public static final UomUnit<Force> MILLINEWTON = UomUnit
+            .unchecked(NEWTON.prefix(MetricPrefix.MILLI).named("mN", "millinewton"));
 
     /** The hectopascal, {@code hPa}. */
-    public static final UomUnit<Pressure> HECTOPASCAL = UomUnit.unchecked(
-            PASCAL
-                    .prefix(MetricPrefix.HECTO)
-                    .named("hPa", "hectopascal"));
+    public static final UomUnit<Pressure> HECTOPASCAL = UomUnit
+            .unchecked(PASCAL.prefix(MetricPrefix.HECTO).named("hPa", "hectopascal"));
 
     /** The kilopascal, {@code kPa}. */
-    public static final UomUnit<Pressure> KILOPASCAL = UomUnit.unchecked(
-            PASCAL
-                    .prefix(MetricPrefix.KILO)
-                    .named("kPa", "kilopascal"));
+    public static final UomUnit<Pressure> KILOPASCAL = UomUnit
+            .unchecked(PASCAL.prefix(MetricPrefix.KILO).named("kPa", "kilopascal"));
 
     /** The megapascal, {@code MPa}. */
-    public static final UomUnit<Pressure> MEGAPASCAL = UomUnit.unchecked(
-            PASCAL
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MPa", "megapascal"));
+    public static final UomUnit<Pressure> MEGAPASCAL = UomUnit
+            .unchecked(PASCAL.prefix(MetricPrefix.MEGA).named("MPa", "megapascal"));
 
     /** The gigapascal, {@code GPa}. */
-    public static final UomUnit<Pressure> GIGAPASCAL = UomUnit.unchecked(
-            PASCAL
-                    .prefix(MetricPrefix.GIGA)
-                    .named("GPa", "gigapascal"));
+    public static final UomUnit<Pressure> GIGAPASCAL = UomUnit
+            .unchecked(PASCAL.prefix(MetricPrefix.GIGA).named("GPa", "gigapascal"));
 
     /** The kilojoule, {@code kJ}. */
-    public static final UomUnit<Energy> KILOJOULE = UomUnit.unchecked(
-            JOULE
-                    .prefix(MetricPrefix.KILO)
-                    .named("kJ", "kilojoule"));
+    public static final UomUnit<Energy> KILOJOULE = UomUnit
+            .unchecked(JOULE.prefix(MetricPrefix.KILO).named("kJ", "kilojoule"));
 
     /** The megajoule, {@code MJ}. */
-    public static final UomUnit<Energy> MEGAJOULE = UomUnit.unchecked(
-            JOULE
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MJ", "megajoule"));
+    public static final UomUnit<Energy> MEGAJOULE = UomUnit
+            .unchecked(JOULE.prefix(MetricPrefix.MEGA).named("MJ", "megajoule"));
 
     /** The gigajoule, {@code GJ}. */
-    public static final UomUnit<Energy> GIGAJOULE = UomUnit.unchecked(
-            JOULE
-                    .prefix(MetricPrefix.GIGA)
-                    .named("GJ", "gigajoule"));
+    public static final UomUnit<Energy> GIGAJOULE = UomUnit
+            .unchecked(JOULE.prefix(MetricPrefix.GIGA).named("GJ", "gigajoule"));
 
     /** The millijoule, {@code mJ}. */
-    public static final UomUnit<Energy> MILLIJOULE = UomUnit.unchecked(
-            JOULE
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mJ", "millijoule"));
+    public static final UomUnit<Energy> MILLIJOULE = UomUnit
+            .unchecked(JOULE.prefix(MetricPrefix.MILLI).named("mJ", "millijoule"));
 
     /** The kilowatt, {@code kW}. */
-    public static final UomUnit<Power> KILOWATT = UomUnit.unchecked(
-            WATT
-                    .prefix(MetricPrefix.KILO)
-                    .named("kW", "kilowatt"));
+    public static final UomUnit<Power> KILOWATT = UomUnit
+            .unchecked(WATT.prefix(MetricPrefix.KILO).named("kW", "kilowatt"));
 
     /** The megawatt, {@code MW}. */
-    public static final UomUnit<Power> MEGAWATT = UomUnit.unchecked(
-            WATT
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MW", "megawatt"));
+    public static final UomUnit<Power> MEGAWATT = UomUnit
+            .unchecked(WATT.prefix(MetricPrefix.MEGA).named("MW", "megawatt"));
 
     /** The gigawatt, {@code GW}. */
-    public static final UomUnit<Power> GIGAWATT = UomUnit.unchecked(
-            WATT
-                    .prefix(MetricPrefix.GIGA)
-                    .named("GW", "gigawatt"));
+    public static final UomUnit<Power> GIGAWATT = UomUnit
+            .unchecked(WATT.prefix(MetricPrefix.GIGA).named("GW", "gigawatt"));
 
     /** The milliwatt, {@code mW}. */
-    public static final UomUnit<Power> MILLIWATT = UomUnit.unchecked(
-            WATT
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mW", "milliwatt"));
+    public static final UomUnit<Power> MILLIWATT = UomUnit
+            .unchecked(WATT.prefix(MetricPrefix.MILLI).named("mW", "milliwatt"));
 
     /** The millicoulomb, {@code mC}. */
-    public static final UomUnit<ElectricCharge> MILLICOULOMB = UomUnit.unchecked(
-            COULOMB
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mC", "millicoulomb"));
+    public static final UomUnit<ElectricCharge> MILLICOULOMB = UomUnit
+            .unchecked(COULOMB.prefix(MetricPrefix.MILLI).named("mC", "millicoulomb"));
 
     /** The microcoulomb, {@code µC}. */
-    public static final UomUnit<ElectricCharge> MICROCOULOMB = UomUnit.unchecked(
-            COULOMB
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µC", "microcoulomb"));
+    public static final UomUnit<ElectricCharge> MICROCOULOMB = UomUnit
+            .unchecked(COULOMB.prefix(MetricPrefix.MICRO).named("µC", "microcoulomb"));
 
     /** The kilovolt, {@code kV}. */
-    public static final UomUnit<ElectricPotential> KILOVOLT = UomUnit.unchecked(
-            VOLT
-                    .prefix(MetricPrefix.KILO)
-                    .named("kV", "kilovolt"));
+    public static final UomUnit<ElectricPotential> KILOVOLT = UomUnit
+            .unchecked(VOLT.prefix(MetricPrefix.KILO).named("kV", "kilovolt"));
 
     /** The millivolt, {@code mV}. */
-    public static final UomUnit<ElectricPotential> MILLIVOLT = UomUnit.unchecked(
-            VOLT
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mV", "millivolt"));
+    public static final UomUnit<ElectricPotential> MILLIVOLT = UomUnit
+            .unchecked(VOLT.prefix(MetricPrefix.MILLI).named("mV", "millivolt"));
 
     /** The microvolt, {@code µV}. */
-    public static final UomUnit<ElectricPotential> MICROVOLT = UomUnit.unchecked(
-            VOLT
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µV", "microvolt"));
+    public static final UomUnit<ElectricPotential> MICROVOLT = UomUnit
+            .unchecked(VOLT.prefix(MetricPrefix.MICRO).named("µV", "microvolt"));
 
     /** The millifarad, {@code mF}. */
-    public static final UomUnit<ElectricCapacitance> MILLIFARAD = UomUnit.unchecked(
-            FARAD
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mF", "millifarad"));
+    public static final UomUnit<ElectricCapacitance> MILLIFARAD = UomUnit
+            .unchecked(FARAD.prefix(MetricPrefix.MILLI).named("mF", "millifarad"));
 
     /** The microfarad, {@code µF}. */
-    public static final UomUnit<ElectricCapacitance> MICROFARAD = UomUnit.unchecked(
-            FARAD
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µF", "microfarad"));
+    public static final UomUnit<ElectricCapacitance> MICROFARAD = UomUnit
+            .unchecked(FARAD.prefix(MetricPrefix.MICRO).named("µF", "microfarad"));
 
     /** The nanofarad, {@code nF}. */
-    public static final UomUnit<ElectricCapacitance> NANOFARAD = UomUnit.unchecked(
-            FARAD
-                    .prefix(MetricPrefix.NANO)
-                    .named("nF", "nanofarad"));
+    public static final UomUnit<ElectricCapacitance> NANOFARAD = UomUnit
+            .unchecked(FARAD.prefix(MetricPrefix.NANO).named("nF", "nanofarad"));
 
     /** The picofarad, {@code pF}. */
-    public static final UomUnit<ElectricCapacitance> PICOFARAD = UomUnit.unchecked(
-            FARAD
-                    .prefix(MetricPrefix.PICO)
-                    .named("pF", "picofarad"));
+    public static final UomUnit<ElectricCapacitance> PICOFARAD = UomUnit
+            .unchecked(FARAD.prefix(MetricPrefix.PICO).named("pF", "picofarad"));
 
     /** The kiloohm, {@code kΩ}. */
-    public static final UomUnit<ElectricResistance> KILOOHM = UomUnit.unchecked(
-            OHM
-                    .prefix(MetricPrefix.KILO)
-                    .named("kΩ", "kiloohm"));
+    public static final UomUnit<ElectricResistance> KILOOHM = UomUnit
+            .unchecked(OHM.prefix(MetricPrefix.KILO).named("kΩ", "kiloohm"));
 
     /** The megaohm, {@code MΩ}. */
-    public static final UomUnit<ElectricResistance> MEGAOHM = UomUnit.unchecked(
-            OHM
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MΩ", "megaohm"));
+    public static final UomUnit<ElectricResistance> MEGAOHM = UomUnit
+            .unchecked(OHM.prefix(MetricPrefix.MEGA).named("MΩ", "megaohm"));
 
     /** The millisiemens, {@code mS}. */
-    public static final UomUnit<ElectricConductance> MILLISIEMENS = UomUnit.unchecked(
-            SIEMENS
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mS", "millisiemens"));
+    public static final UomUnit<ElectricConductance> MILLISIEMENS = UomUnit
+            .unchecked(SIEMENS.prefix(MetricPrefix.MILLI).named("mS", "millisiemens"));
 
     /** The milliweber, {@code mWb}. */
-    public static final UomUnit<MagneticFlux> MILLIWEBER = UomUnit.unchecked(
-            WEBER
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mWb", "milliweber"));
+    public static final UomUnit<MagneticFlux> MILLIWEBER = UomUnit
+            .unchecked(WEBER.prefix(MetricPrefix.MILLI).named("mWb", "milliweber"));
 
     /** The millitesla, {@code mT}. */
-    public static final UomUnit<MagneticFluxDensity> MILLITESLA = UomUnit.unchecked(
-            TESLA
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mT", "millitesla"));
+    public static final UomUnit<MagneticFluxDensity> MILLITESLA = UomUnit
+            .unchecked(TESLA.prefix(MetricPrefix.MILLI).named("mT", "millitesla"));
 
     /** The microtesla, {@code µT}. */
-    public static final UomUnit<MagneticFluxDensity> MICROTESLA = UomUnit.unchecked(
-            TESLA
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µT", "microtesla"));
+    public static final UomUnit<MagneticFluxDensity> MICROTESLA = UomUnit
+            .unchecked(TESLA.prefix(MetricPrefix.MICRO).named("µT", "microtesla"));
 
     /** The nanotesla, {@code nT}. */
-    public static final UomUnit<MagneticFluxDensity> NANOTESLA = UomUnit.unchecked(
-            TESLA
-                    .prefix(MetricPrefix.NANO)
-                    .named("nT", "nanotesla"));
+    public static final UomUnit<MagneticFluxDensity> NANOTESLA = UomUnit
+            .unchecked(TESLA.prefix(MetricPrefix.NANO).named("nT", "nanotesla"));
 
     /** The millihenry, {@code mH}. */
-    public static final UomUnit<ElectricInductance> MILLIHENRY = UomUnit.unchecked(
-            HENRY
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mH", "millihenry"));
+    public static final UomUnit<ElectricInductance> MILLIHENRY = UomUnit
+            .unchecked(HENRY.prefix(MetricPrefix.MILLI).named("mH", "millihenry"));
 
     /** The microhenry, {@code µH}. */
-    public static final UomUnit<ElectricInductance> MICROHENRY = UomUnit.unchecked(
-            HENRY
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µH", "microhenry"));
+    public static final UomUnit<ElectricInductance> MICROHENRY = UomUnit
+            .unchecked(HENRY.prefix(MetricPrefix.MICRO).named("µH", "microhenry"));
 
     /** The nanohenry, {@code nH}. */
-    public static final UomUnit<ElectricInductance> NANOHENRY = UomUnit.unchecked(
-            HENRY
-                    .prefix(MetricPrefix.NANO)
-                    .named("nH", "nanohenry"));
+    public static final UomUnit<ElectricInductance> NANOHENRY = UomUnit
+            .unchecked(HENRY.prefix(MetricPrefix.NANO).named("nH", "nanohenry"));
 
     /** The kiloelectronvolt, {@code keV}. */
-    public static final UomUnit<Energy> KILOELECTRONVOLT = UomUnit.unchecked(
-            ELECTRONVOLT
-                    .prefix(MetricPrefix.KILO)
-                    .named("keV", "kiloelectronvolt"));
+    public static final UomUnit<Energy> KILOELECTRONVOLT = UomUnit
+            .unchecked(ELECTRONVOLT.prefix(MetricPrefix.KILO).named("keV", "kiloelectronvolt"));
 
     /** The megaelectronvolt, {@code MeV}. */
-    public static final UomUnit<Energy> MEGAELECTRONVOLT = UomUnit.unchecked(
-            ELECTRONVOLT
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MeV", "megaelectronvolt"));
+    public static final UomUnit<Energy> MEGAELECTRONVOLT = UomUnit
+            .unchecked(ELECTRONVOLT.prefix(MetricPrefix.MEGA).named("MeV", "megaelectronvolt"));
 
     /** The gigaelectronvolt, {@code GeV}. */
-    public static final UomUnit<Energy> GIGAELECTRONVOLT = UomUnit.unchecked(
-            ELECTRONVOLT
-                    .prefix(MetricPrefix.GIGA)
-                    .named("GeV", "gigaelectronvolt"));
+    public static final UomUnit<Energy> GIGAELECTRONVOLT = UomUnit
+            .unchecked(ELECTRONVOLT.prefix(MetricPrefix.GIGA).named("GeV", "gigaelectronvolt"));
 
     /** The teraelectronvolt, {@code TeV}. */
-    public static final UomUnit<Energy> TERAELECTRONVOLT = UomUnit.unchecked(
-            ELECTRONVOLT
-                    .prefix(MetricPrefix.TERA)
-                    .named("TeV", "teraelectronvolt"));
+    public static final UomUnit<Energy> TERAELECTRONVOLT = UomUnit
+            .unchecked(ELECTRONVOLT.prefix(MetricPrefix.TERA).named("TeV", "teraelectronvolt"));
 
     /** The millilitre, {@code mL}. */
-    public static final UomUnit<Volume> MILLILITRE = UomUnit.unchecked(
-            LITRE
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mL", "millilitre"));
+    public static final UomUnit<Volume> MILLILITRE = UomUnit
+            .unchecked(LITRE.prefix(MetricPrefix.MILLI).named("mL", "millilitre"));
 
     /** The centilitre, {@code cL}. */
-    public static final UomUnit<Volume> CENTILITRE = UomUnit.unchecked(
-            LITRE
-                    .prefix(MetricPrefix.CENTI)
-                    .named("cL", "centilitre"));
+    public static final UomUnit<Volume> CENTILITRE = UomUnit
+            .unchecked(LITRE.prefix(MetricPrefix.CENTI).named("cL", "centilitre"));
 
     /** The decilitre, {@code dL}. */
-    public static final UomUnit<Volume> DECILITRE = UomUnit.unchecked(
-            LITRE
-                    .prefix(MetricPrefix.DECI)
-                    .named("dL", "decilitre"));
+    public static final UomUnit<Volume> DECILITRE = UomUnit
+            .unchecked(LITRE.prefix(MetricPrefix.DECI).named("dL", "decilitre"));
 
     /** The kilobecquerel, {@code kBq}. */
-    public static final UomUnit<Radioactivity> KILOBECQUEREL = UomUnit.unchecked(
-            BECQUEREL
-                    .prefix(MetricPrefix.KILO)
-                    .named("kBq", "kilobecquerel"));
+    public static final UomUnit<Radioactivity> KILOBECQUEREL = UomUnit
+            .unchecked(BECQUEREL.prefix(MetricPrefix.KILO).named("kBq", "kilobecquerel"));
 
     /** The megabecquerel, {@code MBq}. */
-    public static final UomUnit<Radioactivity> MEGABECQUEREL = UomUnit.unchecked(
-            BECQUEREL
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MBq", "megabecquerel"));
+    public static final UomUnit<Radioactivity> MEGABECQUEREL = UomUnit
+            .unchecked(BECQUEREL.prefix(MetricPrefix.MEGA).named("MBq", "megabecquerel"));
 
     /** The gigabecquerel, {@code GBq}. */
-    public static final UomUnit<Radioactivity> GIGABECQUEREL = UomUnit.unchecked(
-            BECQUEREL
-                    .prefix(MetricPrefix.GIGA)
-                    .named("GBq", "gigabecquerel"));
+    public static final UomUnit<Radioactivity> GIGABECQUEREL = UomUnit
+            .unchecked(BECQUEREL.prefix(MetricPrefix.GIGA).named("GBq", "gigabecquerel"));
 
     /** The milligray, {@code mGy}. */
-    public static final UomUnit<RadiationDoseAbsorbed> MILLIGRAY = UomUnit.unchecked(
-            GRAY
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mGy", "milligray"));
+    public static final UomUnit<RadiationDoseAbsorbed> MILLIGRAY = UomUnit
+            .unchecked(GRAY.prefix(MetricPrefix.MILLI).named("mGy", "milligray"));
 
     /** The millisievert, {@code mSv}. */
-    public static final UomUnit<RadiationDoseEffective> MILLISIEVERT = UomUnit.unchecked(
-            SIEVERT
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mSv", "millisievert"));
+    public static final UomUnit<RadiationDoseEffective> MILLISIEVERT = UomUnit
+            .unchecked(SIEVERT.prefix(MetricPrefix.MILLI).named("mSv", "millisievert"));
 
     /** The microsievert, {@code µSv}. */
-    public static final UomUnit<RadiationDoseEffective> MICROSIEVERT = UomUnit.unchecked(
-            SIEVERT
-                    .prefix(MetricPrefix.MICRO)
-                    .named("µSv", "microsievert"));
+    public static final UomUnit<RadiationDoseEffective> MICROSIEVERT = UomUnit
+            .unchecked(SIEVERT.prefix(MetricPrefix.MICRO).named("µSv", "microsievert"));
 
     /** The milliradian, {@code mrad}. */
-    public static final UomUnit<Angle> MILLIRADIAN = UomUnit.unchecked(
-            RADIAN
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mrad", "milliradian"));
+    public static final UomUnit<Angle> MILLIRADIAN = UomUnit
+            .unchecked(RADIAN.prefix(MetricPrefix.MILLI).named("mrad", "milliradian"));
 
     /** The kilolux, {@code klx}. */
-    public static final UomUnit<Illuminance> KILOLUX = UomUnit.unchecked(
-            LUX
-                    .prefix(MetricPrefix.KILO)
-                    .named("klx", "kilolux"));
+    public static final UomUnit<Illuminance> KILOLUX = UomUnit
+            .unchecked(LUX.prefix(MetricPrefix.KILO).named("klx", "kilolux"));
 
     /** The millilumen, {@code mlm}. */
-    public static final UomUnit<LuminousFlux> MILLILUMEN = UomUnit.unchecked(
-            LUMEN
-                    .prefix(MetricPrefix.MILLI)
-                    .named("mlm", "millilumen"));
+    public static final UomUnit<LuminousFlux> MILLILUMEN = UomUnit
+            .unchecked(LUMEN.prefix(MetricPrefix.MILLI).named("mlm", "millilumen"));
 
     /** The kilolumen, {@code klm}. */
-    public static final UomUnit<LuminousFlux> KILOLUMEN = UomUnit.unchecked(
-            LUMEN
-                    .prefix(MetricPrefix.KILO)
-                    .named("klm", "kilolumen"));
+    public static final UomUnit<LuminousFlux> KILOLUMEN = UomUnit
+            .unchecked(LUMEN.prefix(MetricPrefix.KILO).named("klm", "kilolumen"));
 
     /** The millisteradian, {@code msr}. */
-    public static final UomUnit<SolidAngle> MILLISTERADIAN = UomUnit.unchecked(
-            STERADIAN
-                    .prefix(MetricPrefix.MILLI)
-                    .named("msr", "millisteradian"));
+    public static final UomUnit<SolidAngle> MILLISTERADIAN = UomUnit
+            .unchecked(STERADIAN.prefix(MetricPrefix.MILLI).named("msr", "millisteradian"));
 
     /** The kilodalton, {@code kDa}. */
-    public static final UomUnit<Mass> KILODALTON = UomUnit.unchecked(
-            DALTON
-                    .prefix(MetricPrefix.KILO)
-                    .named("kDa", "kilodalton"));
+    public static final UomUnit<Mass> KILODALTON = UomUnit
+            .unchecked(DALTON.prefix(MetricPrefix.KILO).named("kDa", "kilodalton"));
 
     /** The megadalton, {@code MDa}. */
-    public static final UomUnit<Mass> MEGADALTON = UomUnit.unchecked(
-            DALTON
-                    .prefix(MetricPrefix.MEGA)
-                    .named("MDa", "megadalton"));
+    public static final UomUnit<Mass> MEGADALTON = UomUnit
+            .unchecked(DALTON.prefix(MetricPrefix.MEGA).named("MDa", "megadalton"));
 
     /** The kilotonne, {@code kt}. */
-    public static final UomUnit<Mass> KILOTONNE = UomUnit.unchecked(
-            TONNE
-                    .prefix(MetricPrefix.KILO)
-                    .named("kt", "kilotonne"));
+    public static final UomUnit<Mass> KILOTONNE = UomUnit
+            .unchecked(TONNE.prefix(MetricPrefix.KILO).named("kt", "kilotonne"));
 
     /** The megatonne, {@code Mt}. */
-    public static final UomUnit<Mass> MEGATONNE = UomUnit.unchecked(
-            TONNE
-                    .prefix(MetricPrefix.MEGA)
-                    .named("Mt", "megatonne"));
+    public static final UomUnit<Mass> MEGATONNE = UomUnit
+            .unchecked(TONNE.prefix(MetricPrefix.MEGA).named("Mt", "megatonne"));
 
     /** The gigatonne, {@code Gt}. */
-    public static final UomUnit<Mass> GIGATONNE = UomUnit.unchecked(
-            TONNE
-                    .prefix(MetricPrefix.GIGA)
-                    .named("Gt", "gigatonne"));
+    public static final UomUnit<Mass> GIGATONNE = UomUnit
+            .unchecked(TONNE.prefix(MetricPrefix.GIGA).named("Gt", "gigatonne"));
 
     /** The metre per second squared, {@code m/s^2}, the system unit of Acceleration. */
     public static final UomUnit<Acceleration> METRE_PER_SECOND_SQUARED = UomUnit

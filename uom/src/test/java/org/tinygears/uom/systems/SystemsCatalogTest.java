@@ -120,9 +120,8 @@ class SystemsCatalogTest {
 
     private static Map<String, Definitions> load() {
         Map<String, Definitions> parsed = new HashMap<>();
-        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(
-                DATA.resolve(name),
-                StandardCharsets.UTF_8);
+        DefinitionParser.Resolver resolver = name -> Files
+                .newBufferedReader(DATA.resolve(name), StandardCharsets.UTF_8);
         for (Catalog c : CATALOGS) {
             try (Reader in = resolver.open(c.file())) {
                 parsed.put(c.file(), DefinitionParser.parse(c.file(), in, resolver));
@@ -232,8 +231,8 @@ class SystemsCatalogTest {
     void noLeaks() {
         assertEquals(
                 Set.of("cm", "g", "s"),
-                CGS.UNITS.stream().map(UomUnit::getSymbol)
-                        .filter(s -> SI.SYSTEM.getUnit(s) != null).collect(Collectors.toSet()));
+                CGS.UNITS.stream().map(UomUnit::getSymbol).filter(s -> SI.SYSTEM.getUnit(s) != null)
+                        .collect(Collectors.toSet()));
         assertEquals(
                 Set.of(),
                 Gaussian.UNITS.stream().map(UomUnit::getSymbol).filter(s -> s.startsWith("ab"))
@@ -278,9 +277,8 @@ class SystemsCatalogTest {
                 UomUnit<?> base = (UomUnit<?>) c.system().getUnit(p.unitSymbol());
                 for (String symbol : p.prefixSymbols()) {
                     expected++;
-                    Prefix prefix = Stream.<Prefix>concat(
-                            Arrays.stream(MetricPrefix.values()),
-                            Arrays.stream(BinaryPrefix.values()))
+                    Prefix prefix = Stream
+                            .<Prefix>concat(Arrays.stream(MetricPrefix.values()), Arrays.stream(BinaryPrefix.values()))
                             .filter(m -> m.getSymbol().equals(symbol)).findFirst().orElseThrow();
                     String unitSymbol = symbol + p.unitSymbol();
                     UomUnit<?> found = (UomUnit<?>) c.system().getUnit(unitSymbol);

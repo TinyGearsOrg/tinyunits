@@ -67,8 +67,8 @@ final class AlternateUnits {
             UomUnit<?> unit = UomUnit.of(definition, Converters.IDENTITY, null, null);
             if (!unit.getDimension().equals(dimension)) {
                 throw new MeasurementException(
-                        "dimension " + dimension + " of " + symbol
-                                + " does not match its definition " + unit.getDimension());
+                        "dimension " + dimension + " of " + symbol + " does not match its definition "
+                                + unit.getDimension());
             }
             atoms = unit.atoms();
         }

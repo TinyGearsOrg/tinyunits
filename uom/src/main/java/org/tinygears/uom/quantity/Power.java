@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Power} of this implementation. */
-public interface Power
-        extends
-            javax.measure.quantity.Power,
-            Comparable<Quantity<javax.measure.quantity.Power>> {
+public interface Power extends javax.measure.quantity.Power, Comparable<Quantity<javax.measure.quantity.Power>> {
 
     @Override
     Power add(Quantity<javax.measure.quantity.Power> addend);
@@ -87,11 +84,7 @@ public interface Power
      * @param scale the scale
      * @return the quantity
      */
-    static Power of(
-            double value,
-            Unit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    static Power of(double value, Unit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         return PowerFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Power
      * @param scale the scale
      * @return the quantity
      */
-    static Power of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale
-    ) {
+    static Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit, Quantity.Scale scale) {
         return PowerFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Power
      * @param mc the math context
      * @return the quantity
      */
-    static Power of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Power> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Power of(BigDecimal value, Unit<javax.measure.quantity.Power> unit, Quantity.Scale scale, MathContext mc) {
         return PowerFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

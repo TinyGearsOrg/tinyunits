@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class TimeDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Time, Time>
-        implements
-            Time {
+final class TimeDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Time, Time> implements Time {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    TimeDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    TimeDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Time> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class TimeDecimal
     }
 
     @Override
-    protected Time createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Time> unit,
-            Quantity.Scale scale
-    ) {
+    protected Time createDouble(double value, UomUnit<javax.measure.quantity.Time> unit, Quantity.Scale scale) {
         return new TimeDouble(value, unit, scale);
     }
 

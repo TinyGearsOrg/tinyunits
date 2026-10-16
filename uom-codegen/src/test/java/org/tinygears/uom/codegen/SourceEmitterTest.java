@@ -189,8 +189,8 @@ class SourceEmitterTest {
         assertTrue(byClass.get(PACKAGE + name + "Factory").contains(qualified), qualified);
         byClass.put(
                 "javax.measure.quantity." + name,
-                "package javax.measure.quantity;\n\npublic interface " + name
-                        + " extends javax.measure.Quantity<" + name + "> {\n}\n");
+                "package javax.measure.quantity;\n\npublic interface " + name + " extends javax.measure.Quantity<"
+                        + name + "> {\n}\n");
         InMemoryCompiler.compile(byClass, tmp).close();
     }
 
@@ -260,10 +260,9 @@ class SourceEmitterTest {
         assertEquals(MathContext.DECIMAL32, ((AbstractDecimalQuantity<?, ?>) inKm).mathContext());
         assertEquals(
                 2e-3,
-                ((Quantity<?>) toSystem.invoke(
-                        iface.getMethod("of", double.class, Unit.class)
-                                .invoke(null, 2.0, BaseUnits.METRE),
-                        km)).getValue());
+                ((Quantity<?>) toSystem
+                        .invoke(iface.getMethod("of", double.class, Unit.class).invoke(null, 2.0, BaseUnits.METRE), km))
+                        .getValue());
 
         Object dbl = iface.getMethod("toDouble").invoke(d);
         assertTrue(iface.isInstance(dbl));
@@ -275,12 +274,11 @@ class SourceEmitterTest {
         assertEquals(new BigDecimal("1.3"), ((Quantity<?>) back).getValue());
         assertEquals(new MathContext(2), ((AbstractDecimalQuantity<?, ?>) back).mathContext());
         // mixing gives the decimal class of the typed interface in either order (F23)
-        Object mixed = ((Quantity<javax.measure.quantity.Length>) d).add(
-                (Quantity<javax.measure.quantity.Length>) dbl);
+        Object mixed = ((Quantity<javax.measure.quantity.Length>) d).add((Quantity<javax.measure.quantity.Length>) dbl);
         assertEquals(PACKAGE + "LengthDecimal", mixed.getClass().getName());
         assertEquals(0, new BigDecimal("3").compareTo((BigDecimal) ((Quantity<?>) mixed).getValue()));
-        Object reverse = ((Quantity<javax.measure.quantity.Length>) dbl).add(
-                (Quantity<javax.measure.quantity.Length>) d);
+        Object reverse = ((Quantity<javax.measure.quantity.Length>) dbl)
+                .add((Quantity<javax.measure.quantity.Length>) d);
         assertEquals(PACKAGE + "LengthDecimal", reverse.getClass().getName());
         assertEquals(0, new BigDecimal("3").compareTo((BigDecimal) ((Quantity<?>) reverse).getValue()));
 
@@ -296,11 +294,8 @@ class SourceEmitterTest {
         java.lang.reflect.Method createScaled = factory.getClass()
                 .getMethod("create", Number.class, Unit.class, Quantity.Scale.class);
         for (Number n : List.of(new BigDecimal("4"), BigInteger.TWO)) {
-            Quantity<?> relative = (Quantity<?>) createScaled.invoke(
-                    factory,
-                    n,
-                    BaseUnits.METRE,
-                    Quantity.Scale.RELATIVE);
+            Quantity<?> relative = (Quantity<?>) createScaled
+                    .invoke(factory, n, BaseUnits.METRE, Quantity.Scale.RELATIVE);
             assertInstanceOf(BigDecimal.class, relative.getValue());
             assertEquals(Quantity.Scale.RELATIVE, relative.getScale());
         }

@@ -85,49 +85,37 @@ public final class Imperial {
 
     /** The stone, {@code st}. */
     public static final UomUnit<Mass> STONE = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .transform(Converters.affine(Factor.of(317514659L, 50000000L), Factor.ZERO))
+            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(317514659L, 50000000L), Factor.ZERO))
                     .named("st", "stone"));
 
     /** The ton UK, {@code ton_UK}. */
     public static final UomUnit<Mass> TON_UK = UomUnit.unchecked(
-            BaseUnits.KILOGRAM
-                    .transform(Converters.affine(Factor.of(317514659L, 312500L), Factor.ZERO))
+            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(317514659L, 312500L), Factor.ZERO))
                     .named("ton_UK", "ton UK"));
 
     /** The gallon UK, {@code gal_UK}. */
     public static final UomUnit<Volume> GALLON_UK = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .pow(3)
-                    .transform(Converters.affine(Factor.of(454609L, 100000000L), Factor.ZERO))
+            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(454609L, 100000000L), Factor.ZERO))
                     .named("gal_UK", "gallon UK"));
 
     /** The quart UK, {@code qt_UK}. */
     public static final UomUnit<Volume> QUART_UK = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .pow(3)
-                    .transform(Converters.affine(Factor.of(454609L, 400000000L), Factor.ZERO))
+            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(454609L, 400000000L), Factor.ZERO))
                     .named("qt_UK", "quart UK"));
 
     /** The pint UK, {@code pt_UK}. */
     public static final UomUnit<Volume> PINT_UK = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .pow(3)
-                    .transform(Converters.affine(Factor.of(454609L, 800000000L), Factor.ZERO))
+            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(454609L, 800000000L), Factor.ZERO))
                     .named("pt_UK", "pint UK"));
 
     /** The gill UK, {@code gi_UK}. */
     public static final UomUnit<Volume> GILL_UK = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .pow(3)
-                    .transform(Converters.affine(Factor.of(454609L, 3200000000L), Factor.ZERO))
+            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(454609L, 3200000000L), Factor.ZERO))
                     .named("gi_UK", "gill UK"));
 
     /** The fluid ounce UK, {@code floz_UK}. */
     public static final UomUnit<Volume> FLUID_OUNCE_UK = UomUnit.unchecked(
-            BaseUnits.METRE
-                    .pow(3)
-                    .transform(Converters.affine(Factor.of(454609L, 16000000000L), Factor.ZERO))
+            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(454609L, 16000000000L), Factor.ZERO))
                     .named("floz_UK", "fluid ounce UK"));
 
     /** The units of this catalog. */

@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
 final class AmountOfSubstanceDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.AmountOfSubstance, AmountOfSubstance>
-        implements
-            AmountOfSubstance {
+        extends AbstractDoubleQuantity<javax.measure.quantity.AmountOfSubstance, AmountOfSubstance>
+        implements AmountOfSubstance {
 
     @Serial
     private static final long serialVersionUID = 1L;

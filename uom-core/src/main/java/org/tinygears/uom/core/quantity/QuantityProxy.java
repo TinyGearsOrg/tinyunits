@@ -120,10 +120,7 @@ final class QuantityProxy implements Serializable {
             Temperature.class,
             Time.class,
             Volume.class,
-            Untyped.class).collect(
-                    Collectors.toUnmodifiableMap(
-                            Class::getName,
-                            Function.identity()));
+            Untyped.class).collect(Collectors.toUnmodifiableMap(Class::getName, Function.identity()));
 
     private transient String kind;
     private transient String type;
@@ -375,8 +372,8 @@ final class QuantityProxy implements Serializable {
             return d.with((BigDecimal) value, unit, s, mc);
         }
         throw invalid(
-                "the factory for " + type + " created " + (q == null ? "null" : q.getClass().getName())
-                        + ", not a " + kind + " quantity of this implementation");
+                "the factory for " + type + " created " + (q == null ? "null" : q.getClass().getName()) + ", not a "
+                        + kind + " quantity of this implementation");
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" }) // typeClass is one of the quantity interfaces

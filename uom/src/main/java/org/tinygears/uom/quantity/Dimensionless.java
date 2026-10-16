@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Dimensionless} of this implementation. */
 public interface Dimensionless
-        extends
-            javax.measure.quantity.Dimensionless,
-            Comparable<Quantity<javax.measure.quantity.Dimensionless>> {
+        extends javax.measure.quantity.Dimensionless, Comparable<Quantity<javax.measure.quantity.Dimensionless>> {
 
     @Override
     Dimensionless add(Quantity<javax.measure.quantity.Dimensionless> addend);
@@ -87,11 +85,7 @@ public interface Dimensionless
      * @param scale the scale
      * @return the quantity
      */
-    static Dimensionless of(
-            double value,
-            Unit<javax.measure.quantity.Dimensionless> unit,
-            Quantity.Scale scale
-    ) {
+    static Dimensionless of(double value, Unit<javax.measure.quantity.Dimensionless> unit, Quantity.Scale scale) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface Dimensionless
      * @param scale the scale
      * @return the quantity
      */
-    static Dimensionless of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Dimensionless> unit,
-            Quantity.Scale scale
-    ) {
+    static Dimensionless of(BigDecimal value, Unit<javax.measure.quantity.Dimensionless> unit, Quantity.Scale scale) {
         return DimensionlessFactory.INSTANCE.of(value, unit, scale);
     }
 

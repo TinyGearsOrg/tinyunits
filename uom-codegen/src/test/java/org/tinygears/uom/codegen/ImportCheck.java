@@ -25,9 +25,8 @@ final class ImportCheck {
                     + "// [^\n]*\n\npackage [\\w.]+;\n\n((?:import [\\w.]+;\n)+\n)*(?!import |\n)",
             Pattern.DOTALL);
     private static final Pattern IMPORT = Pattern.compile("^import ([\\w.]+);$", Pattern.MULTILINE);
-    private static final Pattern NON_CODE = Pattern.compile(
-            "//[^\n]*|/\\*.*?\\*/|\"(?:\\\\.|[^\"\\\\])*\"",
-            Pattern.DOTALL);
+    private static final Pattern NON_CODE = Pattern
+            .compile("//[^\n]*|/\\*.*?\\*/|\"(?:\\\\.|[^\"\\\\])*\"", Pattern.DOTALL);
     private static final Pattern STANDARD_TYPE = Pattern.compile("javax\\.measure\\.quantity\\.(\\w+)");
 
     private ImportCheck() {

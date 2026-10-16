@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class TemperatureDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Temperature, Temperature>
-        implements
-            Temperature {
+final class TemperatureDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Temperature, Temperature>
+        implements Temperature {
 
     @Serial
     private static final long serialVersionUID = 1L;

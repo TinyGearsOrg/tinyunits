@@ -20,20 +20,13 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class LuminousFluxDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.LuminousFlux, LuminousFlux>
-        implements
-            LuminousFlux {
+final class LuminousFluxDouble extends AbstractDoubleQuantity<javax.measure.quantity.LuminousFlux, LuminousFlux>
+        implements LuminousFlux {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    LuminousFluxDouble(
-            double value,
-            UomUnit<javax.measure.quantity.LuminousFlux> unit,
-            Quantity.Scale scale
-    ) {
+    LuminousFluxDouble(double value, UomUnit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 

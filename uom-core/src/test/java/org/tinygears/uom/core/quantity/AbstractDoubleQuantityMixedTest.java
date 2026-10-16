@@ -169,19 +169,13 @@ class AbstractDoubleQuantityMixedTest {
     @Test
     void untypedProductsWithDecimalOperandAreDecimal() {
         UomUnit<?> secondUnit = BaseUnits.SECOND;
-        Quantity<?> product = d(2, METRE).multiply(
-                UntypedDecimalQuantity.of(
-                        new BigDecimal("3"),
-                        METRE,
-                        MathContext.DECIMAL128));
+        Quantity<?> product = d(2, METRE)
+                .multiply(UntypedDecimalQuantity.of(new BigDecimal("3"), METRE, MathContext.DECIMAL128));
         assertInstanceOf(UntypedDecimalQuantity.class, product);
         assertDecimal("6", product);
         assertEquals(METRE.multiply(METRE), product.getUnit());
-        Quantity<?> quotient = d(10, METRE).divide(
-                UntypedDecimalQuantity.of(
-                        new BigDecimal("4"),
-                        secondUnit,
-                        MathContext.DECIMAL128));
+        Quantity<?> quotient = d(10, METRE)
+                .divide(UntypedDecimalQuantity.of(new BigDecimal("4"), secondUnit, MathContext.DECIMAL128));
         assertInstanceOf(UntypedDecimalQuantity.class, quotient);
         assertDecimal("2.5", quotient);
         assertEquals(METRE.divide(secondUnit), quotient.getUnit());
@@ -201,20 +195,16 @@ class AbstractDoubleQuantityMixedTest {
         assertSame(METRE, decimal.getUnit());
         assertSame(
                 Quantity.Scale.RELATIVE,
-                new TestLengthImpl(1.5, METRE, Quantity.Scale.RELATIVE)
-                        .toDecimal(MathContext.DECIMAL64).getScale());
+                new TestLengthImpl(1.5, METRE, Quantity.Scale.RELATIVE).toDecimal(MathContext.DECIMAL64).getScale());
         assertEquals(
                 new BigDecimal("0.3333333"),
-                ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
-                        .toDecimal(MathContext.DECIMAL32)).getValue());
+                ((TestLengthDecimalImpl) d(1.0 / 3, METRE).toDecimal(MathContext.DECIMAL32)).getValue());
         assertSame(
                 MathContext.DECIMAL32,
-                ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
-                        .toDecimal(MathContext.DECIMAL32)).mathContext());
+                ((TestLengthDecimalImpl) d(1.0 / 3, METRE).toDecimal(MathContext.DECIMAL32)).mathContext());
         assertSame(
                 MathContext.DECIMAL64,
-                ((TestLengthDecimalImpl) d(1.0 / 3, METRE)
-                        .toDecimal(MathContext.DECIMAL64)).mathContext());
+                ((TestLengthDecimalImpl) d(1.0 / 3, METRE).toDecimal(MathContext.DECIMAL64)).mathContext());
         MathContext five = new MathContext(5, RoundingMode.HALF_UP);
         TestLengthDecimalImpl rounded = (TestLengthDecimalImpl) d(2.000049, METRE).toDecimal(five);
         assertSame(five, rounded.mathContext());
@@ -252,9 +242,6 @@ class AbstractDoubleQuantityMixedTest {
         assertSame(MathContext.DECIMAL32, decimal.mathContext());
         assertSame(MathContext.DECIMAL64, ((TestSpeedDecimalImpl) speed).mathContext());
         MathContext five = new MathContext(5, RoundingMode.HALF_UP);
-        assertSame(
-                five,
-                ((UntypedDecimalQuantity) UntypedDoubleQuantity.of(1.5, METRE).toDecimal(five))
-                        .mathContext());
+        assertSame(five, ((UntypedDecimalQuantity) UntypedDoubleQuantity.of(1.5, METRE).toDecimal(five)).mathContext());
     }
 }

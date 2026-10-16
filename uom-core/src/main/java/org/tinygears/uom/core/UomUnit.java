@@ -105,8 +105,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     ) {
         Objects.requireNonNull(toSystem, "toSystem");
         Map<UnitAtom, Integer> normalized = new LinkedHashMap<>();
-        atoms.entrySet().stream()
-                .filter(e -> Objects.requireNonNull(e.getValue(), "exponent") != 0)
+        atoms.entrySet().stream().filter(e -> Objects.requireNonNull(e.getValue(), "exponent") != 0)
                 .sorted(Map.Entry.comparingByKey(Comparator.comparing(UnitAtom::symbol)))
                 .forEach(e -> normalized.put(Objects.requireNonNull(e.getKey(), "atom"), e.getValue()));
         return new UomUnit<>(Collections.unmodifiableMap(normalized), toSystem, symbol, name);
@@ -180,8 +179,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     }
 
     private String join(boolean positive) {
-        return atoms.entrySet().stream()
-                .filter(e -> e.getValue() > 0 == positive)
+        return atoms.entrySet().stream().filter(e -> e.getValue() > 0 == positive)
                 .map(e -> e.getKey().symbol() + (Math.abs(e.getValue()) == 1 ? "" : "^" + Math.abs(e.getValue())))
                 .collect(Collectors.joining("·"));
     }
@@ -194,10 +192,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             return null;
         }
         Map<UomUnit<?>, Integer> m = new LinkedHashMap<>();
-        atoms.forEach(
-                (atom, n) -> m.put(
-                        new UomUnit<>(Map.of(atom, 1), Converters.IDENTITY, atom.symbol(), null),
-                        n));
+        atoms.forEach((atom, n) -> m.put(new UomUnit<>(Map.of(atom, 1), Converters.IDENTITY, atom.symbol(), null), n));
         return Collections.unmodifiableMap(m);
     }
 

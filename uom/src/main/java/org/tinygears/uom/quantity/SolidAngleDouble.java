@@ -20,29 +20,18 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class SolidAngleDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.SolidAngle, SolidAngle>
-        implements
-            SolidAngle {
+final class SolidAngleDouble extends AbstractDoubleQuantity<javax.measure.quantity.SolidAngle, SolidAngle>
+        implements SolidAngle {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    SolidAngleDouble(
-            double value,
-            UomUnit<javax.measure.quantity.SolidAngle> unit,
-            Quantity.Scale scale
-    ) {
+    SolidAngleDouble(double value, UomUnit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected SolidAngle create(
-            double value,
-            UomUnit<javax.measure.quantity.SolidAngle> unit,
-            Quantity.Scale scale
-    ) {
+    protected SolidAngle create(double value, UomUnit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         return new SolidAngleDouble(value, unit, scale);
     }
 

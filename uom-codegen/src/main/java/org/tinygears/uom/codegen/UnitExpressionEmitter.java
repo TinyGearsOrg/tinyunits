@@ -73,8 +73,7 @@ public final class UnitExpressionEmitter {
         UomConverter c = unit.toSystemConverter();
         return c.equals(Converters.IDENTITY)
                 ? system
-                : system + ".transform("
-                        + imports.name("org.tinygears.uom.core.Converters") + ".affine("
+                : system + ".transform(" + imports.name("org.tinygears.uom.core.Converters") + ".affine("
                         + FactorEmitter.emit(c.factor(), imports) + ", " + FactorEmitter.emit(c.offset(), imports)
                         + "))";
     }

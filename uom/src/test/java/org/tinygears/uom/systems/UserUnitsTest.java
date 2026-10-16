@@ -97,8 +97,7 @@ class UserUnitsTest {
     @SuppressWarnings("unchecked")
     private static BigDecimal metres(Unit<?> unit) {
         return ((UomUnit<javax.measure.quantity.Length>) unit.asType(javax.measure.quantity.Length.class))
-                .getConverterTo(SI.METRE)
-                .convert(BigDecimal.ONE, MathContext.UNLIMITED);
+                .getConverterTo(SI.METRE).convert(BigDecimal.ONE, MathContext.UNLIMITED);
     }
 
     @Test
@@ -144,9 +143,7 @@ class UserUnitsTest {
 
     @Test
     void nameFromArgumentWithoutSystemLine() {
-        assertEquals(
-                "fallback",
-                UomSystemOfUnits.load("fallback", new StringReader("league 3 mi\n"), null).getName());
+        assertEquals("fallback", UomSystemOfUnits.load("fallback", new StringReader("league 3 mi\n"), null).getName());
     }
 
     @Test
@@ -269,12 +266,10 @@ class UserUnitsTest {
         assertEquals("2.0 league", q.format(two));
         assertEquals(
                 THREE_MILES,
-                UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
-                        .parse("kleague").divide(1000));
+                UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n")).parse("kleague").divide(1000));
         assertEquals(
                 THREE_MILES.multiply(1e6),
-                UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n"))
-                        .parse("Mleague"));
+                UomUnitFormat.standard().with(load(MEDIEVAL + "@prefixed league k\n")).parse("Mleague"));
     }
 
     @Test
@@ -393,9 +388,7 @@ class UserUnitsTest {
     void systemsAreImmutable() {
         UomSystemOfUnits m = load(MEDIEVAL);
         assertThrows(UnsupportedOperationException.class, () -> m.getUnits().clear());
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> m.getUnits(SI.METRE.getDimension()).clear());
+        assertThrows(UnsupportedOperationException.class, () -> m.getUnits(SI.METRE.getDimension()).clear());
     }
 
     @Test
@@ -565,13 +558,8 @@ class UserUnitsTest {
         used.close();
         UncheckedIOException e = assertThrows(
                 UncheckedIOException.class,
-                () -> UomSystemOfUnits.load(
-                        "u.units",
-                        new StringReader("@include a.units\n"),
-                        name -> used));
-        assertEquals(
-                "cannot read 'a.units': the resolver returned a failing, closed or reused reader",
-                e.getMessage());
+                () -> UomSystemOfUnits.load("u.units", new StringReader("@include a.units\n"), name -> used));
+        assertEquals("cannot read 'a.units': the resolver returned a failing, closed or reused reader", e.getMessage());
     }
 
     @Test

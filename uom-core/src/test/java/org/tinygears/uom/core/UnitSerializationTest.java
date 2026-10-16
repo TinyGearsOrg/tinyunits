@@ -68,8 +68,7 @@ class UnitSerializationTest {
         m.put("hertz", ONE.divide(SECOND).alternate("Hz").named("Hz", "hertz"));
         m.put(
                 "celsius",
-                KELVIN.transform(Converters.affine(Factor.ONE, Factor.of(5463L, 20L)))
-                        .named("°C", "degree Celsius"));
+                KELVIN.transform(Converters.affine(Factor.ONE, Factor.of(5463L, 20L))).named("°C", "degree Celsius"));
         m.put("degree", ONE.alternate("rad").scaledBy(Factor.PI.divide(Factor.ofLong(180))).named("°", "degree"));
         m.put("root-speed", METRE.divide(SECOND).scaledBy(Factor.ofLong(2).root(2)));
         return m;
@@ -107,15 +106,8 @@ class UnitSerializationTest {
 
     @Test
     void baseUnitsAndOne() throws Exception {
-        for (UomUnit<?> u : List.of(
-                METRE,
-                KILOGRAM,
-                SECOND,
-                BaseUnits.AMPERE,
-                KELVIN,
-                BaseUnits.MOLE,
-                BaseUnits.CANDELA,
-                ONE)) {
+        for (UomUnit<?> u : List
+                .of(METRE, KILOGRAM, SECOND, BaseUnits.AMPERE, KELVIN, BaseUnits.MOLE, BaseUnits.CANDELA, ONE)) {
             assertUnitRoundTrip(u);
         }
         UnitAtom metre = METRE.atoms().keySet().iterator().next();
@@ -325,11 +317,7 @@ class UnitSerializationTest {
     @Test
     void readingNeverRegisters() throws Exception {
         String out = ModulePathTest.runBounded(
-                List.of(
-                        java(),
-                        "-cp",
-                        System.getProperty("java.class.path"),
-                        PoisonCheck.class.getName()),
+                List.of(java(), "-cp", System.getProperty("java.class.path"), PoisonCheck.class.getName()),
                 Duration.ofSeconds(60));
         assertTrue(out.contains("ok poison"), out);
     }
@@ -339,8 +327,7 @@ class UnitSerializationTest {
         public static void main(String[] args) throws Exception {
             UnitAtom m = atom(METRE);
             UnitAtom forged = (UnitAtom) deserialize(
-                    serialize(
-                            new UnitAtom.Proxy("Hz", UomDimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 })));
+                    serialize(new UnitAtom.Proxy("Hz", UomDimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 })));
             int size = AlternateUnits.size();
             for (int i = 0; i < 10_000; i++) {
                 deserialize(
@@ -362,8 +349,8 @@ class UnitSerializationTest {
                 throw new AssertionError("forged Hz read after registration");
             } catch (InvalidObjectException expected) {
                 check(
-                        expected.getMessage().equals(
-                                "invalid unit atom: symbol Hz is already associated to a different unit"),
+                        expected.getMessage()
+                                .equals("invalid unit atom: symbol Hz is already associated to a different unit"),
                         expected.getMessage());
             }
             System.out.println("ok poison");
@@ -482,8 +469,7 @@ class UnitSerializationTest {
         // A valid definition read for an unknown symbol does not register it; a later registration equals it.
         int size = AlternateUnits.size();
         UnitAtom fresh = (UnitAtom) deserialize(
-                serialize(
-                        new UnitAtom.Proxy("t1-forge-new", perSecond, new UnitAtom[] { s }, new int[] { -1 })));
+                serialize(new UnitAtom.Proxy("t1-forge-new", perSecond, new UnitAtom[] { s }, new int[] { -1 })));
         assertEquals(new UnitAtom("t1-forge-new", perSecond), fresh);
         assertEquals(size, AlternateUnits.size());
         assertEquals(fresh, atom(ONE.divide(SECOND).alternate("t1-forge-new")));
@@ -529,9 +515,7 @@ class UnitSerializationTest {
                 InvalidObjectException.class,
                 () -> readReplacing(
                         Converters.scale(two),
-                        o -> o instanceof Factor.Proxy
-                                ? new Factor.Proxy(BigInteger.ONE, BigInteger.ZERO, 0, 1)
-                                : o));
+                        o -> o instanceof Factor.Proxy ? new Factor.Proxy(BigInteger.ONE, BigInteger.ZERO, 0, 1) : o));
         assertEquals("invalid factor: division by zero", e.getMessage());
         UomConverter copy = (UomConverter) deserialize(
                 serialize(
@@ -548,9 +532,7 @@ class UnitSerializationTest {
         Factor r2 = Factor.ofLong(2).root(2);
         UomUnit<?> u = KELVIN.shift(1).transform(Converters.shift(r2).concatenate(Converters.shift(r2.negate())));
         assertUnitRoundTrip(u);
-        assertEquals(
-                u.toSystemConverter().getConversionSteps(),
-                roundTrip(u).toSystemConverter().getConversionSteps());
+        assertEquals(u.toSystemConverter().getConversionSteps(), roundTrip(u).toSystemConverter().getConversionSteps());
         // When the steps do fold, they must agree with the stored values.
         assertInvalid(
                 "invalid converter: steps do not compose to x -> 1 * x + 2",
@@ -568,12 +550,7 @@ class UnitSerializationTest {
         Arrays.fill(ones, Factor.ONE);
         Arrays.fill(zeros, Factor.ZERO);
         UomConverter max = (UomConverter) deserialize(
-                serialize(
-                        new AffineConverter.Proxy(
-                                Factor.ONE,
-                                Factor.ZERO,
-                                ones,
-                                zeros)));
+                serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO, ones, zeros)));
         assertEquals(1000, max.getConversionSteps().size());
         // The writer refuses more than 1000 steps, so the forged count of 100_000 is patched into the stream.
         Factor[] few = Arrays.copyOf(ones, 999);
@@ -590,11 +567,7 @@ class UnitSerializationTest {
     @Test
     void forgedLengthIsRejectedBeforeAllocation() throws Exception {
         byte[] bytes = serialize(
-                new Factor.Proxy(
-                        new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }),
-                        BigInteger.ONE,
-                        0,
-                        1));
+                new Factor.Proxy(new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }), BigInteger.ONE, 0, 1));
         byte[] marker = { 0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54 };
         int at = indexOf(bytes, marker);
         assertTrue(at > 0);
@@ -632,11 +605,7 @@ class UnitSerializationTest {
         assertEquals("negative length -2", e.getMessage());
 
         byte[] factor = serialize(
-                new Factor.Proxy(
-                        new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }),
-                        BigInteger.ONE,
-                        0,
-                        1));
+                new Factor.Proxy(new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }), BigInteger.ONE, 0, 1));
         int n = indexOf(factor, new byte[] { 0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54 });
         assertTrue(n > 0);
         e = assertThrows(InvalidObjectException.class, () -> deserialize(patchLength(factor, n, 0, 4)));
@@ -668,22 +637,16 @@ class UnitSerializationTest {
         // The third factor written is the first step factor.
         InvalidObjectException e = assertThrows(
                 InvalidObjectException.class,
-                () -> readReplacing(
-                        chain,
-                        o -> o instanceof Factor.Proxy && ++seen[0] == 3 ? "x" : o));
+                () -> readReplacing(chain, o -> o instanceof Factor.Proxy && ++seen[0] == 3 ? "x" : o));
         assertEquals(6, seen[0]);
         assertEquals("expected Factor, got java.lang.String", e.getMessage());
         e = assertThrows(
                 InvalidObjectException.class,
-                () -> readReplacing(
-                        METRE.divide(SECOND),
-                        o -> o instanceof UnitAtom.Proxy ? "x" : o));
+                () -> readReplacing(METRE.divide(SECOND), o -> o instanceof UnitAtom.Proxy ? "x" : o));
         assertEquals("expected UnitAtom, got java.lang.String", e.getMessage());
         e = assertThrows(
                 InvalidObjectException.class,
-                () -> readReplacing(
-                        METRE,
-                        o -> o instanceof AffineConverter.Proxy ? "x" : o));
+                () -> readReplacing(METRE, o -> o instanceof AffineConverter.Proxy ? "x" : o));
         assertEquals("expected UomConverter, got java.lang.String", e.getMessage());
     }
 
@@ -730,10 +693,7 @@ class UnitSerializationTest {
                         new Factor[] { Factor.ONE, Factor.ONE },
                         new Factor[] {
                             r2,
-                            r2.multiply(
-                                    Factor.of(
-                                            BigInteger.TEN.pow(30).add(BigInteger.ONE),
-                                            BigInteger.TEN.pow(30)))
+                            r2.multiply(Factor.of(BigInteger.TEN.pow(30).add(BigInteger.ONE), BigInteger.TEN.pow(30)))
                                     .negate() }));
         UomConverter ok = (UomConverter) deserialize(
                 serialize(

@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Length} quantities. */
-public final class LengthFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Length> {
+public final class LengthFactory implements QuantityFactory<javax.measure.quantity.Length> {
 
     /** The system unit of {@link Length}. */
     public static final UomUnit<javax.measure.quantity.Length> SYSTEM_UNIT = UomUnit.unchecked(BaseUnits.METRE);
@@ -57,11 +55,7 @@ public final class LengthFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Length of(
-            double value,
-            Unit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    public Length of(double value, Unit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Length> u) {
             return new LengthDouble(value, u, scale);
         }
@@ -87,11 +81,7 @@ public final class LengthFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Length of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    public Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -105,12 +95,7 @@ public final class LengthFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Length of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Length> u) {
             return new LengthDecimal(value, u, scale, mc);
@@ -128,11 +113,7 @@ public final class LengthFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Length create(
-            Number value,
-            Unit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    public Length create(Number value, Unit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

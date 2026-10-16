@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class ElectricCurrentDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.ElectricCurrent, ElectricCurrent>
-        implements
-            ElectricCurrent {
+final class ElectricCurrentDecimal extends
+        AbstractDecimalQuantity<javax.measure.quantity.ElectricCurrent, ElectricCurrent> implements ElectricCurrent {
 
     @Serial
     private static final long serialVersionUID = 1L;

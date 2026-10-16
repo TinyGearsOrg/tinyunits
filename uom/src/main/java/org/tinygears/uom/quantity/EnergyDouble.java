@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class EnergyDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Energy, Energy>
-        implements
-            Energy {
+final class EnergyDouble extends AbstractDoubleQuantity<javax.measure.quantity.Energy, Energy> implements Energy {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    EnergyDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    EnergyDouble(double value, UomUnit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Energy create(
-            double value,
-            UomUnit<javax.measure.quantity.Energy> unit,
-            Quantity.Scale scale
-    ) {
+    protected Energy create(double value, UomUnit<javax.measure.quantity.Energy> unit, Quantity.Scale scale) {
         return new EnergyDouble(value, unit, scale);
     }
 

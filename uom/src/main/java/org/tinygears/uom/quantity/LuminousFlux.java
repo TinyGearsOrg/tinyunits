@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.LuminousFlux} of this implementation. */
 public interface LuminousFlux
-        extends
-            javax.measure.quantity.LuminousFlux,
-            Comparable<Quantity<javax.measure.quantity.LuminousFlux>> {
+        extends javax.measure.quantity.LuminousFlux, Comparable<Quantity<javax.measure.quantity.LuminousFlux>> {
 
     @Override
     LuminousFlux add(Quantity<javax.measure.quantity.LuminousFlux> addend);
@@ -87,11 +85,7 @@ public interface LuminousFlux
      * @param scale the scale
      * @return the quantity
      */
-    static LuminousFlux of(
-            double value,
-            Unit<javax.measure.quantity.LuminousFlux> unit,
-            Quantity.Scale scale
-    ) {
+    static LuminousFlux of(double value, Unit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface LuminousFlux
      * @param scale the scale
      * @return the quantity
      */
-    static LuminousFlux of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.LuminousFlux> unit,
-            Quantity.Scale scale
-    ) {
+    static LuminousFlux of(BigDecimal value, Unit<javax.measure.quantity.LuminousFlux> unit, Quantity.Scale scale) {
         return LuminousFluxFactory.INSTANCE.of(value, unit, scale);
     }
 

@@ -54,10 +54,8 @@ class CatalogEmitterTest {
             @prefixed m k
             @system SI
             """), null);
-    private static final List<QuantityTypeSpec> TYPES = QuantityTypesParser.parse(
-            "types.txt",
-            new StringReader("Length m\nTime s\n"),
-            DEFS);
+    private static final List<QuantityTypeSpec> TYPES = QuantityTypesParser
+            .parse("types.txt", new StringReader("Length m\nTime s\n"), DEFS);
     private static final List<CatalogEntry> ENTRIES = CatalogBuilder.build(DEFS, TYPES);
 
     // Stand-in for the real class in uom, which uom-codegen must not depend on.
@@ -125,11 +123,7 @@ class CatalogEmitterTest {
                 new TreeMap<>(Map.of("a", "SI.KILOMETRE", "b", "Other.FOOT")),
                 Set.of(),
                 Set.of(),
-                Map.of(
-                        "Length",
-                        "Other.FOOT",
-                        "Time",
-                        "SI.MINUTE"));
+                Map.of("Length", "Other.FOOT", "Time", "SI.MINUTE"));
         String text = CatalogEmitter.catalog(c, DEFS);
         assertTrue(text.contains("Map.entry(Length.class, Other.FOOT)"), text);
         assertTrue(text.contains("Map.entry(Time.class, MINUTE)"), text);
@@ -141,10 +135,11 @@ class CatalogEmitterTest {
     // A catalog class named Set and a constant named Map: java.util.Set and java.util.Map stay qualified.
     @Test
     void clashingNamesKeepTheImportedClassQualified() throws Exception {
-        List<CatalogEntry> entries = ENTRIES.stream().map(
-                e -> e.constantName().equals("METRE")
-                        ? new CatalogEntry(e.definition(), "Map", e.quantityType(), e.shared())
-                        : e)
+        List<CatalogEntry> entries = ENTRIES.stream()
+                .map(
+                        e -> e.constantName().equals("METRE")
+                                ? new CatalogEntry(e.definition(), "Map", e.quantityType(), e.shared())
+                                : e)
                 .toList();
         Map<String, String> units = new LinkedHashMap<>();
         entries.forEach(e -> units.put(e.definition().symbol(), "Set." + e.constantName()));
@@ -269,10 +264,8 @@ class CatalogEmitterTest {
 
     @Test
     void aSystemUnitWithoutADefinitionGetsAConstant() {
-        List<QuantityTypeSpec> extras = QuantityTypesParser.parse(
-                "types.txt",
-                new StringReader("Speed m / s => m/s:metre_per_second\n"),
-                DEFS);
+        List<QuantityTypeSpec> extras = QuantityTypesParser
+                .parse("types.txt", new StringReader("Speed m / s => m/s:metre_per_second\n"), DEFS);
         String text = CatalogEmitter.catalog(SI, DEFS, extras);
         assertTrue(text.contains("/** The metre per second, {@code m/s}, the system unit of Speed. */"), text);
         assertTrue(
@@ -299,17 +292,15 @@ class CatalogEmitterTest {
                 true);
         assertEquals(
                 "types.txt:1: duplicate constant name 'METRE'",
-                assertThrows(
-                        GenerationException.class,
-                        () -> CatalogEmitter.catalog(SI, DEFS, List.of(clash))).getMessage());
+                assertThrows(GenerationException.class, () -> CatalogEmitter.catalog(SI, DEFS, List.of(clash)))
+                        .getMessage());
     }
 
     @Test
     void binaryPrefixesEmitTheirSetAndConstants() {
         Definitions d = DefinitionParser.parse(
                 "information.units",
-                new StringReader(
-                        "@system Information\nbit:bit ~\nB:byte 8 bit\n@prefixed B k Ki\n"),
+                new StringReader("@system Information\nbit:bit ~\nB:byte 8 bit\n@prefixed B k Ki\n"),
                 name -> null);
         CatalogBuilder.Catalog c = CatalogBuilder.catalogs(Map.of("information.units", d), TYPES)
                 .get("information.units");
@@ -327,8 +318,7 @@ class CatalogEmitterTest {
                 text);
         assertTrue(
                 text.contains(
-                        "new UomSystemOfUnits(\"Information\", UNITS, PREFERRED, PREFIXABLE,"
-                                + " BINARY_PREFIXABLE);"),
+                        "new UomSystemOfUnits(\"Information\", UNITS, PREFERRED, PREFIXABLE," + " BINARY_PREFIXABLE);"),
                 text);
         assertEquals(List.of(), ImportCheck.problems(text, Set.of()));
         assertFalse(catalog().contains("BINARY_PREFIXABLE"));
@@ -338,27 +328,17 @@ class CatalogEmitterTest {
     void headerNamesTheFilesRead() {
         Definitions child = DefinitionParser.parse(
                 "b-child.units",
-                new StringReader(
-                        "@system Child\n@include z.units\n@include a.units\n"),
-                name -> new StringReader(
-                        name.equals("z.units") ? "m:metre !L\n" : "@prefixed m k\n"));
+                new StringReader("@system Child\n@include z.units\n@include a.units\n"),
+                name -> new StringReader(name.equals("z.units") ? "m:metre !L\n" : "@prefixed m k\n"));
         assertEquals(
                 List.of("b-child.units", "a.units", "z.units", "quantity-types.txt"),
                 CatalogEmitter.dataFiles("b-child.units", child));
         String text = CatalogEmitter.catalog(
-                new CatalogBuilder.Catalog(
-                        "b-child.units",
-                        "Child",
-                        List.of(),
-                        Map.of(),
-                        Set.of(),
-                        Set.of(),
-                        Map.of()),
+                new CatalogBuilder.Catalog("b-child.units", "Child", List.of(), Map.of(), Set.of(), Set.of(), Map.of()),
                 child);
         assertTrue(
                 text.startsWith(
-                        Headers.java(
-                                "data/b-child.units, data/a.units, data/z.units and data/quantity-types.txt")),
+                        Headers.java("data/b-child.units, data/a.units, data/z.units and data/quantity-types.txt")),
                 text);
         assertTrue(
                 text.contains(
@@ -413,26 +393,22 @@ class CatalogEmitterTest {
     }
 
     // A parent and a child catalog on top of the real SI data, compiled with the real UomSystemOfUnits.
-    private static final Map<String, String> SAMPLE = Map.of(
-            "par.units",
-            """
-                    @system Par
-                    @include si.units
-                    @member m s kg
-                    ft:foot 0.3048 m
-                    @prefixed ft k
-                    @preferred Length ft
-                    """,
-            "kid.units",
-            """
-                    @system Kid
-                    @extends par.units
-                    @include si.units
-                    @member g J m
-                    st:stone 6.35029318 kg
-                    @preferred Mass st
-                    @preferred Energy J
-                    """);
+    private static final Map<String, String> SAMPLE = Map.of("par.units", """
+            @system Par
+            @include si.units
+            @member m s kg
+            ft:foot 0.3048 m
+            @prefixed ft k
+            @preferred Length ft
+            """, "kid.units", """
+            @system Kid
+            @extends par.units
+            @include si.units
+            @member g J m
+            st:stone 6.35029318 kg
+            @preferred Mass st
+            @preferred Energy J
+            """);
     private static final Path DATA = Path.of("../data");
 
     private static Definitions parseSample(String file) throws Exception {
@@ -470,9 +446,7 @@ class CatalogEmitterTest {
         sources.put("org.tinygears.uom.quantity.QuantityTypes", SourceEmitter.registry(types));
         sources.put(
                 "org.tinygears.uom.systems.UomSystemOfUnits",
-                Files.readString(
-                        Path.of(
-                                "../uom/src/main/java/org/tinygears/uom/systems/UomSystemOfUnits.java")));
+                Files.readString(Path.of("../uom/src/main/java/org/tinygears/uom/systems/UomSystemOfUnits.java")));
         // UomSystemOfUnits.load needs these; the hand-written format is not under test here.
         sources.put("org.tinygears.uom.systems.UomUnitFormat", """
                 package org.tinygears.uom.systems;

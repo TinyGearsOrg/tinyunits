@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Area} quantities. */
-public final class AreaFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Area> {
+public final class AreaFactory implements QuantityFactory<javax.measure.quantity.Area> {
 
     /** The system unit of {@link Area}. */
     public static final UomUnit<javax.measure.quantity.Area> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class AreaFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Area of(
-            double value,
-            Unit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    public Area of(double value, Unit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Area> u) {
             return new AreaDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class AreaFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Area of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    public Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -106,12 +96,7 @@ public final class AreaFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Area of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Area> u) {
             return new AreaDecimal(value, u, scale, mc);
@@ -129,11 +114,7 @@ public final class AreaFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Area create(
-            Number value,
-            Unit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    public Area create(Number value, Unit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

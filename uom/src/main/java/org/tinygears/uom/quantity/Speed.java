@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Speed} of this implementation. */
-public interface Speed
-        extends
-            javax.measure.quantity.Speed,
-            Comparable<Quantity<javax.measure.quantity.Speed>> {
+public interface Speed extends javax.measure.quantity.Speed, Comparable<Quantity<javax.measure.quantity.Speed>> {
 
     @Override
     Speed add(Quantity<javax.measure.quantity.Speed> addend);
@@ -87,11 +84,7 @@ public interface Speed
      * @param scale the scale
      * @return the quantity
      */
-    static Speed of(
-            double value,
-            Unit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    static Speed of(double value, Unit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         return SpeedFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Speed
      * @param scale the scale
      * @return the quantity
      */
-    static Speed of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale
-    ) {
+    static Speed of(BigDecimal value, Unit<javax.measure.quantity.Speed> unit, Quantity.Scale scale) {
         return SpeedFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Speed
      * @param mc the math context
      * @return the quantity
      */
-    static Speed of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Speed> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Speed of(BigDecimal value, Unit<javax.measure.quantity.Speed> unit, Quantity.Scale scale, MathContext mc) {
         return SpeedFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

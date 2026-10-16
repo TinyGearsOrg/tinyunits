@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Pressure} of this implementation. */
 public interface Pressure
-        extends
-            javax.measure.quantity.Pressure,
-            Comparable<Quantity<javax.measure.quantity.Pressure>> {
+        extends javax.measure.quantity.Pressure, Comparable<Quantity<javax.measure.quantity.Pressure>> {
 
     @Override
     Pressure add(Quantity<javax.measure.quantity.Pressure> addend);
@@ -87,11 +85,7 @@ public interface Pressure
      * @param scale the scale
      * @return the quantity
      */
-    static Pressure of(
-            double value,
-            Unit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    static Pressure of(double value, Unit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         return PressureFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface Pressure
      * @param scale the scale
      * @return the quantity
      */
-    static Pressure of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Pressure> unit,
-            Quantity.Scale scale
-    ) {
+    static Pressure of(BigDecimal value, Unit<javax.measure.quantity.Pressure> unit, Quantity.Scale scale) {
         return PressureFactory.INSTANCE.of(value, unit, scale);
     }
 

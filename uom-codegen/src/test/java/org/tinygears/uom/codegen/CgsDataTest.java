@@ -79,9 +79,8 @@ class CgsDataTest {
     }
 
     private static Definitions parse(String file) throws IOException {
-        DefinitionParser.Resolver resolver = name -> Files.newBufferedReader(
-                DATA.resolve(name),
-                StandardCharsets.UTF_8);
+        DefinitionParser.Resolver resolver = name -> Files
+                .newBufferedReader(DATA.resolve(name), StandardCharsets.UTF_8);
         try (Reader in = resolver.open(file)) {
             return DefinitionParser.parse(file, in, resolver);
         }
@@ -101,9 +100,7 @@ class CgsDataTest {
     private static Factor pow10(int n) {
         return n >= 0
                 ? Factor.of(BigInteger.TEN.pow(n), BigInteger.ONE)
-                : Factor.of(
-                        BigInteger.ONE,
-                        BigInteger.TEN.pow(-n));
+                : Factor.of(BigInteger.ONE, BigInteger.TEN.pow(-n));
     }
 
     private static void assertFactor(String symbol, UomUnit<?> system, Factor factor) {
@@ -287,9 +284,8 @@ class CgsDataTest {
     }
 
     private static boolean isPrefixed(Definition d) {
-        return parsed.get(GAUSSIAN).prefixed().stream().anyMatch(
-                p -> p.source().equals(d.source())
-                        && p.line() == d.line());
+        return parsed.get(GAUSSIAN).prefixed().stream()
+                .anyMatch(p -> p.source().equals(d.source()) && p.line() == d.line());
     }
 
     @Test
@@ -341,8 +337,8 @@ class CgsDataTest {
     }
 
     private static Set<String> own(String file) {
-        return parsed.get(file).definitions().stream().filter(d -> d.source().equals(file))
-                .map(Definition::symbol).collect(Collectors.toSet());
+        return parsed.get(file).definitions().stream().filter(d -> d.source().equals(file)).map(Definition::symbol)
+                .collect(Collectors.toSet());
     }
 
     @Test

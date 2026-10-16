@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class VolumeDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Volume, Volume>
-        implements
-            Volume {
+final class VolumeDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Volume, Volume> implements Volume {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    VolumeDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    VolumeDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Volume> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class VolumeDecimal
     }
 
     @Override
-    protected Volume createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    protected Volume createDouble(double value, UomUnit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         return new VolumeDouble(value, unit, scale);
     }
 

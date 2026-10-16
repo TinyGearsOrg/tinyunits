@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Mass} quantities. */
-public final class MassFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Mass> {
+public final class MassFactory implements QuantityFactory<javax.measure.quantity.Mass> {
 
     /** The system unit of {@link Mass}. */
     public static final UomUnit<javax.measure.quantity.Mass> SYSTEM_UNIT = UomUnit.unchecked(BaseUnits.KILOGRAM);
@@ -57,11 +55,7 @@ public final class MassFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Mass of(
-            double value,
-            Unit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    public Mass of(double value, Unit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Mass> u) {
             return new MassDouble(value, u, scale);
         }
@@ -87,11 +81,7 @@ public final class MassFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Mass of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    public Mass of(BigDecimal value, Unit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -105,12 +95,7 @@ public final class MassFactory
      * @param mc the math context
      * @return the quantity
      */
-    public Mass of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    public Mass of(BigDecimal value, Unit<javax.measure.quantity.Mass> unit, Quantity.Scale scale, MathContext mc) {
         Objects.requireNonNull(value, "value");
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Mass> u) {
             return new MassDecimal(value, u, scale, mc);
@@ -128,11 +113,7 @@ public final class MassFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Mass create(
-            Number value,
-            Unit<javax.measure.quantity.Mass> unit,
-            Quantity.Scale scale
-    ) {
+    public Mass create(Number value, Unit<javax.measure.quantity.Mass> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

@@ -58,8 +58,7 @@ public final class FormulaEvaluator {
      * @return the unit
      * @throws FormulaException if the formula is malformed or names an unknown unit
      */
-    public static UomUnit<?> evaluate(String formula, Function<String, UomUnit<?>> lookup)
-            throws FormulaException {
+    public static UomUnit<?> evaluate(String formula, Function<String, UomUnit<?>> lookup) throws FormulaException {
         if (formula.length() > MAX_LENGTH) {
             throw new FormulaException("formula too long", 1);
         }
@@ -322,8 +321,8 @@ public final class FormulaEvaluator {
         }
         String tail = s.substring(symbol, sign);
         if (!tail.isEmpty() && !isDigit(tail.charAt(0))) {
-            return "ambiguous '" + tail + "-" + n + "': write '" + tail + "^-" + n
-                    + "' for a negative exponent or '" + tail + " - " + n + "' for a shift";
+            return "ambiguous '" + tail + "-" + n + "': write '" + tail + "^-" + n + "' for a negative exponent or '"
+                    + tail + " - " + n + "' for a shift";
         }
         String run = s.substring(from, sign);
         return "ambiguous '" + run + "-" + n + "': write '" + run + " - " + n + "' for a shift";

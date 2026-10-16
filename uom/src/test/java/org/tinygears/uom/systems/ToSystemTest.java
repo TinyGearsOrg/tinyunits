@@ -203,9 +203,8 @@ class ToSystemTest {
         SystemOfUnits empty = foreign(Map.of());
         assertEquals(
                 "system Foreign has no unit for type Length",
-                assertThrows(
-                        UnsupportedOperationException.class,
-                        () -> Length.of(1, SI.METRE).toSystem(empty)).getMessage());
+                assertThrows(UnsupportedOperationException.class, () -> Length.of(1, SI.METRE).toSystem(empty))
+                        .getMessage());
         assertEquals(
                 "system Foreign has no unit for type Mass",
                 assertThrows(
@@ -238,11 +237,9 @@ class ToSystemTest {
 
     @Test
     void scaleAndContextAreKept() {
-        Length rel = Length.of(
-                new BigDecimal("1.23456789"),
-                USCustomary.FOOT,
-                Quantity.Scale.RELATIVE,
-                MathContext.DECIMAL32).toSystem(SI.SYSTEM);
+        Length rel = Length
+                .of(new BigDecimal("1.23456789"), USCustomary.FOOT, Quantity.Scale.RELATIVE, MathContext.DECIMAL32)
+                .toSystem(SI.SYSTEM);
         // 0.376296292872 rounded to seven digits
         assertEquals(new BigDecimal("0.3762963"), rel.getValue());
         assertEquals(Quantity.Scale.RELATIVE, rel.getScale());

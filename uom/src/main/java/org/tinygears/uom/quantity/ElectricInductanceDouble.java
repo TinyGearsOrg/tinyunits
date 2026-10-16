@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
 final class ElectricInductanceDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.ElectricInductance, ElectricInductance>
-        implements
-            ElectricInductance {
+        extends AbstractDoubleQuantity<javax.measure.quantity.ElectricInductance, ElectricInductance>
+        implements ElectricInductance {
 
     @Serial
     private static final long serialVersionUID = 1L;

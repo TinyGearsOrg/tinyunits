@@ -82,8 +82,8 @@ class OffsetUnitProductsTest {
         assertEquals(
                 0,
                 new BigDecimal("0.5").compareTo(
-                        (BigDecimal) Temperature
-                                .of(new BigDecimal("2"), SI.DEGREE_CELSIUS, Scale.RELATIVE).inverse().getValue()));
+                        (BigDecimal) Temperature.of(new BigDecimal("2"), SI.DEGREE_CELSIUS, Scale.RELATIVE).inverse()
+                                .getValue()));
         Temperature point = Temperature.of(new BigDecimal("20"), SI.DEGREE_CELSIUS);
         assertEquals(0, new BigDecimal("146.575").compareTo((BigDecimal) point.divide(two).getValue()));
         assertEquals(0, new BigDecimal("586.3").compareTo((BigDecimal) two.multiply(point).getValue()));

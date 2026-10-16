@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Area} of this implementation. */
-public interface Area
-        extends
-            javax.measure.quantity.Area,
-            Comparable<Quantity<javax.measure.quantity.Area>> {
+public interface Area extends javax.measure.quantity.Area, Comparable<Quantity<javax.measure.quantity.Area>> {
 
     @Override
     Area add(Quantity<javax.measure.quantity.Area> addend);
@@ -87,11 +84,7 @@ public interface Area
      * @param scale the scale
      * @return the quantity
      */
-    static Area of(
-            double value,
-            Unit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    static Area of(double value, Unit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         return AreaFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Area
      * @param scale the scale
      * @return the quantity
      */
-    static Area of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    static Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         return AreaFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Area
      * @param mc the math context
      * @return the quantity
      */
-    static Area of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Area of(BigDecimal value, Unit<javax.measure.quantity.Area> unit, Quantity.Scale scale, MathContext mc) {
         return AreaFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

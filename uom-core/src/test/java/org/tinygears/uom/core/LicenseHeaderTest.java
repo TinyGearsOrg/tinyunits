@@ -28,8 +28,7 @@ class LicenseHeaderTest {
 
     // config/license-header.txt with any year; Spotless writes it, the generator writes it with its own year.
     private static final Pattern HEADER = Pattern.compile(
-            Pattern.quote(header().get(0)) + "\\R"
-                    + Pattern.quote(header().get(1)).replace("$YEAR", "\\E\\d{4}\\Q")
+            Pattern.quote(header().get(0)) + "\\R" + Pattern.quote(header().get(1)).replace("$YEAR", "\\E\\d{4}\\Q")
                     + header().stream().skip(2).map(l -> "\\R" + Pattern.quote(l)).collect(Collectors.joining())
                     + "\\R");
     private static final Set<String> SKIPPED_DIRS = Set.of("target", ".superpowers", ".git", ".worktrees");
@@ -39,14 +38,9 @@ class LicenseHeaderTest {
         Path root = Path.of("..").toAbsolutePath().normalize();
         List<String> violations;
         try (var files = Files.walk(root)) {
-            violations = files
-                    .filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".java"))
-                    .map(root::relativize)
-                    .filter(LicenseHeaderTest::isModuleSource)
-                    .filter(p -> !hasHeader(root.resolve(p)))
-                    .map(p -> p.toString().replace('\\', '/'))
-                    .sorted()
+            violations = files.filter(Files::isRegularFile).filter(p -> p.getFileName().toString().endsWith(".java"))
+                    .map(root::relativize).filter(LicenseHeaderTest::isModuleSource)
+                    .filter(p -> !hasHeader(root.resolve(p))).map(p -> p.toString().replace('\\', '/')).sorted()
                     .toList();
         }
         assertTrue(

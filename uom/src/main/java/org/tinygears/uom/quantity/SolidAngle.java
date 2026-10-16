@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.SolidAngle} of this implementation. */
 public interface SolidAngle
-        extends
-            javax.measure.quantity.SolidAngle,
-            Comparable<Quantity<javax.measure.quantity.SolidAngle>> {
+        extends javax.measure.quantity.SolidAngle, Comparable<Quantity<javax.measure.quantity.SolidAngle>> {
 
     @Override
     SolidAngle add(Quantity<javax.measure.quantity.SolidAngle> addend);
@@ -87,11 +85,7 @@ public interface SolidAngle
      * @param scale the scale
      * @return the quantity
      */
-    static SolidAngle of(
-            double value,
-            Unit<javax.measure.quantity.SolidAngle> unit,
-            Quantity.Scale scale
-    ) {
+    static SolidAngle of(double value, Unit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface SolidAngle
      * @param scale the scale
      * @return the quantity
      */
-    static SolidAngle of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.SolidAngle> unit,
-            Quantity.Scale scale
-    ) {
+    static SolidAngle of(BigDecimal value, Unit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         return SolidAngleFactory.INSTANCE.of(value, unit, scale);
     }
 

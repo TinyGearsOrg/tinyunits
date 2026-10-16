@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
 final class MagneticFluxDensityDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.MagneticFluxDensity, MagneticFluxDensity>
-        implements
-            MagneticFluxDensity {
+        extends AbstractDoubleQuantity<javax.measure.quantity.MagneticFluxDensity, MagneticFluxDensity>
+        implements MagneticFluxDensity {
 
     @Serial
     private static final long serialVersionUID = 1L;

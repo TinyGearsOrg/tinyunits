@@ -155,19 +155,16 @@ class UomSystemOfUnitsTest {
                         () -> new UomSystemOfUnits(null, List.of(), Map.of(), Set.of())).getMessage());
         assertEquals(
                 "units",
-                assertThrows(
-                        NullPointerException.class,
-                        () -> new UomSystemOfUnits("n", null, Map.of(), Set.of())).getMessage());
+                assertThrows(NullPointerException.class, () -> new UomSystemOfUnits("n", null, Map.of(), Set.of()))
+                        .getMessage());
         assertEquals(
                 "preferred",
-                assertThrows(
-                        NullPointerException.class,
-                        () -> new UomSystemOfUnits("n", List.of(), null, Set.of())).getMessage());
+                assertThrows(NullPointerException.class, () -> new UomSystemOfUnits("n", List.of(), null, Set.of()))
+                        .getMessage());
         assertEquals(
                 "prefixable",
-                assertThrows(
-                        NullPointerException.class,
-                        () -> new UomSystemOfUnits("n", List.of(), Map.of(), null)).getMessage());
+                assertThrows(NullPointerException.class, () -> new UomSystemOfUnits("n", List.of(), Map.of(), null))
+                        .getMessage());
         assertEquals(
                 "binaryPrefixable",
                 assertThrows(
@@ -177,9 +174,8 @@ class UomSystemOfUnitsTest {
         withNull.add(null);
         assertEquals(
                 "unit",
-                assertThrows(
-                        NullPointerException.class,
-                        () -> new UomSystemOfUnits("n", withNull, Map.of(), Set.of())).getMessage());
+                assertThrows(NullPointerException.class, () -> new UomSystemOfUnits("n", withNull, Map.of(), Set.of()))
+                        .getMessage());
     }
 
     @Test
@@ -207,8 +203,8 @@ class UomSystemOfUnitsTest {
                 results.add(pool.submit(() -> {
                     go.await();
                     for (int n = 0; n < 1000; n++) {
-                        if (sys.getUnit("km") != KM || sys.getUnits().size() != 4
-                                || sys.getUnit(Length.class) != M || !sys.isPrefixable("m")) {
+                        if (sys.getUnit("km") != KM || sys.getUnits().size() != 4 || sys.getUnit(Length.class) != M
+                                || !sys.isPrefixable("m")) {
                             return false;
                         }
                     }

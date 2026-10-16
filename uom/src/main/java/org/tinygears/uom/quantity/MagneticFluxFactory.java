@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link MagneticFlux} quantities. */
-public final class MagneticFluxFactory
-        implements
-            QuantityFactory<javax.measure.quantity.MagneticFlux> {
+public final class MagneticFluxFactory implements QuantityFactory<javax.measure.quantity.MagneticFlux> {
 
     /** The system unit of {@link MagneticFlux}. */
     public static final UomUnit<javax.measure.quantity.MagneticFlux> SYSTEM_UNIT = UomUnit.unchecked(
@@ -59,11 +57,7 @@ public final class MagneticFluxFactory
      * @param scale the scale
      * @return the quantity
      */
-    public MagneticFlux of(
-            double value,
-            Unit<javax.measure.quantity.MagneticFlux> unit,
-            Quantity.Scale scale
-    ) {
+    public MagneticFlux of(double value, Unit<javax.measure.quantity.MagneticFlux> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.MagneticFlux> u) {
             return new MagneticFluxDouble(value, u, scale);
         }
@@ -89,11 +83,7 @@ public final class MagneticFluxFactory
      * @param scale the scale
      * @return the quantity
      */
-    public MagneticFlux of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.MagneticFlux> unit,
-            Quantity.Scale scale
-    ) {
+    public MagneticFlux of(BigDecimal value, Unit<javax.measure.quantity.MagneticFlux> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -130,11 +120,7 @@ public final class MagneticFluxFactory
      * not rounded; all others a double one.
      */
     @Override
-    public MagneticFlux create(
-            Number value,
-            Unit<javax.measure.quantity.MagneticFlux> unit,
-            Quantity.Scale scale
-    ) {
+    public MagneticFlux create(Number value, Unit<javax.measure.quantity.MagneticFlux> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

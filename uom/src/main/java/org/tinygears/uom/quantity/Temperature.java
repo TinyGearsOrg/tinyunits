@@ -20,9 +20,7 @@ import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Temperature} of this implementation. */
 public interface Temperature
-        extends
-            javax.measure.quantity.Temperature,
-            Comparable<Quantity<javax.measure.quantity.Temperature>> {
+        extends javax.measure.quantity.Temperature, Comparable<Quantity<javax.measure.quantity.Temperature>> {
 
     @Override
     Temperature add(Quantity<javax.measure.quantity.Temperature> addend);
@@ -87,11 +85,7 @@ public interface Temperature
      * @param scale the scale
      * @return the quantity
      */
-    static Temperature of(
-            double value,
-            Unit<javax.measure.quantity.Temperature> unit,
-            Quantity.Scale scale
-    ) {
+    static Temperature of(double value, Unit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale) {
         return TemperatureFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +108,7 @@ public interface Temperature
      * @param scale the scale
      * @return the quantity
      */
-    static Temperature of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Temperature> unit,
-            Quantity.Scale scale
-    ) {
+    static Temperature of(BigDecimal value, Unit<javax.measure.quantity.Temperature> unit, Quantity.Scale scale) {
         return TemperatureFactory.INSTANCE.of(value, unit, scale);
     }
 

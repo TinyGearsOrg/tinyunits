@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class IlluminanceDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Illuminance, Illuminance>
-        implements
-            Illuminance {
+final class IlluminanceDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Illuminance, Illuminance>
+        implements Illuminance {
 
     @Serial
     private static final long serialVersionUID = 1L;

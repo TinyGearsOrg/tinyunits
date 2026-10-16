@@ -41,9 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** The standard format over all seven systems (D7). */
 class UnitFormatSystemsTest {
     private static final List<Catalog> CATALOGS = SystemsCatalogTest.CATALOGS;
-    private static final List<Prefix> ALL_PREFIXES = Stream.<Prefix>concat(
-            Arrays.stream(MetricPrefix.values()),
-            Arrays.stream(BinaryPrefix.values())).toList();
+    private static final List<Prefix> ALL_PREFIXES = Stream
+            .<Prefix>concat(Arrays.stream(MetricPrefix.values()), Arrays.stream(BinaryPrefix.values())).toList();
     private final UomUnitFormat format = UomUnitFormat.standard();
 
     private UomUnit<?> parse(String text) {
@@ -104,9 +103,10 @@ class UnitFormatSystemsTest {
                 }
             }
         }
-        int expected = CATALOGS.stream().mapToInt(
-                c -> SystemsCatalogTest.members(c.file()).stream()
-                        .mapToInt(s -> SystemsCatalogTest.prefixes(c.system(), s).size()).sum())
+        int expected = CATALOGS.stream()
+                .mapToInt(
+                        c -> SystemsCatalogTest.members(c.file()).stream()
+                                .mapToInt(s -> SystemsCatalogTest.prefixes(c.system(), s).size()).sum())
                 .sum();
         assertEquals(expected, exact + prefixed);
         assertTrue(exact > 0 && prefixed > 0, exact + " " + prefixed);

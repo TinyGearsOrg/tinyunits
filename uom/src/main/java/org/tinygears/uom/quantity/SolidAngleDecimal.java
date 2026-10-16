@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class SolidAngleDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.SolidAngle, SolidAngle>
-        implements
-            SolidAngle {
+final class SolidAngleDecimal extends AbstractDecimalQuantity<javax.measure.quantity.SolidAngle, SolidAngle>
+        implements SolidAngle {
 
     @Serial
     private static final long serialVersionUID = 1L;

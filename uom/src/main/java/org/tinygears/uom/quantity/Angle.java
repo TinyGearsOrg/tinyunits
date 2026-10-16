@@ -19,10 +19,7 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 /** A {@link javax.measure.quantity.Angle} of this implementation. */
-public interface Angle
-        extends
-            javax.measure.quantity.Angle,
-            Comparable<Quantity<javax.measure.quantity.Angle>> {
+public interface Angle extends javax.measure.quantity.Angle, Comparable<Quantity<javax.measure.quantity.Angle>> {
 
     @Override
     Angle add(Quantity<javax.measure.quantity.Angle> addend);
@@ -87,11 +84,7 @@ public interface Angle
      * @param scale the scale
      * @return the quantity
      */
-    static Angle of(
-            double value,
-            Unit<javax.measure.quantity.Angle> unit,
-            Quantity.Scale scale
-    ) {
+    static Angle of(double value, Unit<javax.measure.quantity.Angle> unit, Quantity.Scale scale) {
         return AngleFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -114,11 +107,7 @@ public interface Angle
      * @param scale the scale
      * @return the quantity
      */
-    static Angle of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Angle> unit,
-            Quantity.Scale scale
-    ) {
+    static Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit, Quantity.Scale scale) {
         return AngleFactory.INSTANCE.of(value, unit, scale);
     }
 
@@ -132,12 +121,7 @@ public interface Angle
      * @param mc the math context
      * @return the quantity
      */
-    static Angle of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Angle> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    static Angle of(BigDecimal value, Unit<javax.measure.quantity.Angle> unit, Quantity.Scale scale, MathContext mc) {
         return AngleFactory.INSTANCE.of(value, unit, scale, mc);
     }
 

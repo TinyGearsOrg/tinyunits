@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link Radioactivity} quantities. */
-public final class RadioactivityFactory
-        implements
-            QuantityFactory<javax.measure.quantity.Radioactivity> {
+public final class RadioactivityFactory implements QuantityFactory<javax.measure.quantity.Radioactivity> {
 
     /** The system unit of {@link Radioactivity}. */
     public static final UomUnit<javax.measure.quantity.Radioactivity> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class RadioactivityFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Radioactivity of(
-            double value,
-            Unit<javax.measure.quantity.Radioactivity> unit,
-            Quantity.Scale scale
-    ) {
+    public Radioactivity of(double value, Unit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.Radioactivity> u) {
             return new RadioactivityDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class RadioactivityFactory
      * @param scale the scale
      * @return the quantity
      */
-    public Radioactivity of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.Radioactivity> unit,
-            Quantity.Scale scale
-    ) {
+    public Radioactivity of(BigDecimal value, Unit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -129,11 +119,7 @@ public final class RadioactivityFactory
      * not rounded; all others a double one.
      */
     @Override
-    public Radioactivity create(
-            Number value,
-            Unit<javax.measure.quantity.Radioactivity> unit,
-            Quantity.Scale scale
-    ) {
+    public Radioactivity create(Number value, Unit<javax.measure.quantity.Radioactivity> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

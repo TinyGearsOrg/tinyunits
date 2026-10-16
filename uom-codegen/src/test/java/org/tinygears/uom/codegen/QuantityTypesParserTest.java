@@ -55,8 +55,7 @@ class QuantityTypesParserTest {
         Definitions d = defs(BASE);
         List<QuantityTypeSpec> l = QuantityTypesParser.parse(
                 "types.txt",
-                new StringReader(
-                        "Length m\nSpeed m / s\nFrequency Hz\nEnergy J\nDimensionless 1\n"),
+                new StringReader("Length m\nSpeed m / s\nFrequency Hz\nEnergy J\nDimensionless 1\n"),
                 d);
         assertEquals(
                 List.of("Length", "Speed", "Frequency", "Energy", "Dimensionless"),
@@ -104,9 +103,7 @@ class QuantityTypesParserTest {
                 "types.txt:1: expected 'symbol:name' after '=>', got ':metre_per_second'");
         fails("Speed m / s =>", "types.txt:1: expected 'symbol:name' after '=>', got ''");
         fails("Speed m / s => m/s:a:b", "types.txt:1: extra ':' in 'm/s:a:b' after '=>'");
-        fails(
-                "Speed m / s => m /s:metre_per_second",
-                "types.txt:1: whitespace in 'm /s:metre_per_second' after '=>'");
+        fails("Speed m / s => m /s:metre_per_second", "types.txt:1: whitespace in 'm /s:metre_per_second' after '=>'");
         fails("Length m => m:meter", "types.txt:1: explicit name for an already named unit 'm'");
         fails("Length m => metre:metre", "types.txt:1: explicit name for an already named unit 'm'");
         fails("Energy kg m^2 / s^2 => J:joule", "types.txt:1: duplicate symbol 'J'");
@@ -181,8 +178,7 @@ class QuantityTypesParserTest {
     void lexicalForms() {
         assertEquals(
                 List.of("Length", "Energy"),
-                parse("﻿# head\r\nLength\tm # c\r\n\r\nEnergy J\r\n").stream()
-                        .map(QuantityTypeSpec::name).toList());
+                parse("﻿# head\r\nLength\tm # c\r\n\r\nEnergy J\r\n").stream().map(QuantityTypeSpec::name).toList());
         assertEquals(2, parse("# x\rLength m\rEnergy J").size());
         assertEquals("m", parse("Length   m   # c").get(0).formula());
     }

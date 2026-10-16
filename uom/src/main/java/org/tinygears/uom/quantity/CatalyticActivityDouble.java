@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
 final class CatalyticActivityDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.CatalyticActivity, CatalyticActivity>
-        implements
-            CatalyticActivity {
+        extends AbstractDoubleQuantity<javax.measure.quantity.CatalyticActivity, CatalyticActivity>
+        implements CatalyticActivity {
 
     @Serial
     private static final long serialVersionUID = 1L;

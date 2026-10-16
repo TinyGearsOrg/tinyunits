@@ -193,8 +193,7 @@ class QuantityContractTest {
 
     @Test
     void asTypeSpeedOfLightExample() {
-        Quantity<Speed> c = Length.of(2, KILOMETRE).multiply(299792458).divide(Time.of(1, SECOND))
-                .asType(Speed.class);
+        Quantity<Speed> c = Length.of(2, KILOMETRE).multiply(299792458).divide(Time.of(1, SECOND)).asType(Speed.class);
         assertInstanceOf(Speed.class, c);
         assertEquals(599_584_916_000.0, c.getValue().doubleValue(), 1e-3);
     }

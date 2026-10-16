@@ -68,8 +68,8 @@ class ApiSurfaceTest {
         List<String> removed = pinned.stream().filter(l -> !actual.contains(l)).toList();
         assertTrue(
                 added.isEmpty() && removed.isEmpty(),
-                "API differs from " + FILE + " (see docs/API.md)\nadded:\n  "
-                        + String.join("\n  ", added) + "\nremoved:\n  " + String.join("\n  ", removed));
+                "API differs from " + FILE + " (see docs/API.md)\nadded:\n  " + String.join("\n  ", added)
+                        + "\nremoved:\n  " + String.join("\n  ", removed));
         assertEquals(pinned, actual);
     }
 
@@ -79,17 +79,13 @@ class ApiSurfaceTest {
         Set<String> exported = core.descriptor().exports().stream().filter(e -> !e.isQualified())
                 .map(ModuleDescriptor.Exports::source).collect(Collectors.toSet());
         assertEquals(
-                Set.of(
-                        "org.tinygears.uom.core",
-                        "org.tinygears.uom.core.parse",
-                        "org.tinygears.uom.core.quantity"),
+                Set.of("org.tinygears.uom.core", "org.tinygears.uom.core.parse", "org.tinygears.uom.core.quantity"),
                 exported);
         // The spi package is exported to uom only: its provider implements QuantityFactories.
         assertEquals(
                 Set.of("org.tinygears.uom"),
-                core.descriptor().exports().stream()
-                        .filter(e -> e.source().equals("org.tinygears.uom.core.spi")).findFirst().orElseThrow()
-                        .targets());
+                core.descriptor().exports().stream().filter(e -> e.source().equals("org.tinygears.uom.core.spi"))
+                        .findFirst().orElseThrow().targets());
         assertTrue(core.descriptor().exports().stream().noneMatch(e -> e.source().endsWith(".internal")));
         assertTrue(core.descriptor().packages().contains("org.tinygears.uom.core.internal"));
         assertTrue(core.descriptor().opens().isEmpty());
@@ -134,14 +130,12 @@ class ApiSurfaceTest {
         ModuleDescriptor d = ref.descriptor();
         String name = d.name();
         Set<String> lines = new TreeSet<>();
-        d.requires().stream().filter(r -> !r.name().equals("java.base"))
-                .forEach(
-                        r -> lines.add(
-                                name + " module requires "
-                                        + r.modifiers().stream().map(x -> x.toString().toLowerCase(Locale.ROOT) + " ")
-                                                .sorted()
-                                                .collect(Collectors.joining())
-                                        + r.name()));
+        d.requires().stream().filter(r -> !r.name().equals("java.base")).forEach(
+                r -> lines.add(
+                        name + " module requires "
+                                + r.modifiers().stream().map(x -> x.toString().toLowerCase(Locale.ROOT) + " ").sorted()
+                                        .collect(Collectors.joining())
+                                + r.name()));
         d.exports().forEach(e -> lines.add(name + " module exports " + e));
         d.opens().forEach(o -> lines.add(name + " module opens " + o));
         d.provides().forEach(p -> lines.add(name + " module provides " + p));
@@ -149,11 +143,11 @@ class ApiSurfaceTest {
                 .collect(Collectors.toSet());
         List<String> classes;
         try (var reader = ref.open(); Stream<String> s = reader.list()) {
-            classes = s.filter(
-                    r -> r.endsWith(".class") && !r.contains("$") && !r.endsWith("module-info.class")
-                            && !r.endsWith("package-info.class"))
-                    .map(r -> r.substring(0, r.length() - 6).replace('/', '.'))
-                    .toList();
+            classes = s
+                    .filter(
+                            r -> r.endsWith(".class") && !r.contains("$") && !r.endsWith("module-info.class")
+                                    && !r.endsWith("package-info.class"))
+                    .map(r -> r.substring(0, r.length() - 6).replace('/', '.')).toList();
         }
         for (String className : classes) {
             Class<?> c = Class.forName(className, false, ApiSurfaceTest.class.getClassLoader());

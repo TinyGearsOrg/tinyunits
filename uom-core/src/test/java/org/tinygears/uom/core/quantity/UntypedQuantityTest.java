@@ -193,10 +193,8 @@ class UntypedQuantityTest {
 
     @Test
     void foreignOperand() {
-        Unit<?> foreignUnit = (Unit<?>) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class<?>[] { Unit.class },
-                (p, m, a) -> null);
+        Unit<?> foreignUnit = (Unit<?>) Proxy
+                .newProxyInstance(getClass().getClassLoader(), new Class<?>[] { Unit.class }, (p, m, a) -> null);
         Quantity<?> foreign = foreign(1.0, foreignUnit);
         UnconvertibleException e = assertThrows(UnconvertibleException.class, () -> q(1, METRE).multiply(foreign));
         assertTrue(e.getMessage().contains("foreign unit implementation"), e.getMessage());

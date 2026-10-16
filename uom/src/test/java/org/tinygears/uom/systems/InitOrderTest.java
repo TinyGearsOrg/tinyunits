@@ -67,8 +67,7 @@ class InitOrderTest {
                 "-cp",
                 System.getProperty("java.class.path"),
                 FirstTouch.class.getName(),
-                name)
-                .redirectErrorStream(true).redirectOutput(log.toFile()).start();
+                name).redirectErrorStream(true).redirectOutput(log.toFile()).start();
         try {
             assertTrue(p.waitFor(60, TimeUnit.SECONDS), name + " did not finish");
             String out = Files.readString(log);

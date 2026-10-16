@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class AreaDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Area, Area>
-        implements
-            Area {
+final class AreaDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Area, Area> implements Area {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    AreaDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    AreaDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Area> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class AreaDecimal
     }
 
     @Override
-    protected Area createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Area> unit,
-            Quantity.Scale scale
-    ) {
+    protected Area createDouble(double value, UomUnit<javax.measure.quantity.Area> unit, Quantity.Scale scale) {
         return new AreaDouble(value, unit, scale);
     }
 

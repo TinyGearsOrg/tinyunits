@@ -172,10 +172,8 @@ class DefinitionParserTest {
     @Test
     void affineDefinitions() {
         Definitions d = parse(
-                BASE + "°C:degree_Celsius K = x + 273.15\n"
-                        + "°F:degree_fahrenheit °C = (x - 32) * 5|9\n"
-                        + "°F2 °C = (x - 32) / 9 * 5\n"
-                        + "neg K = -x + 1\n");
+                BASE + "°C:degree_Celsius K = x + 273.15\n" + "°F:degree_fahrenheit °C = (x - 32) * 5|9\n"
+                        + "°F2 °C = (x - 32) / 9 * 5\n" + "neg K = -x + 1\n");
         UomUnit<?> degC = find(d, "°C").unit();
         assertEquals(degC.transform(Converters.affine(Factor.of(5, 9), Factor.of(-160, 9))), find(d, "°F").unit());
         assertEquals(find(d, "°F").unit(), find(d, "°F2").unit());
@@ -221,12 +219,9 @@ class DefinitionParserTest {
         assertEquals(1, e.line());
         e = assertThrows(
                 DefinitionException.class,
-                () -> DefinitionParser.parse(
-                        "t.units",
-                        new StringReader("@include a\n"),
-                        name -> {
-                            throw new IOException("boom");
-                        }));
+                () -> DefinitionParser.parse("t.units", new StringReader("@include a\n"), name -> {
+                    throw new IOException("boom");
+                }));
         assertEquals("t.units:1: cannot include 'a'", e.getMessage());
     }
 
@@ -305,27 +300,19 @@ class DefinitionParserTest {
         assertEquals(Factor.of(5, 4), f.b());
         assertEquals(
                 "function is not affine",
-                assertThrows(
-                        FormulaException.class,
-                        () -> AffineFunction.parse("x * (x + 1)")).getMessage());
+                assertThrows(FormulaException.class, () -> AffineFunction.parse("x * (x + 1)")).getMessage());
         assertEquals(
                 "division by zero",
-                assertThrows(
-                        FormulaException.class,
-                        () -> AffineFunction.parse("x / (1 - 1)")).getMessage());
+                assertThrows(FormulaException.class, () -> AffineFunction.parse("x / (1 - 1)")).getMessage());
         assertEquals(
                 "division by zero",
-                assertThrows(
-                        FormulaException.class,
-                        () -> AffineFunction.parse("x * 1|0")).getMessage());
+                assertThrows(FormulaException.class, () -> AffineFunction.parse("x * 1|0")).getMessage());
         FormulaException e = assertThrows(FormulaException.class, () -> AffineFunction.parse("x + y"));
         assertEquals("unexpected 'y'", e.getMessage());
         assertEquals(5, e.column());
         assertEquals(
                 "missing ')'",
-                assertThrows(
-                        FormulaException.class,
-                        () -> AffineFunction.parse("(x + 1")).getMessage());
+                assertThrows(FormulaException.class, () -> AffineFunction.parse("(x + 1")).getMessage());
         assertEquals(
                 "function nested too deeply",
                 assertThrows(
@@ -494,9 +481,7 @@ class DefinitionParserTest {
 
     @Test
     void extendsInIncludedFileIsNotReported() {
-        Definitions d = parse(
-                "@include a\n@extends c\n",
-                Map.of("a", "@extends b\n", "b", BASE, "c", "c1 m\n"));
+        Definitions d = parse("@include a\n@extends c\n", Map.of("a", "@extends b\n", "b", BASE, "c", "c1 m\n"));
         assertEquals(List.of("m", "kg", "s", "K", "c1"), symbols(d));
         assertEquals(List.of(new Extends("c", "test.units", 2)), d.extended());
     }
@@ -513,10 +498,7 @@ class DefinitionParserTest {
     @Test
     void extendsErrors() {
         fails("@extends missing.units\n", "test.units:1: cannot include 'missing.units'");
-        fails(
-                "\n@extends a\n",
-                Map.of("a", "@extends b\n", "b", "@include a\n"),
-                "b:1: include cycle: a -> b -> a");
+        fails("\n@extends a\n", Map.of("a", "@extends b\n", "b", "@include a\n"), "b:1: include cycle: a -> b -> a");
         fails("@extends test.units\n", "test.units:1: include cycle: test.units -> test.units");
         fails("@extends\n", "test.units:1: expected '@extends name'");
         fails("@extends a b\n", "test.units:1: expected '@extends name'");
@@ -649,15 +631,8 @@ class DefinitionParserTest {
                 () -> fails("x ((10^1000)^1000)^100\n", "test.units:1: factor too large"));
     }
 
-    private static final Map<String, UomUnit<?>> KNOWN = Map.of(
-            "m",
-            METRE,
-            "km",
-            METRE.prefix(MetricPrefix.KILO),
-            "kg",
-            KILOGRAM,
-            "s",
-            SECOND);
+    private static final Map<String, UomUnit<?>> KNOWN = Map
+            .of("m", METRE, "km", METRE.prefix(MetricPrefix.KILO), "kg", KILOGRAM, "s", SECOND);
 
     private static Definitions known(String text) {
         return DefinitionParser.parse("test.units", new StringReader(text), null, KNOWN::get);
@@ -702,11 +677,8 @@ class DefinitionParserTest {
         Map<String, UomUnit<?>> k = Map.of("m", METRE, "kleague", METRE);
         DefinitionException e = assertThrows(
                 DefinitionException.class,
-                () -> DefinitionParser.parse(
-                        "t.units",
-                        new StringReader("league 3 m\n@prefixed league M k\n"),
-                        null,
-                        k::get));
+                () -> DefinitionParser
+                        .parse("t.units", new StringReader("league 3 m\n@prefixed league M k\n"), null, k::get));
         assertEquals("t.units:2: symbol 'kleague' is already defined", e.getMessage());
     }
 

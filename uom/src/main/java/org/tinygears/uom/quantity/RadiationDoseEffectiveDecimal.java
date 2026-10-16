@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
 final class RadiationDoseEffectiveDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
-        implements
-            RadiationDoseEffective {
+        extends AbstractDecimalQuantity<javax.measure.quantity.RadiationDoseEffective, RadiationDoseEffective>
+        implements RadiationDoseEffective {
 
     @Serial
     private static final long serialVersionUID = 1L;

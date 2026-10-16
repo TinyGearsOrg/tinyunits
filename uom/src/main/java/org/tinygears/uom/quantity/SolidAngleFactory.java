@@ -25,9 +25,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 
 /** Creates {@link SolidAngle} quantities. */
-public final class SolidAngleFactory
-        implements
-            QuantityFactory<javax.measure.quantity.SolidAngle> {
+public final class SolidAngleFactory implements QuantityFactory<javax.measure.quantity.SolidAngle> {
 
     /** The system unit of {@link SolidAngle}. */
     public static final UomUnit<javax.measure.quantity.SolidAngle> SYSTEM_UNIT = UomUnit
@@ -58,11 +56,7 @@ public final class SolidAngleFactory
      * @param scale the scale
      * @return the quantity
      */
-    public SolidAngle of(
-            double value,
-            Unit<javax.measure.quantity.SolidAngle> unit,
-            Quantity.Scale scale
-    ) {
+    public SolidAngle of(double value, Unit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         if (Objects.requireNonNull(unit, "unit") instanceof UomUnit<javax.measure.quantity.SolidAngle> u) {
             return new SolidAngleDouble(value, u, scale);
         }
@@ -88,11 +82,7 @@ public final class SolidAngleFactory
      * @param scale the scale
      * @return the quantity
      */
-    public SolidAngle of(
-            BigDecimal value,
-            Unit<javax.measure.quantity.SolidAngle> unit,
-            Quantity.Scale scale
-    ) {
+    public SolidAngle of(BigDecimal value, Unit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         return of(value, unit, scale, MathContext.DECIMAL128);
     }
 
@@ -129,11 +119,7 @@ public final class SolidAngleFactory
      * not rounded; all others a double one.
      */
     @Override
-    public SolidAngle create(
-            Number value,
-            Unit<javax.measure.quantity.SolidAngle> unit,
-            Quantity.Scale scale
-    ) {
+    public SolidAngle create(Number value, Unit<javax.measure.quantity.SolidAngle> unit, Quantity.Scale scale) {
         Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal d) {
             return of(d, unit, scale);

@@ -135,10 +135,8 @@ public final class Generate {
         catalogs.forEach(
                 (file, c) -> systems.put(
                         c.className() + ".java",
-                        CatalogEmitter.catalog(
-                                c,
-                                parsed.get(file),
-                                file.equals(CATALOGS.get(0)) ? unnamed : List.of())));
+                        CatalogEmitter
+                                .catalog(c, parsed.get(file), file.equals(CATALOGS.get(0)) ? unnamed : List.of())));
         // Formatted as Spotless formats the hand-written sources, so a generated file is also formatted.
         JavaFormatter formatter = new JavaFormatter(
                 dataDir.toAbsolutePath().normalize().resolveSibling("config").resolve("eclipse-java-formatter.xml"));

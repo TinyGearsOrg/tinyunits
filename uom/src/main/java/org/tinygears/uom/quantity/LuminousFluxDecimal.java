@@ -20,11 +20,8 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class LuminousFluxDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.LuminousFlux, LuminousFlux>
-        implements
-            LuminousFlux {
+final class LuminousFluxDecimal extends AbstractDecimalQuantity<javax.measure.quantity.LuminousFlux, LuminousFlux>
+        implements LuminousFlux {
 
     @Serial
     private static final long serialVersionUID = 1L;

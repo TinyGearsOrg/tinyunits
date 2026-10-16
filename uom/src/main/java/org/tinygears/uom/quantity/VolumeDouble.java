@@ -20,29 +20,17 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class VolumeDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Volume, Volume>
-        implements
-            Volume {
+final class VolumeDouble extends AbstractDoubleQuantity<javax.measure.quantity.Volume, Volume> implements Volume {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    VolumeDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    VolumeDouble(double value, UomUnit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Volume create(
-            double value,
-            UomUnit<javax.measure.quantity.Volume> unit,
-            Quantity.Scale scale
-    ) {
+    protected Volume create(double value, UomUnit<javax.measure.quantity.Volume> unit, Quantity.Scale scale) {
         return new VolumeDouble(value, unit, scale);
     }
 

@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class ForceDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Force, Force>
-        implements
-            Force {
+final class ForceDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Force, Force> implements Force {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    ForceDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    ForceDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Force> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class ForceDecimal
     }
 
     @Override
-    protected Force createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Force> unit,
-            Quantity.Scale scale
-    ) {
+    protected Force createDouble(double value, UomUnit<javax.measure.quantity.Force> unit, Quantity.Scale scale) {
         return new ForceDouble(value, unit, scale);
     }
 

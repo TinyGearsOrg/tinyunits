@@ -21,10 +21,8 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
 final class LuminousIntensityDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.LuminousIntensity, LuminousIntensity>
-        implements
-            LuminousIntensity {
+        extends AbstractDoubleQuantity<javax.measure.quantity.LuminousIntensity, LuminousIntensity>
+        implements LuminousIntensity {
 
     @Serial
     private static final long serialVersionUID = 1L;

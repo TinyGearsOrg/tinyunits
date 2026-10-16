@@ -20,29 +20,18 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
 
-final class FrequencyDouble
-        extends
-            AbstractDoubleQuantity<javax.measure.quantity.Frequency, Frequency>
-        implements
-            Frequency {
+final class FrequencyDouble extends AbstractDoubleQuantity<javax.measure.quantity.Frequency, Frequency>
+        implements Frequency {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    FrequencyDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Frequency> unit,
-            Quantity.Scale scale
-    ) {
+    FrequencyDouble(double value, UomUnit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         super(value, unit, scale);
     }
 
     @Override
-    protected Frequency create(
-            double value,
-            UomUnit<javax.measure.quantity.Frequency> unit,
-            Quantity.Scale scale
-    ) {
+    protected Frequency create(double value, UomUnit<javax.measure.quantity.Frequency> unit, Quantity.Scale scale) {
         return new FrequencyDouble(value, unit, scale);
     }
 

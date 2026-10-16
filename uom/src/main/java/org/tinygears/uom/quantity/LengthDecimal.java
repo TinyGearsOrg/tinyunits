@@ -20,21 +20,12 @@ import javax.measure.Quantity;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 
-final class LengthDecimal
-        extends
-            AbstractDecimalQuantity<javax.measure.quantity.Length, Length>
-        implements
-            Length {
+final class LengthDecimal extends AbstractDecimalQuantity<javax.measure.quantity.Length, Length> implements Length {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    LengthDecimal(
-            BigDecimal value,
-            UomUnit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale,
-            MathContext mc
-    ) {
+    LengthDecimal(BigDecimal value, UomUnit<javax.measure.quantity.Length> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);
     }
 
@@ -49,11 +40,7 @@ final class LengthDecimal
     }
 
     @Override
-    protected Length createDouble(
-            double value,
-            UomUnit<javax.measure.quantity.Length> unit,
-            Quantity.Scale scale
-    ) {
+    protected Length createDouble(double value, UomUnit<javax.measure.quantity.Length> unit, Quantity.Scale scale) {
         return new LengthDouble(value, unit, scale);
     }
 

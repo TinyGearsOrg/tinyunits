@@ -296,8 +296,7 @@ class QuantitySerializationTest {
                 new TestLengthImpl(2.0, KILOMETRE, Quantity.Scale.RELATIVE),
                 deserialize(serialize(doubleProxy("double", LENGTH, KILOMETRE, "RELATIVE", 2.0))));
         TestLengthDecimalImpl d = (TestLengthDecimalImpl) deserialize(
-                serialize(
-                        decimalProxy(new byte[] { 1 }, 100_000, 7, "HALF_DOWN")));
+                serialize(decimalProxy(new byte[] { 1 }, 100_000, 7, "HALF_DOWN")));
         assertEquals(new BigDecimal(BigInteger.ONE, 100_000), d.getValue());
         assertEquals(new MathContext(7, RoundingMode.HALF_DOWN), d.mathContext());
         assertEquals(
@@ -451,9 +450,7 @@ class QuantitySerializationTest {
                 InvalidObjectException.class,
                 () -> readReplacing(
                         new TestLengthImpl(1.0, METRE),
-                        o -> o.getClass().getName().equals(UomUnit.class.getName() + "$Proxy")
-                                ? "m"
-                                : o));
+                        o -> o.getClass().getName().equals(UomUnit.class.getName() + "$Proxy") ? "m" : o));
         assertEquals("expected UomUnit, got java.lang.String", e.getMessage());
         e = assertThrows(
                 InvalidObjectException.class,
@@ -535,11 +532,7 @@ class QuantitySerializationTest {
             TestServiceProvider.FACTORIES.put(Speed.class, new FailingFactory());
             e = assertThrows(
                     InvalidObjectException.class,
-                    () -> roundTrip(
-                            new TestSpeedImpl(
-                                    1.0,
-                                    KMH,
-                                    Quantity.Scale.ABSOLUTE)));
+                    () -> roundTrip(new TestSpeedImpl(1.0, KMH, Quantity.Scale.ABSOLUTE)));
             assertEquals("invalid quantity: factory failed", e.getMessage());
             assertTrue(e.getCause() instanceof IllegalStateException);
             TestServiceProvider.FACTORIES.put(Speed.class, new FailingFactory() {
@@ -550,11 +543,7 @@ class QuantitySerializationTest {
             });
             e = assertThrows(
                     InvalidObjectException.class,
-                    () -> roundTrip(
-                            new TestSpeedImpl(
-                                    1.0,
-                                    KMH,
-                                    Quantity.Scale.ABSOLUTE)));
+                    () -> roundTrip(new TestSpeedImpl(1.0, KMH, Quantity.Scale.ABSOLUTE)));
             assertEquals(
                     "invalid quantity: the factory for javax.measure.quantity.Speed created null, not a double"
                             + " quantity of this implementation",
@@ -603,9 +592,7 @@ class QuantitySerializationTest {
         assertDecimalRoundTrip(new TestLengthDecimalImpl(BigDecimal.ONE, METRE, Quantity.Scale.ABSOLUTE, MAX_CONTEXT));
         assertEquals(
                 MAX_CONTEXT,
-                ((TestLengthDecimalImpl) deserialize(
-                        serialize(
-                                decimalProxy(new byte[] { 1 }, 0, 100_000, "HALF_UP"))))
+                ((TestLengthDecimalImpl) deserialize(serialize(decimalProxy(new byte[] { 1 }, 0, 100_000, "HALF_UP"))))
                         .mathContext());
         assertInvalid(
                 "invalid quantity: precision out of range: 100001",
@@ -718,10 +705,8 @@ class QuantitySerializationTest {
     void unexpectedFactoriesGetPreciseMessages() {
         TestSpeedImpl q = new TestSpeedImpl(1.0, KMH, Quantity.Scale.ABSOLUTE);
         @SuppressWarnings("unchecked")
-        Unit<Speed> foreign = (Unit<Speed>) java.lang.reflect.Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class<?>[] { Unit.class },
-                (p, m, a) -> null);
+        Unit<Speed> foreign = (Unit<Speed>) java.lang.reflect.Proxy
+                .newProxyInstance(getClass().getClassLoader(), new Class<?>[] { Unit.class }, (p, m, a) -> null);
         try {
             TestServiceProvider.FACTORIES.put(Speed.class, new OddFactory(null));
             InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> roundTrip(q));
