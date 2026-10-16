@@ -73,12 +73,12 @@ public final class UomServiceProvider extends ServiceProvider implements Quantit
     }
 
     /**
-     * The name {@code uom}, by which {@code ServiceProvider.of("uom")} finds this provider.
+     * The name {@code TinyGears}, by which {@code ServiceProvider.of("TinyGears")} finds this provider.
      *
      * @return the name
      */
     @Override
     public String toString() {
-        return "uom";
+        return "TinyGears";
     }
 }

@@ -56,16 +56,16 @@ class ProviderCoexistenceTest {
 
     @Test
     void theProvidersAreFoundByNameAndThePriorityDecides() {
-        assertInstanceOf(UomServiceProvider.class, ServiceProvider.of("uom"));
-        assertEquals(100, ServiceProvider.of("uom").getPriority());
+        assertInstanceOf(UomServiceProvider.class, ServiceProvider.of("TinyGears"));
+        assertEquals(100, ServiceProvider.of("TinyGears").getPriority());
         assertEquals("tech.units.indriya.spi.DefaultServiceProvider", indriya().getClass().getName());
         assertEquals(10, indriya().getPriority());
         assertInstanceOf(UomServiceProvider.class, ServiceProvider.current());
         // Other test providers may be on the class path; uom is listed before Indriya.
         assertEquals(
-                List.of("uom", "Default"),
+                List.of("TinyGears", "Default"),
                 ServiceProvider.available().stream().map(Object::toString)
-                        .filter(n -> n.equals("uom") || n.equals("Default")).toList());
+                        .filter(n -> n.equals("TinyGears") || n.equals("Default")).toList());
     }
 
     @Test

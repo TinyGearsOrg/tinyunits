@@ -9,7 +9,7 @@ Most differences are deliberate and follow from the requirements of uom ([REQUIR
 F21, F23).
 The ones marked **open** are not decided yet ([TODO.md](TODO.md), item 10); they may change before 1.0.
 
-The examples use `ServiceProvider.of("uom")` and `ServiceProvider.of("Default")` (Indriya's provider) where generic
+The examples use `ServiceProvider.of("TinyGears")` and `ServiceProvider.of("Default")` (Indriya's provider) where generic
 code is meant, and each library's own constants (`SI`, `Units`) otherwise. [PROVIDERS.md](PROVIDERS.md) explains how
 both providers live on one class path.
 
@@ -112,7 +112,7 @@ import tech.units.indriya.unit.Units;
 System.out.println(Length.of(1, SI.METRE).equals(Length.of(BigDecimal.ONE, SI.METRE)));   // prints: false
 System.out.println(Quantities.getQuantity(1.0, Units.METRE).equals(Quantities.getQuantity(BigDecimal.ONE, Units.METRE))); // prints: true
 System.out.println(Length.of(1, SI.METRE).isEquivalentTo(Length.of(BigDecimal.ONE, SI.METRE))); // prints: true
-var uomGeneric = ServiceProvider.of("uom").getQuantityFactory(javax.measure.quantity.Dimensionless.class);
+var uomGeneric = ServiceProvider.of("TinyGears").getQuantityFactory(javax.measure.quantity.Dimensionless.class);
 var indriyaGeneric = ServiceProvider.of("Default").getQuantityFactory(javax.measure.quantity.Dimensionless.class);
 System.out.println(Length.of(1, SI.METRE).equals(uomGeneric.create(1, (Unit) SI.METRE)));  // prints: false
 System.out.println(Quantities.getQuantity(1, Units.METRE).equals(indriyaGeneric.create(1, (Unit) Units.METRE))); // prints: true
@@ -168,7 +168,7 @@ format, and every parsed quantity converts with it; mixing a `double` and a deci
 ```java
 import javax.measure.format.QuantityFormat;
 import javax.measure.spi.ServiceProvider;
-QuantityFormat uom = ServiceProvider.of("uom").getFormatService().getQuantityFormat();
+QuantityFormat uom = ServiceProvider.of("TinyGears").getFormatService().getQuantityFormat();
 QuantityFormat indriya = ServiceProvider.of("Default").getFormatService().getQuantityFormat();
 UomQuantityFormat decimals = new UomQuantityFormat(UomUnitFormat.standard()).withDecimals(MathContext.DECIMAL128);
 for (String text : List.of("2 m", "1.50 m", "1e3 m")) {
@@ -213,7 +213,7 @@ uom has the degree, arcminute and arcsecond as `deg`, `arcmin` and `arcsec`.
 ```java
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.ServiceProvider;
-UnitFormat uom = ServiceProvider.of("uom").getFormatService().getUnitFormat();
+UnitFormat uom = ServiceProvider.of("TinyGears").getFormatService().getUnitFormat();
 UnitFormat indriya = ServiceProvider.of("Default").getFormatService().getUnitFormat();
 System.out.println(uom.parse("kg m/s^2") + " " + uom.parse("L") + " " + uom.parse("MiB"));        // prints: kg·m/s^2 L MiB
 System.out.println(indriya.parse("m2") + " " + indriya.parse("l") + " " + indriya.parse("%"));   // prints: m² l %
@@ -227,7 +227,7 @@ System.out.println(indriya.parse("m2") + " " + indriya.parse("l") + " " + indriy
 ```java
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.ServiceProvider;
-UnitFormat uom = ServiceProvider.of("uom").getFormatService().getUnitFormat();
+UnitFormat uom = ServiceProvider.of("TinyGears").getFormatService().getUnitFormat();
 UnitFormat indriya = ServiceProvider.of("Default").getFormatService().getUnitFormat();
 System.out.println(uom.parse("m*s^-1") + " " + uom.parse("m*s^-1").equals(SI.METRE_PER_SECOND));  // prints: m·s^-1 true
 System.out.println(indriya.parse("m*s^-1"));                                                      // prints: m/s

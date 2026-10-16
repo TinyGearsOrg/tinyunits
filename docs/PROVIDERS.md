@@ -1,6 +1,6 @@
 # Using uom next to other JSR-385 implementations
 
-uom registers one JSR-385 service provider, `UomServiceProvider`, with the name `uom` and priority 100. Another
+uom registers one JSR-385 service provider, `UomServiceProvider`, with the name `TinyGears` and priority 100. Another
 implementation on the same class path or module path registers its own: Indriya 2.2 is named `Default` and has priority
 10. unit-api picks the **current** provider, the one with the highest priority unless the program sets one with
 `ServiceProvider.setCurrent`. Generic JSR-385 code that calls `ServiceProvider.current()` gets the factories, formats and
@@ -9,13 +9,13 @@ systems of units of that provider.
 ## Which provider is current
 
 With uom and Indriya both present, uom is current because its priority is higher. To use Indriya for generic code, set it:
-`ServiceProvider.setCurrent(ServiceProvider.of("Default"))`. Providers are found by name, `uom` or `Default`; a
+`ServiceProvider.setCurrent(ServiceProvider.of("Default"))`. Providers are found by name, `TinyGears` or `Default`; a
 provider without a name is found only by the value of its `toString()`.
 
 ```java
 import javax.measure.spi.ServiceProvider;
-System.out.println(ServiceProvider.of("uom").getPriority());   // prints: 100
-System.out.println(ServiceProvider.current());                 // prints: uom
+System.out.println(ServiceProvider.of("TinyGears").getPriority()); // prints: 100
+System.out.println(ServiceProvider.current());                     // prints: TinyGears
 ```
 
 ## uom does not depend on the choice

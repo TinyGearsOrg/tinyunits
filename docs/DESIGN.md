@@ -75,7 +75,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
 **DR-05 The provider lookup does not depend on the current provider.**
 - *Decision.* `asType`, unit `asType` and deserialization take the quantity factories from the current provider if it is ours,
   else from ours among `ServiceProvider.available()` (found once and kept), else from the current provider. The provider is
-  named `uom`, keeps priority 100 (Indriya 2.2 has 10) and implements the hook `spi.QuantityFactories`.
+  named `TinyGears`, keeps priority 100 (Indriya 2.2 has 10) and implements the hook `spi.QuantityFactories`.
 - *Why.* They used `ServiceProvider.current()`, so any other current provider (`setCurrent`, a higher priority) broke them
   with `ClassCastException` and `InvalidObjectException` (probed with Indriya).
 - *Rejected.* A `ServiceLoader` SPI of the core (more wiring, same result); documentation only; a higher priority (hijacks
@@ -332,7 +332,7 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
   implements `spi.QuantityFactories` (ours does), else ours among `ServiceProvider.available()` (found once and kept),
   else the current provider. A provider of higher priority, or one set with `setCurrent`, therefore does not break
   `asType`, the quantity `asType` or deserialization (`docs/PROVIDERS.md`). The package `org.tinygears.uom.core.spi`
-  is exported to `org.tinygears.uom` only. Our provider has priority 100 and the name `uom`.
+  is exported to `org.tinygears.uom` only. Our provider has priority 100 and the name `TinyGears`.
 - **Prefixes.** `prefix(Prefix)` scales by the prefix value and returns an unnamed unit. Prefixability and symbol
   collisions are known to a system (`@prefixed`, `UomSystemOfUnits.isPrefixable`), so the parser, the generated catalogs
   and `UomUnitFormat.resolve` name the unit with `named(symbol, name)`. `UomUnitFormat.format` also writes a metric

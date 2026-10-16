@@ -45,7 +45,7 @@ Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
   already parsed as dimensionless.
 - `asType` (unit and quantity) goes by dimension, as the `Unit` and `Quantity` Javadoc say, so `1/s` narrows to
   `Frequency`, `Hz·s` to `Dimensionless` and `rad·m` to `Length`; `Unit.equals` stays structural.
-- `UomServiceProvider` is named `uom` (`ServiceProvider.of("uom")`), and `asType` and deserialization find the quantity
+- `UomServiceProvider` is named `TinyGears` (`ServiceProvider.of("TinyGears")`), and `asType` and deserialization find the quantity
   factories of uom whichever provider is current ([docs/PROVIDERS.md](docs/PROVIDERS.md)).
 - Offset units take part in unit products, powers, roots and formulas by their factor only, so `°C/m` and
   `J/(kg·°C)` parse and `°C/m` equals `K/m`; a `RELATIVE` operand of a quantity product counts by its factor only.
