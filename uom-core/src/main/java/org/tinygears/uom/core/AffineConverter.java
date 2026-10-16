@@ -110,12 +110,20 @@ final class AffineConverter implements UomConverter, Serializable {
     @Override
     public BigDecimal convert(BigDecimal value, MathContext mc) {
         if (mc.getPrecision() == 0) {
-            try {
-                return value.multiply(factor.decimalValue(mc)).add(offset.decimalValue(mc));
-            } catch (ArithmeticException inexact) {
-                // Non-terminating or irrational coefficients: fall back to DECIMAL128.
-                return convert(value, MathContext.DECIMAL128);
+            if (factor.isExact() && offset.isExact()) {
+                if (terminates(factor) && terminates(offset)) {
+                    return value.multiply(factor.decimalValue(mc)).add(offset.decimalValue(mc));
+                }
+                // value * nf/df + no/do as one quotient: exact if it terminates for this value, as add() is.
+                BigDecimal n = value.multiply(new BigDecimal(factor.numerator().multiply(offset.denominator())))
+                        .add(new BigDecimal(offset.numerator().multiply(factor.denominator())));
+                BigDecimal d = new BigDecimal(factor.denominator().multiply(offset.denominator()));
+                if (Decimals.terminates(n, d)) {
+                    return Decimals.divide(n, d, mc);
+                }
             }
+            // A non-terminating result or an irrational coefficient: DECIMAL128.
+            return convert(value, MathContext.DECIMAL128);
         }
         if (factor.isExact() && offset.isExact()) {
             // value * nf/df + no/do as one exact quotient, rounded once.
@@ -140,6 +148,10 @@ final class AffineConverter implements UomConverter, Serializable {
         int guard = mc.getPrecision() + 10 + Math.max(0, Math.getExponent(offsetD) * 3 / 10 + 1);
         MathContext work = new MathContext(guard);
         return value.multiply(factor.decimalValue(work), work).add(offset.decimalValue(work), work).round(mc);
+    }
+
+    private static boolean terminates(Factor f) {
+        return Decimals.terminates(BigDecimal.ONE, new BigDecimal(f.denominator()));
     }
 
     /**

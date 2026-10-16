@@ -66,6 +66,20 @@ public final class Decimals {
         return mc.getPrecision() == 0 || exact.precision() <= mc.getPrecision() ? exact : exact.round(mc);
     }
 
+    /**
+     * Whether {@code x / y} has a finite decimal expansion, so that {@link #divide} is exact at precision 0; {@code y}
+     * must not be zero.
+     */
+    public static boolean terminates(BigDecimal x, BigDecimal y) {
+        if (x.signum() == 0) {
+            return true;
+        }
+        // |y| = 2^i 5^j r: the quotient terminates exactly when r divides x's unscaled value.
+        BigInteger u = y.unscaledValue().abs();
+        BigInteger rest = split(u.shiftRight(u.getLowestSetBit()), Integer.MAX_VALUE).rest();
+        return rest.equals(BigInteger.ONE) || x.unscaledValue().mod(rest).signum() == 0;
+    }
+
     /** {@code n = rest * 5^count} with {@code count = min(max, valuation)}, by powers 5^(2^m) from the largest down. */
     private static Split split(BigInteger n, int max) {
         List<BigInteger> powers = new ArrayList<>();

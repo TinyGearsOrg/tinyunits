@@ -78,10 +78,6 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 ## 22. Decimal arithmetic residuals
 
 **Status:** open.
-- `UNLIMITED`: `to()` and `add()` can disagree. The converter falls back to `DECIMAL128` whenever its factor is not exact
-  in its own path, even where the exact result terminates (confirmed: `254.000000000000000000000000000000000000254 m` to
-  inches gives `10000.00000000000000000000000000000`; about 45 in 600k random checks). Fix the converter, or state it in
-  F23. Also `BTU_th` (denominator 9) loses digits under `UNLIMITED`.
 - `Factor.decimalValue` is not correctly rounded at near-ties: 5 fixed guard digits under `HALF_UP`, never extended
   (pi at p=761 with `HALF_UP`, the degree factor at 762 to 763, sqrt(2) at p=2706); with `UNNECESSARY` it returns a value
   instead of throwing. Fix by Ziv-style evaluation: retry with more guard digits until the rounding decision is
@@ -96,7 +92,7 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 - Irrational-factor arithmetic (pi or a root in the factor) is best effort: about 25 guard digits beyond the context, correct
   in practice but not proven.
 
-**Needed by:** decide before 1.0 (the first item changes documented behaviour).
+**Needed by:** decide before 1.0.
 
 ## 23. Alternate-unit registry (global state)
 

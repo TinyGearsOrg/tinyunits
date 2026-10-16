@@ -21,7 +21,8 @@ public interface UomConverter extends UnitConverter {
      * Converts a decimal value.
      *
      * @param value the value
-     * @param mc the rounding; precision 0 is exact where the converter allows, else {@code DECIMAL128}
+     * @param mc the rounding; precision 0 is exact where the result terminates for this value (a factor such as
+     *     {@code 5000/127} included), else {@code DECIMAL128}, as for an irrational factor
      * @return the converted value
      */
     BigDecimal convert(BigDecimal value, MathContext mc);

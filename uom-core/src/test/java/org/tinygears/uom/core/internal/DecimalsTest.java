@@ -47,6 +47,24 @@ class DecimalsTest {
     }
 
     @Test
+    void terminatesExactlyWhenBigDecimalDivideIsExact() {
+        Random random = new Random(20261016);
+        int terminating = 0;
+        for (int i = 0; i < 5000; i++) {
+            BigDecimal y = divisor(random);
+            BigDecimal q = number(random, 25);
+            BigDecimal x = random.nextInt(3) == 0 ? y.multiply(q) : q;
+            boolean exact = !outcome(() -> x.divide(y)).startsWith("java.lang.ArithmeticException");
+            assertEquals(exact, Decimals.terminates(x, y), x + " / " + y);
+            terminating += exact ? 1 : 0;
+        }
+        assertTrue(terminating > 1500 && terminating < 4500, "both outcomes occur: " + terminating);
+        assertTrue(Decimals.terminates(BigDecimal.ZERO, new BigDecimal("3")));
+        assertTrue(Decimals.terminates(new BigDecimal("6"), new BigDecimal("-3")));
+        assertEquals(false, Decimals.terminates(BigDecimal.ONE, new BigDecimal("3")));
+    }
+
+    @Test
     void edgeCases() {
         MathContext mc = new MathContext(5);
         BigDecimal[][] cases = {

@@ -54,6 +54,14 @@ class AbstractDecimalQuantityArithmeticTest {
     private static final UomUnit<Length> PI_M = UomUnit.unchecked(METRE.scaledBy(Factor.PI));
     private static final MathContext UNLIMITED = MathContext.UNLIMITED;
 
+    @Test
+    void unlimitedConversionAgreesWithAddition() {
+        TestLengthDecimalImpl x = q("254.000000000000000000000000000000000000254", METRE, UNLIMITED);
+        BigDecimal converted = (BigDecimal) x.to(INCH).getValue();
+        assertEquals(new BigDecimal("10000.000000000000000000000000000000000010000"), converted);
+        assertEquals(converted, q("0", INCH, UNLIMITED).add(x).getValue());
+    }
+
     private static TestLengthDecimalImpl q(String value, UomUnit<Length> unit) {
         return new TestLengthDecimalImpl(new BigDecimal(value), unit);
     }

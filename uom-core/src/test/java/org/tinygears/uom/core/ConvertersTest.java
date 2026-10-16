@@ -145,6 +145,25 @@ class ConvertersTest {
     }
 
     @Test
+    void decimalUnlimitedPrecisionIsExactWhereTheResultTerminates() {
+        // 5000/127 (metre to inch) does not terminate, but the result does for a multiple of 0.0254
+        UomConverter toInch = scale(of(5000, 127));
+        assertEquals(
+                new BigDecimal("10000.000000000000000000000000000000000010000"),
+                toInch.convert(new BigDecimal("254.000000000000000000000000000000000000254"), MathContext.UNLIMITED));
+        BigDecimal other = new BigDecimal("1.5");
+        assertEquals(toInch.convert(other, MathContext.DECIMAL128), toInch.convert(other, MathContext.UNLIMITED));
+        // a non-terminating factor and offset: x/3 + 1/3
+        UomConverter third = affine(of(1, 3), of(1, 3));
+        assertEquals(new BigDecimal("1"), third.convert(new BigDecimal("2"), MathContext.UNLIMITED));
+        assertEquals(
+                third.convert(BigDecimal.ONE, MathContext.DECIMAL128),
+                third.convert(BigDecimal.ONE, MathContext.UNLIMITED));
+        // terminating coefficients keep the scale of value times factor
+        assertEquals(new BigDecimal("0.45720"), scale(Factor.decimal("0.3048")).convert(other, MathContext.UNLIMITED));
+    }
+
+    @Test
     void irrationalConversionOfHugeValuesIsFast() {
         UomConverter degree = scale(Factor.PI.divide(ofLong(180)));
         BigDecimal perUnit = Factor.PI.divide(ofLong(180)).decimalValue(new MathContext(40));
