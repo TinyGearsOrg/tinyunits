@@ -18,7 +18,6 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Radioactivity;
 import javax.measure.quantity.Speed;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -34,16 +33,6 @@ class UomUnitAsTypeTest {
     private static final UomUnit<?> HZ = ONE.divide(SECOND).alternate("Hz");
     private static final UomUnit<?> BQ = ONE.divide(SECOND).alternate("Bq");
     private static final UomUnit<?> RAD = ONE.alternate("rad");
-
-    @BeforeAll
-    static void systemUnits() {
-        TestServiceProvider.SYSTEM_UNITS.put(Length.class, METRE);
-        TestServiceProvider.SYSTEM_UNITS.put(Speed.class, METRE.divide(SECOND));
-        TestServiceProvider.SYSTEM_UNITS.put(Frequency.class, HZ);
-        TestServiceProvider.SYSTEM_UNITS.put(Radioactivity.class, BQ);
-        TestServiceProvider.SYSTEM_UNITS.put(Angle.class, RAD);
-        TestServiceProvider.SYSTEM_UNITS.put(Dimensionless.class, ONE);
-    }
 
     @Test
     void matchingSystemUnit() {
@@ -84,6 +73,6 @@ class UomUnitAsTypeTest {
         assertNotEquals(HZ, perSecond);
         assertNotEquals(HZ, BQ);
         assertNotEquals(RAD, ONE);
-        assertTrue(HZ.isEquivalentTo((UomUnit) BQ));
+        assertTrue(HZ.isEquivalentTo(UomUnit.unchecked(BQ)));
     }
 }

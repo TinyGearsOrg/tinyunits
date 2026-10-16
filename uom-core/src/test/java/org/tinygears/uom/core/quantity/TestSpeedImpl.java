@@ -10,6 +10,7 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -22,6 +23,8 @@ import org.tinygears.uom.core.UomUnit;
 
 /** Stand-in for a generated double implementation, with its factory. */
 class TestSpeedImpl extends AbstractDoubleQuantity<Speed, TestSpeed> implements TestSpeed {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     static final QuantityFactory<Speed> FACTORY = new QuantityFactory<>() {
         @Override

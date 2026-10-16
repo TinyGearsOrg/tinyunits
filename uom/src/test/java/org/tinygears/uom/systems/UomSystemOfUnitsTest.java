@@ -72,7 +72,7 @@ class UomSystemOfUnitsTest {
     void unitsKeepListOrderAndAreUnmodifiable() {
         var units = system().getUnits();
         assertEquals(List.of(M, KM, S, HZ), new ArrayList<>(units));
-        assertThrows(UnsupportedOperationException.class, () -> ((Set<UomUnit<?>>) units).add(M));
+        assertThrows(UnsupportedOperationException.class, units::clear);
         assertThrows(UnsupportedOperationException.class, () -> units.remove(M));
     }
 

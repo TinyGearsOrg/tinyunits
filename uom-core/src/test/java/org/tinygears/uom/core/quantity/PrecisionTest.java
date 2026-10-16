@@ -10,6 +10,7 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -28,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class PrecisionTest {
 
     private static final class Custom extends Number {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int intValue() {
             return 1;

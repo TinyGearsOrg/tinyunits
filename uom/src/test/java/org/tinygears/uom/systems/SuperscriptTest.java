@@ -138,7 +138,7 @@ class SuperscriptTest {
     @Test
     void aQuantityFormatOverTheNewFormatWritesAndReadsSuperscripts() {
         UomQuantityFormat f = new UomQuantityFormat(UNICODE);
-        var acceleration = Speed.of(1, (Unit) SI.METRE.divide(SI.SECOND)).divide(Time.of(1, SI.SECOND));
+        var acceleration = Speed.of(1, SI.METRE_PER_SECOND).divide(Time.of(1, SI.SECOND));
         assertEquals("1.0 m/s²", f.format(acceleration));
         // The parse gives the quantity of the standard type of its unit.
         assertEquals(acceleration.getValue(), f.parse("1.0 m/s²").getValue());

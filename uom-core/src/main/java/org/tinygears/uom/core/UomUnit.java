@@ -44,10 +44,14 @@ import org.tinygears.uom.core.spi.Providers;
  * @param <Q> the quantity type
  */
 public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    /** Atoms and their exponents, sorted by symbol. */
+    /** Atoms and their exponents, sorted by symbol; the class is written through its Proxy. */
+    @SuppressWarnings("serial")
     private final Map<UnitAtom, Integer> atoms;
     /** Converter to the system unit. */
+    @SuppressWarnings("serial")
     private final UomConverter toSystem;
     /** Symbol, or null. */
     private final String symbol;

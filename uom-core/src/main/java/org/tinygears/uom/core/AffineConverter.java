@@ -17,6 +17,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +31,15 @@ import org.tinygears.uom.core.internal.Decimals;
  * through the package-private constructor, keeping the stored factor, offset and step order.
  */
 final class AffineConverter implements UomConverter, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Factor factor;
     private final Factor offset;
     private final double factorD;
     private final double offsetD;
+    // the class is written through its Proxy, so the field type need not be serializable
+    @SuppressWarnings("serial")
     private final List<UnitConverter> steps;
 
     AffineConverter(Factor factor, Factor offset) {
@@ -99,10 +104,21 @@ final class AffineConverter implements UomConverter, Serializable {
         return offsetD == 0 ? factorD * value : factorD * value + offsetD;
     }
 
+    /**
+     * A {@link BigDecimal} or {@link BigInteger} converts exactly where it can, rounded to {@code DECIMAL128}, and
+     * gives a {@code BigDecimal}, as the quantity factories make a decimal quantity of both; any other number converts
+     * as a {@code double} and gives a {@code Double}.
+     *
+     * @throws NullPointerException if {@code value} is null
+     */
     @Override
     public Number convert(Number value) {
+        Objects.requireNonNull(value, "value");
         if (value instanceof BigDecimal b) {
             return convert(b, MathContext.DECIMAL128);
+        }
+        if (value instanceof BigInteger i) {
+            return convert(new BigDecimal(i), MathContext.DECIMAL128);
         }
         return convert(value.doubleValue());
     }

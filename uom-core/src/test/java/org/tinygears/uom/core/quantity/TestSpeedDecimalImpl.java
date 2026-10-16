@@ -10,6 +10,7 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -21,6 +22,8 @@ import org.tinygears.uom.core.UomUnit;
 
 /** Stand-in for a generated decimal speed, with a factory that follows D11 (DECIMAL128 for decimal values). */
 class TestSpeedDecimalImpl extends AbstractDecimalQuantity<Speed, TestSpeed> implements TestSpeed {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     static final QuantityFactory<Speed> FACTORY = new QuantityFactory<>() {
         @Override

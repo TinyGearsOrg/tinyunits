@@ -62,9 +62,10 @@ class SiSystemUnitsTest {
         assertSame(DimensionlessFactory.SYSTEM_UNIT, SI.ONE);
         assertEquals(BaseUnits.ONE, SI.ONE);
         assertEquals(SI.METRE.divide(SI.SECOND), SI.METRE_PER_SECOND);
-        // They are constants, not units of the catalog: the system keeps its 128 units.
+        // They are constants, not units of the catalog.
         assertFalse(SI.UNITS.contains(SI.METRE_PER_SECOND));
-        assertEquals(128, SI.UNITS.size());
+        assertFalse(SI.UNITS.contains(SI.METRE_PER_SECOND_SQUARED));
+        assertFalse(SI.UNITS.contains(SI.ONE));
         assertTrue(SI.SYSTEM.getUnit("m/s") == null);
     }
 }

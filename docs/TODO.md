@@ -136,26 +136,6 @@ stable before 1.0).
 
 **Needed by:** nothing.
 
-## 30. Test gaps
-
-**Status:** open. The review nits that are not listed here were not carried over.
-- Fix the `-Xlint:all` warnings: raw types and unchecked in `DefinitionParserTest` and `FormulaEvaluatorTest`, two serial
-  warnings in main.
-- Missing cases: `to(foreignUnit)` through the typed interface, `compareTo` across different quantity types, `equals` of
-  1 km against 1000 m, `pow(0) == ONE`, the no-provider `IllegalStateException` path of `asType`, `convert(Number)` types
-  (null, Integer, Long, BigInteger, Float), `km.shift(1)`, an offset-converter conversion, and the `getBaseUnits` fold
-  of multi-atom units.
-- Tests that cannot fail or are weak: `everySystemUnitIsIdentityAndTypeable` (tautology), `failuresAreNotCached`,
-  `LicenseHeaderTest` has no non-vacuity guard, `SystemConversionTest` pins only some `PREFERRED` entries
-  (`SystemsCatalogTest` and `ToSystemTest` catch the rest).
-- `assertEquals(128, SI.UNITS.size())` and other pinned counts are brittle and need an update with every added unit.
-- `DecimalsTest.hugePowersOfTwoAndFiveEqualBigDecimalDivide` takes 34 s alone and up to 56 s under load on JDK 21; shrink
-  the cases there if the suite time matters.
-- `TestServiceProvider.SYSTEM_UNITS` is a static mutable map filled by one test class and leaked by `UomUnitAsTypeTest`;
-  centralize before a second consumer.
-
-**Needed by:** nothing.
-
 ## 31. Build and CI tooling
 
 **Status:** open.

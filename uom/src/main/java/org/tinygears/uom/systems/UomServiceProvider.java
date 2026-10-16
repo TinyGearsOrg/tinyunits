@@ -22,6 +22,8 @@ import org.tinygears.uom.core.spi.UnitTexts;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /** The JSR-385 service provider of this implementation. */
+// QuantityFactories and UnitTexts are the core's hooks, exported to this module only and not API
+@SuppressWarnings("exports")
 public final class UomServiceProvider extends ServiceProvider implements QuantityFactories, UnitTexts {
     private final SystemOfUnitsService systems = new UomSystemOfUnitsService();
     private final FormatService formats = new UomFormatService();

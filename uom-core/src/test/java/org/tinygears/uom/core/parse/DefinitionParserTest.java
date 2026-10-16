@@ -97,12 +97,12 @@ class DefinitionParserTest {
         assertEquals("Force", find(d, "N").explicitType());
         assertNull(find(d, "in").explicitType());
         assertEquals("degree Celsius", find(d, "°C").name());
-        UomUnit degC = find(d, "°C").unit();
+        UomUnit<javax.measure.quantity.Temperature> degC = UomUnit.unchecked(find(d, "°C").unit());
         assertEquals(373.15, degC.getConverterTo(KELVIN).convert(100.0), 1e-12);
         UomUnit<?> hz = find(d, "Hz").unit();
         assertNotEquals(ONE.divide(SECOND), hz);
         assertTrue(hz.isCompatible(ONE.divide(SECOND)));
-        UomUnit in = find(d, "in").unit();
+        UomUnit<javax.measure.quantity.Length> in = UomUnit.unchecked(find(d, "in").unit());
         assertTrue(in.isEquivalentTo(METRE.multiply(254).divide(10000)));
         assertEquals(ONE.divide(SECOND), find(d, "Hz").alternateOf());
         assertEquals(ONE, find(d, "rad").alternateOf());

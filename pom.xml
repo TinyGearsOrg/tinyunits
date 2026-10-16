@@ -102,6 +102,17 @@
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.13.0</version>
+          <configuration>
+            <!-- every lint warning fails the build -->
+            <showWarnings>true</showWarnings>
+            <!-- no module uses annotation processors; JDK 17 and 21 would run those found on the class path (the
+                 TCK's dependencies bring one), JDK 23 and later do not -->
+            <proc>none</proc>
+            <compilerArgs>
+              <arg>-Xlint:all</arg>
+              <arg>-Werror</arg>
+            </compilerArgs>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>

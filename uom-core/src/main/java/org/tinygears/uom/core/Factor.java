@@ -33,6 +33,8 @@ import org.tinygears.uom.core.internal.Decimals;
 // ponytail: equality is structural on that normal form; coefficients fold into the radicand
 // (2 * 2^(1/2) is stored as 8^(1/2)), so radicands grow. Split out square-free parts if size matters.
 public final class Factor implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private static final int MAX_EXPONENT = 1000;
     private static final int MAX_BITS = 65_536;

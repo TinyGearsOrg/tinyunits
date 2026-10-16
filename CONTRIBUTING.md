@@ -56,6 +56,8 @@ skip them.
 
 - Every change comes with tests; a bug fix with a test that fails without the fix.
 - Tests assert exact values (exact strings, exact counts), not just "not null" or "contains".
+- The build compiles with `-Xlint:all -Werror`: fix a warning, or suppress it on the smallest element (a field or a
+  method) with a comment that says why.
 - `ApiSurfaceTest` pins the public API to `docs/api/public-api.txt`. A deliberate API change rewrites the file with
   `mvn -B verify -Duom.writeApi`, and its diff is part of the change ([docs/API.md](docs/API.md)).
 - `DocsSnippetsTest` runs the `units`, `units-error` and `java` blocks of `README.md`, `docs/CUSTOM-UNITS.md`,

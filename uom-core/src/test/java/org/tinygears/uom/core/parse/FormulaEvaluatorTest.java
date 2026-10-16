@@ -81,14 +81,13 @@ class FormulaEvaluatorTest {
 
     @Test
     void decimalLiteralIsExact() throws Exception {
-        BigDecimal v = (BigDecimal) eval("0.0254 m").getConverterToAny(METRE)
-                .convert(BigDecimal.ONE, MathContext.DECIMAL128);
+        BigDecimal v = eval("0.0254 m").getConverterToAny(METRE).convert(BigDecimal.ONE, MathContext.DECIMAL128);
         assertEquals(0, v.compareTo(new BigDecimal("0.0254")));
     }
 
     @Test
     void fractionsAndPi() throws Exception {
-        assertTrue(eval("1|1000 m").isEquivalentTo((UomUnit) METRE.divide(1000)));
+        assertTrue(eval("1|1000 m").isEquivalentTo(UomUnit.unchecked(METRE.divide(1000))));
         assertEquals(BaseUnits.ONE.scaledBy(Factor.PI.divide(Factor.ofLong(180))), eval("pi|180"));
         assertEquals(BaseUnits.ONE.scaledBy(Factor.PI), eval("pi"));
     }

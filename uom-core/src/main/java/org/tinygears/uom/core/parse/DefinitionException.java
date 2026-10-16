@@ -10,8 +10,13 @@
 
 package org.tinygears.uom.core.parse;
 
+import java.io.Serial;
+
 /** An error in a definition file; the message reads {@code source:line: text}. */
 public final class DefinitionException extends RuntimeException {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     /** The file. */
     private final String source;
     /** The 1-based line number. */

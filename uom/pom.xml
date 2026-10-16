@@ -39,7 +39,7 @@
             <id>default-testCompile</id>
             <configuration>
               <!-- DocsSnippetsTest compiles the java blocks of the documents with javax.tools -->
-              <compilerArgs>
+              <compilerArgs combine.children="append">
                 <arg>--add-modules</arg>
                 <arg>java.compiler</arg>
                 <arg>--add-reads</arg>

@@ -155,4 +155,16 @@ class UomUnitTest {
                 ArithmeticException.class,
                 () -> UomUnit.of(atoms(M, Integer.MAX_VALUE, other, 2), Converters.IDENTITY, null, null));
     }
+
+    @Test
+    void baseUnitsOfAProductFoldItsAtoms() {
+        assertEquals(
+                Map.of(KILOGRAM, 1, METRE, 1, SECOND, -2),
+                KILOGRAM.multiply(METRE).divide(SECOND.pow(2)).getBaseUnits());
+        // a scaled product keeps only the atoms
+        assertEquals(Map.of(METRE, 1, SECOND, -1), km().divide(SECOND.multiply(3600)).getBaseUnits());
+        // an alternate atom stays itself
+        UomUnit<?> hz = ONE.divide(SECOND).alternate("Hz");
+        assertEquals(Map.of(hz, 1, METRE, 1), hz.multiply(METRE).getBaseUnits());
+    }
 }

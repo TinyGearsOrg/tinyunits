@@ -56,13 +56,11 @@ class UntypedDecimalQuantityTest {
     @BeforeAll
     static void registerFactories() {
         TestServiceProvider.FACTORIES.put(Speed.class, TestSpeedDecimalImpl.FACTORY);
-        TestServiceProvider.SYSTEM_UNITS.put(Length.class, METRE);
     }
 
     @AfterAll
     static void removeFactories() {
         TestServiceProvider.FACTORIES.remove(Speed.class);
-        TestServiceProvider.SYSTEM_UNITS.remove(Length.class);
     }
 
     private static TestLengthDecimalImpl q(String value, UomUnit<Length> unit) {

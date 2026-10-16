@@ -90,9 +90,14 @@ class UomUnitConversionTest {
 
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    void failuresAreNotCached() {
-        assertThrows(UnconvertibleException.class, () -> METRE.getConverterTo((Unit) SECOND));
-        assertThrows(UnconvertibleException.class, () -> METRE.getConverterTo((Unit) SECOND));
+    void failuresAreNotCached() throws Exception {
+        // a converter that cannot be built: an irrational offset against a rational one
+        UomUnit<?> piShifted = BaseUnits.KELVIN.scaledBy(Factor.PI).shift(1);
+        UomUnit<?> celsius = BaseUnits.KELVIN.shift(new BigDecimal("273.15"));
+        assertThrows(UnconvertibleException.class, () -> piShifted.getConverterToAny(celsius));
+        assertFalse(ConverterCacheTest.cache(piShifted).contains(celsius));
+        assertThrows(UnconvertibleException.class, () -> piShifted.getConverterToAny(celsius));
+        assertEquals(0, ConverterCacheTest.cache(piShifted).size());
     }
 
     @Test
@@ -141,7 +146,7 @@ class UomUnitConversionTest {
         assertTrue(e.getMessage().endsWith("exactly: cannot add 1*pi^1 and -5463/20 exactly"), e.getMessage());
         assertTrue(e.getCause() instanceof ArithmeticException);
         assertThrows(UnconvertibleException.class, () -> celsius.getConverterToAny(piShifted));
-        assertFalse(((UomUnit) piShifted).isEquivalentTo(celsius));
+        assertFalse(piShifted.isEquivalentTo(UomUnit.unchecked(celsius)));
     }
 
     @Test
@@ -152,5 +157,28 @@ class UomUnitConversionTest {
                         ArithmeticException.class,
                         () -> UomUnit.of(Map.of(), Converters.scale(Factor.ZERO), "z", null)).getMessage());
         assertThrows(ArithmeticException.class, () -> METRE.transform(Converters.scale(Factor.ZERO)));
+    }
+
+    @Test
+    void aScaledUnitShifts() {
+        // (x + 1) km: one of it is 2000 m
+        UomUnit<Length> shifted = KILOMETRE.shift(1);
+        assertEquals(Factor.ofLong(1000), shifted.toSystemConverter().factor());
+        assertEquals(Factor.ofLong(1000), shifted.toSystemConverter().offset());
+        assertEquals(2000.0, shifted.getConverterTo(METRE).convert(1.0));
+        assertNull(shifted.getSymbol());
+    }
+
+    @Test
+    void offsetUnitsConvertIntoEachOther() throws Exception {
+        UomUnit<?> celsius = BaseUnits.KELVIN.shift(new BigDecimal("273.15"));
+        UomUnit<?> fahrenheit = BaseUnits.KELVIN.scaledBy(Factor.of(5, 9)).shift(new BigDecimal("459.67"));
+        assertEquals(212.0, celsius.getConverterToAny(fahrenheit).convert(100.0), 1e-12);
+        assertEquals(-40.0, fahrenheit.getConverterToAny(celsius).convert(-40.0), 1e-12);
+        assertEquals(
+                0,
+                new BigDecimal("212").compareTo(
+                        celsius.getConverterToAny(fahrenheit)
+                                .convert(new BigDecimal("100"), java.math.MathContext.DECIMAL128)));
     }
 }

@@ -42,6 +42,8 @@ conflicts with an explicit request from the user, ask before overriding it.
   investigating. Do not rely on search snippets.
 - The baseline is Java 17 (`maven.compiler.release`): no APIs or language features of later releases.
 - The only runtime dependency is `javax.measure:unit-api`; do not add another.
+- The build compiles with `-Xlint:all -Werror`: fix a warning, or suppress it on the smallest element with a comment
+  that says why.
 - Keep code comments short (1 to 3 lines): state only the non-obvious constraint or rationale, never narrate what the
   code does. Do not recount what a line used to do; the history belongs in the commit message.
 - Ask before removing functionality or code that appears intentional. Nothing is released yet, so backward

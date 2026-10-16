@@ -260,4 +260,38 @@ class GeneratedQuantitiesTest {
             assertNotNull(c.getMethod("factory", Class.class).invoke(null, lt));
         }
     }
+
+    @Test
+    void toAForeignUnitIsUnconvertibleThroughTheTypedInterface() {
+        Unit<javax.measure.quantity.Length> foreign = tech.units.indriya.unit.Units.METRE;
+        Length dbl = Length.of(1, LengthFactory.SYSTEM_UNIT);
+        Length dec = Length.of(java.math.BigDecimal.ONE, LengthFactory.SYSTEM_UNIT);
+        for (Length l : List.of(dbl, dec)) {
+            UnconvertibleException e = assertThrows(UnconvertibleException.class, () -> l.to(foreign));
+            assertEquals("foreign unit implementation: tech.units.indriya.unit.BaseUnit", e.getMessage());
+        }
+    }
+
+    @Test
+    @SuppressWarnings({ "unchecked", "rawtypes" }) // compareTo across quantity types needs the raw Comparable
+    void compareToAcrossQuantityTypesGoesByDimension() {
+        Comparable length = Length.of(1, LengthFactory.SYSTEM_UNIT);
+        UnconvertibleException e = assertThrows(
+                UnconvertibleException.class,
+                () -> length.compareTo(Time.of(1, TimeFactory.SYSTEM_UNIT)));
+        assertEquals("incompatible dimensions: m and s", e.getMessage());
+        // hertz and becquerel have the same dimension, so their quantities compare
+        Comparable hertz = Frequency.of(1, FrequencyFactory.SYSTEM_UNIT);
+        assertEquals(0, hertz.compareTo(Radioactivity.of(1, RadioactivityFactory.SYSTEM_UNIT)));
+    }
+
+    @Test
+    void oneKilometreIsNotEqualToOneThousandMetresButComparesEqual() {
+        Length km = Length.of(1, KILOMETRE);
+        Length m = Length.of(1000, LengthFactory.SYSTEM_UNIT);
+        assertNotEquals(km, m);
+        assertNotEquals(m, km);
+        assertEquals(0, km.compareTo(m));
+        assertTrue(km.isEquivalentTo(m));
+    }
 }

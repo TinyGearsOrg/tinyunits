@@ -11,6 +11,7 @@
 package org.tinygears.uom.core.contract;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import javax.measure.UnitConverter;
 
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KELVIN;
 import static org.tinygears.uom.core.BaseUnits.METRE;
@@ -77,6 +79,20 @@ class UnitConverterContractTest {
         assertEquals(20.0, TIMES_TWO.convert((Number) 10).doubleValue());
         BigDecimal r = (BigDecimal) TIMES_TWO.convert((Number) new BigDecimal("0.1"));
         assertEquals(0, new BigDecimal("0.2").compareTo(r), r::toPlainString);
+    }
+
+    @Test
+    void convertNumberByKind() {
+        // the wrappers of primitives convert as a double
+        assertEquals(Double.valueOf(20.0), TIMES_TWO.convert((Number) 10));
+        assertEquals(Double.valueOf(20.0), TIMES_TWO.convert((Number) 10L));
+        assertEquals(Double.valueOf(21.0), TIMES_TWO.convert((Number) 10.5f));
+        // a BigInteger is exact, as BigDecimal is: 2^60 + 1 has more digits than a double
+        BigInteger big = BigInteger.TWO.pow(60).add(BigInteger.ONE);
+        assertEquals(new BigDecimal(big.multiply(BigInteger.TWO)), TIMES_TWO.convert((Number) big));
+        assertEquals(
+                "value",
+                assertThrows(NullPointerException.class, () -> TIMES_TWO.convert((Number) null)).getMessage());
     }
 
     @Test

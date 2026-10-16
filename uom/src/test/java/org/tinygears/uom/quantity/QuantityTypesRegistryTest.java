@@ -18,6 +18,7 @@ import javax.measure.spi.QuantityFactory;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.BaseUnits;
+import org.tinygears.uom.core.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -85,7 +86,9 @@ class QuantityTypesRegistryTest {
     private static void check(Class<?> type) {
         QuantityFactory f = QuantityTypes.factory((Class) type);
         Unit unit = f.getSystemUnit();
-        assertTrue(unit.getConverterTo(unit).isIdentity(), type.getName());
+        // the factory's unit is a system unit: its own system unit, with the identity converter to it
+        assertEquals(unit, unit.getSystemUnit(), type.getName());
+        assertTrue(((UomUnit<?>) unit).toSystemConverter().isIdentity(), type.getName());
         assertSame(unit, unit.asType((Class) type));
     }
 }

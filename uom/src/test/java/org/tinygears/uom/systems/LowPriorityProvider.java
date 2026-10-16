@@ -18,6 +18,10 @@ import javax.measure.spi.SystemOfUnitsService;
 
 /** Test-only provider that must never win over the real one. */
 public final class LowPriorityProvider extends ServiceProvider {
+    /** Created by the service loader. */
+    public LowPriorityProvider() {
+    }
+
     @Override
     public int getPriority() {
         return 1;

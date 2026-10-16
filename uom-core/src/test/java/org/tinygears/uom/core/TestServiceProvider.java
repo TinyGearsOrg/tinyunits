@@ -21,12 +21,29 @@ import javax.measure.spi.SystemOfUnitsService;
 
 /**
  * Test-only provider: returns the factory a test put in {@link #FACTORIES}, otherwise one that only reports the
- * system unit put in {@link #SYSTEM_UNITS}.
+ * system unit in {@link #SYSTEM_UNITS}.
  */
 public class TestServiceProvider extends ServiceProvider {
 
-    public static final Map<Class<?>, Unit<?>> SYSTEM_UNITS = new ConcurrentHashMap<>();
+    /** The system units the tests need, fixed so that no test depends on another one's registrations. */
+    public static final Map<Class<?>, Unit<?>> SYSTEM_UNITS = Map.of(
+            javax.measure.quantity.Length.class,
+            BaseUnits.METRE,
+            javax.measure.quantity.Speed.class,
+            BaseUnits.METRE.divide(BaseUnits.SECOND),
+            javax.measure.quantity.Frequency.class,
+            BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz"),
+            javax.measure.quantity.Radioactivity.class,
+            BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Bq"),
+            javax.measure.quantity.Angle.class,
+            BaseUnits.ONE.alternate("rad"),
+            javax.measure.quantity.Dimensionless.class,
+            BaseUnits.ONE);
     public static final Map<Class<?>, QuantityFactory<?>> FACTORIES = new ConcurrentHashMap<>();
+
+    /** Created by the service loader. */
+    public TestServiceProvider() {
+    }
 
     @Override
     public SystemOfUnitsService getSystemOfUnitsService() {

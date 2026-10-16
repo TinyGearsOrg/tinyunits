@@ -10,6 +10,7 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -19,6 +20,8 @@ import org.tinygears.uom.core.UomUnit;
 
 /** Stand-in for a generated double implementation. */
 class TestLengthImpl extends AbstractDoubleQuantity<Length, TestLength> implements TestLength {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     TestLengthImpl(double value, UomUnit<Length> unit, Quantity.Scale scale) {
         super(value, unit, scale);

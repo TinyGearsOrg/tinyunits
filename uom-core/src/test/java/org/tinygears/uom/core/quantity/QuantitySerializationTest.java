@@ -18,6 +18,7 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -748,6 +749,9 @@ class QuantitySerializationTest {
 
     /** Another implementation of Length, created only by {@link OtherProvider}. */
     static final class OtherLength extends AbstractDoubleQuantity<Length, Length> implements Length {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         OtherLength(double value, UomUnit<Length> unit, Quantity.Scale scale) {
             super(value, unit, scale);
         }
@@ -867,6 +871,9 @@ class QuantitySerializationTest {
     }
 
     static final class CustomQuantity extends AbstractDoubleQuantity<Custom, Custom> implements Custom {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         CustomQuantity(double value) {
             super(value, UomUnit.unchecked(BaseUnits.METRE), Quantity.Scale.ABSOLUTE);
         }

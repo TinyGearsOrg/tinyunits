@@ -36,13 +36,18 @@ class LicenseHeaderTest {
     @Test
     void everySourceFileHasTheHeader() throws IOException {
         Path root = Path.of("..").toAbsolutePath().normalize();
-        List<String> violations;
+        List<Path> sources;
         try (var files = Files.walk(root)) {
-            violations = files.filter(Files::isRegularFile).filter(p -> p.getFileName().toString().endsWith(".java"))
-                    .map(root::relativize).filter(LicenseHeaderTest::isModuleSource)
-                    .filter(p -> !hasHeader(root.resolve(p))).map(p -> p.toString().replace('\\', '/')).sorted()
-                    .toList();
+            sources = files.filter(Files::isRegularFile).filter(p -> p.getFileName().toString().endsWith(".java"))
+                    .map(root::relativize).filter(LicenseHeaderTest::isModuleSource).toList();
         }
+        // a wrong root or filter would check nothing: hand-written, module and generated files are all there
+        List<String> names = sources.stream().map(p -> p.toString().replace('\\', '/')).toList();
+        assertTrue(names.size() > 300, "checked " + names.size());
+        assertTrue(names.contains("uom-core/src/main/java/module-info.java"), "module-info.java");
+        assertTrue(names.contains("uom/src/main/java/org/tinygears/uom/quantity/Length.java"), "generated Length.java");
+        List<String> violations = sources.stream().filter(p -> !hasHeader(root.resolve(p)))
+                .map(p -> p.toString().replace('\\', '/')).sorted().toList();
         assertTrue(
                 violations.isEmpty(),
                 () -> "Missing license header (config/license-header.txt) in:\n" + String.join("\n", violations));

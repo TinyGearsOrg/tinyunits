@@ -89,6 +89,7 @@ class QuantitySerializationTest {
     }
 
     /** Units of {@code type} other than its system unit: 2.5 times it, plus a catalog unit for some types. */
+    @SuppressWarnings("unchecked") // any quantity type, through the raw cast
     private static List<UomUnit<?>> nonSystemUnits(Class<?> type) {
         UomUnit<?> system = (UomUnit<?>) QuantityTypes.factory(cast(type)).getSystemUnit();
         List<UomUnit<?>> units = new ArrayList<>(List.of(system.multiply(2.5)));
@@ -169,9 +170,13 @@ class QuantitySerializationTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked") // any quantity type, through the raw cast
     void everyCatalogUnitRoundTrips() throws Exception {
         List<UomUnit<?>> catalog = QuantityCheck.catalog();
-        assertEquals(320, catalog.size());
+        // every distinct unit of every catalog (Gaussian lists Fr and statC, which are equal)
+        assertEquals(
+                SystemsCatalogTest.CATALOGS.stream().mapToInt(c -> new java.util.HashSet<>(c.units()).size()).sum(),
+                catalog.size());
         for (UomUnit<?> u : catalog) {
             UomUnit<?> copy = (UomUnit<?>) roundTrip(u);
             assertEquals(u, copy);
@@ -213,7 +218,7 @@ class QuantitySerializationTest {
                             QuantityCheck.class.getName(),
                             "units",
                             file.toString()));
-            assertTrue(out.contains("ok units 320"), out);
+            assertTrue(out.contains("ok units " + QuantityCheck.catalog().size()), out);
         } finally {
             Files.deleteIfExists(file);
         }

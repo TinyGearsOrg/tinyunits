@@ -47,7 +47,7 @@ class UnitFormatTest {
 
     @Test
     void everyCatalogUnitRoundTrips() {
-        assertEquals(128, SI.UNITS.size());
+        assertEquals(SystemsCatalogTest.members("si.units").size(), SI.UNITS.size());
         for (UomUnit<?> unit : SI.UNITS) {
             assertEquals(unit, format.parse(unit.toString()), unit.toString());
             assertEquals(unit, format.parse(format.format(unit)), unit.toString());

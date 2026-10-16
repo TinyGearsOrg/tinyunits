@@ -22,7 +22,6 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.Converters;
@@ -47,11 +46,6 @@ import static org.tinygears.uom.core.BaseUnits.SECOND;
 class UnitContractTest {
 
     private static final UomUnit<Temperature> CELSIUS = KELVIN.shift(273.15);
-
-    @BeforeAll
-    static void systemUnits() {
-        TestServiceProvider.SYSTEM_UNITS.put(Speed.class, METRE.divide(SECOND));
-    }
 
     @Test
     void getConverterToThrowsUnconvertibleExceptionForIncompatibleUnits() {

@@ -10,8 +10,13 @@
 
 package org.tinygears.uom.core.parse;
 
+import java.io.Serial;
+
 /** A malformed or unevaluable unit formula; {@link #column()} is 1-based. */
 public final class FormulaException extends Exception {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     /** The 1-based column. */
     private final int column;
 

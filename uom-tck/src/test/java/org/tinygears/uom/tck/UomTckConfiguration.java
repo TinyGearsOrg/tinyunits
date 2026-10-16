@@ -38,7 +38,7 @@ public final class UomTckConfiguration implements ServiceConfiguration {
 
     @Override
     public Collection<Class> getQuantityClasses() {
-        return QuantityTypes.types().stream().map(type -> (Class) quantityClass((Class) type)).toList();
+        return QuantityTypes.types().stream().map(type -> quantityClass((Class) type)).toList();
     }
 
     private static <Q extends Quantity<Q>> Class<?> quantityClass(Class<Q> type) {

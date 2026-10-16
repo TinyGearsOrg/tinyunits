@@ -10,6 +10,7 @@
 
 package org.tinygears.uom.core.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
@@ -19,6 +20,8 @@ import org.tinygears.uom.core.UomUnit;
 
 /** Stand-in for a generated decimal implementation; shares the typed interface with {@link TestLengthImpl}. */
 class TestLengthDecimalImpl extends AbstractDecimalQuantity<Length, TestLength> implements TestLength {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     TestLengthDecimalImpl(BigDecimal value, UomUnit<Length> unit, Quantity.Scale scale, MathContext mc) {
         super(value, unit, scale, mc);

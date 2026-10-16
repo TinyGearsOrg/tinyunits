@@ -39,6 +39,7 @@ class GeneratedDecimalQuantitiesTest {
         void run(Class<?> type, QuantityFactory<?> f, Unit<?> unit, Class<?> typed) throws Exception;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" }) // all quantity types, by reflection
     private static void forAllTypes(Check check) throws Exception {
         assertEquals(33, QuantityTypes.types().size());
         for (Class<?> type : QuantityTypes.types()) {
@@ -145,6 +146,7 @@ class GeneratedDecimalQuantitiesTest {
     }
 
     @Test
+    @SuppressWarnings({ "unchecked", "rawtypes" }) // both quantities are of the same type, created by its factory
     void toDecimalAndToDoubleRoundTrip() throws Exception {
         forAllTypes((type, f, u, typed) -> {
             Quantity<?> dbl = create(f, 1.5, u);
@@ -306,6 +308,7 @@ class GeneratedDecimalQuantitiesTest {
     }
 
     @Test
+    @SuppressWarnings({ "unchecked", "rawtypes" }) // both quantities are of the same type, created by its factory
     void equalsDiffersFromEquivalence() throws Exception {
         forAllTypes((type, f, u, typed) -> {
             Quantity<?> dec = create(f, ONE_HALF, u);
