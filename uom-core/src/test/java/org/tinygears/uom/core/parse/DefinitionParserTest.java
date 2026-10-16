@@ -145,6 +145,7 @@ class DefinitionParserTest {
     void baseUnitErrors() {
         fails("m:metre !Q\n", "test.units:1: unknown base dimension 'Q'");
         fails("kg:kilogram !L\n", "test.units:1: base unit symbol must be 'm'");
+        fails("m:metre ! L\n", "test.units:1: the dimension letter must follow '!' directly");
         assertEquals(KELVIN, find(parse("K !K\n"), "K").unit());
     }
 
@@ -157,12 +158,19 @@ class DefinitionParserTest {
         fails("a-b m\n", "test.units:1: invalid symbol 'a-b'");
         fails("a+ m\n", "test.units:1: invalid symbol 'a+'");
         fails("pi:pie 3\n", "test.units:1: symbol 'pi' is reserved");
+        fails(BASE + "x: m\n", "test.units:5: empty name for 'x'");
+        fails(BASE + "x:\n", "test.units:5: empty name for 'x'");
+        fails(BASE + "x\n", "test.units:5: missing formula for 'x'");
+        fails(BASE + "x # a comment\n", "test.units:5: missing formula for 'x'");
+        fails(BASE + "x#y m\n", "test.units:5: missing formula for 'x' ('#' starts a comment)");
     }
 
     @Test
     void quantityTypes() {
         fails(BASE + "x:y m [lower]\n", "test.units:5: malformed quantity type 'lower'");
         fails(BASE + "x:y m [Fo#o]\n", "test.units:5: malformed quantity type 'Fo#o'");
+        fails(BASE + "x[Foo] m\n", "test.units:5: the quantity type [Foo] must end the definition");
+        fails(BASE + "x m [Length\n", "test.units:5: missing ']' after the quantity type");
         Definitions d = parse(BASE + "a m [Length] # comment\nb m [Length]# tight\nc m # [Nope]\n");
         assertEquals("Length", find(d, "a").explicitType());
         assertEquals("Length", find(d, "b").explicitType());

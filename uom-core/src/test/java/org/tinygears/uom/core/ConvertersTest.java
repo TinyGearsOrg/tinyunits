@@ -13,6 +13,7 @@ package org.tinygears.uom.core;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.Duration;
+import java.util.List;
 import javax.measure.UnitConverter;
 
 import org.junit.jupiter.api.Test;
@@ -176,5 +177,11 @@ class ConvertersTest {
             BigDecimal relative = r.subtract(expected).abs().divide(expected, MathContext.DECIMAL64);
             assertTrue(relative.compareTo(new BigDecimal("1e-15")) < 0, () -> e + ": " + r);
         }
+    }
+
+    @Test
+    void uomConverterIsSealedToTheConvertersOfThisLibrary() {
+        assertTrue(UomConverter.class.isSealed());
+        assertEquals(List.of(AffineConverter.class), List.of(UomConverter.class.getPermittedSubclasses()));
     }
 }

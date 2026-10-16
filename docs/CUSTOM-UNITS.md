@@ -334,9 +334,11 @@ Every error names the file and line. The common messages, by cause:
 |---|---|
 | a symbol defined twice | `duplicate symbol 'x'` |
 | a symbol the built-in catalogs resolve, after `!` | `symbol 'kg' is already defined` (a new symbol: `base unit symbol must be 'm'`) |
-| a bad letter after `!` | `unknown base dimension 'Q'` |
+| a bad letter after `!`, or a space before it | `unknown base dimension 'Q'`, `the dimension letter must follow '!' directly` |
 | a symbol the built-in catalogs resolve | `symbol 'x' is already defined` |
 | a malformed symbol, or `pi` | `invalid symbol 'x'`, `symbol 'pi' is reserved` |
+| an empty name after `:` | `empty name for 'x'` |
+| no formula (`#` starts a comment, also right after a symbol) | `missing formula for 'x'`, `missing formula for 'x' ('#' starts a comment)` |
 | an unknown symbol in a formula or directive | `unknown unit 'x'` |
 | a glued minus before an integer | `ambiguous 's-1': write 's^-1' for a negative exponent or 's - 1' for a shift` |
 | a shift inside parentheses | `shift is only allowed at the end of a formula` |
@@ -344,7 +346,7 @@ Every error names the file and line. The common messages, by cause:
 | limits | `formula too long`, `formula nested too deeply`, `number out of range` |
 | an `f(x)` that is not affine | `function is not affine` |
 | a scaled formula after `~` | `alternate unit must be an unscaled unit` |
-| a bad `[Type]` spelling | `malformed quantity type 'x'` |
+| a bad `[Type]` spelling, or text after it | `malformed quantity type 'x'`, `the quantity type [X] must end the definition`, `missing ']' after the quantity type` |
 | an unknown directive | `unknown directive '@x'` |
 | a missing or unreadable include | `cannot include 'x.units'` |
 | an include cycle | `include cycle: a.units -> b.units -> a.units` |

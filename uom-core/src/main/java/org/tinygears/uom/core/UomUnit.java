@@ -96,6 +96,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      * @param symbol the symbol, or null
      * @param name the name, or null
      * @return the unit
+     * @throws ArithmeticException if the factor of {@code toSystem} is zero, as {@link #transform} does
      */
     public static <Q extends Quantity<Q>> UomUnit<Q> of(
             Map<UnitAtom, Integer> atoms,
@@ -104,6 +105,9 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             String name
     ) {
         Objects.requireNonNull(toSystem, "toSystem");
+        if (toSystem.factor().isZero()) {
+            throw new ArithmeticException("zero scale factor");
+        }
         Map<UnitAtom, Integer> normalized = new LinkedHashMap<>();
         atoms.entrySet().stream().filter(e -> Objects.requireNonNull(e.getValue(), "exponent") != 0)
                 .sorted(Map.Entry.comparingByKey(Comparator.comparing(UnitAtom::symbol)))
@@ -261,8 +265,14 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     /** Same dimension and an identity converter; alternate atoms may differ, so rad is equivalent to one. */
     @Override
     public boolean isEquivalentTo(Unit<Q> that) {
-        return Objects.requireNonNull(that, "that") instanceof UomUnit<?> u && isCompatible(u)
-                && converterTo(u).isIdentity();
+        if (!(Objects.requireNonNull(that, "that") instanceof UomUnit<?> u) || !isCompatible(u)) {
+            return false;
+        }
+        try {
+            return converterTo(u).isIdentity();
+        } catch (UnconvertibleException e) {
+            return false;
+        }
     }
 
     @Override
@@ -292,7 +302,13 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     /** Caller has checked compatibility, so only valid targets are cached. */
     private UomConverter converterTo(UomUnit<?> that) {
-        return converterCache.get(that, t -> t.toSystem.inverse().concatenate(toSystem));
+        try {
+            return converterCache.get(that, t -> t.toSystem.inverse().concatenate(toSystem));
+        } catch (ArithmeticException e) {
+            // e.g. an irrational and a rational offset, which no exact factor adds up
+            throw (UnconvertibleException) new UnconvertibleException(
+                    "cannot convert " + this + " to " + that + " exactly: " + e.getMessage()).initCause(e);
+        }
     }
 
     /**
@@ -565,15 +581,12 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             return Factor.of(b, BigInteger.ONE);
         }
         if (n instanceof BigDecimal b) {
-            return Factor.decimal(b.toPlainString());
+            return Factor.decimal(b);
         }
         double d = n.doubleValue();
         if (!Double.isFinite(d)) {
             throw new IllegalArgumentException("not a finite number: " + n);
         }
-        String text = n instanceof Float f
-                ? new BigDecimal(Float.toString(f)).toPlainString()
-                : BigDecimal.valueOf(d).toPlainString();
-        return Factor.decimal(text);
+        return Factor.decimal(n instanceof Float f ? new BigDecimal(Float.toString(f)) : BigDecimal.valueOf(d));
     }
 }

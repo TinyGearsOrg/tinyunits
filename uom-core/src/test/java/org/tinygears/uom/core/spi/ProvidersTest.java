@@ -148,4 +148,18 @@ class ProvidersTest {
         }, List::of);
         assertThrows(IllegalStateException.class, () -> providers.factory(Length.class));
     }
+
+    @Test
+    void aNullFactoryMeansNoFactory() {
+        ServiceProvider none = new Foreign() {
+            @Override
+            public <Q extends Quantity<Q>> QuantityFactory<Q> getQuantityFactory(Class<Q> quantity) {
+                return null;
+            }
+        };
+        Providers providers = new Providers(() -> none, () -> List.of(none));
+        assertEquals(
+                "no quantity factory for javax.measure.quantity.Length",
+                assertThrows(IllegalArgumentException.class, () -> providers.factory(Length.class)).getMessage());
+    }
 }

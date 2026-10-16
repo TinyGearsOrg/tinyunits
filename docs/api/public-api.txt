@@ -38,6 +38,7 @@ org.tinygears.uom.core Factor member public static final org.tinygears.uom.core.
 org.tinygears.uom.core Factor member public static final org.tinygears.uom.core.Factor PI
 org.tinygears.uom.core Factor member public static final org.tinygears.uom.core.Factor ZERO
 org.tinygears.uom.core Factor member public static org.tinygears.uom.core.Factor decimal(java.lang.String)
+org.tinygears.uom.core Factor member public static org.tinygears.uom.core.Factor decimal(java.math.BigDecimal)
 org.tinygears.uom.core Factor member public static org.tinygears.uom.core.Factor of(java.math.BigInteger,java.math.BigInteger)
 org.tinygears.uom.core Factor member public static org.tinygears.uom.core.Factor of(java.math.BigInteger,java.math.BigInteger,int,int)
 org.tinygears.uom.core Factor member public static org.tinygears.uom.core.Factor of(long,long)
@@ -55,7 +56,7 @@ org.tinygears.uom.core UomConverter member public abstract org.tinygears.uom.cor
 org.tinygears.uom.core UomConverter member public abstract org.tinygears.uom.core.Factor offset()
 org.tinygears.uom.core UomConverter member public abstract org.tinygears.uom.core.UomConverter concatenate(javax.measure.UnitConverter)
 org.tinygears.uom.core UomConverter member public abstract org.tinygears.uom.core.UomConverter inverse()
-org.tinygears.uom.core UomConverter type public abstract interface org.tinygears.uom.core.UomConverter extends javax.measure.UnitConverter
+org.tinygears.uom.core UomConverter type public abstract sealed interface org.tinygears.uom.core.UomConverter extends javax.measure.UnitConverter
 org.tinygears.uom.core UomDimension member public final boolean equals(java.lang.Object)
 org.tinygears.uom.core UomDimension member public final int hashCode()
 org.tinygears.uom.core UomDimension member public int amount()

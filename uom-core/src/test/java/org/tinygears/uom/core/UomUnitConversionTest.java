@@ -10,8 +10,10 @@
 
 package org.tinygears.uom.core;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -126,5 +128,29 @@ class UomUnitConversionTest {
             assertFalse(t.isAlive(), "worker hung");
         }
         assertNull(failure.get());
+    }
+
+    @Test
+    void aConversionThatHasNoExactFactorIsUnconvertible() {
+        // pi*(x + 1) K has an irrational offset, which no exact factor adds to the rational offset of degree Celsius
+        UomUnit<?> piShifted = BaseUnits.KELVIN.scaledBy(Factor.PI).shift(1);
+        UomUnit<?> celsius = BaseUnits.KELVIN.shift(new BigDecimal("273.15"));
+        UnconvertibleException e = assertThrows(
+                UnconvertibleException.class,
+                () -> piShifted.getConverterToAny(celsius));
+        assertTrue(e.getMessage().endsWith("exactly: cannot add 1*pi^1 and -5463/20 exactly"), e.getMessage());
+        assertTrue(e.getCause() instanceof ArithmeticException);
+        assertThrows(UnconvertibleException.class, () -> celsius.getConverterToAny(piShifted));
+        assertFalse(((UomUnit) piShifted).isEquivalentTo(celsius));
+    }
+
+    @Test
+    void ofRejectsAZeroFactorAsTransformDoes() {
+        assertEquals(
+                "zero scale factor",
+                assertThrows(
+                        ArithmeticException.class,
+                        () -> UomUnit.of(Map.of(), Converters.scale(Factor.ZERO), "z", null)).getMessage());
+        assertThrows(ArithmeticException.class, () -> METRE.transform(Converters.scale(Factor.ZERO)));
     }
 }

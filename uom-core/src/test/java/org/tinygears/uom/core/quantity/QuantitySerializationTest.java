@@ -470,7 +470,8 @@ class QuantitySerializationTest {
         withProvider(new FixedProvider(null), () -> {
             InvalidObjectException n = assertThrows(InvalidObjectException.class, () -> deserialize(length));
             assertEquals("invalid quantity: no quantity factory for javax.measure.quantity.Length", n.getMessage());
-            assertNull(n.getCause());
+            // a null factory is reported by Providers, as a missing one
+            assertTrue(n.getCause() instanceof IllegalArgumentException, String.valueOf(n.getCause()));
         });
         withProvider(new FixedProvider(new UnsupportedOperationException("nope")), () -> {
             InvalidObjectException n = assertThrows(InvalidObjectException.class, () -> deserialize(length));

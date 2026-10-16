@@ -98,8 +98,8 @@ public final class Factor implements Serializable {
      * @param rootIndex the root index {@code r}, positive
      * @return the factor
      * @throws IllegalArgumentException if {@code rootIndex} is not positive
-     * @throws ArithmeticException if {@code denominator} is zero, or the reduced numerator or denominator has more than
-     *     65536 bits
+     * @throws ArithmeticException if {@code denominator} is zero, or the numerator or denominator of the normal form has
+     *     more than 65536 bits (a part with more than {@code 2 * rootIndex * 65536} bits is rejected before reducing)
      */
     public static Factor of(BigInteger numerator, BigInteger denominator, int piExponent, int rootIndex) {
         if (rootIndex <= 0) {
@@ -125,7 +125,17 @@ public final class Factor implements Serializable {
      * @return the factor
      */
     public static Factor decimal(String literal) {
-        BigDecimal value = new BigDecimal(literal);
+        return decimal(new BigDecimal(literal));
+    }
+
+    /**
+     * The exact value of {@code value}.
+     *
+     * @param value the value
+     * @return the factor
+     * @throws ArithmeticException if the value needs more than 65536 bits, checked from its scale before building it
+     */
+    public static Factor decimal(BigDecimal value) {
         checkSize(Math.abs((long) value.scale()) * 3);
         return value.scale() >= 0
                 ? of(value.unscaledValue(), BigInteger.TEN.pow(value.scale()))
@@ -143,12 +153,15 @@ public final class Factor implements Serializable {
             n = n.negate();
             d = d.negate();
         }
+        // An r-th root at most divides the size by r, so larger parts cannot reach a normal form within the limit;
+        // twice that leaves room for the gcd of a product.
+        long bound = 2L * r * MAX_BITS;
+        if (n.bitLength() > bound || d.bitLength() > bound) {
+            throw new ArithmeticException("factor too large");
+        }
         BigInteger g = n.gcd(d);
         n = n.divide(g);
         d = d.divide(g);
-        if (n.bitLength() > MAX_BITS || d.bitLength() > MAX_BITS) {
-            throw new ArithmeticException("factor too large");
-        }
         // Trial division over r's prime factors in long arithmetic: O(sqrt(r)), no int overflow.
         long rest = r;
         for (long f = 2; f <= rest; f++) {
@@ -173,6 +186,9 @@ public final class Factor implements Serializable {
                 k /= p;
                 r /= p;
             }
+        }
+        if (n.bitLength() > MAX_BITS || d.bitLength() > MAX_BITS) {
+            throw new ArithmeticException("factor too large");
         }
         return new Factor(n, d, k, r);
     }
@@ -621,10 +637,12 @@ public final class Factor implements Serializable {
 
     @Override
     public String toString() {
-        String s = den.equals(BigInteger.ONE) ? num.toString() : num + "/" + den;
+        // The sign stays outside a root: -sqrt(2) is -(2)^(1/2).
+        BigInteger n = index == 1 ? num : num.abs();
+        String s = den.equals(BigInteger.ONE) ? n.toString() : n + "/" + den;
         if (piExp != 0) {
             s += "*pi^" + piExp;
         }
-        return index == 1 ? s : "(" + s + ")^(1/" + index + ")";
+        return index == 1 ? s : (num.signum() < 0 ? "-(" : "(") + s + ")^(1/" + index + ")";
     }
 }

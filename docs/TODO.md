@@ -105,23 +105,6 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 **Needed by:** decide before 1.0 (user-visible behaviour of `load`).
 
-## 25. Core hardening
-
-**Status:** open, small items in `uom-core`.
-- `Factor.make` checks the size cap before root normalization, so some products whose normal form fits are rejected
-  (a documented ceiling); move the check after normalization.
-- `UomUnit.of` accepts a zero-factor converter that `transform` rejects (check the current behaviour first).
-- `getConverterTo` between offset units with an irrational scale throws `ArithmeticException` instead of
-  `UnconvertibleException`.
-- `UomConverter` equality with third-party implementations is asymmetric (consider sealing); `getDimension` and
-  `UomDimension.getBaseDimensions` return mutable copies; `Factor.toString` prints `(-2)^(1/2)` for a negative irrational;
-  `toPlainString()` of a huge `BigDecimal` is quadratic; `DefinitionParser` accepts an empty name (`x: m`) and
-  `m:metre ! L`, and has unclear messages for `x#y m` and `x[Foo] m`.
-- `asType` with a provider that returns a null factory throws `NullPointerException`; `of(null, foreignUnit)` on the
-  decimal factories gives `NullPointerException` before the foreign-unit check.
-
-**Needed by:** nothing.
-
 ## 26. Serialization hardening residuals
 
 **Status:** open, low risk (untrusted streams need the documented `ObjectInputFilter`; the serialized form is not promised

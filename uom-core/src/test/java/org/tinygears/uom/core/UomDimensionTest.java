@@ -137,4 +137,11 @@ class UomDimensionTest {
         nullExp.put(TIME, null);
         assertThrows(IllegalArgumentException.class, () -> LENGTH.multiply(foreign(nullExp)));
     }
+
+    @Test
+    void baseDimensionsCannotBeModified() {
+        var m = UomDimension.LENGTH.divide(UomDimension.TIME).getBaseDimensions();
+        assertEquals(2, m.size());
+        assertThrows(UnsupportedOperationException.class, m::clear);
+    }
 }

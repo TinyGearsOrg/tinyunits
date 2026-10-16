@@ -16,6 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.measure.Dimension;
@@ -130,7 +131,7 @@ public record UomDimension(int length, int mass, int time, int current, int temp
             }
         }
         // Per the Dimension contract a base dimension reports null.
-        return m.size() == 1 && m.containsValue(1) ? null : m;
+        return m.size() == 1 && m.containsValue(1) ? null : Collections.unmodifiableMap(m);
     }
 
     /**

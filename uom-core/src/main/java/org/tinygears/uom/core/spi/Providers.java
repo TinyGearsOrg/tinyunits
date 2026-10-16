@@ -46,6 +46,7 @@ public final class Providers {
      * @param type the quantity type
      * @return the factory
      * @throws IllegalStateException if no provider is available
+     * @throws IllegalArgumentException if the provider has no factory for {@code type} (throws or returns null)
      */
     public static <Q extends Quantity<Q>> QuantityFactory<Q> quantityFactory(Class<Q> type) {
         return DEFAULT.factory(type);
@@ -63,11 +64,13 @@ public final class Providers {
 
     <Q extends Quantity<Q>> QuantityFactory<Q> factory(Class<Q> type) {
         ServiceProvider provider = current.get();
-        if (provider instanceof QuantityFactories ours) {
-            return ours.getQuantityFactory(type);
+        QuantityFactories ours = provider instanceof QuantityFactories q ? q : scan(QuantityFactories.class, false);
+        QuantityFactory<Q> factory = ours != null ? ours.getQuantityFactory(type) : provider.getQuantityFactory(type);
+        // a provider may answer null for a type it does not support: the same as ours, which throws
+        if (factory == null) {
+            throw new IllegalArgumentException("no quantity factory for " + type.getName());
         }
-        QuantityFactories ours = scan(QuantityFactories.class, false);
-        return ours != null ? ours.getQuantityFactory(type) : provider.getQuantityFactory(type);
+        return factory;
     }
 
     String text(Unit<?> unit) {

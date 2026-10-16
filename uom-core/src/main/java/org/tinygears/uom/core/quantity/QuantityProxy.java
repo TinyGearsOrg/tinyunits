@@ -387,9 +387,6 @@ final class QuantityProxy implements Serializable {
             // No provider at all, a broken service file, or a provider that fails otherwise.
             throw invalid(e.getMessage() != null ? e.getMessage() : e.getClass().getName(), e);
         }
-        if (f == null) {
-            throw invalid("no quantity factory for " + type);
-        }
         return f;
     }
 

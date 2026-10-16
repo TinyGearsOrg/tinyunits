@@ -164,9 +164,25 @@ class ApiSurfaceTest {
         return new ArrayList<>(lines);
     }
 
+    /**
+     * {@code c.toGenericString()} with {@code sealed} written the same on every JDK: JDK 25 writes it before the kind of
+     * type ("abstract sealed interface"), JDK 17 and 21 leave it out.
+     */
+    private static String generic(Class<?> c) {
+        String s = c.toGenericString().replace("non-sealed ", "").replace("sealed ", "");
+        if (!c.isSealed()) {
+            return s;
+        }
+        String kind = c.isAnnotation()
+                ? "@interface "
+                : c.isInterface() ? "interface " : c.isEnum() ? "enum " : c.isRecord() ? "record " : "class ";
+        int at = s.indexOf(kind);
+        return s.substring(0, at) + "sealed " + s.substring(at);
+    }
+
     private static void type(Class<?> c, String pkg, Set<String> lines) {
         String prefix = pkg + " " + c.getName().substring(pkg.length() + 1) + " ";
-        StringBuilder t = new StringBuilder(c.toGenericString());
+        StringBuilder t = new StringBuilder(generic(c));
         Type superclass = c.getGenericSuperclass();
         if (superclass != null && superclass != Object.class) {
             t.append(" extends ").append(superclass.getTypeName());

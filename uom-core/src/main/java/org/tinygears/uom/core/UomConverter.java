@@ -14,8 +14,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.UnitConverter;
 
-/** An affine converter {@code x -> factor() * x + offset()}. */
-public interface UomConverter extends UnitConverter {
+/**
+ * An affine converter {@code x -> factor() * x + offset()}. Sealed: the converters of this library are the only
+ * implementation, so equality by factor and offset is symmetric.
+ */
+public sealed interface UomConverter extends UnitConverter permits AffineConverter {
 
     /**
      * Converts a decimal value.

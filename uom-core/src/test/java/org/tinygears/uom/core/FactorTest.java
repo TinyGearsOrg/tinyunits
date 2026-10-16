@@ -112,6 +112,44 @@ class FactorTest {
     }
 
     @Test
+    void theSignOfARootIsWrittenOutsideIt() {
+        assertEquals("(2)^(1/2)", ofLong(2).root(2).toString());
+        assertEquals("-(2)^(1/2)", ofLong(2).root(2).negate().toString());
+        assertEquals("-(1/3*pi^1)^(1/3)", PI.divide(ofLong(3)).root(3).negate().toString());
+        assertEquals("-3/2", of(-3, 2).toString());
+    }
+
+    @Test
+    void hugeDecimalsAreRejectedFromTheirScale() {
+        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+            for (String v : new String[] { "1e1000000", "1e-1000000" }) {
+                assertEquals(
+                        "factor too large",
+                        assertThrows(ArithmeticException.class, () -> decimal(new BigDecimal(v))).getMessage());
+                assertThrows(ArithmeticException.class, () -> BaseUnits.METRE.multiply(new BigDecimal(v)));
+            }
+        });
+        assertEquals(decimal("0.0254"), decimal(new BigDecimal("0.0254")));
+        assertEquals(ofLong(1200), decimal(new BigDecimal("1.2e3")));
+    }
+
+    @Test
+    void theSizeLimitAppliesToTheNormalForm() {
+        // x: 40000 bits and not a perfect square, so sqrt(x) stays a root
+        BigInteger x = BigInteger.TWO.pow(40_000).add(BigInteger.valueOf(3));
+        Factor root = Factor.of(x, BigInteger.ONE, 0, 2);
+        assertEquals(Factor.of(x, BigInteger.ONE, 0, 1), root.multiply(root));
+        assertEquals(Factor.of(x, BigInteger.ONE, 0, 1), Factor.of(x.multiply(x), BigInteger.ONE, 0, 2));
+        assertEquals(root, Factor.of(x.multiply(x).multiply(x), BigInteger.ONE, 0, 6));
+        // beyond 2 * r * 65536 bits nothing is reduced
+        assertEquals(
+                "factor too large",
+                assertThrows(
+                        ArithmeticException.class,
+                        () -> Factor.of(BigInteger.TWO.pow(4 * 65_536 + 1), BigInteger.ONE, 0, 2)).getMessage());
+    }
+
+    @Test
     void powAndRootThrowWhereTheJavadocSays() {
         assertEquals(
                 "exponent 1001 exceeds 1000",

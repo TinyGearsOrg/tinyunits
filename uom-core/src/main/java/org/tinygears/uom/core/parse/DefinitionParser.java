@@ -348,10 +348,16 @@ public final class DefinitionParser {
         if (open >= 0 && (hash < 0 || open < hash)) {
             int close = t.indexOf(']', open);
             String rest = close < 0 ? "" : t.substring(close + 1).strip();
-            boolean trailing = close < 0 || !rest.isEmpty() && !rest.startsWith("#");
-            type = trailing ? t.substring(open + 1).strip() : t.substring(open + 1, close);
-            if (trailing) {
-                throw malformedType(src, ln, type);
+            if (close < 0) {
+                throw new DefinitionException(src, ln, "missing ']' after the quantity type", null);
+            }
+            type = t.substring(open + 1, close);
+            if (!rest.isEmpty() && !rest.startsWith("#")) {
+                throw new DefinitionException(
+                        src,
+                        ln,
+                        "the quantity type [" + type + "] must end the definition",
+                        null);
             }
             checkType(src, ln, type);
             t = t.substring(0, open).strip();
@@ -368,12 +374,24 @@ public final class DefinitionParser {
         String symbol = colon < 0 ? head : head.substring(0, colon);
         String name = colon < 0 ? symbol : head.substring(colon + 1).replace('_', ' ');
         checkSymbol(src, ln, symbol);
+        if (name.isEmpty()) {
+            throw new DefinitionException(src, ln, "empty name for '" + symbol + "'", null);
+        }
+        if (body.isEmpty()) {
+            // "x#y m" reads as x and a comment
+            boolean comment = hash == sp && (open < 0 || hash < open);
+            throw new DefinitionException(
+                    src,
+                    ln,
+                    "missing formula for '" + symbol + "'" + (comment ? " ('#' starts a comment)" : ""),
+                    null);
+        }
 
         UomUnit<?> unit;
         UomUnit<?> alternateOf = null;
         int eq = body.indexOf('=');
         if (body.startsWith("!")) {
-            unit = base(src, ln, symbol, body.substring(1).strip());
+            unit = base(src, ln, symbol, body.substring(1));
         } else if (body.startsWith("~")) {
             String formula = body.substring(1);
             alternateOf = formula.isBlank() ? BaseUnits.ONE : evaluate(formula);
@@ -404,6 +422,9 @@ public final class DefinitionParser {
     }
 
     private static UomUnit<?> base(String src, int ln, String symbol, String letter) {
+        if (!letter.isEmpty() && Character.isWhitespace(letter.charAt(0))) {
+            throw new DefinitionException(src, ln, "the dimension letter must follow '!' directly", null);
+        }
         int i = letter.length() == 1 ? BASE_LETTERS.indexOf(letter.charAt(0)) : -1;
         if (i < 0) {
             throw new DefinitionException(src, ln, "unknown base dimension '" + letter + "'", null);
