@@ -42,8 +42,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.DefinitionException;
-import org.tinygears.uom.core.parse.DefinitionParser;
+import org.tinygears.uom.engine.UnitException;
+import org.tinygears.uom.engine.parse.DefinitionException;
+import org.tinygears.uom.engine.parse.DefinitionParser;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.QuantityTypes;
 
@@ -387,7 +388,7 @@ class UserUnitsTest {
         DefinitionException e = fails(
                 "\nuu7alt ~ kg\n",
                 "user.units:2: symbol uu7alt is already associated to a different unit");
-        assertInstanceOf(MeasurementException.class, e.getCause());
+        assertInstanceOf(UnitException.class, e.getCause());
     }
 
     @Test

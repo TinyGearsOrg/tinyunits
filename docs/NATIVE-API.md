@@ -10,7 +10,11 @@ decision gets a record in [DESIGN.md](DESIGN.md) section 1.
   provides), products of atoms and the decimal, interval, cache and serial-form helpers. `UomDimension`, `UomUnit`
   and the package-private `AffineConverter` are the JSR-385 types over them: they add `asType`, the text of an
   unnamed unit through the provider, the JSR exceptions, and keep the identity of converters and steps.
-- Next: the parser on engine units, then the native slice.
+- Done: the `.units` parser (`org.tinygears.uom.engine.parse`) evaluates to engine units, with its own table of
+  metric and binary prefixes; `UomSystemOfUnits` and `UomUnitFormat` wrap its results as `UomUnit`s, and a formula
+  that is one looked-up symbol still gives that unit itself. The parser's tests stay in `uom-core`, which has both
+  APIs.
+- Next: the native slice.
 
 ## 1. The constraint
 

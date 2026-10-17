@@ -31,13 +31,13 @@ import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Extends;
-import org.tinygears.uom.core.parse.Member;
-import org.tinygears.uom.core.parse.Preferred;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Extends;
+import org.tinygears.uom.engine.parse.Member;
+import org.tinygears.uom.engine.parse.Preferred;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -94,7 +94,7 @@ class CgsDataTest {
     }
 
     private static UomUnit<?> unit(String symbol) {
-        return entry(symbol).definition().unit();
+        return UomUnit.of(entry(symbol).definition().unit());
     }
 
     private static Factor pow10(int n) {
@@ -275,7 +275,7 @@ class CgsDataTest {
         Map<String, String> actual = new HashMap<>();
         for (Definition d : parsed.get(GAUSSIAN).definitions()) {
             if (FILES.contains(d.source()) && !isPrefixed(d)) {
-                actual.put(d.symbol(), d.unit().getName());
+                actual.put(d.symbol(), d.unit().name());
             }
         }
         assertEquals(expected, actual);

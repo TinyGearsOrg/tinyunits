@@ -27,11 +27,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Prefixed;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Prefixed;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -94,7 +94,7 @@ class SiDataTest {
     private static UomUnit<?> unit(String symbol) {
         Definition d = BY_SYMBOL.get(symbol);
         assertNotNull(d, symbol);
-        return d.unit();
+        return UomUnit.of(d.unit());
     }
 
     private static boolean isPrefixed(Definition d) {
@@ -157,7 +157,7 @@ class SiDataTest {
     void explicitTypeMatchesSystemUnit() {
         for (Definition d : defs.definitions()) {
             if (d.explicitType() != null) {
-                List<String> names = matching(d.unit()).stream().map(QuantityTypeSpec::name).toList();
+                List<String> names = matching(UomUnit.of(d.unit())).stream().map(QuantityTypeSpec::name).toList();
                 assertEquals(List.of(d.explicitType()), names, d.symbol());
             }
         }
@@ -167,7 +167,7 @@ class SiDataTest {
     void untypedDefinitionsMatchExactlyOneType() {
         for (Definition d : defs.definitions()) {
             if (d.explicitType() == null) {
-                assertEquals(1, matching(d.unit()).size(), d.symbol());
+                assertEquals(1, matching(UomUnit.of(d.unit())).size(), d.symbol());
             }
         }
     }

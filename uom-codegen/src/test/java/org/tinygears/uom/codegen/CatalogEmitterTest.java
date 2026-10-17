@@ -32,9 +32,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -361,7 +361,7 @@ class CatalogEmitterTest {
                 Field f = si.getField(e.constantName());
                 assertTrue(Modifier.isFinal(f.getModifiers()) && Modifier.isStatic(f.getModifiers()), f.getName());
                 UomUnit<?> u = (UomUnit<?>) f.get(null);
-                assertEquals(d.unit(), u, d.symbol());
+                assertEquals(d.unit(), u.engine(), d.symbol());
                 assertEquals(d.symbol(), u.getSymbol());
                 assertEquals(d.name(), u.getName());
                 Object typeArg = ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];

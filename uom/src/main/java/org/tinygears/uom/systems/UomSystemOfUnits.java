@@ -35,15 +35,15 @@ import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionException;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Extends;
-import org.tinygears.uom.core.parse.FileDirectives;
-import org.tinygears.uom.core.parse.Member;
-import org.tinygears.uom.core.parse.Preferred;
-import org.tinygears.uom.core.parse.Prefixed;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionException;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Extends;
+import org.tinygears.uom.engine.parse.FileDirectives;
+import org.tinygears.uom.engine.parse.Member;
+import org.tinygears.uom.engine.parse.Preferred;
+import org.tinygears.uom.engine.parse.Prefixed;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /** An immutable system of units indexed by symbol. */
@@ -224,7 +224,8 @@ public final class UomSystemOfUnits implements SystemOfUnits {
             Map<String, UomSystemOfUnits> loaded
     ) {
         UomUnitFormat builtIn = UomUnitFormat.standard();
-        Definitions d = DefinitionParser.parse(source, reader, resolver, s -> builtIn.resolve(s).orElse(null));
+        Definitions d = DefinitionParser
+                .parse(source, reader, resolver, s -> builtIn.resolve(s).map(UomUnit::engine).orElse(null));
         return build(new Parsed(d), source, defaultName, loaded);
     }
 
@@ -260,7 +261,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         String name = file.system() != null ? file.system() : defaultName;
         Map<String, UomUnit<?>> units = new LinkedHashMap<>();
         for (Definition def : parsed.bySource.getOrDefault(source, List.of())) {
-            units.put(def.symbol(), def.unit());
+            units.put(def.symbol(), UomUnit.of(def.unit()));
         }
         Set<String> prefixable = new LinkedHashSet<>();
         Set<String> binaryPrefixable = new LinkedHashSet<>();
@@ -289,7 +290,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         }
         for (Member m : file.members()) {
             Definition def = parsed.bySymbol.get(m.symbol());
-            units.putIfAbsent(m.symbol(), def.unit());
+            units.putIfAbsent(m.symbol(), UomUnit.of(def.unit()));
             for (Prefixed p : parsed.prefixedByUnit.getOrDefault(m.symbol(), List.of())) {
                 if (p.source().equals(def.source())) {
                     addPrefixable(p, prefixable, binaryPrefixable);

@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.parse.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,6 +42,9 @@ import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.ONE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
+import static org.tinygears.uom.core.parse.ParseAdapters.e;
+import static org.tinygears.uom.core.parse.ParseAdapters.jsr;
+import static org.tinygears.uom.core.parse.ParseAdapters.u;
 
 class DefinitionParserTest {
     private static final String HAPPY = """
@@ -97,30 +101,30 @@ class DefinitionParserTest {
         assertEquals("Force", find(d, "N").explicitType());
         assertNull(find(d, "in").explicitType());
         assertEquals("degree Celsius", find(d, "°C").name());
-        UomUnit<javax.measure.quantity.Temperature> degC = UomUnit.unchecked(find(d, "°C").unit());
+        UomUnit<javax.measure.quantity.Temperature> degC = UomUnit.unchecked(u(find(d, "°C").unit()));
         assertEquals(373.15, degC.getConverterTo(KELVIN).convert(100.0), 1e-12);
-        UomUnit<?> hz = find(d, "Hz").unit();
+        UomUnit<?> hz = u(find(d, "Hz").unit());
         assertNotEquals(ONE.divide(SECOND), hz);
         assertTrue(hz.isCompatible(ONE.divide(SECOND)));
-        UomUnit<javax.measure.quantity.Length> in = UomUnit.unchecked(find(d, "in").unit());
+        UomUnit<javax.measure.quantity.Length> in = UomUnit.unchecked(u(find(d, "in").unit()));
         assertTrue(in.isEquivalentTo(METRE.multiply(254).divide(10000)));
-        assertEquals(ONE.divide(SECOND), find(d, "Hz").alternateOf());
-        assertEquals(ONE, find(d, "rad").alternateOf());
-        assertNull(find(d, "in").alternateOf());
+        assertEquals(ONE.divide(SECOND), u(find(d, "Hz").alternateOf()));
+        assertEquals(ONE, u(find(d, "rad").alternateOf()));
+        assertNull(u(find(d, "in").alternateOf()));
         assertEquals(List.of(new Preferred("Length", "m", "test.units", 11)), d.preferred());
         Definition m = find(d, "m");
         assertEquals("test.units", m.source());
         assertEquals(2, m.line());
         assertEquals(10, find(d, "°C").line());
-        assertEquals("m", m.unit().getSymbol());
-        assertEquals("metre", m.unit().getName());
-        assertEquals(METRE, m.unit());
+        assertEquals("m", u(m.unit()).getSymbol());
+        assertEquals("metre", u(m.unit()).getName());
+        assertEquals(METRE, u(m.unit()));
     }
 
     @Test
     void juxtapositionGroupsTheDenominator() {
         Definitions d = parse(BASE + "N kg m / s^2\nJ:joule N m\nx J / kg K\n");
-        assertEquals(find(d, "J").unit().divide(KILOGRAM.multiply(KELVIN)), find(d, "x").unit());
+        assertEquals(u(find(d, "J").unit()).divide(KILOGRAM.multiply(KELVIN)), u(find(d, "x").unit()));
     }
 
     @Test
@@ -146,7 +150,7 @@ class DefinitionParserTest {
         fails("m:metre !Q\n", "test.units:1: unknown base dimension 'Q'");
         fails("kg:kilogram !L\n", "test.units:1: base unit symbol must be 'm'");
         fails("m:metre ! L\n", "test.units:1: the dimension letter must follow '!' directly");
-        assertEquals(KELVIN, find(parse("K !K\n"), "K").unit());
+        assertEquals(KELVIN, u(find(parse("K !K\n"), "K").unit()));
     }
 
     @Test
@@ -182,10 +186,10 @@ class DefinitionParserTest {
         Definitions d = parse(
                 BASE + "°C:degree_Celsius K = x + 273.15\n" + "°F:degree_fahrenheit °C = (x - 32) * 5|9\n"
                         + "°F2 °C = (x - 32) / 9 * 5\n" + "neg K = -x + 1\n");
-        UomUnit<?> degC = find(d, "°C").unit();
-        assertEquals(degC.transform(Converters.affine(Factor.of(5, 9), Factor.of(-160, 9))), find(d, "°F").unit());
-        assertEquals(find(d, "°F").unit(), find(d, "°F2").unit());
-        assertEquals(KELVIN.transform(Converters.affine(Factor.ofLong(-1), Factor.ONE)), find(d, "neg").unit());
+        UomUnit<?> degC = u(find(d, "°C").unit());
+        assertEquals(degC.transform(Converters.affine(Factor.of(5, 9), Factor.of(-160, 9))), u(find(d, "°F").unit()));
+        assertEquals(u(find(d, "°F").unit()), u(find(d, "°F2").unit()));
+        assertEquals(KELVIN.transform(Converters.affine(Factor.ofLong(-1), Factor.ONE)), u(find(d, "neg").unit()));
         fails(BASE + "x:y m = x * x\n", "test.units:5: function is not affine");
         fails(BASE + "x:y m = x / x\n", "test.units:5: function is not affine");
     }
@@ -290,7 +294,7 @@ class DefinitionParserTest {
                 parse(""));
         assertEquals(List.of("m"), symbols(parse("  \n\t\nm !L\n   \n")));
         Definitions u = parse(BASE + "Ω:ohm m\nµ:micro 1|1000000\nx Ω µ\n");
-        assertEquals(METRE.divide(1000000), find(u, "x").unit());
+        assertEquals(METRE.divide(1000000), u(find(u, "x").unit()));
         assertEquals("ohm", find(u, "Ω").name());
     }
 
@@ -305,36 +309,6 @@ class DefinitionParserTest {
         Definitions s = parse("@extends a\n@member m\n", Map.of("a", BASE));
         assertThrows(UnsupportedOperationException.class, () -> s.extended().clear());
         assertThrows(UnsupportedOperationException.class, () -> s.members().clear());
-    }
-
-    @Test
-    void affineFunctionParser() throws FormulaException {
-        AffineFunction f = AffineFunction.parse("(x - 32) * 5|9");
-        assertEquals(Factor.of(5, 9), f.a());
-        assertEquals(Factor.of(-160, 9), f.b());
-        f = AffineFunction.parse("2 * (3 * x + 1.5) / 4 - -1|2");
-        assertEquals(Factor.of(3, 2), f.a());
-        assertEquals(Factor.of(5, 4), f.b());
-        assertEquals(
-                "function is not affine",
-                assertThrows(FormulaException.class, () -> AffineFunction.parse("x * (x + 1)")).getMessage());
-        assertEquals(
-                "division by zero",
-                assertThrows(FormulaException.class, () -> AffineFunction.parse("x / (1 - 1)")).getMessage());
-        assertEquals(
-                "division by zero",
-                assertThrows(FormulaException.class, () -> AffineFunction.parse("x * 1|0")).getMessage());
-        FormulaException e = assertThrows(FormulaException.class, () -> AffineFunction.parse("x + y"));
-        assertEquals("unexpected 'y'", e.getMessage());
-        assertEquals(5, e.column());
-        assertEquals(
-                "missing ')'",
-                assertThrows(FormulaException.class, () -> AffineFunction.parse("(x + 1")).getMessage());
-        assertEquals(
-                "function nested too deeply",
-                assertThrows(
-                        FormulaException.class,
-                        () -> AffineFunction.parse("(".repeat(101) + "x" + ")".repeat(101))).getMessage());
     }
 
     private static final String PREFIX_BASE = BASE + "g:gram 1|1000 kg\nHz:hertz ~ 1/s [Frequency]\n"
@@ -353,15 +327,15 @@ class DefinitionParserTest {
         for (int i = 0; i < 3; i++) {
             Definition def = find(d, syms[i]);
             assertEquals(names[i], def.name());
-            assertEquals(METRE.prefix(prefixes[i]), def.unit());
-            assertEquals(syms[i], def.unit().getSymbol());
-            assertEquals(names[i], def.unit().getName());
-            assertNull(def.alternateOf());
+            assertEquals(METRE.prefix(prefixes[i]), u(def.unit()));
+            assertEquals(syms[i], u(def.unit()).getSymbol());
+            assertEquals(names[i], u(def.unit()).getName());
+            assertNull(u(def.alternateOf()));
             assertNull(def.explicitType());
             assertEquals("test.units", def.source());
             assertEquals(9, def.line());
         }
-        assertEquals(METRE.prefix(MetricPrefix.KILO).divide(SECOND), find(d, "x").unit());
+        assertEquals(METRE.prefix(MetricPrefix.KILO).divide(SECOND), u(find(d, "x").unit()));
         assertEquals("megagram", find(parse(PREFIX_BASE + "@prefixed g M\n"), "Mg").name());
     }
 
@@ -369,11 +343,11 @@ class DefinitionParserTest {
     void prefixedAlternateUnitsKeepTheirAtom() {
         Definitions d = parse(PREFIX_BASE + "@prefixed Hz k M\n@prefixed Bq k\n");
         Definition khz = find(d, "kHz");
-        assertNotEquals(khz.unit(), find(d, "kBq").unit());
+        assertNotEquals(u(khz.unit()), u(find(d, "kBq").unit()));
         assertEquals("Frequency", khz.explicitType());
         assertEquals("Radioactivity", find(d, "kBq").explicitType());
-        assertEquals(find(d, "Hz").unit().prefix(MetricPrefix.KILO), khz.unit());
-        assertEquals(find(d, "Hz").unit().prefix(MetricPrefix.MEGA), find(d, "MHz").unit());
+        assertEquals(u(find(d, "Hz").unit()).prefix(MetricPrefix.KILO), u(khz.unit()));
+        assertEquals(u(find(d, "Hz").unit()).prefix(MetricPrefix.MEGA), u(find(d, "MHz").unit()));
         assertEquals("kilohertz", khz.name());
         assertNull(khz.alternateOf());
         assertEquals(
@@ -387,10 +361,10 @@ class DefinitionParserTest {
     void binaryPrefixes() {
         Definitions d = parse(BASE + "bit:bit ~\nB:byte 8 bit\n@prefixed B k Ki Mi\n@prefixed bit Ki\n");
         assertEquals(List.of("m", "kg", "s", "K", "bit", "B", "kB", "KiB", "MiB", "Kibit"), symbols(d));
-        UomUnit<?> byteUnit = find(d, "B").unit();
-        assertEquals(byteUnit.prefix(BinaryPrefix.KIBI), find(d, "KiB").unit());
-        assertEquals(byteUnit.multiply(1048576), find(d, "MiB").unit());
-        assertEquals(byteUnit.multiply(1000), find(d, "kB").unit());
+        UomUnit<?> byteUnit = u(find(d, "B").unit());
+        assertEquals(byteUnit.prefix(BinaryPrefix.KIBI), u(find(d, "KiB").unit()));
+        assertEquals(byteUnit.multiply(1048576), u(find(d, "MiB").unit()));
+        assertEquals(byteUnit.multiply(1000), u(find(d, "kB").unit()));
         assertEquals("kibibyte", find(d, "KiB").name());
         assertEquals("mebibyte", find(d, "MiB").name());
         assertEquals("kibibit", find(d, "Kibit").name());
@@ -714,7 +688,7 @@ class DefinitionParserTest {
             .of("m", METRE, "km", METRE.prefix(MetricPrefix.KILO), "kg", KILOGRAM, "s", SECOND);
 
     private static Definitions known(String text) {
-        return DefinitionParser.parse("test.units", new StringReader(text), null, KNOWN::get);
+        return DefinitionParser.parse("test.units", new StringReader(text), null, e(KNOWN::get));
     }
 
     private static void knownFails(String text, String message) {
@@ -725,10 +699,10 @@ class DefinitionParserTest {
     @Test
     void knownSymbolsResolveInFormulas() {
         Definitions d = known("a 1.5 m\nb km\nN:newton kg m / s^2\nc 2 a\n");
-        assertEquals(METRE.multiply(1.5), find(d, "a").unit());
-        assertEquals(METRE.multiply(1000), find(d, "b").unit());
-        assertEquals(KILOGRAM.multiply(METRE).divide(SECOND.pow(2)), find(d, "N").unit());
-        assertEquals(METRE.multiply(3), find(d, "c").unit());
+        assertEquals(METRE.multiply(1.5), u(find(d, "a").unit()));
+        assertEquals(METRE.multiply(1000), u(find(d, "b").unit()));
+        assertEquals(KILOGRAM.multiply(METRE).divide(SECOND.pow(2)), u(find(d, "N").unit()));
+        assertEquals(METRE.multiply(3), u(find(d, "c").unit()));
         assertEquals(List.of("a", "b", "N", "c"), symbols(d));
         knownFails("a 1.5 m\nb 2 nothere\n", "test.units:2: unknown unit 'nothere'");
     }
@@ -745,7 +719,7 @@ class DefinitionParserTest {
                         "t.units",
                         new StringReader("@include a\n"),
                         n -> new StringReader("\nx m\nkm m\n"),
-                        KNOWN::get));
+                        e(KNOWN::get)));
         assertEquals("a:3: symbol 'km' is already defined", e.getMessage());
         assertEquals("a", e.source());
         assertEquals(3, e.line());
@@ -757,7 +731,7 @@ class DefinitionParserTest {
         DefinitionException e = assertThrows(
                 DefinitionException.class,
                 () -> DefinitionParser
-                        .parse("t.units", new StringReader("league 3 m\n@prefixed league M k\n"), null, k::get));
+                        .parse("t.units", new StringReader("league 3 m\n@prefixed league M k\n"), null, e(k::get)));
         assertEquals("t.units:2: symbol 'kleague' is already defined", e.getMessage());
     }
 
@@ -766,11 +740,11 @@ class DefinitionParserTest {
         List<String> calls = new ArrayList<>();
         Definitions d = DefinitionParser.parse("t.units", new StringReader("a 2 m\nb 3 a\nc a b\n"), null, s -> {
             calls.add(s);
-            return KNOWN.get(s);
+            return e(KNOWN.get(s));
         });
         // once each for the symbol check of a, b and c, and once for m
         assertEquals(List.of("a", "m", "b", "c"), calls);
-        assertEquals(METRE.pow(2).multiply(12), find(d, "c").unit());
+        assertEquals(METRE.pow(2).multiply(12), u(find(d, "c").unit()));
     }
 
     @Test
@@ -790,7 +764,7 @@ class DefinitionParserTest {
         known("a 2 m\n");
         DefinitionParser.parse("t.units", new StringReader("a 2 m\nb (a)·m\n"), null, s -> {
             calls.add(s);
-            return KNOWN.get(s);
+            return e(KNOWN.get(s));
         });
         assertTrue(calls.stream().noneMatch(s -> s == null || s.isEmpty()), calls.toString());
         // the three-argument form knows nothing

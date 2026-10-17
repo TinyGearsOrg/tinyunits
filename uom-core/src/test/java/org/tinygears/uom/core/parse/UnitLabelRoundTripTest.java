@@ -18,12 +18,16 @@ import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.parse.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
+import static org.tinygears.uom.core.parse.ParseAdapters.e;
+import static org.tinygears.uom.core.parse.ParseAdapters.jsr;
+import static org.tinygears.uom.core.parse.ParseAdapters.u;
 
 class UnitLabelRoundTripTest {
     private static final List<UomUnit<?>> BASES = List.of(
@@ -51,7 +55,7 @@ class UnitLabelRoundTripTest {
             BaseUnits.CANDELA);
 
     private static void assertParsesBack(UomUnit<?> u) throws FormulaException {
-        assertEquals(u, FormulaEvaluator.evaluate(u.getSymbol(), LOOKUP::get), u.getSymbol());
+        assertEquals(u, jsr(u.getSymbol(), LOOKUP::get), u.getSymbol());
     }
 
     @Test

@@ -18,8 +18,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.parse.Definition;
 
 /** Writes {@code docs/UNITS.md}: every unit of every catalog with its exact factor and offset to the system unit. */
 public final class UnitTableEmitter {
@@ -61,13 +61,13 @@ public final class UnitTableEmitter {
                 QuantityTypeSpec spec = e.quantityType() == null ? null : byName.get(e.quantityType());
                 String system = spec != null && spec.systemSymbol() != null
                         ? spec.systemSymbol()
-                        : d.unit().getSystemUnit().getSymbol();
-                Factor offset = d.unit().toSystemConverter().offset();
+                        : d.unit().systemUnit().symbol();
+                Factor offset = d.unit().toSystem().offset();
                 out.append("| ").append(cell("`" + d.symbol() + "`")).append(" | ").append(cell(d.name())).append(" | ")
                         .append(e.quantityType() == null ? "-" : e.quantityType()).append(" | ")
                         .append(
                                 cell(
-                                        "`" + number(d.unit().toSystemConverter().factor())
+                                        "`" + number(d.unit().toSystem().factor())
                                                 + (system.equals("1") ? "" : " " + system) + "`"))
                         .append(" | ").append(offset.isZero() ? "" : cell("`" + number(offset) + "`")).append(" |\n");
             }

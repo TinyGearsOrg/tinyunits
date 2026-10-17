@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,10 +36,10 @@ import javax.measure.format.UnitFormat;
 
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.FormulaEvaluator;
-import org.tinygears.uom.core.parse.FormulaException;
 import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.engine.internal.BoundedCache;
+import org.tinygears.uom.engine.parse.FormulaEvaluator;
+import org.tinygears.uom.engine.parse.FormulaException;
 
 /**
  * Formats units by label or symbol and parses unit formulas such as {@code kg·m/s^2} over systems of units.
@@ -263,7 +264,7 @@ public final class UomUnitFormat implements UnitFormat {
 
     private boolean parsesTo(String text, Unit<?> unit) {
         try {
-            return unit.equals(FormulaEvaluator.evaluate(text, this::lookup));
+            return unit.equals(evaluate(text));
         } catch (FormulaException e) {
             return false;
         }
@@ -417,10 +418,28 @@ public final class UomUnitFormat implements UnitFormat {
             lead++;
         }
         try {
-            return FormulaEvaluator.evaluate(s.substring(lead).strip(), this::lookup);
+            return evaluate(s.substring(lead).strip());
         } catch (FormulaException e) {
             throw new MeasurementParseException(e.getMessage(), csq, Math.min(lead + e.column() - 1, s.length()));
         }
+    }
+
+    /**
+     * {@code formula} evaluated over the engine units of {@link #lookup}; a result that is one of the looked-up units
+     * gives that unit itself, so {@code parse("min")} is {@code SI.MINUTE}.
+     */
+    private UomUnit<?> evaluate(String formula) throws FormulaException {
+        Map<org.tinygears.uom.engine.Unit, UomUnit<?>> seen = new IdentityHashMap<>();
+        org.tinygears.uom.engine.Unit result = FormulaEvaluator.evaluate(formula, symbol -> {
+            UomUnit<?> u = lookup(symbol);
+            if (u == null) {
+                return null;
+            }
+            seen.put(u.engine(), u);
+            return u.engine();
+        });
+        UomUnit<?> same = seen.get(result);
+        return same != null ? same : UomUnit.of(result);
     }
 
     UomUnit<?> lookup(String symbol) {

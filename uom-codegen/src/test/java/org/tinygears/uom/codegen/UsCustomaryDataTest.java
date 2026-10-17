@@ -29,12 +29,12 @@ import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Extends;
-import org.tinygears.uom.core.parse.Preferred;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Extends;
+import org.tinygears.uom.engine.parse.Preferred;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -88,7 +88,7 @@ class UsCustomaryDataTest {
     private static UomUnit<?> unit(String symbol) {
         CatalogEntry e = ukEntries.get(symbol);
         assertNotNull(e, symbol);
-        return e.definition().unit();
+        return UomUnit.of(e.definition().unit());
     }
 
     private static Factor exact(BigDecimal value) {

@@ -10,7 +10,7 @@
 
 package org.tinygears.uom.codegen;
 
-import org.tinygears.uom.core.parse.Definition;
+import org.tinygears.uom.engine.parse.Definition;
 
 /**
  * A catalog constant; {@code quantityType} is null for an untyped unit, {@code shared} names the factory system unit

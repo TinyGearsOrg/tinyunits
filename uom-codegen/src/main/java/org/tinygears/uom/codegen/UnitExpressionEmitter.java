@@ -18,9 +18,9 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.engine.UnitAtom;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.Definitions;
 
 /** Writes Java expressions that evaluate to units equal to given ones. */
 public final class UnitExpressionEmitter {
@@ -130,7 +130,8 @@ public final class UnitExpressionEmitter {
         if (depth >= MAX_DEPTH) {
             throw new GenerationException("alternate unit definitions nest too deeply at '" + symbol + "'");
         }
-        return emit(d.alternateOf(), definitions, imports, depth + 1) + ".alternate(" + literal(symbol) + ")";
+        return emit(UomUnit.of(d.alternateOf()), definitions, imports, depth + 1) + ".alternate(" + literal(symbol)
+                + ")";
     }
 
     /** A Java string literal for {@code s}. */

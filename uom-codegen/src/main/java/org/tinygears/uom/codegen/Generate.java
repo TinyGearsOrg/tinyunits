@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import org.tinygears.uom.core.parse.DefinitionException;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
+import org.tinygears.uom.engine.parse.DefinitionException;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
 
 /**
  * Generates the quantity and catalog sources and the unit table from {@code data/}:

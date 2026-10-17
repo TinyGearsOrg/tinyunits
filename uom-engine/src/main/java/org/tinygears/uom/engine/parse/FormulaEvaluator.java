@@ -8,16 +8,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.parse;
+package org.tinygears.uom.engine.parse;
 
 import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.Unit;
 
 /**
  * Evaluates unit formulas such as {@code kg m / s^2} with a recursive-descent parser.
@@ -42,10 +41,10 @@ public final class FormulaEvaluator {
     private static final char SUPERSCRIPT_MINUS = '\u207B';
 
     private final String s;
-    private final Function<String, UomUnit<?>> lookup;
+    private final Function<String, Unit> lookup;
     private int pos;
 
-    private FormulaEvaluator(String s, Function<String, UomUnit<?>> lookup) {
+    private FormulaEvaluator(String s, Function<String, Unit> lookup) {
         this.s = s;
         this.lookup = lookup;
     }
@@ -58,7 +57,7 @@ public final class FormulaEvaluator {
      * @return the unit
      * @throws FormulaException if the formula is malformed or names an unknown unit
      */
-    public static UomUnit<?> evaluate(String formula, Function<String, UomUnit<?>> lookup) throws FormulaException {
+    public static Unit evaluate(String formula, Function<String, Unit> lookup) throws FormulaException {
         if (formula.length() > MAX_LENGTH) {
             throw new FormulaException("formula too long", 1);
         }
@@ -67,7 +66,7 @@ public final class FormulaEvaluator {
         }
         FormulaEvaluator p = new FormulaEvaluator(formula, lookup);
         p.skipSpace();
-        UomUnit<?> result = p.expr(0);
+        Unit result = p.expr(0);
         p.skipSpace();
         if (p.pos < formula.length() && isSign(formula.charAt(p.pos))) {
             result = p.shift(result);
@@ -79,8 +78,8 @@ public final class FormulaEvaluator {
     }
 
     /** {@code *}, {@code ·} (U+00B7) and {@code /}: equal precedence, left-associative, looser than juxtaposition. */
-    private UomUnit<?> expr(int depth) throws FormulaException {
-        UomUnit<?> left = product(depth);
+    private Unit expr(int depth) throws FormulaException {
+        Unit left = product(depth);
         while (true) {
             skipSpace();
             if (pos >= s.length() || s.charAt(pos) == ')' || isSign(s.charAt(pos))) {
@@ -90,29 +89,29 @@ public final class FormulaEvaluator {
             int col = pos + 1;
             pos++;
             skipSpace();
-            UomUnit<?> right = product(depth);
-            UomUnit<?> l = left;
+            Unit right = product(depth);
+            Unit l = left;
             left = c == '*' || c == '·' ? guard(col, () -> l.multiply(right)) : guard(col, () -> l.divide(right));
         }
     }
 
     /** Juxtaposed terms, so {@code J / kg K} is {@code J / (kg K)}. */
-    private UomUnit<?> product(int depth) throws FormulaException {
-        UomUnit<?> left = term(depth);
+    private Unit product(int depth) throws FormulaException {
+        Unit left = term(depth);
         while (true) {
             skipSpace();
             if (pos >= s.length() || ")*/·+-".indexOf(s.charAt(pos)) >= 0) {
                 return left;
             }
             int col = pos + 1;
-            UomUnit<?> right = term(depth);
-            UomUnit<?> l = left;
+            Unit right = term(depth);
+            Unit l = left;
             left = guard(col, () -> l.multiply(right));
         }
     }
 
-    private UomUnit<?> term(int depth) throws FormulaException {
-        UomUnit<?> base = atom(depth);
+    private Unit term(int depth) throws FormulaException {
+        Unit base = atom(depth);
         if (pos < s.length() && isSuperscript(s.charAt(pos))) {
             int start = pos;
             int n = superscriptExponent(start, s.length());
@@ -149,7 +148,7 @@ public final class FormulaEvaluator {
         return guard(col, () -> base.pow(n));
     }
 
-    private UomUnit<?> atom(int depth) throws FormulaException {
+    private Unit atom(int depth) throws FormulaException {
         if (pos >= s.length()) {
             throw error("unexpected end of formula");
         }
@@ -161,7 +160,7 @@ public final class FormulaEvaluator {
             }
             pos++;
             skipSpace();
-            UomUnit<?> inner = expr(depth + 1);
+            Unit inner = expr(depth + 1);
             if (pos >= s.length()) {
                 throw error("missing ')'");
             }
@@ -188,7 +187,7 @@ public final class FormulaEvaluator {
         if (name.equals("pi")) {
             return pi(col);
         }
-        UomUnit<?> unit = guard(col, () -> lookup.apply(name));
+        Unit unit = guard(col, () -> lookup.apply(name));
         if (unit == null) {
             // Not a symbol as a whole: superscript digits at its end are an exponent of the rest.
             int run = superscriptStart(name);
@@ -206,7 +205,7 @@ public final class FormulaEvaluator {
     }
 
     /** {@code pi}, or {@code pi|d} with {@link #pos} after the {@code pi}. */
-    private UomUnit<?> pi(int col) throws FormulaException {
+    private Unit pi(int col) throws FormulaException {
         Factor pi = Factor.PI;
         if (pos < s.length() && s.charAt(pos) == '|') {
             pos++;
@@ -214,7 +213,7 @@ public final class FormulaEvaluator {
             pi = guard(col, () -> Factor.PI.divide(Factor.of(d, BigInteger.ONE)));
         }
         Factor f = pi;
-        return guard(col, () -> BaseUnits.ONE.scaledBy(f));
+        return guard(col, () -> Unit.ONE.scaledBy(f));
     }
 
     private static boolean isSuperscript(char c) {
@@ -275,7 +274,7 @@ public final class FormulaEvaluator {
     }
 
     /** The trailing {@code +n} or {@code -n} at {@link #pos}; nothing may follow it. */
-    private UomUnit<?> shift(UomUnit<?> unit) throws FormulaException {
+    private Unit shift(Unit unit) throws FormulaException {
         char sign = s.charAt(pos);
         int col = pos + 1;
         boolean glued = sign == '-' && !Character.isWhitespace(s.charAt(pos - 1)) && pos + 1 < s.length()
@@ -306,7 +305,7 @@ public final class FormulaEvaluator {
             }
             throw error("unexpected '" + c + "' after the shift");
         }
-        return guard(col, () -> unit.transform(Converters.shift(offset)));
+        return guard(col, () -> unit.transform(Converter.shift(offset)));
     }
 
     /** Hints at {@code x^-n} when a symbol precedes the sign, else at a spaced shift. */
@@ -328,9 +327,9 @@ public final class FormulaEvaluator {
         return "ambiguous '" + run + "-" + n + "': write '" + run + " - " + n + "' for a shift";
     }
 
-    private UomUnit<?> number(int col) throws FormulaException {
+    private Unit number(int col) throws FormulaException {
         Factor f = literal(col);
-        return guard(col, () -> BaseUnits.ONE.scaledBy(f));
+        return guard(col, () -> Unit.ONE.scaledBy(f));
     }
 
     /** A decimal literal or an exact fraction {@code a|b}. */

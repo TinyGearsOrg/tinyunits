@@ -43,13 +43,13 @@ import javax.measure.quantity.Volume;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Extends;
-import org.tinygears.uom.core.parse.Member;
-import org.tinygears.uom.core.parse.Preferred;
-import org.tinygears.uom.core.parse.Prefixed;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Extends;
+import org.tinygears.uom.engine.parse.Member;
+import org.tinygears.uom.engine.parse.Preferred;
+import org.tinygears.uom.engine.parse.Prefixed;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -146,7 +146,8 @@ class SystemsCatalogTest {
 
     private static UomUnit<?> unit(String file, String symbol) {
         return PARSED.get(file).definitions().stream().filter(d -> d.symbol().equals(symbol)).findFirst()
-                .map(Definition::unit).orElseThrow(() -> new AssertionError(file + ": " + symbol));
+                .map(d -> (UomUnit<?>) UomUnit.of(d.unit()))
+                .orElseThrow(() -> new AssertionError(file + ": " + symbol));
     }
 
     /** The {@code @prefixed} symbols of the parse that are members (an owner's status carries over). */

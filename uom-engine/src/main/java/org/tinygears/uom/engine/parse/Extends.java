@@ -8,5 +8,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/** The parser of {@code .units} definition files and unit formulas. */
-package org.tinygears.uom.core.parse;
+package org.tinygears.uom.engine.parse;
+
+/**
+ * An {@code @extends file} directive.
+ *
+ * @param file the extended file
+ * @param source the file the line is in
+ * @param line the 1-based line number
+ */
+public record Extends(String file, String source, int line) {}

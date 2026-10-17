@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.parse;
+package org.tinygears.uom.engine.parse;
 
 import java.io.Serial;
 

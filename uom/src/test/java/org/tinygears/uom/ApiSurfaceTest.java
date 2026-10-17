@@ -80,9 +80,7 @@ class ApiSurfaceTest {
         ModuleReference core = module(UomUnit.class);
         Set<String> exported = core.descriptor().exports().stream().filter(e -> !e.isQualified())
                 .map(ModuleDescriptor.Exports::source).collect(Collectors.toSet());
-        assertEquals(
-                Set.of("org.tinygears.uom.core", "org.tinygears.uom.core.parse", "org.tinygears.uom.core.quantity"),
-                exported);
+        assertEquals(Set.of("org.tinygears.uom.core", "org.tinygears.uom.core.quantity"), exported);
         // spi is the hook the provider implements, for uom only
         assertEquals(
                 Set.of("org.tinygears.uom"),
@@ -92,7 +90,7 @@ class ApiSurfaceTest {
         // the engine's helpers are for the other modules of uom only
         ModuleReference engine = module(Factor.class);
         assertEquals(
-                Set.of("org.tinygears.uom.engine"),
+                Set.of("org.tinygears.uom.engine", "org.tinygears.uom.engine.parse"),
                 engine.descriptor().exports().stream().filter(e -> !e.isQualified())
                         .map(ModuleDescriptor.Exports::source).collect(Collectors.toSet()));
         assertEquals(

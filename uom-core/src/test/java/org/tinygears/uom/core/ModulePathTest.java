@@ -50,10 +50,7 @@ class ModulePathTest {
                         "org.tinygears.uom.core"),
                 Duration.ofSeconds(30));
         assertEquals(
-                List.of(
-                        "exports org.tinygears.uom.core",
-                        "exports org.tinygears.uom.core.parse",
-                        "exports org.tinygears.uom.core.quantity"),
+                List.of("exports org.tinygears.uom.core", "exports org.tinygears.uom.core.quantity"),
                 out.lines().map(String::strip).filter(l -> l.startsWith("exports ")).sorted().toList(),
                 out);
         // spi, the provider's hook, is exported to uom only; the engine's helpers are exported by the engine.

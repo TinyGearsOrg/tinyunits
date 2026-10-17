@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.parse;
+package org.tinygears.uom.engine.parse;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -20,18 +20,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import javax.measure.MeasurementException;
-import javax.measure.Prefix;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Converter;
+import org.tinygears.uom.engine.Unit;
+import org.tinygears.uom.engine.UnitAtom;
+import org.tinygears.uom.engine.UnitException;
 
 /** Parses {@code .units} definition files: one {@code symbol[:name] body [Type] [# comment]} per line. */
 public final class DefinitionParser {
@@ -100,15 +98,15 @@ public final class DefinitionParser {
             "record",
             "sealed",
             "permits");
-    private static final UomUnit<?>[] BASES = {
-        BaseUnits.METRE,
-        BaseUnits.KILOGRAM,
-        BaseUnits.SECOND,
-        BaseUnits.AMPERE,
-        BaseUnits.KELVIN,
-        BaseUnits.MOLE,
-        BaseUnits.CANDELA,
-        BaseUnits.KELVIN };
+    private static final Unit[] BASES = {
+        Unit.base(UnitAtom.METRE, "metre"),
+        Unit.base(UnitAtom.KILOGRAM, "kilogram"),
+        Unit.base(UnitAtom.SECOND, "second"),
+        Unit.base(UnitAtom.AMPERE, "ampere"),
+        Unit.base(UnitAtom.KELVIN, "kelvin"),
+        Unit.base(UnitAtom.MOLE, "mole"),
+        Unit.base(UnitAtom.CANDELA, "candela"),
+        Unit.base(UnitAtom.KELVIN, "kelvin") };
 
     /** Opens an included file by name. */
     public interface Resolver {
@@ -123,8 +121,8 @@ public final class DefinitionParser {
     }
 
     private final Resolver resolver;
-    private final Function<String, UomUnit<?>> known;
-    private final Map<String, UomUnit<?>> units = new HashMap<>();
+    private final Function<String, Unit> known;
+    private final Map<String, Unit> units = new HashMap<>();
     private final List<Definition> definitions = new ArrayList<>();
     // the definitions by symbol, which is unique, so that @prefixed finds its unit without a scan
     private final Map<String, Definition> bySymbol = new HashMap<>();
@@ -147,7 +145,7 @@ public final class DefinitionParser {
         }
     }
 
-    private DefinitionParser(Resolver resolver, Function<String, UomUnit<?>> known) {
+    private DefinitionParser(Resolver resolver, Function<String, Unit> known) {
         this.resolver = resolver;
         this.known = known;
     }
@@ -178,12 +176,7 @@ public final class DefinitionParser {
      * @return the definitions
      * @throws DefinitionException if a line is invalid
      */
-    public static Definitions parse(
-            String source,
-            Reader reader,
-            Resolver resolver,
-            Function<String, UomUnit<?>> known
-    ) {
+    public static Definitions parse(String source, Reader reader, Resolver resolver, Function<String, Unit> known) {
         DefinitionParser p = new DefinitionParser(resolver, Objects.requireNonNull(known, "known"));
         try {
             p.file(source, reader);
@@ -228,7 +221,7 @@ public final class DefinitionParser {
             } else {
                 definition(src, ln, t);
             }
-        } catch (FormulaException | ArithmeticException | IllegalArgumentException | MeasurementException e) {
+        } catch (FormulaException | ArithmeticException | IllegalArgumentException | UnitException e) {
             throw new DefinitionException(src, ln, e.getMessage(), e);
         }
     }
@@ -327,19 +320,19 @@ public final class DefinitionParser {
         if (prefixedSymbols.contains(w[1])) {
             throw new DefinitionException(src, ln, "unit '" + w[1] + "' is already prefixed", null);
         }
-        if (!base.unit().toSystemConverter().isLinear()) {
+        if (!base.unit().toSystem().isLinear()) {
             throw new DefinitionException(src, ln, "unit '" + w[1] + "' can not be prefixed", null);
         }
         List<String> symbols = List.of(w).subList(2, w.length);
         for (String p : symbols) {
-            Prefix prefix = Prefixed.PREFIXES.get(p);
+            Prefixed.Prefix prefix = Prefixed.PREFIXES.get(p);
             if (prefix == null) {
                 throw new DefinitionException(src, ln, "unknown prefix '" + p + "'", null);
             }
             String symbol = p + base.symbol();
             checkSymbol(src, ln, symbol);
-            String name = prefix.getName().toLowerCase(Locale.ROOT) + base.name();
-            UomUnit<?> unit = base.unit().prefix(prefix).named(symbol, name);
+            String name = prefix.name() + base.name();
+            Unit unit = base.unit().scaledBy(prefix.factor()).named(symbol, name);
             units.put(symbol, unit);
             prefixedSymbols.add(symbol);
             define(new Definition(symbol, name, unit, null, base.explicitType(), src, ln));
@@ -413,27 +406,27 @@ public final class DefinitionParser {
                     null);
         }
 
-        UomUnit<?> unit;
-        UomUnit<?> alternateOf = null;
+        Unit unit;
+        Unit alternateOf = null;
         int eq = body.indexOf('=');
         if (body.startsWith("!")) {
             unit = base(src, ln, symbol, body.substring(1));
         } else if (body.startsWith("~")) {
             String formula = body.substring(1);
-            alternateOf = formula.isBlank() ? BaseUnits.ONE : evaluate(formula);
+            alternateOf = formula.isBlank() ? Unit.ONE : evaluate(formula);
             try {
                 unit = alternateOf.alternate(symbol);
             } catch (IllegalArgumentException e) {
                 throw new DefinitionException(src, ln, "alternate unit must be an unscaled unit", e);
             }
         } else if (eq >= 0) {
-            UomUnit<?> ref = evaluate(body.substring(0, eq));
+            Unit ref = evaluate(body.substring(0, eq));
             AffineFunction f = AffineFunction.parse(body.substring(eq + 1));
-            unit = ref.transform(Converters.affine(f.a(), f.b()));
+            unit = ref.transform(Converter.affine(f.a(), f.b()));
         } else {
             unit = evaluate(body);
         }
-        UomUnit<?> named = unit.named(symbol, name);
+        Unit named = unit.named(symbol, name);
         units.put(symbol, named);
         define(new Definition(symbol, name, named, alternateOf, type, src, ln));
     }
@@ -443,12 +436,12 @@ public final class DefinitionParser {
         bySymbol.put(d.symbol(), d);
     }
 
-    private UomUnit<?> evaluate(String formula) throws FormulaException {
+    private Unit evaluate(String formula) throws FormulaException {
         return FormulaEvaluator.evaluate(formula, this::find);
     }
 
     /** A symbol of the user files that the current file sees, else a built-in one. */
-    private UomUnit<?> find(String symbol) {
+    private Unit find(String symbol) {
         if (symbol == null || symbol.isEmpty()) {
             return null;
         }
@@ -458,7 +451,7 @@ public final class DefinitionParser {
         return known.apply(symbol);
     }
 
-    private static UomUnit<?> base(String src, int ln, String symbol, String letter) {
+    private static Unit base(String src, int ln, String symbol, String letter) {
         if (!letter.isEmpty() && Character.isWhitespace(letter.charAt(0))) {
             throw new DefinitionException(src, ln, "the dimension letter must follow '!' directly", null);
         }
@@ -466,8 +459,8 @@ public final class DefinitionParser {
         if (i < 0) {
             throw new DefinitionException(src, ln, "unknown base dimension '" + letter + "'", null);
         }
-        if (!BASES[i].getSymbol().equals(symbol)) {
-            throw new DefinitionException(src, ln, "base unit symbol must be '" + BASES[i].getSymbol() + "'", null);
+        if (!BASES[i].symbol().equals(symbol)) {
+            throw new DefinitionException(src, ln, "base unit symbol must be '" + BASES[i].symbol() + "'", null);
         }
         return BASES[i];
     }

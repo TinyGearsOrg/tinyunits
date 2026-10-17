@@ -82,10 +82,11 @@ check_entries() { # <jar> <allowed regex> <required entries...>
 describe_expected() { # <artifact> <version>
   case $1 in
     uom-engine) printf '%s\n' "org.tinygears.uom.engine@$2" 'exports org.tinygears.uom.engine' \
+      'exports org.tinygears.uom.engine.parse' \
       'requires java.base mandated' 'uses org.tinygears.uom.engine.internal.UnitCatalogs' \
       'qualified exports org.tinygears.uom.engine.internal to org.tinygears.uom org.tinygears.uom.core' ;;
     uom-core) printf '%s\n' "org.tinygears.uom.core@$2" 'exports org.tinygears.uom.core' \
-      'exports org.tinygears.uom.core.parse' 'exports org.tinygears.uom.core.quantity' 'requires java.base mandated' \
+      'exports org.tinygears.uom.core.quantity' 'requires java.base mandated' \
       'requires java.measure transitive' 'requires org.tinygears.uom.engine transitive' \
       'qualified exports org.tinygears.uom.core.spi to org.tinygears.uom' ;;
     uom) printf '%s\n' "org.tinygears.uom@$2" 'exports org.tinygears.uom.quantity' \

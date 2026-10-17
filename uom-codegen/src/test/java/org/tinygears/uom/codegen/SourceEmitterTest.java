@@ -38,11 +38,11 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomDimension;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.engine.UnitAtom;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

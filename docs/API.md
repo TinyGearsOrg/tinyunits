@@ -9,8 +9,8 @@ The public API consists of the exported packages of the published modules:
 
 | Module | Exported packages |
 |---|---|
-| `org.tinygears.uom.engine` (artifact `uom-engine`) | `org.tinygears.uom.engine` |
-| `org.tinygears.uom.core` (artifact `uom-core`) | `org.tinygears.uom.core`, `org.tinygears.uom.core.parse`, `org.tinygears.uom.core.quantity` |
+| `org.tinygears.uom.engine` (artifact `uom-engine`) | `org.tinygears.uom.engine`, `org.tinygears.uom.engine.parse` |
+| `org.tinygears.uom.core` (artifact `uom-core`) | `org.tinygears.uom.core`, `org.tinygears.uom.core.quantity` |
 | `org.tinygears.uom` (artifact `uom`) | `org.tinygears.uom.quantity`, `org.tinygears.uom.systems` |
 
 Within them, these are stable:

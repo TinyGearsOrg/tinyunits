@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.parse;
+package org.tinygears.uom.engine.parse;
 
 /**
- * An {@code @extends file} directive.
+ * One symbol of an {@code @member symbol...} directive.
  *
- * @param file the extended file
+ * @param symbol the symbol
  * @param source the file the line is in
  * @param line the 1-based line number
  */
-public record Extends(String file, String source, int line) {}
+public record Member(String symbol, String source, int line) {}

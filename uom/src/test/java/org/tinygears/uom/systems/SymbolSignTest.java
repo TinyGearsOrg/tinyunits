@@ -18,7 +18,7 @@ import javax.measure.Prefix;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.parse.Definition;
+import org.tinygears.uom.engine.parse.Definition;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

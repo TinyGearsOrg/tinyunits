@@ -21,9 +21,10 @@ import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
 import javax.measure.Prefix;
 
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Prefixed;
+import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Prefixed;
 
 /** Writes the catalog class of typed unit constants and its system of units. */
 public final class CatalogEmitter {
@@ -73,7 +74,7 @@ public final class CatalogEmitter {
                 unit = prefixed(d, catalog, definitions, emitted, imports);
                 if (unit == null) {
                     try {
-                        unit = UnitExpressionEmitter.emitUnit(d.unit(), definitions, imports);
+                        unit = UnitExpressionEmitter.emitUnit(UomUnit.of(d.unit()), definitions, imports);
                     } catch (GenerationException x) {
                         throw new GenerationException(d.source(), d.line(), x.getMessage(), x);
                     }

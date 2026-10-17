@@ -28,6 +28,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.parse.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -38,6 +39,9 @@ import static org.tinygears.uom.core.BaseUnits.KELVIN;
 import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.BaseUnits.SECOND;
+import static org.tinygears.uom.core.parse.ParseAdapters.e;
+import static org.tinygears.uom.core.parse.ParseAdapters.jsr;
+import static org.tinygears.uom.core.parse.ParseAdapters.u;
 
 class FormulaEvaluatorTest {
     private static final UomUnit<?> N = KILOGRAM.multiply(METRE).divide(SECOND.pow(2));
@@ -65,7 +69,7 @@ class FormulaEvaluatorTest {
             METRE.multiply(1000));
 
     private static UomUnit<?> eval(String f) throws FormulaException {
-        return FormulaEvaluator.evaluate(f, UNITS::get);
+        return jsr(f, UNITS::get);
     }
 
     private static void fails(String f, String message, int column) {
@@ -176,7 +180,7 @@ class FormulaEvaluatorTest {
     void lookupNeverSeesEmptySymbol() {
         java.util.List<String> seen = new java.util.ArrayList<>();
         for (String f : new String[] { "m / )", "( )", "(", "( ", "m / ( )" }) {
-            assertThrows(FormulaException.class, () -> FormulaEvaluator.evaluate(f, n -> {
+            assertThrows(FormulaException.class, () -> jsr(f, n -> {
                 seen.add(n);
                 return UNITS.get(n);
             }));
@@ -197,7 +201,7 @@ class FormulaEvaluatorTest {
 
     @Test
     void lookupFailureIsWrappedWithColumn() {
-        FormulaException e = assertThrows(FormulaException.class, () -> FormulaEvaluator.evaluate("m  zz", n -> {
+        FormulaException e = assertThrows(FormulaException.class, () -> jsr("m  zz", n -> {
             if (n.equals("zz")) {
                 throw new IllegalStateException("boom");
             }
@@ -213,7 +217,7 @@ class FormulaEvaluatorTest {
         class Silent extends RuntimeException {
             private static final long serialVersionUID = 1L;
         }
-        FormulaException e = assertThrows(FormulaException.class, () -> FormulaEvaluator.evaluate("m", n -> {
+        FormulaException e = assertThrows(FormulaException.class, () -> jsr("m", n -> {
             throw new Silent();
         }));
         assertTrue(e.getMessage().contains("Silent"));
@@ -225,7 +229,7 @@ class FormulaEvaluatorTest {
         assertEquals(eval("kg m / s^2"), eval("kg·m/s^2"));
         assertEquals(METRE.multiply(SECOND), eval("m ·s"));
         assertEquals(METRE.multiply(SECOND), eval("m· s"));
-        FormulaEvaluator.evaluate("m·s", name -> {
+        jsr("m·s", name -> {
             assertTrue(name.indexOf('·') < 0, name);
             return UNITS.get(name);
         });
@@ -234,7 +238,7 @@ class FormulaEvaluatorTest {
     }
 
     private static UomUnit<?> defined(Definitions d, String symbol) {
-        return d.definitions().stream().filter(x -> x.symbol().equals(symbol)).findFirst().orElseThrow().unit();
+        return u(d.definitions().stream().filter(x -> x.symbol().equals(symbol)).findFirst().orElseThrow().unit());
     }
 
     @Test
@@ -306,8 +310,8 @@ class FormulaEvaluatorTest {
         UomUnit<?> own = METRE.pow(2).multiply(3);
         Map<String, UomUnit<?>> units = new HashMap<>(UNITS);
         units.put("m²", own);
-        assertEquals(own, FormulaEvaluator.evaluate("m²", units::get));
-        assertEquals(METRE.pow(2), FormulaEvaluator.evaluate("m^2", units::get));
+        assertEquals(own, jsr("m²", units::get));
+        assertEquals(METRE.pow(2), jsr("m^2", units::get));
     }
 
     @Test
@@ -367,7 +371,7 @@ class FormulaEvaluatorTest {
     @Test
     void lookupNeverSeesSigns() throws FormulaException {
         for (String f : new String[] { "m+1", "m - 1", "m kg -1", "(m / s)^2+1" }) {
-            FormulaEvaluator.evaluate(f, name -> {
+            jsr(f, name -> {
                 assertTrue(name.indexOf('+') < 0 && name.indexOf('-') < 0, name);
                 return UNITS.get(name);
             });

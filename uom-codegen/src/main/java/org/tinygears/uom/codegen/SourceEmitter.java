@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.tinygears.uom.core.parse.Definitions;
+import org.tinygears.uom.engine.parse.Definitions;
 
 /**
  * Writes the generated sources of one quantity type and the type registry; {@code $T} is the type name. Templates

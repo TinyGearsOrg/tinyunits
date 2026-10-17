@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.parse;
+package org.tinygears.uom.engine.parse;
 
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Unit;
 
 /**
  * One unit definition line; {@code explicitType} is null when the line names no quantity type, and
@@ -27,8 +27,8 @@ import org.tinygears.uom.core.UomUnit;
 public record Definition(
         String symbol,
         String name,
-        UomUnit<?> unit,
-        UomUnit<?> alternateOf,
+        Unit unit,
+        Unit alternateOf,
         String explicitType,
         String source,
         int line

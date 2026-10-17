@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Prefixed;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Prefixed;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -93,7 +93,7 @@ class SiCatalogTest {
     void everyDefinitionIsInTheCatalog() {
         for (Definition d : defs.definitions()) {
             UomUnit<?> u = SI.SYSTEM.lookup(d.symbol()).orElseThrow(() -> new AssertionError(d.symbol()));
-            assertEquals(d.unit(), u, d.symbol());
+            assertEquals(d.unit(), u.engine(), d.symbol());
             assertEquals(d.symbol(), u.getSymbol());
             assertEquals(d.name(), u.getName());
         }

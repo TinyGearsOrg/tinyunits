@@ -118,6 +118,7 @@ org.tinygears.uom.engine UnitException member public org.tinygears.uom.engine.Un
 org.tinygears.uom.engine UnitException type public class org.tinygears.uom.engine.UnitException extends java.lang.RuntimeException
 org.tinygears.uom.engine module exports org.tinygears.uom.engine
 org.tinygears.uom.engine module exports org.tinygears.uom.engine.internal to [org.tinygears.uom, org.tinygears.uom.core]
+org.tinygears.uom.engine module exports org.tinygears.uom.engine.parse
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.AlternateUnits
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.Atoms
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.BoundedCache
@@ -127,6 +128,89 @@ org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.Inter
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.Irrationals
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.SerialForm
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.UnitCatalogs
+org.tinygears.uom.engine.parse Definition member public final boolean equals(java.lang.Object)
+org.tinygears.uom.engine.parse Definition member public final int hashCode()
+org.tinygears.uom.engine.parse Definition member public final java.lang.String toString()
+org.tinygears.uom.engine.parse Definition member public int line()
+org.tinygears.uom.engine.parse Definition member public java.lang.String explicitType()
+org.tinygears.uom.engine.parse Definition member public java.lang.String name()
+org.tinygears.uom.engine.parse Definition member public java.lang.String source()
+org.tinygears.uom.engine.parse Definition member public java.lang.String symbol()
+org.tinygears.uom.engine.parse Definition member public org.tinygears.uom.engine.Unit alternateOf()
+org.tinygears.uom.engine.parse Definition member public org.tinygears.uom.engine.Unit unit()
+org.tinygears.uom.engine.parse Definition member public org.tinygears.uom.engine.parse.Definition(java.lang.String,java.lang.String,org.tinygears.uom.engine.Unit,org.tinygears.uom.engine.Unit,java.lang.String,java.lang.String,int)
+org.tinygears.uom.engine.parse Definition type public final record org.tinygears.uom.engine.parse.Definition extends java.lang.Record
+org.tinygears.uom.engine.parse DefinitionException member public int line()
+org.tinygears.uom.engine.parse DefinitionException member public java.lang.String source()
+org.tinygears.uom.engine.parse DefinitionException member public org.tinygears.uom.engine.parse.DefinitionException(java.lang.String,int,java.lang.String,java.lang.Throwable)
+org.tinygears.uom.engine.parse DefinitionException type public final class org.tinygears.uom.engine.parse.DefinitionException extends java.lang.RuntimeException
+org.tinygears.uom.engine.parse DefinitionParser member public static org.tinygears.uom.engine.parse.Definitions parse(java.lang.String,java.io.Reader,org.tinygears.uom.engine.parse.DefinitionParser$Resolver)
+org.tinygears.uom.engine.parse DefinitionParser member public static org.tinygears.uom.engine.parse.Definitions parse(java.lang.String,java.io.Reader,org.tinygears.uom.engine.parse.DefinitionParser$Resolver,java.util.function.Function<java.lang.String, org.tinygears.uom.engine.Unit>)
+org.tinygears.uom.engine.parse DefinitionParser type public final class org.tinygears.uom.engine.parse.DefinitionParser
+org.tinygears.uom.engine.parse DefinitionParser$Resolver member public abstract java.io.Reader open(java.lang.String) throws java.io.IOException
+org.tinygears.uom.engine.parse DefinitionParser$Resolver type public abstract static interface org.tinygears.uom.engine.parse.DefinitionParser$Resolver
+org.tinygears.uom.engine.parse Definitions member public final boolean equals(java.lang.Object)
+org.tinygears.uom.engine.parse Definitions member public final int hashCode()
+org.tinygears.uom.engine.parse Definitions member public final java.lang.String toString()
+org.tinygears.uom.engine.parse Definitions member public java.lang.String system()
+org.tinygears.uom.engine.parse Definitions member public java.util.List<org.tinygears.uom.engine.parse.Definition> definitions()
+org.tinygears.uom.engine.parse Definitions member public java.util.List<org.tinygears.uom.engine.parse.Extends> extended()
+org.tinygears.uom.engine.parse Definitions member public java.util.List<org.tinygears.uom.engine.parse.Member> members()
+org.tinygears.uom.engine.parse Definitions member public java.util.List<org.tinygears.uom.engine.parse.Preferred> preferred()
+org.tinygears.uom.engine.parse Definitions member public java.util.List<org.tinygears.uom.engine.parse.Prefixed> prefixed()
+org.tinygears.uom.engine.parse Definitions member public java.util.Map<java.lang.String, org.tinygears.uom.engine.parse.FileDirectives> files()
+org.tinygears.uom.engine.parse Definitions member public org.tinygears.uom.engine.parse.Definitions(java.util.List<org.tinygears.uom.engine.parse.Definition>,java.util.List<org.tinygears.uom.engine.parse.Preferred>,java.util.List<org.tinygears.uom.engine.parse.Prefixed>,java.lang.String,java.util.List<org.tinygears.uom.engine.parse.Extends>,java.util.List<org.tinygears.uom.engine.parse.Member>,java.util.Map<java.lang.String, org.tinygears.uom.engine.parse.FileDirectives>)
+org.tinygears.uom.engine.parse Definitions type public final record org.tinygears.uom.engine.parse.Definitions extends java.lang.Record
+org.tinygears.uom.engine.parse Extends member public final boolean equals(java.lang.Object)
+org.tinygears.uom.engine.parse Extends member public final int hashCode()
+org.tinygears.uom.engine.parse Extends member public final java.lang.String toString()
+org.tinygears.uom.engine.parse Extends member public int line()
+org.tinygears.uom.engine.parse Extends member public java.lang.String file()
+org.tinygears.uom.engine.parse Extends member public java.lang.String source()
+org.tinygears.uom.engine.parse Extends member public org.tinygears.uom.engine.parse.Extends(java.lang.String,java.lang.String,int)
+org.tinygears.uom.engine.parse Extends type public final record org.tinygears.uom.engine.parse.Extends extends java.lang.Record
+org.tinygears.uom.engine.parse FileDirectives member public final boolean equals(java.lang.Object)
+org.tinygears.uom.engine.parse FileDirectives member public final int hashCode()
+org.tinygears.uom.engine.parse FileDirectives member public final java.lang.String toString()
+org.tinygears.uom.engine.parse FileDirectives member public java.lang.String system()
+org.tinygears.uom.engine.parse FileDirectives member public java.util.List<org.tinygears.uom.engine.parse.Extends> extended()
+org.tinygears.uom.engine.parse FileDirectives member public java.util.List<org.tinygears.uom.engine.parse.Member> members()
+org.tinygears.uom.engine.parse FileDirectives member public org.tinygears.uom.engine.parse.FileDirectives(java.lang.String,java.util.List<org.tinygears.uom.engine.parse.Extends>,java.util.List<org.tinygears.uom.engine.parse.Member>)
+org.tinygears.uom.engine.parse FileDirectives type public final record org.tinygears.uom.engine.parse.FileDirectives extends java.lang.Record
+org.tinygears.uom.engine.parse FormulaEvaluator member public static org.tinygears.uom.engine.Unit evaluate(java.lang.String,java.util.function.Function<java.lang.String, org.tinygears.uom.engine.Unit>) throws org.tinygears.uom.engine.parse.FormulaException
+org.tinygears.uom.engine.parse FormulaEvaluator type public final class org.tinygears.uom.engine.parse.FormulaEvaluator
+org.tinygears.uom.engine.parse FormulaException member public int column()
+org.tinygears.uom.engine.parse FormulaException member public org.tinygears.uom.engine.parse.FormulaException(java.lang.String,int)
+org.tinygears.uom.engine.parse FormulaException member public org.tinygears.uom.engine.parse.FormulaException(java.lang.String,int,java.lang.Throwable)
+org.tinygears.uom.engine.parse FormulaException type public final class org.tinygears.uom.engine.parse.FormulaException extends java.lang.Exception
+org.tinygears.uom.engine.parse Member member public final boolean equals(java.lang.Object)
+org.tinygears.uom.engine.parse Member member public final int hashCode()
+org.tinygears.uom.engine.parse Member member public final java.lang.String toString()
+org.tinygears.uom.engine.parse Member member public int line()
+org.tinygears.uom.engine.parse Member member public java.lang.String source()
+org.tinygears.uom.engine.parse Member member public java.lang.String symbol()
+org.tinygears.uom.engine.parse Member member public org.tinygears.uom.engine.parse.Member(java.lang.String,java.lang.String,int)
+org.tinygears.uom.engine.parse Member type public final record org.tinygears.uom.engine.parse.Member extends java.lang.Record
+org.tinygears.uom.engine.parse Preferred member public final boolean equals(java.lang.Object)
+org.tinygears.uom.engine.parse Preferred member public final int hashCode()
+org.tinygears.uom.engine.parse Preferred member public final java.lang.String toString()
+org.tinygears.uom.engine.parse Preferred member public int line()
+org.tinygears.uom.engine.parse Preferred member public java.lang.String quantityType()
+org.tinygears.uom.engine.parse Preferred member public java.lang.String source()
+org.tinygears.uom.engine.parse Preferred member public java.lang.String symbol()
+org.tinygears.uom.engine.parse Preferred member public org.tinygears.uom.engine.parse.Preferred(java.lang.String,java.lang.String,java.lang.String,int)
+org.tinygears.uom.engine.parse Preferred type public final record org.tinygears.uom.engine.parse.Preferred extends java.lang.Record
+org.tinygears.uom.engine.parse Prefixed member public boolean binary()
+org.tinygears.uom.engine.parse Prefixed member public boolean metric()
+org.tinygears.uom.engine.parse Prefixed member public final boolean equals(java.lang.Object)
+org.tinygears.uom.engine.parse Prefixed member public final int hashCode()
+org.tinygears.uom.engine.parse Prefixed member public final java.lang.String toString()
+org.tinygears.uom.engine.parse Prefixed member public int line()
+org.tinygears.uom.engine.parse Prefixed member public java.lang.String source()
+org.tinygears.uom.engine.parse Prefixed member public java.lang.String unitSymbol()
+org.tinygears.uom.engine.parse Prefixed member public java.util.List<java.lang.String> prefixSymbols()
+org.tinygears.uom.engine.parse Prefixed member public org.tinygears.uom.engine.parse.Prefixed(java.lang.String,java.util.List<java.lang.String>,java.lang.String,int)
+org.tinygears.uom.engine.parse Prefixed type public final record org.tinygears.uom.engine.parse.Prefixed extends java.lang.Record
 org.tinygears.uom.core BaseUnits member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> MOLE
 org.tinygears.uom.core BaseUnits member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Dimensionless> ONE
 org.tinygears.uom.core BaseUnits member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> AMPERE
@@ -211,94 +295,10 @@ org.tinygears.uom.core UomUnit member public static <Q extends javax.measure.Qua
 org.tinygears.uom.core UomUnit member public static <Q extends javax.measure.Quantity<Q>> org.tinygears.uom.core.UomUnit<Q> unchecked(org.tinygears.uom.core.UomUnit<?>)
 org.tinygears.uom.core UomUnit type public final class org.tinygears.uom.core.UomUnit<Q extends javax.measure.Quantity<Q>> implements javax.measure.Unit<Q>, java.io.Serializable
 org.tinygears.uom.core module exports org.tinygears.uom.core
-org.tinygears.uom.core module exports org.tinygears.uom.core.parse
 org.tinygears.uom.core module exports org.tinygears.uom.core.quantity
 org.tinygears.uom.core module exports org.tinygears.uom.core.spi to [org.tinygears.uom]
 org.tinygears.uom.core module requires transitive java.measure
 org.tinygears.uom.core module requires transitive org.tinygears.uom.engine
-org.tinygears.uom.core.parse Definition member public final boolean equals(java.lang.Object)
-org.tinygears.uom.core.parse Definition member public final int hashCode()
-org.tinygears.uom.core.parse Definition member public final java.lang.String toString()
-org.tinygears.uom.core.parse Definition member public int line()
-org.tinygears.uom.core.parse Definition member public java.lang.String explicitType()
-org.tinygears.uom.core.parse Definition member public java.lang.String name()
-org.tinygears.uom.core.parse Definition member public java.lang.String source()
-org.tinygears.uom.core.parse Definition member public java.lang.String symbol()
-org.tinygears.uom.core.parse Definition member public org.tinygears.uom.core.UomUnit<?> alternateOf()
-org.tinygears.uom.core.parse Definition member public org.tinygears.uom.core.UomUnit<?> unit()
-org.tinygears.uom.core.parse Definition member public org.tinygears.uom.core.parse.Definition(java.lang.String,java.lang.String,org.tinygears.uom.core.UomUnit<?>,org.tinygears.uom.core.UomUnit<?>,java.lang.String,java.lang.String,int)
-org.tinygears.uom.core.parse Definition type public final record org.tinygears.uom.core.parse.Definition extends java.lang.Record
-org.tinygears.uom.core.parse DefinitionException member public int line()
-org.tinygears.uom.core.parse DefinitionException member public java.lang.String source()
-org.tinygears.uom.core.parse DefinitionException member public org.tinygears.uom.core.parse.DefinitionException(java.lang.String,int,java.lang.String,java.lang.Throwable)
-org.tinygears.uom.core.parse DefinitionException type public final class org.tinygears.uom.core.parse.DefinitionException extends java.lang.RuntimeException
-org.tinygears.uom.core.parse DefinitionParser member public static org.tinygears.uom.core.parse.Definitions parse(java.lang.String,java.io.Reader,org.tinygears.uom.core.parse.DefinitionParser$Resolver)
-org.tinygears.uom.core.parse DefinitionParser member public static org.tinygears.uom.core.parse.Definitions parse(java.lang.String,java.io.Reader,org.tinygears.uom.core.parse.DefinitionParser$Resolver,java.util.function.Function<java.lang.String, org.tinygears.uom.core.UomUnit<?>>)
-org.tinygears.uom.core.parse DefinitionParser type public final class org.tinygears.uom.core.parse.DefinitionParser
-org.tinygears.uom.core.parse DefinitionParser$Resolver member public abstract java.io.Reader open(java.lang.String) throws java.io.IOException
-org.tinygears.uom.core.parse DefinitionParser$Resolver type public abstract static interface org.tinygears.uom.core.parse.DefinitionParser$Resolver
-org.tinygears.uom.core.parse Definitions member public final boolean equals(java.lang.Object)
-org.tinygears.uom.core.parse Definitions member public final int hashCode()
-org.tinygears.uom.core.parse Definitions member public final java.lang.String toString()
-org.tinygears.uom.core.parse Definitions member public java.lang.String system()
-org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Definition> definitions()
-org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Extends> extended()
-org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Member> members()
-org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Preferred> preferred()
-org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Prefixed> prefixed()
-org.tinygears.uom.core.parse Definitions member public java.util.Map<java.lang.String, org.tinygears.uom.core.parse.FileDirectives> files()
-org.tinygears.uom.core.parse Definitions member public org.tinygears.uom.core.parse.Definitions(java.util.List<org.tinygears.uom.core.parse.Definition>,java.util.List<org.tinygears.uom.core.parse.Preferred>,java.util.List<org.tinygears.uom.core.parse.Prefixed>,java.lang.String,java.util.List<org.tinygears.uom.core.parse.Extends>,java.util.List<org.tinygears.uom.core.parse.Member>,java.util.Map<java.lang.String, org.tinygears.uom.core.parse.FileDirectives>)
-org.tinygears.uom.core.parse Definitions type public final record org.tinygears.uom.core.parse.Definitions extends java.lang.Record
-org.tinygears.uom.core.parse Extends member public final boolean equals(java.lang.Object)
-org.tinygears.uom.core.parse Extends member public final int hashCode()
-org.tinygears.uom.core.parse Extends member public final java.lang.String toString()
-org.tinygears.uom.core.parse Extends member public int line()
-org.tinygears.uom.core.parse Extends member public java.lang.String file()
-org.tinygears.uom.core.parse Extends member public java.lang.String source()
-org.tinygears.uom.core.parse Extends member public org.tinygears.uom.core.parse.Extends(java.lang.String,java.lang.String,int)
-org.tinygears.uom.core.parse Extends type public final record org.tinygears.uom.core.parse.Extends extends java.lang.Record
-org.tinygears.uom.core.parse FileDirectives member public final boolean equals(java.lang.Object)
-org.tinygears.uom.core.parse FileDirectives member public final int hashCode()
-org.tinygears.uom.core.parse FileDirectives member public final java.lang.String toString()
-org.tinygears.uom.core.parse FileDirectives member public java.lang.String system()
-org.tinygears.uom.core.parse FileDirectives member public java.util.List<org.tinygears.uom.core.parse.Extends> extended()
-org.tinygears.uom.core.parse FileDirectives member public java.util.List<org.tinygears.uom.core.parse.Member> members()
-org.tinygears.uom.core.parse FileDirectives member public org.tinygears.uom.core.parse.FileDirectives(java.lang.String,java.util.List<org.tinygears.uom.core.parse.Extends>,java.util.List<org.tinygears.uom.core.parse.Member>)
-org.tinygears.uom.core.parse FileDirectives type public final record org.tinygears.uom.core.parse.FileDirectives extends java.lang.Record
-org.tinygears.uom.core.parse FormulaEvaluator member public static org.tinygears.uom.core.UomUnit<?> evaluate(java.lang.String,java.util.function.Function<java.lang.String, org.tinygears.uom.core.UomUnit<?>>) throws org.tinygears.uom.core.parse.FormulaException
-org.tinygears.uom.core.parse FormulaEvaluator type public final class org.tinygears.uom.core.parse.FormulaEvaluator
-org.tinygears.uom.core.parse FormulaException member public int column()
-org.tinygears.uom.core.parse FormulaException member public org.tinygears.uom.core.parse.FormulaException(java.lang.String,int)
-org.tinygears.uom.core.parse FormulaException member public org.tinygears.uom.core.parse.FormulaException(java.lang.String,int,java.lang.Throwable)
-org.tinygears.uom.core.parse FormulaException type public final class org.tinygears.uom.core.parse.FormulaException extends java.lang.Exception
-org.tinygears.uom.core.parse Member member public final boolean equals(java.lang.Object)
-org.tinygears.uom.core.parse Member member public final int hashCode()
-org.tinygears.uom.core.parse Member member public final java.lang.String toString()
-org.tinygears.uom.core.parse Member member public int line()
-org.tinygears.uom.core.parse Member member public java.lang.String source()
-org.tinygears.uom.core.parse Member member public java.lang.String symbol()
-org.tinygears.uom.core.parse Member member public org.tinygears.uom.core.parse.Member(java.lang.String,java.lang.String,int)
-org.tinygears.uom.core.parse Member type public final record org.tinygears.uom.core.parse.Member extends java.lang.Record
-org.tinygears.uom.core.parse Preferred member public final boolean equals(java.lang.Object)
-org.tinygears.uom.core.parse Preferred member public final int hashCode()
-org.tinygears.uom.core.parse Preferred member public final java.lang.String toString()
-org.tinygears.uom.core.parse Preferred member public int line()
-org.tinygears.uom.core.parse Preferred member public java.lang.String quantityType()
-org.tinygears.uom.core.parse Preferred member public java.lang.String source()
-org.tinygears.uom.core.parse Preferred member public java.lang.String symbol()
-org.tinygears.uom.core.parse Preferred member public org.tinygears.uom.core.parse.Preferred(java.lang.String,java.lang.String,java.lang.String,int)
-org.tinygears.uom.core.parse Preferred type public final record org.tinygears.uom.core.parse.Preferred extends java.lang.Record
-org.tinygears.uom.core.parse Prefixed member public boolean binary()
-org.tinygears.uom.core.parse Prefixed member public boolean metric()
-org.tinygears.uom.core.parse Prefixed member public final boolean equals(java.lang.Object)
-org.tinygears.uom.core.parse Prefixed member public final int hashCode()
-org.tinygears.uom.core.parse Prefixed member public final java.lang.String toString()
-org.tinygears.uom.core.parse Prefixed member public int line()
-org.tinygears.uom.core.parse Prefixed member public java.lang.String source()
-org.tinygears.uom.core.parse Prefixed member public java.lang.String unitSymbol()
-org.tinygears.uom.core.parse Prefixed member public java.util.List<java.lang.String> prefixSymbols()
-org.tinygears.uom.core.parse Prefixed member public org.tinygears.uom.core.parse.Prefixed(java.lang.String,java.util.List<java.lang.String>,java.lang.String,int)
-org.tinygears.uom.core.parse Prefixed type public final record org.tinygears.uom.core.parse.Prefixed extends java.lang.Record
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member protected abstract R create(java.math.BigDecimal,org.tinygears.uom.core.UomUnit<Q>,javax.measure.Quantity$Scale,java.math.MathContext)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member protected abstract R createDouble(double,org.tinygears.uom.core.UomUnit<Q>,javax.measure.Quantity$Scale)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member protected abstract java.lang.Class<Q> quantityType()
@@ -1309,7 +1309,7 @@ org.tinygears.uom.systems UomSystemOfUnits member public java.util.Set<? extends
 org.tinygears.uom.systems UomSystemOfUnits member public javax.measure.Unit<?> getUnit(java.lang.String)
 org.tinygears.uom.systems UomSystemOfUnits member public org.tinygears.uom.systems.UomSystemOfUnits(java.lang.String,java.util.List<org.tinygears.uom.core.UomUnit<?>>,java.util.Map<java.lang.Class<?>, org.tinygears.uom.core.UomUnit<?>>,java.util.Set<java.lang.String>)
 org.tinygears.uom.systems UomSystemOfUnits member public org.tinygears.uom.systems.UomSystemOfUnits(java.lang.String,java.util.List<org.tinygears.uom.core.UomUnit<?>>,java.util.Map<java.lang.Class<?>, org.tinygears.uom.core.UomUnit<?>>,java.util.Set<java.lang.String>,java.util.Set<java.lang.String>)
-org.tinygears.uom.systems UomSystemOfUnits member public static org.tinygears.uom.systems.UomSystemOfUnits load(java.lang.String,java.io.Reader,org.tinygears.uom.core.parse.DefinitionParser$Resolver)
+org.tinygears.uom.systems UomSystemOfUnits member public static org.tinygears.uom.systems.UomSystemOfUnits load(java.lang.String,java.io.Reader,org.tinygears.uom.engine.parse.DefinitionParser$Resolver)
 org.tinygears.uom.systems UomSystemOfUnits member public static org.tinygears.uom.systems.UomSystemOfUnits load(java.nio.file.Path) throws java.io.IOException
 org.tinygears.uom.systems UomSystemOfUnits type public final class org.tinygears.uom.systems.UomSystemOfUnits implements javax.measure.spi.SystemOfUnits
 org.tinygears.uom.systems UomSystemOfUnitsService member public java.util.Collection<javax.measure.spi.SystemOfUnits> getAvailableSystemsOfUnits()

@@ -25,10 +25,10 @@ import javax.measure.Quantity;
 
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.FormulaEvaluator;
-import org.tinygears.uom.core.parse.FormulaException;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.FormulaEvaluator;
+import org.tinygears.uom.engine.parse.FormulaException;
 
 /** Parses {@code data/quantity-types.txt}: one {@code Name formula [=> symbol:name] [# comment]} per line. */
 public final class QuantityTypesParser {
@@ -134,10 +134,10 @@ public final class QuantityTypesParser {
     }
 
     private static UomUnit<?> evaluate(String formula, Map<String, Definition> bySymbol) throws FormulaException {
-        return FormulaEvaluator.evaluate(formula, s -> {
+        return UomUnit.of(FormulaEvaluator.evaluate(formula, s -> {
             Definition d = bySymbol.get(s);
             return d == null ? null : d.unit();
-        });
+        }));
     }
 
     // The symbol must parse back to the unit: formats print it whenever it does.

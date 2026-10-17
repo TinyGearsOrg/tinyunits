@@ -37,7 +37,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
-import org.tinygears.uom.core.parse.DefinitionException;
+import org.tinygears.uom.engine.parse.DefinitionException;
 import org.tinygears.uom.systems.UomSystemOfUnits;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

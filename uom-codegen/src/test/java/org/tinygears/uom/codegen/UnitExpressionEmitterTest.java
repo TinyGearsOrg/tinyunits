@@ -31,12 +31,12 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.UomDimension;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.FormulaEvaluator;
 import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.engine.UnitAtom;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.FormulaEvaluator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -70,14 +70,16 @@ class UnitExpressionEmitterTest {
     }
 
     static UomUnit<?> si(Definitions defs, String symbol) {
-        return defs.definitions().stream().filter(d -> d.symbol().equals(symbol)).findFirst().orElseThrow().unit();
+        return UomUnit.of(
+                defs.definitions().stream().filter(d -> d.symbol().equals(symbol)).findFirst().orElseThrow().unit());
     }
 
     static UomUnit<?> evaluate(String formula) throws Exception {
-        return FormulaEvaluator.evaluate(
-                formula,
-                s -> DEFS.definitions().stream().filter(d -> d.symbol().equals(s)).findFirst().map(Definition::unit)
-                        .orElse(null));
+        return UomUnit.of(
+                FormulaEvaluator.evaluate(
+                        formula,
+                        s -> DEFS.definitions().stream().filter(d -> d.symbol().equals(s)).findFirst()
+                                .map(Definition::unit).orElse(null)));
     }
 
     /** Imports for a class {@code E} in the unnamed package. */
@@ -164,7 +166,7 @@ class UnitExpressionEmitterTest {
     void cyclicDefinition() {
         UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", Dimension.NONE), 1), Converters.IDENTITY, null, null);
         Definitions cyclic = new Definitions(
-                List.of(new Definition("x", "ex", x, x, null, "f", 1)),
+                List.of(new Definition("x", "ex", x.engine(), x.engine(), null, "f", 1)),
                 List.of(),
                 List.of(),
                 null,

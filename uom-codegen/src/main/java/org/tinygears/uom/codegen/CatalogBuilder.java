@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
 
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.parse.Definition;
-import org.tinygears.uom.core.parse.Definitions;
-import org.tinygears.uom.core.parse.Extends;
-import org.tinygears.uom.core.parse.Member;
-import org.tinygears.uom.core.parse.Preferred;
-import org.tinygears.uom.core.parse.Prefixed;
+import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.engine.parse.Extends;
+import org.tinygears.uom.engine.parse.Member;
+import org.tinygears.uom.engine.parse.Preferred;
+import org.tinygears.uom.engine.parse.Prefixed;
 
 /** Resolves each definition to a catalog constant name and quantity type (decision D5). */
 public final class CatalogBuilder {
@@ -70,7 +70,7 @@ public final class CatalogBuilder {
     }
 
     private static String type(Definition d, List<QuantityTypeSpec> types, Map<String, QuantityTypeSpec> byName) {
-        UomUnit<?> system = d.unit().getSystemUnit();
+        UomUnit<?> system = UomUnit.of(d.unit()).getSystemUnit();
         if (d.explicitType() != null) {
             QuantityTypeSpec spec = byName.get(d.explicitType());
             if (spec == null) {
@@ -100,7 +100,7 @@ public final class CatalogBuilder {
      */
     private static String shared(Definition d, String type, Map<String, QuantityTypeSpec> byName, Set<String> claimed) {
         QuantityTypeSpec spec = type == null ? null : byName.get(type);
-        if (spec == null || spec.explicit() || !d.unit().equals(spec.systemUnit())) {
+        if (spec == null || spec.explicit() || !UomUnit.of(d.unit()).equals(spec.systemUnit())) {
             return null;
         }
         boolean agrees = d.symbol().equals(spec.systemSymbol()) && d.name().equals(spec.systemName());
@@ -274,7 +274,7 @@ public final class CatalogBuilder {
             if (spec == null) {
                 throw new GenerationException(p.source(), p.line(), "unknown quantity type '" + p.quantityType() + "'");
             }
-            if (!spec.systemUnit().equals(def.unit().getSystemUnit())) {
+            if (!spec.systemUnit().equals(UomUnit.of(def.unit()).getSystemUnit())) {
                 throw new GenerationException(
                         p.source(),
                         p.line(),

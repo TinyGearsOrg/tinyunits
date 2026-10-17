@@ -15,8 +15,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.parse.DefinitionParser;
-import org.tinygears.uom.core.parse.Definitions;
+import org.tinygears.uom.engine.parse.DefinitionParser;
+import org.tinygears.uom.engine.parse.Definitions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -62,7 +62,7 @@ class QuantityTypesParserTest {
                 l.stream().map(QuantityTypeSpec::name).toList());
         assertEquals(
                 d.definitions().stream().filter(x -> x.symbol().equals("Hz")).findFirst().get().unit(),
-                l.get(2).systemUnit());
+                l.get(2).systemUnit().engine());
         assertEquals("J", l.get(3).systemSymbol());
         assertEquals("joule", l.get(3).systemName());
         assertNull(l.get(1).systemSymbol());
