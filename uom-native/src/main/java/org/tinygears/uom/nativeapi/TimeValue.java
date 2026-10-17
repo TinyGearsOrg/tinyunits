@@ -10,14 +10,17 @@
 
 package org.tinygears.uom.nativeapi;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 final class TimeValue extends AbstractQuantity<Time> implements Time {
 
-    TimeValue(double value, Unit<Time> unit) {
-        super(value, unit);
+    TimeValue(double value, BigDecimal decimal, MathContext mc, Unit<Time> unit) {
+        super(value, decimal, mc, unit);
     }
 
     @Override
-    Time create(double value, Unit<Time> unit) {
-        return new TimeValue(value, unit);
+    Time create(double value, BigDecimal decimal, MathContext mc, Unit<Time> unit) {
+        return new TimeValue(value, decimal, mc, unit);
     }
 }

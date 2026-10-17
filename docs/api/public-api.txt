@@ -117,8 +117,13 @@ org.tinygears.uom.engine UnitAtom type public final record org.tinygears.uom.eng
 org.tinygears.uom.engine UnitException member public org.tinygears.uom.engine.UnitException(java.lang.String)
 org.tinygears.uom.engine UnitException type public class org.tinygears.uom.engine.UnitException extends java.lang.RuntimeException
 org.tinygears.uom.engine module exports org.tinygears.uom.engine
+org.tinygears.uom.engine module exports org.tinygears.uom.engine.arithmetic to [org.tinygears.uom.core, org.tinygears.uom.nativeapi]
 org.tinygears.uom.engine module exports org.tinygears.uom.engine.internal to [org.tinygears.uom, org.tinygears.uom.core]
 org.tinygears.uom.engine module exports org.tinygears.uom.engine.parse
+org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.DecimalArithmetic
+org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.Deltas
+org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.DoubleArithmetic
+org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.Precision
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.AlternateUnits
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.Atoms
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.BoundedCache

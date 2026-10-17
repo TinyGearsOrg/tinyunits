@@ -98,6 +98,12 @@ class ApiSurfaceTest {
                 engine.descriptor().exports().stream()
                         .filter(e -> e.source().equals("org.tinygears.uom.engine.internal")).findFirst().orElseThrow()
                         .targets());
+        // the quantity arithmetic is for the two quantity APIs only
+        assertEquals(
+                Set.of("org.tinygears.uom.core", "org.tinygears.uom.nativeapi"),
+                engine.descriptor().exports().stream()
+                        .filter(e -> e.source().equals("org.tinygears.uom.engine.arithmetic")).findFirst().orElseThrow()
+                        .targets());
         assertTrue(engine.descriptor().requires().stream().noneMatch(r -> r.name().equals("java.measure")));
         assertTrue(engine.descriptor().opens().isEmpty());
         ModuleReference uom = module(UomServiceProvider.class);
@@ -109,7 +115,7 @@ class ApiSurfaceTest {
     }
 
     @Test
-    void onlyTheInternalAndSpiPackagesHavePublicTypesOutsideTheExports() throws Exception {
+    void onlyTheInternalArithmeticAndSpiPackagesHavePublicTypesOutsideTheExports() throws Exception {
         List<String> hidden = new ArrayList<>();
         for (ModuleReference m : List
                 .of(module(Factor.class), module(UomUnit.class), module(UomServiceProvider.class))) {
@@ -119,6 +125,7 @@ class ApiSurfaceTest {
         for (String line : hidden) {
             assertTrue(
                     line.startsWith("org.tinygears.uom.engine.internal ")
+                            || line.startsWith("org.tinygears.uom.engine.arithmetic ")
                             || line.startsWith("org.tinygears.uom.core.spi "),
                     line);
         }

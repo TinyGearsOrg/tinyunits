@@ -19,6 +19,7 @@ import javax.measure.quantity.Speed;
 import javax.measure.spi.QuantityFactory;
 
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.arithmetic.Precision;
 
 /** Stand-in for a generated decimal speed, with a factory that follows D11 (DECIMAL128 for decimal values). */
 class TestSpeedDecimalImpl extends AbstractDecimalQuantity<Speed, TestSpeed> implements TestSpeed {

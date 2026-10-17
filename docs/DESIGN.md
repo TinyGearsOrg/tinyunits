@@ -38,7 +38,8 @@ behaviour for users is in the linked documents. The full discussion and probe re
   a sum of points is refused, and the hybrid: both differ from the Javadoc and from Indriya.
 - *Revisit if.* Users expect point minus point to be a difference (add a helper, or adopt the hybrid); Indriya or the standard
   changes; `double` rounding through the offset matters (`20 °C - 0 °C` is -253.14999999999998; `BigDecimal` is exact).
-  Code: `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`to`, `combine`, `scalar`, products) with `Deltas`.
+  Code: `AbstractDoubleQuantity` and `AbstractDecimalQuantity` (`to`, `combine`, `scalar`, products) over the engine's
+  `DoubleArithmetic`, `DecimalArithmetic` and `Deltas`.
 - *See.* [OFFSET-UNITS.md](OFFSET-UNITS.md); `RelativeScaleTest`, `QuantityContractTest`.
 
 **DR-02 `asType` goes by dimension (F21).**
@@ -378,13 +379,13 @@ behaviour for users is in the linked documents. The full discussion and probe re
 
 | Module | Contents | Published |
 |--------|----------|-----------|
-| `uom-engine` | No JSR-385 types: `Factor` (exact rationals, powers of pi, roots), `Dimension` (the seven exponents), `UnitAtom` with the base atoms, `Converter` (affine, exact), `Unit` (the unit algebra), `UnitException`, the `.units` parser (`parse`: `DefinitionParser`, `FormulaEvaluator`, with its own table of metric and binary prefixes); in a package exported to the other modules only (`internal`), the alternate-unit registry, the catalog service (`UnitCatalogs`, loaded with `ServiceLoader`), products of atoms, and the decimal and interval arithmetic, caches and serial-form helpers. The first steps of docs/NATIVE-API.md; `UomDimension`, `UomUnit` and `UomConverter` are the JSR-385 types over it | yes |
-| `uom-core` | The JSR-385 `Dimension`, `Unit` and converters over the engine, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
+| `uom-engine` | No JSR-385 types: `Factor` (exact rationals, powers of pi, roots), `Dimension` (the seven exponents), `UnitAtom` with the base atoms, `Converter` (affine, exact), `Unit` (the unit algebra), `UnitException`, the `.units` parser (`parse`: `DefinitionParser`, `FormulaEvaluator`, with its own table of metric and binary prefixes); in a package exported to the other modules only (`internal`), the alternate-unit registry, the catalog service (`UnitCatalogs`, loaded with `ServiceLoader`), products of atoms, and the decimal and interval arithmetic, caches and serial-form helpers; in `arithmetic`, exported to `uom-core` and `uom-native` only, the quantity arithmetic (`DoubleArithmetic`, `DecimalArithmetic`: conversion, sums, scalars, products, comparison and tolerances on engine units and plain values) and the precision rules (`Precision`, `Deltas`). The first steps of docs/NATIVE-API.md; `UomDimension`, `UomUnit` and `UomConverter` are the JSR-385 types over it | yes |
+| `uom-core` | The JSR-385 `Dimension`, `Unit` and converters over the engine, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`) that delegate the arithmetic to the engine | yes |
 | `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`, `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; no `.units` resources are shipped | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
 | `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
-| `uom-native` | Prototype of a native API on `uom-engine` (docs/NATIVE-API.md): `Unit<Length>` with this library's types, typed products; no JSR-385 types | no |
+| `uom-native` | Prototype of a native API on `uom-engine` (docs/NATIVE-API.md): `Unit<Length>` with this library's types, typed products, `double` and decimal quantities on the engine's arithmetic; no JSR-385 types | no |
 | `uom-native-jsr` | Prototype bridge between the native and the JSR-385 quantities (`Jsr`) | no |
 
 Dependencies: `uom` -> `uom-core` -> `uom-engine`, and `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core` and the
@@ -456,8 +457,9 @@ The hand-written base classes `AbstractDoubleQuantity<Q, R extends Q>` and
 `AbstractDecimalQuantity<Q, R extends Q>` (package `org.tinygears.uom.core.quantity`, `uom-core`)
 hold all quantity logic for `double` and `BigDecimal` values: `to`, `add`, `subtract`, `negate`,
 `multiply`, `divide`, `inverse`, `asType`, `equals`, `hashCode`, `compareTo`, `isEquivalentTo`,
-`toDouble`, `toDecimal`. A package-private `Precision` helper classifies operand kinds and converts
-between `Number` kinds. `R` is the typed interface returned by the operations that keep
+`toDouble`, `toDecimal`. They read the operands, check units and dimensions, and create the results; the arithmetic
+itself is the engine's (`org.tinygears.uom.engine.arithmetic`: `DoubleArithmetic`, `DecimalArithmetic`), which the
+native API prototype shares. The engine's `Precision` classifies operand kinds and converts between `Number` kinds. `R` is the typed interface returned by the operations that keep
 the quantity type; the typed interfaces only add covariant return types. The design's strict
 overloads such as `Length add(Length)` are not generated: generics already reject quantities of
 other types, so they add no safety.
@@ -511,7 +513,7 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
   differences. `add` and `subtract` take the right operand as a difference (factor only, added in the left unit) if
   either operand is `RELATIVE`; the result is `RELATIVE` only if both are, else `ABSOLUTE`. `negate` keeps the scale.
   Quantity-by-quantity results and `inverse` are `ABSOLUTE` and still apply offsets to their operands. The rules live
-  in the package-private `Deltas` and are documented for users in `docs/OFFSET-UNITS.md`.
+  in the engine's `Deltas` and the base classes and are documented for users in `docs/OFFSET-UNITS.md`.
 - **Foreign arguments (D8).** A `Quantity` or `Unit` whose unit is not a `UomUnit` is rejected
   with `UnconvertibleException`; `null` gives `NullPointerException`; an incompatible dimension
   gives `UnconvertibleException` (`compareTo`, `add`, ...) or `false` (`isEquivalentTo`).

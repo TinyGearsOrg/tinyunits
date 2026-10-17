@@ -30,6 +30,7 @@ import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.arithmetic.Precision;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

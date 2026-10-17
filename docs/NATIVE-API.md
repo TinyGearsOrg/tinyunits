@@ -3,7 +3,7 @@
 **Status:** proposal, not decided (TODO item 33). Section 1 describes the code as it is, sections 2 to 6 propose. A
 decision gets a record in [DESIGN.md](DESIGN.md) section 1.
 
-**Progress** (branch `native-prototype`): step 1 is under way.
+**Progress** (branch `native-prototype`): step 1 is done; step 2 (the judgement) is next.
 - Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException`, `Converter`
   (affine, exact, with its steps) and `Unit` (atoms, converter, labels, the algebra and the converter cache) and, in
   `internal`, the alternate-unit registry, the catalog service (`UnitCatalogs` through `ServiceLoader`, which `uom`
@@ -15,9 +15,17 @@ decision gets a record in [DESIGN.md](DESIGN.md) section 1.
   that is one looked-up symbol still gives that unit itself. The parser's tests stay in `uom-core`, which has both
   APIs.
 - Done: the native slice. `uom-native` (module `org.tinygears.uom.nativeapi`, on the engine only) has
-  `Quantity<Q>`, `Unit<Q>`, `Length`, `Time`, `Speed` in `double`, the products `Length.divide(Time)` (a `Speed`),
+  `Quantity<Q>`, `Unit<Q>`, `Length`, `Time`, `Speed`, the products `Length.divide(Time)` (a `Speed`),
   `Speed.multiply(Time)` (a `Length`) and `Length.divide(Speed)` (a `Time`), and the SI units of the slice;
   `uom-native-jsr` converts both ways between them and the JSR-385 quantities (`Jsr.toJsr`, `Jsr.length`, ...).
+- Done: the quantity arithmetic in the engine. `org.tinygears.uom.engine.arithmetic` (exported to `uom-core` and
+  `uom-native` only) holds `DoubleArithmetic` and `DecimalArithmetic` (conversion, sums, scalars, products, comparison
+  and tolerances, exact and rounded once for decimals) and the precision rules (`Precision`, `Deltas`), as static
+  methods on engine units and plain values, so the `double` path allocates nothing. `AbstractDoubleQuantity` and
+  `AbstractDecimalQuantity` delegate to it and keep operand reading, the JSR-385 exceptions, result creation,
+  `asType`, `toSystem` and serialization; their tests are unchanged. The native quantities use the same kernel:
+  one class per type holds a `double` or a decimal with its context, with the precision rule of DR-14, and the
+  bridge carries decimals and contexts both ways.
 
 **Findings of the prototype**, against the criteria of section 6:
 - Unit declarations: `Unit<Length> km = SI.KILOMETRE` compiles with this library's `Length`; no `var`, `Unit<?>` or
@@ -25,12 +33,18 @@ decision gets a record in [DESIGN.md](DESIGN.md) section 1.
 - Typed products: `Length.of(42.195, km).divide(Time.of(3, h))` is a `Speed`; each relation is one method on each
   side, so the 33 types need a relation table and generated methods.
 - Boundary cost: both APIs wrap the same engine units, so a conversion copies the value and wraps the unit. Measured on
-  JDK 25 (warm, 2 million calls): native to JSR-385 27 ns, back 15 ns, against 15 to 23 ns for one `add` or `divide`
-  on either side: the boundary costs about one arithmetic operation.
-- Shared code: the engine carries the algebra, conversion, parser, registry and serialization; the native slice is
-  577 lines over it with Javadoc (quantities, units, catalog), the bridge 115. What does not carry over is the
-  quantity arithmetic of `uom-core` (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`), which is
-  written against the JSR-385 types; a native API with decimals would need it again or a JSR-free version of it.
+  JDK 25 (warm, 2 million calls): native to JSR-385 27 ns, back 15 ns, against 10 to 15 ns for one `double` `add` on
+  either side: the boundary costs about one or two arithmetic operations.
+- Shared code: the engine carries the algebra, conversion, parser, registry, serialization and the quantity
+  arithmetic (784 lines in `arithmetic`); the native slice with `double` and decimal quantities is 856 lines over it
+  with Javadoc (its `AbstractQuantity` 255), the bridge 161. Both APIs give the same decimal results
+  (`JsrBridgeTest`). Moving the arithmetic did not change its speed on the JSR-385 side (a `double` add 10 to 11 ns,
+  a decimal add 480 to 540 ns, before and after, JDK 25).
+- Measured on the way: the JSR-385 quantity product (`Length.divide(Quantity)`) takes about 1.4 µs and a `double`
+  add with an offset unit about 0.8 µs, against 10 ns for the native `Length.divide(Time)`, which knows its result
+  unit. The JSR-385 side builds the product unit on every call (the engine's `m.divide(s)` alone takes 1.5 µs), and
+  the `double` sum through an offset unit inverts the converter to the system unit on every call (1.2 µs with exact
+  factors); caching both is TODO item 34.
 - Next: the decision of section 6 (complete the split, keep one JSR-385 implementation, or ship the native API with
   the JSR-385 side as an adapter).
 

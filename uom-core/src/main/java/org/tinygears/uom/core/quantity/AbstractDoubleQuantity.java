@@ -18,16 +18,17 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
-import java.util.function.DoubleBinaryOperator;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
 
-import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.spi.Providers;
+import org.tinygears.uom.engine.arithmetic.DecimalArithmetic;
+import org.tinygears.uom.engine.arithmetic.DoubleArithmetic;
+import org.tinygears.uom.engine.arithmetic.Precision;
 
 /**
  * Base class of the generated {@code double} quantities; {@code R} is the typed interface returned by
@@ -54,7 +55,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
     private static final long serialVersionUID = 1L;
 
     /** Relative tolerance of {@link #isEquivalentTo}. */
-    public static final double EQUIVALENCE_TOLERANCE = 1e-12;
+    public static final double EQUIVALENCE_TOLERANCE = DoubleArithmetic.EQUIVALENCE_TOLERANCE;
 
     /** The value. */
     private final double value;
@@ -126,8 +127,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
     @Override
     public R to(Unit<Q> unit) {
         UomUnit<Q> target = uomUnit(unit);
-        UomConverter c = this.unit.getConverterTo(target);
-        return create((scale == Quantity.Scale.RELATIVE ? Deltas.converter(c) : c).convert(value), target, scale);
+        return create(DoubleArithmetic.convert(value, Engine.converter(this.unit, target), relative()), target, scale);
     }
 
     /**
@@ -187,25 +187,18 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
         if (!unit.getDimension().equals(thatUnit.getDimension())) {
             return false;
         }
-        UomConverter c = thatUnit.getConverterTo(unit);
+        org.tinygears.uom.engine.Converter c = Engine.converter(thatUnit, unit);
+        boolean deltas = bothRelative(that);
         if (Precision.kind(that.getValue()) == Precision.Kind.DECIMAL) {
             if (!Double.isFinite(value)) {
                 return false;
             }
-            BigDecimal b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
-                    .convert(Precision.toDecimal(that.getValue()), MathContext.DECIMAL128);
+            BigDecimal b = DecimalArithmetic
+                    .convert(Precision.toDecimal(that.getValue()), c, deltas, MathContext.DECIMAL128);
             return Precision.equivalentAsDoubles(Precision.toDecimal(value), b);
         }
-        double a = value;
-        double b = (Deltas.both(scale, that.getScale()) ? Deltas.converter(c) : c)
-                .convert(Precision.toDouble(that.getValue()));
-        if (a == b) {
-            return true;
-        }
-        if (Double.isInfinite(a) || Double.isInfinite(b)) {
-            return false;
-        }
-        return Math.abs(a - b) <= EQUIVALENCE_TOLERANCE * Math.max(Math.abs(a), Math.abs(b));
+        return DoubleArithmetic
+                .equivalent(value, DoubleArithmetic.convert(Precision.toDouble(that.getValue()), c, deltas));
     }
 
     /**
@@ -220,14 +213,13 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
         if (promotes(that) && Double.isFinite(value)) {
             return promoted(that).isCloseTo(that, relativeTolerance);
         }
-        boolean deltas = Deltas.both(scale, that.getScale());
-        double a = systemValue(value, unit, deltas);
-        double b = systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas);
-        if (a == b) {
-            return true;
-        }
-        return Double.isFinite(a) && Double.isFinite(b)
-                && Math.abs(a - b) <= relativeTolerance * Math.max(Math.abs(a), Math.abs(b));
+        return DoubleArithmetic.isCloseTo(
+                value,
+                unit.engine(),
+                Precision.toDouble(that.getValue()),
+                thatUnit.engine(),
+                bothRelative(that),
+                relativeTolerance);
     }
 
     /**
@@ -244,14 +236,14 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
         if (promotes(that) && Double.isFinite(value)) {
             return promoted(that).isCloseTo(that, absoluteTolerance);
         }
-        boolean deltas = Deltas.both(scale, that.getScale());
-        double a = systemValue(value, unit, deltas);
-        double b = systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas);
-        if (a == b) {
-            return true;
-        }
-        double t = Math.abs(systemValue(Precision.toDouble(absoluteTolerance.getValue()), toleranceUnit, true));
-        return Double.isFinite(a) && Double.isFinite(b) && Math.abs(a - b) <= t;
+        return DoubleArithmetic.isCloseTo(
+                value,
+                unit.engine(),
+                Precision.toDouble(that.getValue()),
+                thatUnit.engine(),
+                bothRelative(that),
+                Precision.toDouble(absoluteTolerance.getValue()),
+                toleranceUnit.engine());
     }
 
     /** {@code u} if it has this dimension; throws as {@link #compareTo} does otherwise. */
@@ -286,10 +278,12 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
             Comparable<Quantity<Q>> d = (Comparable<Quantity<Q>>) promoted(that);
             return d.compareTo(that);
         }
-        boolean deltas = Deltas.both(scale, that.getScale());
-        return Double.compare(
-                systemValue(value, unit, deltas),
-                systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas));
+        return DoubleArithmetic.compare(
+                value,
+                unit.engine(),
+                Precision.toDouble(that.getValue()),
+                thatUnit.engine(),
+                bothRelative(that));
     }
 
     /**
@@ -304,7 +298,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
     @Override
     public R add(Quantity<Q> addend) {
         Objects.requireNonNull(addend, "addend");
-        return combine(addend, Double::sum, false);
+        return combine(addend, false);
     }
 
     /**
@@ -315,7 +309,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
     @Override
     public R subtract(Quantity<Q> subtrahend) {
         Objects.requireNonNull(subtrahend, "subtrahend");
-        return combine(subtrahend, (a, b) -> a - b, true);
+        return combine(subtrahend, true);
     }
 
     /** Returns a quantity whose value is {@code -getValue()}, in this unit and scale. */
@@ -334,7 +328,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
     @Override
     public R multiply(Number multiplicand) {
         Objects.requireNonNull(multiplicand, "multiplicand");
-        return scalar(Precision.toDouble(multiplicand), (a, n) -> a * n);
+        return scalar(Precision.toDouble(multiplicand), false);
     }
 
     /**
@@ -345,7 +339,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
     @Override
     public R divide(Number divisor) {
         Objects.requireNonNull(divisor, "divisor");
-        return scalar(Precision.toDouble(divisor), (a, n) -> a / n);
+        return scalar(Precision.toDouble(divisor), true);
     }
 
     /**
@@ -363,9 +357,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
         if (promotes(multiplicand)) {
             return promoted(multiplicand).multiply(multiplicand);
         }
-        return untyped(
-                systemValue(value, unit, scale == Quantity.Scale.RELATIVE) * systemValue(multiplicand, u),
-                unit.getSystemUnit().multiply(u.getSystemUnit()));
+        return untyped(product(multiplicand, u, false), unit.getSystemUnit().multiply(u.getSystemUnit()));
     }
 
     /**
@@ -380,15 +372,15 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
         if (promotes(divisor)) {
             return promoted(divisor).divide(divisor);
         }
-        return untyped(
-                systemValue(value, unit, scale == Quantity.Scale.RELATIVE) / systemValue(divisor, u),
-                unit.getSystemUnit().divide(u.getSystemUnit()));
+        return untyped(product(divisor, u, true), unit.getSystemUnit().divide(u.getSystemUnit()));
     }
 
     /** Returns {@code 1 / systemValue} in the inverse system unit, as an {@link Untyped} quantity. */
     @Override
     public UomQuantity<?, ?> inverse() {
-        return untyped(1 / systemValue(value, unit, scale == Quantity.Scale.RELATIVE), unit.getSystemUnit().inverse());
+        return untyped(
+                1 / DoubleArithmetic.systemValue(value, unit.engine(), relative()),
+                unit.getSystemUnit().inverse());
     }
 
     /**
@@ -469,53 +461,47 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Uo
         return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit.getSystemUnit()), Quantity.Scale.ABSOLUTE);
     }
 
-    private static double systemValue(Quantity<?> quantity, UomUnit<?> unit) {
-        return systemValue(
-                Precision.toDouble(quantity.getValue()),
-                unit,
-                quantity.getScale() == Quantity.Scale.RELATIVE);
+    private double product(Quantity<?> that, UomUnit<?> u, boolean divide) {
+        return DoubleArithmetic.product(
+                value,
+                unit.engine(),
+                relative(),
+                Precision.toDouble(that.getValue()),
+                u.engine(),
+                that.getScale() == Quantity.Scale.RELATIVE,
+                divide);
     }
 
-    private R scalar(double n, DoubleBinaryOperator op) {
-        double r = scale == Quantity.Scale.RELATIVE || unit.toSystemConverter().isLinear()
-                ? op.applyAsDouble(value, n)
-                : fromSystem(op.applyAsDouble(toSystem(value, unit), n), unit);
-        return create(r, unit, scale);
+    private R scalar(double n, boolean divide) {
+        return create(DoubleArithmetic.scalar(value, unit.engine(), relative(), n, divide), unit, scale);
     }
 
     @SuppressWarnings("unchecked")
-    private R combine(Quantity<Q> that, DoubleBinaryOperator op, boolean subtract) {
+    private R combine(Quantity<Q> that, boolean subtract) {
         UomUnit<Q> thatUnit = uomUnit(that.getUnit());
         if (promotes(that)) {
             // R is the typed interface, which the decimal quantity's add and subtract return.
             Quantity<Q> d = promoted(that);
             return (R) (subtract ? d.subtract(that) : d.add(that));
         }
-        UomConverter toThisUnit = thatUnit.getConverterTo(unit);
-        double b = Precision.toDouble(that.getValue());
-        boolean delta = Deltas.isDelta(scale, that.getScale());
-        double r;
-        if (delta) {
-            r = op.applyAsDouble(value, Deltas.converter(toThisUnit).convert(b));
-        } else if (unit.toSystemConverter().isLinear() && thatUnit.toSystemConverter().isLinear()) {
-            r = op.applyAsDouble(value, toThisUnit.convert(b));
-        } else {
-            r = fromSystem(op.applyAsDouble(toSystem(value, unit), toSystem(b, thatUnit)), unit);
-        }
-        return create(r, unit, Deltas.scale(scale, that.getScale()));
+        double r = DoubleArithmetic.combine(
+                value,
+                unit.engine(),
+                Precision.toDouble(that.getValue()),
+                thatUnit.engine(),
+                Engine.converter(thatUnit, unit),
+                relative() || that.getScale() == Quantity.Scale.RELATIVE,
+                subtract);
+        return create(r, unit, Engine.sumScale(scale, that.getScale()));
     }
 
-    private static double systemValue(double value, UomUnit<?> unit, boolean delta) {
-        UomConverter c = unit.toSystemConverter();
-        return (delta ? Deltas.converter(c) : c).convert(value);
+    private boolean relative() {
+        return scale == Quantity.Scale.RELATIVE;
     }
 
-    private double toSystem(double value, UomUnit<Q> unit) {
-        return unit.toSystemConverter().convert(value);
-    }
-
-    private double fromSystem(double systemValue, UomUnit<Q> unit) {
-        return unit.toSystemConverter().inverse().convert(systemValue);
+    /** Whether both are differences, so they compare by the factor only. */
+    private boolean bothRelative(Quantity<?> that) {
+        return relative() && that.getScale() == Quantity.Scale.RELATIVE;
     }
 
     private static <Q extends Quantity<Q>> UomUnit<Q> uomUnit(Unit<Q> unit) {

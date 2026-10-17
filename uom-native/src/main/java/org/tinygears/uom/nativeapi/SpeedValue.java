@@ -10,19 +10,22 @@
 
 package org.tinygears.uom.nativeapi;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 final class SpeedValue extends AbstractQuantity<Speed> implements Speed {
 
-    SpeedValue(double value, Unit<Speed> unit) {
-        super(value, unit);
+    SpeedValue(double value, BigDecimal decimal, MathContext mc, Unit<Speed> unit) {
+        super(value, decimal, mc, unit);
     }
 
     @Override
-    Speed create(double value, Unit<Speed> unit) {
-        return new SpeedValue(value, unit);
+    Speed create(double value, BigDecimal decimal, MathContext mc, Unit<Speed> unit) {
+        return new SpeedValue(value, decimal, mc, unit);
     }
 
     @Override
     public Length multiply(Time time) {
-        return Length.of(systemValue() * systemValue(time), SI.METRE);
+        return product(time, false, SI.METRE, LengthValue::new);
     }
 }

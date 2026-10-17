@@ -65,6 +65,7 @@ import javax.measure.spi.QuantityFactory;
 
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.spi.Providers;
+import org.tinygears.uom.engine.arithmetic.Precision;
 import org.tinygears.uom.engine.internal.SerialForm;
 
 /**

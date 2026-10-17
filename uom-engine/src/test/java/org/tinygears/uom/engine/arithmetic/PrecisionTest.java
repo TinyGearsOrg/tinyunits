@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.quantity;
+package org.tinygears.uom.engine.arithmetic;
 
 import java.io.Serial;
 import java.math.BigDecimal;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.quantity.Precision.Kind;
+import org.tinygears.uom.engine.arithmetic.Precision.Kind;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;

@@ -10,7 +10,11 @@
 
 package org.tinygears.uom.nativeapi.jsr;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.nativeapi.Length;
 import org.tinygears.uom.nativeapi.Quantity;
 import org.tinygears.uom.nativeapi.Speed;
@@ -19,8 +23,9 @@ import org.tinygears.uom.nativeapi.Unit;
 
 /**
  * Converts between the native quantities and the JSR-385 quantities of uom. Both sides wrap the same engine units, so
- * a conversion copies the value and wraps the unit; nothing is converted. A decimal JSR-385 quantity becomes a
- * {@code double} (the slice has no decimals).
+ * a conversion copies the value, its number type and context, and wraps the unit; nothing is converted or rounded. A
+ * decimal of another implementation's quantity has no context and counts as unlimited. The slice has no offset units,
+ * so the scale is not carried.
  */
 public final class Jsr {
 
@@ -34,7 +39,11 @@ public final class Jsr {
      * @return the JSR-385 length, a {@code javax.measure.quantity.Length}
      */
     public static org.tinygears.uom.quantity.Length toJsr(Length length) {
-        return org.tinygears.uom.quantity.Length.of(length.value(), jsrUnit(length));
+        UomUnit<javax.measure.quantity.Length> unit = jsrUnit(length);
+        return length.value() instanceof BigDecimal d
+                ? org.tinygears.uom.quantity.Length
+                        .of(d, unit, javax.measure.Quantity.Scale.ABSOLUTE, length.mathContext())
+                : org.tinygears.uom.quantity.Length.of(length.value().doubleValue(), unit);
     }
 
     /**
@@ -44,7 +53,10 @@ public final class Jsr {
      * @return the JSR-385 time
      */
     public static org.tinygears.uom.quantity.Time toJsr(Time time) {
-        return org.tinygears.uom.quantity.Time.of(time.value(), jsrUnit(time));
+        UomUnit<javax.measure.quantity.Time> unit = jsrUnit(time);
+        return time.value() instanceof BigDecimal d
+                ? org.tinygears.uom.quantity.Time.of(d, unit, javax.measure.Quantity.Scale.ABSOLUTE, time.mathContext())
+                : org.tinygears.uom.quantity.Time.of(time.value().doubleValue(), unit);
     }
 
     /**
@@ -54,7 +66,11 @@ public final class Jsr {
      * @return the JSR-385 speed
      */
     public static org.tinygears.uom.quantity.Speed toJsr(Speed speed) {
-        return org.tinygears.uom.quantity.Speed.of(speed.value(), jsrUnit(speed));
+        UomUnit<javax.measure.quantity.Speed> unit = jsrUnit(speed);
+        return speed.value() instanceof BigDecimal d
+                ? org.tinygears.uom.quantity.Speed
+                        .of(d, unit, javax.measure.Quantity.Scale.ABSOLUTE, speed.mathContext())
+                : org.tinygears.uom.quantity.Speed.of(speed.value().doubleValue(), unit);
     }
 
     /**
@@ -65,7 +81,10 @@ public final class Jsr {
      * @throws IllegalArgumentException if the unit is of another implementation
      */
     public static Length length(javax.measure.Quantity<javax.measure.quantity.Length> length) {
-        return Length.of(length.getValue().doubleValue(), Unit.of(Length.class, engine(length.getUnit())));
+        Unit<Length> unit = Unit.of(Length.class, engine(length.getUnit()));
+        return length.getValue() instanceof BigDecimal d
+                ? Length.of(d, unit, context(length))
+                : Length.of(length.getValue().doubleValue(), unit);
     }
 
     /**
@@ -76,7 +95,10 @@ public final class Jsr {
      * @throws IllegalArgumentException if the unit is of another implementation
      */
     public static Time time(javax.measure.Quantity<javax.measure.quantity.Time> time) {
-        return Time.of(time.getValue().doubleValue(), Unit.of(Time.class, engine(time.getUnit())));
+        Unit<Time> unit = Unit.of(Time.class, engine(time.getUnit()));
+        return time.getValue() instanceof BigDecimal d
+                ? Time.of(d, unit, context(time))
+                : Time.of(time.getValue().doubleValue(), unit);
     }
 
     /**
@@ -87,11 +109,18 @@ public final class Jsr {
      * @throws IllegalArgumentException if the unit is of another implementation
      */
     public static Speed speed(javax.measure.Quantity<javax.measure.quantity.Speed> speed) {
-        return Speed.of(speed.getValue().doubleValue(), Unit.of(Speed.class, engine(speed.getUnit())));
+        Unit<Speed> unit = Unit.of(Speed.class, engine(speed.getUnit()));
+        return speed.getValue() instanceof BigDecimal d
+                ? Speed.of(d, unit, context(speed))
+                : Speed.of(speed.getValue().doubleValue(), unit);
     }
 
     private static <J extends javax.measure.Quantity<J>> UomUnit<J> jsrUnit(Quantity<?> q) {
         return UomUnit.unchecked(UomUnit.of(q.unit().engine()));
+    }
+
+    private static MathContext context(javax.measure.Quantity<?> q) {
+        return q instanceof AbstractDecimalQuantity<?, ?> d ? d.mathContext() : MathContext.UNLIMITED;
     }
 
     private static org.tinygears.uom.engine.Unit engine(javax.measure.Unit<?> unit) {

@@ -84,6 +84,7 @@ describe_expected() { # <artifact> <version>
     uom-engine) printf '%s\n' "org.tinygears.uom.engine@$2" 'exports org.tinygears.uom.engine' \
       'exports org.tinygears.uom.engine.parse' \
       'requires java.base mandated' 'uses org.tinygears.uom.engine.internal.UnitCatalogs' \
+      'qualified exports org.tinygears.uom.engine.arithmetic to org.tinygears.uom.core org.tinygears.uom.nativeapi' \
       'qualified exports org.tinygears.uom.engine.internal to org.tinygears.uom org.tinygears.uom.core' ;;
     uom-core) printf '%s\n' "org.tinygears.uom.core@$2" 'exports org.tinygears.uom.core' \
       'exports org.tinygears.uom.core.quantity' 'requires java.base mandated' \
