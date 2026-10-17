@@ -29,13 +29,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UnitAtom;
 import org.tinygears.uom.core.UomDimension;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.FormulaEvaluator;
+import org.tinygears.uom.engine.Dimension;
+import org.tinygears.uom.engine.UnitAtom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -136,8 +137,7 @@ class UnitExpressionEmitterTest {
 
     @Test
     void undefinedAtom() {
-        UomUnit<?> unit = UomUnit
-                .of(Map.of(new UnitAtom("x\"y", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
+        UomUnit<?> unit = UomUnit.of(Map.of(new UnitAtom("x\"y", Dimension.NONE), 1), Converters.IDENTITY, null, null);
         GenerationException e = assertThrows(
                 GenerationException.class,
                 () -> UnitExpressionEmitter.emit(unit, DEFS, imports()));
@@ -162,7 +162,7 @@ class UnitExpressionEmitterTest {
 
     @Test
     void cyclicDefinition() {
-        UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
+        UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", Dimension.NONE), 1), Converters.IDENTITY, null, null);
         Definitions cyclic = new Definitions(
                 List.of(new Definition("x", "ex", x, x, null, "f", 1)),
                 List.of(),

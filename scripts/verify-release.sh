@@ -82,7 +82,7 @@ check_entries() { # <jar> <allowed regex> <required entries...>
 describe_expected() { # <artifact> <version>
   case $1 in
     uom-engine) printf '%s\n' "org.tinygears.uom.engine@$2" 'exports org.tinygears.uom.engine' \
-      'requires java.base mandated' \
+      'requires java.base mandated' 'uses org.tinygears.uom.engine.internal.UnitCatalogs' \
       'qualified exports org.tinygears.uom.engine.internal to org.tinygears.uom org.tinygears.uom.core' ;;
     uom-core) printf '%s\n' "org.tinygears.uom.core@$2" 'exports org.tinygears.uom.core' \
       'exports org.tinygears.uom.core.parse' 'exports org.tinygears.uom.core.quantity' 'requires java.base mandated' \
@@ -91,7 +91,8 @@ describe_expected() { # <artifact> <version>
     uom) printf '%s\n' "org.tinygears.uom@$2" 'exports org.tinygears.uom.quantity' \
       'exports org.tinygears.uom.systems' 'requires java.base mandated' \
       'requires org.tinygears.uom.core transitive' \
-      'provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider' ;;
+      'provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider' \
+      'provides org.tinygears.uom.engine.internal.UnitCatalogs with org.tinygears.uom.systems.UomServiceProvider' ;;
   esac
 }
 
@@ -114,7 +115,7 @@ check() { # <repo>
   done
   for a in uom-engine uom-core uom; do
     jar=$repo/org/tinygears/$a/$v/$a-$v
-    if [[ $a == uom ]]; then pkg='org/tinygears/uom/(quantity|systems)'; meta='|META-INF/services/(javax\.measure\.spi\.ServiceProvider)?'
+    if [[ $a == uom ]]; then pkg='org/tinygears/uom/(quantity|systems)'; meta='|META-INF/services/(javax\.measure\.spi\.ServiceProvider|org\.tinygears\.uom\.engine\.internal\.UnitCatalogs)?'
     else pkg="org/tinygears/uom/${a#uom-}"; meta=''; fi
     meta="META-INF/(MANIFEST\.MF|LICENSE|maven/(org\.tinygears/($a/(pom\.xml|pom\.properties)?)?)?)?$meta|org/(tinygears/(uom/)?)?"
     check_entries "$jar.jar" "^($meta|module-info\.class|$pkg/([a-z]+/)*([A-Za-z0-9_\$]+\.class|package-info\.class)?)$" \

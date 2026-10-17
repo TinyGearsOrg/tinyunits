@@ -20,30 +20,32 @@ import javax.measure.quantity.Mass;
 import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Time;
 
+import org.tinygears.uom.engine.UnitAtom;
+
 /** The seven SI base units and the dimensionless unit one. */
 public final class BaseUnits {
 
     /** The metre, {@code m}. */
-    public static final UomUnit<Length> METRE = base("m", "metre", UomDimension.LENGTH);
+    public static final UomUnit<Length> METRE = base(UnitAtom.METRE, "metre");
     /** The kilogram, {@code kg}. */
-    public static final UomUnit<Mass> KILOGRAM = base("kg", "kilogram", UomDimension.MASS);
+    public static final UomUnit<Mass> KILOGRAM = base(UnitAtom.KILOGRAM, "kilogram");
     /** The second, {@code s}. */
-    public static final UomUnit<Time> SECOND = base("s", "second", UomDimension.TIME);
+    public static final UomUnit<Time> SECOND = base(UnitAtom.SECOND, "second");
     /** The ampere, {@code A}. */
-    public static final UomUnit<ElectricCurrent> AMPERE = base("A", "ampere", UomDimension.CURRENT);
+    public static final UomUnit<ElectricCurrent> AMPERE = base(UnitAtom.AMPERE, "ampere");
     /** The kelvin, {@code K}. */
-    public static final UomUnit<Temperature> KELVIN = base("K", "kelvin", UomDimension.TEMPERATURE);
+    public static final UomUnit<Temperature> KELVIN = base(UnitAtom.KELVIN, "kelvin");
     /** The mole, {@code mol}. */
-    public static final UomUnit<AmountOfSubstance> MOLE = base("mol", "mole", UomDimension.AMOUNT);
+    public static final UomUnit<AmountOfSubstance> MOLE = base(UnitAtom.MOLE, "mole");
     /** The candela, {@code cd}. */
-    public static final UomUnit<LuminousIntensity> CANDELA = base("cd", "candela", UomDimension.LUMINOSITY);
+    public static final UomUnit<LuminousIntensity> CANDELA = base(UnitAtom.CANDELA, "candela");
     /** The dimensionless unit one, {@code 1}. */
     public static final UomUnit<Dimensionless> ONE = UomUnit.of(Map.of(), Converters.IDENTITY, "1", "one");
 
     private BaseUnits() {
     }
 
-    private static <Q extends javax.measure.Quantity<Q>> UomUnit<Q> base(String symbol, String name, UomDimension d) {
-        return UomUnit.of(Map.of(new UnitAtom(symbol, d), 1), Converters.IDENTITY, symbol, name);
+    private static <Q extends javax.measure.Quantity<Q>> UomUnit<Q> base(UnitAtom atom, String name) {
+        return UomUnit.of(Map.of(atom, 1), Converters.IDENTITY, atom.symbol(), name);
     }
 }

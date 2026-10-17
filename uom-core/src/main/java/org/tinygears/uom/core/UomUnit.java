@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import javax.measure.IncommensurableException;
+import javax.measure.MeasurementException;
 import javax.measure.Prefix;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
@@ -37,6 +38,10 @@ import javax.measure.spi.QuantityFactory;
 
 import org.tinygears.uom.core.spi.Providers;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.UnitAtom;
+import org.tinygears.uom.engine.UnitException;
+import org.tinygears.uom.engine.internal.AlternateUnits;
+import org.tinygears.uom.engine.internal.Atoms;
 import org.tinygears.uom.engine.internal.BoundedCache;
 import org.tinygears.uom.engine.internal.SerialForm;
 
@@ -74,11 +79,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         this.toSystem = toSystem;
         this.symbol = symbol;
         this.name = name;
-        UomDimension d = UomDimension.NONE;
-        for (Map.Entry<UnitAtom, Integer> e : atoms.entrySet()) {
-            d = d.multiply(e.getKey().dimension().pow(e.getValue()));
-        }
-        this.dimension = d;
+        this.dimension = UomDimension.of(Atoms.dimension(atoms));
         this.hash = Objects.hash(atoms, toSystem);
     }
 
@@ -115,11 +116,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         if (toSystem.factor().isZero()) {
             throw new ArithmeticException("zero scale factor");
         }
-        Map<UnitAtom, Integer> normalized = new LinkedHashMap<>();
-        atoms.entrySet().stream().filter(e -> Objects.requireNonNull(e.getValue(), "exponent") != 0)
-                .sorted(Map.Entry.comparingByKey(Comparator.comparing(UnitAtom::symbol)))
-                .forEach(e -> normalized.put(Objects.requireNonNull(e.getKey(), "atom"), e.getValue()));
-        return new UomUnit<>(Collections.unmodifiableMap(normalized), toSystem, symbol, name);
+        return new UomUnit<>(Atoms.normalize(atoms), toSystem, symbol, name);
     }
 
     /**
@@ -345,7 +342,13 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         if (!toSystem.equals(Converters.IDENTITY)) {
             throw new IllegalArgumentException("not an unscaled standard unit: " + this);
         }
-        return new UomUnit<>(Map.of(AlternateUnits.register(symbol, this), 1), Converters.IDENTITY, symbol, null);
+        UnitAtom atom;
+        try {
+            atom = AlternateUnits.register(symbol, atoms);
+        } catch (UnitException e) {
+            throw new MeasurementException(e.getMessage(), e);
+        }
+        return new UomUnit<>(Map.of(atom, 1), Converters.IDENTITY, symbol, null);
     }
 
     @Override
@@ -503,20 +506,6 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         throw new InvalidObjectException("proxy required");
     }
 
-    /** Pairs parallel arrays from a stream, rejecting a length mismatch, null and duplicate atoms. */
-    static Map<UnitAtom, Integer> atomMap(UnitAtom[] atoms, int[] exponents) {
-        if (atoms == null || exponents == null || atoms.length != exponents.length) {
-            throw new IllegalArgumentException("atoms and exponents do not match");
-        }
-        Map<UnitAtom, Integer> m = new HashMap<>();
-        for (int i = 0; i < atoms.length; i++) {
-            if (m.put(Objects.requireNonNull(atoms[i], "null atom"), exponents[i]) != null) {
-                throw new IllegalArgumentException("duplicate atom " + atoms[i].symbol());
-            }
-        }
-        return m;
-    }
-
     /** Serialized form of a unit; package-private so tests can forge streams. */
     static final class Proxy implements Serializable {
         @Serial
@@ -563,7 +552,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         private Object readResolve() throws InvalidObjectException {
             try {
                 Objects.requireNonNull(toSystem, "null converter");
-                return of(atomMap(atoms, exponents), toSystem, symbol, name);
+                return of(Atoms.map(atoms, exponents), toSystem, symbol, name);
             } catch (RuntimeException e) {
                 throw (InvalidObjectException) new InvalidObjectException("invalid unit: " + e.getMessage())
                         .initCause(e);

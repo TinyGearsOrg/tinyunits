@@ -16,7 +16,9 @@ import javax.measure.Unit;
 
 import org.junit.jupiter.api.Test;
 
+import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.UnitAtom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -153,7 +155,7 @@ class UomUnitTest {
 
     @Test
     void dimensionOverflowSurfacesAtConstruction() {
-        UnitAtom other = new UnitAtom("m2", UomDimension.LENGTH);
+        UnitAtom other = new UnitAtom("m2", Dimension.LENGTH);
         assertThrows(
                 ArithmeticException.class,
                 () -> UomUnit.of(atoms(M, Integer.MAX_VALUE, other, 2), Converters.IDENTITY, null, null));

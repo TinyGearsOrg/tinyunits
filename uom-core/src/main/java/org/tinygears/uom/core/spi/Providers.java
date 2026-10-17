@@ -21,9 +21,9 @@ import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.ServiceProvider;
 
 /**
- * Finds what the provider of this implementation offers the core: its quantity factories ({@link QuantityFactories}),
- * the text of its units ({@link UnitTexts}) and its catalogs ({@link UnitCatalogs}), without depending on which
- * provider is current. Not exported, not API.
+ * Finds what the provider of this implementation offers the core: its quantity factories ({@link QuantityFactories})
+ * and the text of its units ({@link UnitTexts}), without depending on which provider is current. Not exported, not
+ * API.
  */
 public final class Providers {
     private static final Providers DEFAULT = new Providers(ServiceProvider::current, ServiceProvider::available);
@@ -63,11 +63,6 @@ public final class Providers {
         return DEFAULT.text(unit);
     }
 
-    /** Has our provider, if there is one, load its catalogs; never throws. */
-    public static void loadCatalogs() {
-        DEFAULT.load();
-    }
-
     <Q extends Quantity<Q>> QuantityFactory<Q> factory(Class<Q> type) {
         ServiceProvider provider = current.get();
         QuantityFactories ours = provider instanceof QuantityFactories q ? q : scan(QuantityFactories.class, false);
@@ -86,17 +81,6 @@ public final class Providers {
         } catch (RuntimeException | ServiceConfigurationError e) {
             // A unit prints even if no provider is available or one fails.
             return null;
-        }
-    }
-
-    void load() {
-        try {
-            UnitCatalogs catalogs = scan(UnitCatalogs.class, true);
-            if (catalogs != null) {
-                catalogs.loadCatalogs();
-            }
-        } catch (RuntimeException | ServiceConfigurationError e) {
-            // Without the catalogs an atom is read unregistered, as before they were loaded.
         }
     }
 

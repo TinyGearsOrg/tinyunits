@@ -3,9 +3,12 @@
 **Status:** proposal, not decided (TODO item 33). Section 1 describes the code as it is, sections 2 to 6 propose. A
 decision gets a record in [DESIGN.md](DESIGN.md) section 1.
 
-**Progress** (branch `native-prototype`): step 1 has started. `uom-engine` exists and holds `Factor` and the
-`internal` helpers (decimals, irrational enclosures, caches, serial form); `uom-core` depends on it. Next: dimensions,
-atoms and the alternate-unit registry, then the unit algebra and the converters.
+**Progress** (branch `native-prototype`): step 1 is under way.
+- Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException` and, in
+  `internal`, the alternate-unit registry, the catalog service (`UnitCatalogs` through `ServiceLoader`, which `uom`
+  provides), products of atoms and the decimal, interval, cache and serial-form helpers. `UomDimension` is the
+  JSR-385 dimension over the engine's, `UomUnit` reports a `UnitException` as `MeasurementException`.
+- Next: the unit algebra and the converters, then the parser on engine units.
 
 ## 1. The constraint
 

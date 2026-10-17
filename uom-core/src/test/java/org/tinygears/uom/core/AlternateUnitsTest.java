@@ -21,6 +21,9 @@ import javax.measure.Unit;
 
 import org.junit.jupiter.api.Test;
 
+import org.tinygears.uom.engine.Dimension;
+import org.tinygears.uom.engine.UnitAtom;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -45,7 +48,7 @@ class AlternateUnitsTest {
     @Test
     void alternateShape() {
         UomUnit<?> rad = (UomUnit<?>) ONE.alternate("rad");
-        assertEquals(Map.of(new UnitAtom("rad", UomDimension.NONE), 1), rad.atoms());
+        assertEquals(Map.of(new UnitAtom("rad", Dimension.NONE), 1), rad.atoms());
         assertEquals(Converters.IDENTITY, rad.toSystemConverter());
         assertEquals("rad", rad.getSymbol());
         assertNull(rad.getName());

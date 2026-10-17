@@ -141,47 +141,6 @@ class ProvidersTest {
         assertNull(failing.text(org.tinygears.uom.core.BaseUnits.METRE));
     }
 
-    private static class Loading extends Foreign implements UnitCatalogs {
-        final AtomicInteger loads = new AtomicInteger();
-
-        @Override
-        public void loadCatalogs() {
-            loads.incrementAndGet();
-        }
-    }
-
-    @Test
-    void ourProviderLoadsTheCatalogsAndIsKept() {
-        Loading loading = new Loading();
-        AtomicInteger listed = new AtomicInteger();
-        Providers providers = new Providers(Foreign::new, () -> {
-            listed.incrementAndGet();
-            return List.of(new Foreign(), loading);
-        });
-        providers.load();
-        providers.load();
-        assertEquals(2, loading.loads.get());
-        assertEquals(1, listed.get());
-    }
-
-    @Test
-    void loadingTheCatalogsNeverThrows() {
-        Providers none = new Providers(Foreign::new, () -> {
-            throw new IllegalStateException("No Measurement ServiceProvider found.");
-        });
-        none.load();
-        Loading failing = new Loading() {
-            @Override
-            public void loadCatalogs() {
-                super.loadCatalogs();
-                throw new IllegalStateException("broken");
-            }
-        };
-        Providers broken = new Providers(Foreign::new, () -> List.of(failing));
-        broken.load();
-        assertEquals(1, failing.loads.get());
-    }
-
     @Test
     void noProviderIsAnError() {
         Providers providers = new Providers(() -> {

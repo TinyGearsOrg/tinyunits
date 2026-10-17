@@ -18,12 +18,12 @@ import javax.measure.spi.ServiceProvider;
 import javax.measure.spi.SystemOfUnitsService;
 
 import org.tinygears.uom.core.spi.QuantityFactories;
-import org.tinygears.uom.core.spi.UnitCatalogs;
 import org.tinygears.uom.core.spi.UnitTexts;
+import org.tinygears.uom.engine.internal.UnitCatalogs;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /** The JSR-385 service provider of this implementation. */
-// QuantityFactories, UnitCatalogs and UnitTexts are the core's hooks, exported to this module only and not API
+// QuantityFactories and UnitTexts are the core's hooks, UnitCatalogs the engine's service, not API
 @SuppressWarnings("exports")
 public final class UomServiceProvider extends ServiceProvider implements QuantityFactories, UnitCatalogs, UnitTexts {
     private final SystemOfUnitsService systems = new UomSystemOfUnitsService();

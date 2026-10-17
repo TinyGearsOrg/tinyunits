@@ -24,7 +24,8 @@ import javax.measure.Dimension;
 import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
- * Product of the seven SI base dimensions with integer exponents; serializable through a proxy.
+ * Product of the seven SI base dimensions with integer exponents: the JSR-385 {@link Dimension} of an engine
+ * {@link org.tinygears.uom.engine.Dimension}, which does the arithmetic. Serializable through a proxy.
  *
  * @param length the exponent of length
  * @param mass the exponent of mass
@@ -46,8 +47,6 @@ public record UomDimension(int length, int mass, int time, int current, int temp
     public static final UomDimension AMOUNT = new UomDimension(0, 0, 0, 0, 0, 1, 0);
     public static final UomDimension LUMINOSITY = new UomDimension(0, 0, 0, 0, 0, 0, 1);
 
-    private static final String SYMBOLS = "LMTIΘNJ";
-
     private static final UomDimension[] BASES = { LENGTH, MASS, TIME, CURRENT, TEMPERATURE, AMOUNT, LUMINOSITY };
 
     private int[] exponents() {
@@ -56,6 +55,25 @@ public record UomDimension(int length, int mass, int time, int current, int temp
 
     private static UomDimension of(int[] e) {
         return new UomDimension(e[0], e[1], e[2], e[3], e[4], e[5], e[6]);
+    }
+
+    /**
+     * The JSR-385 dimension of an engine dimension.
+     *
+     * @param d the engine dimension
+     * @return the dimension with the same exponents
+     */
+    public static UomDimension of(org.tinygears.uom.engine.Dimension d) {
+        return of(d.exponents());
+    }
+
+    /**
+     * The engine dimension with the same exponents.
+     *
+     * @return the engine dimension
+     */
+    public org.tinygears.uom.engine.Dimension engine() {
+        return org.tinygears.uom.engine.Dimension.of(exponents());
     }
 
     private static UomDimension from(Dimension d) {
@@ -81,46 +99,22 @@ public record UomDimension(int length, int mass, int time, int current, int temp
 
     @Override
     public UomDimension multiply(Dimension multiplicand) {
-        int[] a = exponents();
-        int[] b = from(multiplicand).exponents();
-        for (int i = 0; i < a.length; i++) {
-            a[i] = Math.addExact(a[i], b[i]);
-        }
-        return of(a);
+        return of(engine().multiply(from(multiplicand).engine()));
     }
 
     @Override
     public UomDimension divide(Dimension divisor) {
-        int[] a = exponents();
-        int[] b = from(divisor).exponents();
-        for (int i = 0; i < a.length; i++) {
-            a[i] = Math.subtractExact(a[i], b[i]);
-        }
-        return of(a);
+        return of(engine().divide(from(divisor).engine()));
     }
 
     @Override
     public UomDimension pow(int n) {
-        int[] a = exponents();
-        for (int i = 0; i < a.length; i++) {
-            a[i] = Math.multiplyExact(a[i], n);
-        }
-        return of(a);
+        return of(engine().pow(n));
     }
 
     @Override
     public UomDimension root(int n) {
-        if (n == 0) {
-            throw new ArithmeticException("Zeroth root");
-        }
-        int[] a = exponents();
-        for (int i = 0; i < a.length; i++) {
-            if (a[i] % n != 0) {
-                throw new ArithmeticException("Dimension " + this + " has no integer " + n + "-th root");
-            }
-            a[i] = Math.toIntExact((long) a[i] / n);
-        }
-        return of(a);
+        return of(engine().root(n));
     }
 
     @Override
@@ -197,19 +191,6 @@ public record UomDimension(int length, int mass, int time, int current, int temp
 
     @Override
     public String toString() {
-        int[] e = exponents();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < e.length; i++) {
-            if (e[i] != 0) {
-                if (!sb.isEmpty()) {
-                    sb.append('·');
-                }
-                sb.append(SYMBOLS.charAt(i));
-                if (e[i] != 1) {
-                    sb.append('^').append(e[i]);
-                }
-            }
-        }
-        return sb.isEmpty() ? "1" : sb.toString();
+        return engine().toString();
     }
 }

@@ -16,11 +16,11 @@ import java.util.Map;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UnitAtom;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.Definition;
 import org.tinygears.uom.core.parse.Definitions;
+import org.tinygears.uom.engine.UnitAtom;
 
 /** Writes Java expressions that evaluate to units equal to given ones. */
 public final class UnitExpressionEmitter {

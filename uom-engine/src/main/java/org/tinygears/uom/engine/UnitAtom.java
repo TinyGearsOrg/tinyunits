@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core;
+package org.tinygears.uom.engine;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
+import org.tinygears.uom.engine.internal.AlternateUnits;
+import org.tinygears.uom.engine.internal.Atoms;
 import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
@@ -28,7 +30,22 @@ import org.tinygears.uom.engine.internal.SerialForm;
  * @param symbol the symbol
  * @param dimension the dimension
  */
-public record UnitAtom(String symbol, UomDimension dimension) implements Serializable {
+public record UnitAtom(String symbol, Dimension dimension) implements Serializable {
+
+    /** The atom of the metre, {@code m}. */
+    public static final UnitAtom METRE = new UnitAtom("m", Dimension.LENGTH);
+    /** The atom of the kilogram, {@code kg}. */
+    public static final UnitAtom KILOGRAM = new UnitAtom("kg", Dimension.MASS);
+    /** The atom of the second, {@code s}. */
+    public static final UnitAtom SECOND = new UnitAtom("s", Dimension.TIME);
+    /** The atom of the ampere, {@code A}. */
+    public static final UnitAtom AMPERE = new UnitAtom("A", Dimension.CURRENT);
+    /** The atom of the kelvin, {@code K}. */
+    public static final UnitAtom KELVIN = new UnitAtom("K", Dimension.TEMPERATURE);
+    /** The atom of the mole, {@code mol}. */
+    public static final UnitAtom MOLE = new UnitAtom("mol", Dimension.AMOUNT);
+    /** The atom of the candela, {@code cd}. */
+    public static final UnitAtom CANDELA = new UnitAtom("cd", Dimension.LUMINOSITY);
 
     /**
      * Checks the components.
@@ -80,11 +97,11 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
         private static final String TOO_MANY_EXPONENTS = "invalid unit atom: too many definition exponents";
 
         private transient String symbol;
-        private transient UomDimension dimension;
+        private transient Dimension dimension;
         private transient UnitAtom[] definitionAtoms;
         private transient int[] definitionExponents;
 
-        Proxy(String symbol, UomDimension dimension, UnitAtom[] definitionAtoms, int[] definitionExponents) {
+        Proxy(String symbol, Dimension dimension, UnitAtom[] definitionAtoms, int[] definitionExponents) {
             this.symbol = symbol;
             this.dimension = dimension;
             this.definitionAtoms = definitionAtoms;
@@ -104,7 +121,7 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             in.defaultReadObject();
             symbol = SerialForm.readString(in, "invalid unit atom: symbol");
-            dimension = SerialForm.read(in, UomDimension.class);
+            dimension = SerialForm.read(in, Dimension.class);
             definitionAtoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, TOO_MANY_ATOMS);
             definitionExponents = SerialForm.readInts(in, TOO_MANY_EXPONENTS);
         }
@@ -116,7 +133,7 @@ public record UnitAtom(String symbol, UomDimension dimension) implements Seriali
                 Objects.requireNonNull(dimension, "null dimension");
                 Map<UnitAtom, Integer> definition = definitionAtoms == null && definitionExponents == null
                         ? null
-                        : UomUnit.atomMap(definitionAtoms, definitionExponents);
+                        : Atoms.map(definitionAtoms, definitionExponents);
                 return AlternateUnits.restore(symbol, dimension, definition);
             } catch (RuntimeException e) {
                 throw (InvalidObjectException) new InvalidObjectException("invalid unit atom: " + e.getMessage())

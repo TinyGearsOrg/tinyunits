@@ -36,12 +36,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UnitAtom;
 import org.tinygears.uom.core.UomDimension;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+import org.tinygears.uom.engine.Dimension;
+import org.tinygears.uom.engine.UnitAtom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -195,7 +196,7 @@ class SourceEmitterTest {
 
     @Test
     void factoryReportsSpecPosition() {
-        UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", UomDimension.NONE), 1), Converters.IDENTITY, null, null);
+        UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", Dimension.NONE), 1), Converters.IDENTITY, null, null);
         QuantityTypeSpec bad = new QuantityTypeSpec("Length", "x", x, null, null, "types.txt", 7, false);
         GenerationException e = assertThrows(
                 GenerationException.class,

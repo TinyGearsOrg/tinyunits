@@ -10,7 +10,7 @@
 
 /**
  * The hooks between the core and the service provider of {@code org.tinygears.uom}: how the core finds the quantity
- * factories, the unit texts and the catalogs of this implementation without depending on which provider is current.
+ * factories and the unit texts of this implementation without depending on which provider is current.
  * Exported to {@code org.tinygears.uom} only; not API.
  */
 package org.tinygears.uom.core.spi;

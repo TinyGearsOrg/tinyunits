@@ -36,7 +36,10 @@ import javax.measure.MeasurementException;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.serial.SerialCheck;
+import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.UnitAtom;
+import org.tinygears.uom.engine.internal.AlternateUnits;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -124,7 +127,7 @@ class UnitSerializationTest {
         UomUnit<?> fresh = METRE.divide(SECOND).alternate("t1-alt-speed");
         assertUnitRoundTrip(fresh);
         assertEquals(
-                Map.of(new UnitAtom("t1-alt-speed", new UomDimension(1, 0, -1, 0, 0, 0, 0)), 1),
+                Map.of(new UnitAtom("t1-alt-speed", new Dimension(1, 0, -1, 0, 0, 0, 0)), 1),
                 roundTrip(fresh).atoms());
         // An alternate atom defined through another alternate atom.
         assertUnitRoundTrip(hz.multiply(METRE).alternate("t1-alt-nested").named("t1-alt-nested", "nested"));
@@ -245,7 +248,7 @@ class UnitSerializationTest {
         assertArrayEquals(
                 serialize(Converters.affine(third, third)),
                 serialize(Converters.affine(Factor.of(1, 3), Factor.of(1, 3))));
-        UomDimension d = new UomDimension(2, 0, 0, 0, 0, 0, 0);
+        Dimension d = new Dimension(2, 0, 0, 0, 0, 0, 0);
         assertArrayEquals(
                 serialize(
                         UomUnit.of(
@@ -258,19 +261,19 @@ class UnitSerializationTest {
                                 Map.of(
                                         new UnitAtom("t1-a", d),
                                         1,
-                                        new UnitAtom("t1-b", new UomDimension(2, 0, 0, 0, 0, 0, 0)),
+                                        new UnitAtom("t1-b", new Dimension(2, 0, 0, 0, 0, 0, 0)),
                                         1),
                                 Converters.IDENTITY,
                                 null,
                                 null)));
         // An atom written twice (in the unit and in an alternate's definition) with one symbol object or two.
-        UnitAtom q = new UnitAtom("t1-q", UomDimension.NONE);
+        UnitAtom q = new UnitAtom("t1-q", Dimension.NONE);
         UnitAtom alt = atom(UomUnit.of(Map.of(q, 1), Converters.IDENTITY, null, null).alternate("t1-alt-q"));
         assertArrayEquals(
                 serialize(UomUnit.of(Map.of(alt, 1, q, 1), Converters.IDENTITY, null, null)),
                 serialize(
                         UomUnit.of(
-                                Map.of(alt, 1, new UnitAtom(new String("t1-q"), UomDimension.NONE), 1),
+                                Map.of(alt, 1, new UnitAtom(new String("t1-q"), Dimension.NONE), 1),
                                 Converters.IDENTITY,
                                 null,
                                 null)));
@@ -329,14 +332,14 @@ class UnitSerializationTest {
         public static void main(String[] args) throws Exception {
             UnitAtom m = atom(METRE);
             UnitAtom forged = (UnitAtom) deserialize(
-                    serialize(new UnitAtom.Proxy("Hz", UomDimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 })));
+                    serialize(EngineProxies.atom("Hz", Dimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 })));
             int size = AlternateUnits.size();
             for (int i = 0; i < 10_000; i++) {
                 deserialize(
                         serialize(
-                                new UnitAtom.Proxy(
+                                EngineProxies.atom(
                                         "t1-unique-" + i,
-                                        UomDimension.LENGTH,
+                                        Dimension.LENGTH,
                                         new UnitAtom[] { m },
                                         new int[] { 1 })));
             }
@@ -346,8 +349,7 @@ class UnitSerializationTest {
             check(AlternateUnits.size() == size + 1, "Hz not registered");
             try {
                 deserialize(
-                        serialize(
-                                new UnitAtom.Proxy("Hz", UomDimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 })));
+                        serialize(EngineProxies.atom("Hz", Dimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 })));
                 throw new AssertionError("forged Hz read after registration");
             } catch (InvalidObjectException expected) {
                 check(
@@ -389,64 +391,64 @@ class UnitSerializationTest {
     void forgedAtoms() throws Exception {
         UnitAtom s = atom(SECOND);
         UnitAtom m = atom(METRE);
-        UomDimension perSecond = new UomDimension(0, 0, -1, 0, 0, 0, 0);
+        Dimension perSecond = new Dimension(0, 0, -1, 0, 0, 0, 0);
         METRE.alternate("t1-forge-bound");
         assertInvalid(
                 "invalid unit atom: symbol t1-forge-bound is already associated to a different unit",
-                new UnitAtom.Proxy("t1-forge-bound", UomDimension.TIME, new UnitAtom[] { s }, new int[] { 1 }));
+                EngineProxies.atom("t1-forge-bound", Dimension.TIME, new UnitAtom[] { s }, new int[] { 1 }));
         ONE.divide(SECOND).alternate("Hz");
         assertInvalid(
                 "invalid unit atom: symbol Hz is already associated to a different unit",
-                new UnitAtom.Proxy("Hz", UomDimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 }));
+                EngineProxies.atom("Hz", Dimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 }));
         assertInvalid(
                 "invalid unit atom: symbol m is already associated to a different unit",
-                new UnitAtom.Proxy("m", UomDimension.TIME, null, null));
+                EngineProxies.atom("m", Dimension.TIME, null, null));
         assertInvalid(
                 "invalid unit atom: symbol m is already associated to a different unit",
-                new UnitAtom.Proxy("m", UomDimension.TIME, new UnitAtom[] { s }, new int[] { 1 }));
+                EngineProxies.atom("m", Dimension.TIME, new UnitAtom[] { s }, new int[] { 1 }));
         assertInvalid(
                 "invalid unit atom: dimension L of t1-forge-dim does not match its definition T",
-                new UnitAtom.Proxy("t1-forge-dim", UomDimension.LENGTH, new UnitAtom[] { s }, new int[] { 1 }));
+                EngineProxies.atom("t1-forge-dim", Dimension.LENGTH, new UnitAtom[] { s }, new int[] { 1 }));
         // The rejected atom was not registered.
         assertEquals("t1-forge-dim", METRE.alternate("t1-forge-dim").getSymbol());
-        assertInvalid("invalid unit atom: null symbol", new UnitAtom.Proxy(null, UomDimension.TIME, null, null));
-        assertInvalid("invalid unit atom: null dimension", new UnitAtom.Proxy("t1-forge-x", null, null, null));
+        assertInvalid("invalid unit atom: null symbol", EngineProxies.atom(null, Dimension.TIME, null, null));
+        assertInvalid("invalid unit atom: null dimension", EngineProxies.atom("t1-forge-x", null, null, null));
         assertInvalid(
                 "invalid unit atom: invalid unit symbol: ' '",
-                new UnitAtom.Proxy(" ", UomDimension.TIME, null, null));
+                EngineProxies.atom(" ", Dimension.TIME, null, null));
         assertInvalid(
                 "invalid unit atom: invalid unit symbol: 'a b'",
-                new UnitAtom.Proxy("a b", UomDimension.TIME, null, null));
+                EngineProxies.atom("a b", Dimension.TIME, null, null));
         assertInvalid(
                 "invalid unit atom: atoms and exponents do not match",
-                new UnitAtom.Proxy("t1-forge-x", perSecond, new UnitAtom[] { s, m }, new int[] { -1 }));
+                EngineProxies.atom("t1-forge-x", perSecond, new UnitAtom[] { s, m }, new int[] { -1 }));
         assertInvalid(
                 "invalid unit atom: atoms and exponents do not match",
-                new UnitAtom.Proxy("t1-forge-x", perSecond, new UnitAtom[] { s }, null));
+                EngineProxies.atom("t1-forge-x", perSecond, new UnitAtom[] { s }, null));
         assertInvalid(
                 "invalid unit atom: null atom",
-                new UnitAtom.Proxy("t1-forge-x", perSecond, new UnitAtom[] { null }, new int[] { -1 }));
+                EngineProxies.atom("t1-forge-x", perSecond, new UnitAtom[] { null }, new int[] { -1 }));
         assertInvalid(
                 "invalid unit atom: duplicate atom s",
-                new UnitAtom.Proxy("t1-forge-x", perSecond, new UnitAtom[] { s, s }, new int[] { -1, 0 }));
+                EngineProxies.atom("t1-forge-x", perSecond, new UnitAtom[] { s, s }, new int[] { -1, 0 }));
         // An invalid nested dimension fails the whole read.
         InvalidObjectException e = assertThrows(
                 InvalidObjectException.class,
                 () -> readReplacing(
                         ONE.divide(SECOND).alternate("Hz"),
-                        o -> o instanceof UomDimension.Proxy ? new UomDimension.Proxy(new int[3]) : o));
+                        o -> EngineProxies.isDimension(o) ? EngineProxies.dimension(new int[3]) : o));
         assertEquals("invalid dimension: expected 7 exponents, got 3", e.getMessage());
         // A valid definition read for an unknown symbol does not register it; a later registration equals it.
         int size = AlternateUnits.size();
         UnitAtom fresh = (UnitAtom) deserialize(
-                serialize(new UnitAtom.Proxy("t1-forge-new", perSecond, new UnitAtom[] { s }, new int[] { -1 })));
+                serialize(EngineProxies.atom("t1-forge-new", perSecond, new UnitAtom[] { s }, new int[] { -1 })));
         assertEquals(new UnitAtom("t1-forge-new", perSecond), fresh);
         assertEquals(size, AlternateUnits.size());
         assertEquals(fresh, atom(ONE.divide(SECOND).alternate("t1-forge-new")));
         assertThrows(MeasurementException.class, () -> METRE.alternate("t1-forge-new"));
         assertInvalid(
                 "invalid unit atom: symbol t1-forge-new is already associated to a different unit",
-                new UnitAtom.Proxy("t1-forge-new", UomDimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 }));
+                EngineProxies.atom("t1-forge-new", Dimension.LENGTH, new UnitAtom[] { m }, new int[] { 1 }));
     }
 
     @Test
@@ -611,7 +613,9 @@ class UnitSerializationTest {
         assertEquals("expected Factor, got java.lang.String", e.getMessage());
         e = assertThrows(
                 InvalidObjectException.class,
-                () -> readReplacing(METRE.divide(SECOND), o -> o instanceof UnitAtom.Proxy ? "x" : o));
+                () -> readReplacing(
+                        METRE.divide(SECOND),
+                        o -> o.getClass().getName().equals("org.tinygears.uom.engine.UnitAtom$Proxy") ? "x" : o));
         assertEquals("expected UnitAtom, got java.lang.String", e.getMessage());
         e = assertThrows(
                 InvalidObjectException.class,
@@ -632,11 +636,11 @@ class UnitSerializationTest {
 
         Map<UnitAtom, Integer> atoms = new LinkedHashMap<>();
         for (int i = 0; i < 1000; i++) {
-            atoms.put(new UnitAtom("t1-many-" + i, UomDimension.NONE), 1);
+            atoms.put(new UnitAtom("t1-many-" + i, Dimension.NONE), 1);
         }
         UomUnit<?> wide = UomUnit.of(atoms, Converters.IDENTITY, null, null);
         assertEquals(wide, roundTrip(wide));
-        atoms.put(new UnitAtom("t1-many-1000", UomDimension.NONE), 1);
+        atoms.put(new UnitAtom("t1-many-1000", Dimension.NONE), 1);
         UomUnit<?> wider = UomUnit.of(atoms, Converters.IDENTITY, null, null);
         e = assertThrows(NotSerializableException.class, () -> serialize(wider));
         assertEquals("invalid unit: too many atoms", e.getMessage());
@@ -773,7 +777,7 @@ class UnitSerializationTest {
     static final class AtomTwin implements Serializable {
         private static final long serialVersionUID = 1L;
         String symbol = "m";
-        UomDimension dimension = UomDimension.LENGTH;
+        Dimension dimension = Dimension.LENGTH;
     }
 
     /**

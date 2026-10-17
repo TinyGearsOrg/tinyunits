@@ -8,5 +8,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/** Exact factors: rationals, powers of pi and roots, in a normal form. */
+/** Exact factors (rationals, powers of pi, roots), dimensions and unit atoms, free of the JSR-385 API. */
 package org.tinygears.uom.engine;

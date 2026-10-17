@@ -378,7 +378,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
 
 | Module | Contents | Published |
 |--------|----------|-----------|
-| `uom-engine` | No JSR-385 types: `Factor` (exact rationals, powers of pi, roots) and, in a package exported to the other modules only, the decimal and interval arithmetic, caches and serial-form helpers (`internal`). The first step of docs/NATIVE-API.md | yes |
+| `uom-engine` | No JSR-385 types: `Factor` (exact rationals, powers of pi, roots), `Dimension` (the seven exponents), `UnitAtom` with the base atoms, `UnitException`; in a package exported to the other modules only (`internal`), the alternate-unit registry, the catalog service (`UnitCatalogs`, loaded with `ServiceLoader`), products of atoms, and the decimal and interval arithmetic, caches and serial-form helpers. The first steps of docs/NATIVE-API.md; `UomDimension` and `UomUnit` are the JSR-385 types over it | yes |
 | `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
 | `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`, `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; no `.units` resources are shipped | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
@@ -776,7 +776,8 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
     are dropped: the converter reads as one step, so its steps never contradict what it converts.
   - An alternate atom carries its symbol, dimension and definition. On read the dimension must match the definition
     and a registered symbol must have the identical definition; it resolves to the registered atom. Before a symbol
-    counts as unregistered, our provider loads its catalogs (the `spi.UnitCatalogs` hook), so a fresh JVM checks a
+    counts as unregistered, the engine has the catalogs loaded (the `UnitCatalogs` service of `uom-engine`, which
+    `uom` provides through `ServiceLoader`), so a fresh JVM checks a
     catalog atom such as `Hz` without touching `SI` first. A symbol still unregistered (an atom of a user file that is
     not loaded) gives an equal, unregistered atom, which is written again without its definition; atoms without a
     definition match on symbol and dimension only. Reading never registers (untrusted data must not bind symbols or
