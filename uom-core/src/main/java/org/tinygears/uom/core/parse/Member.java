@@ -11,7 +11,7 @@
 package org.tinygears.uom.core.parse;
 
 /**
- * One symbol of an {@code @member symbol...} directive of the root file.
+ * One symbol of an {@code @member symbol...} directive.
  *
  * @param symbol the symbol
  * @param source the file the line is in

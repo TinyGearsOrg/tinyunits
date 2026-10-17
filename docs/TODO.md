@@ -101,15 +101,12 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 ## 27. User-unit loader
 
-**Status:** open, low priority.
-- `load(Path)` checks real-path containment, then reads the real path: a symbolic link swapped in between (TOCTOU) is not
-  defended against; acceptable for local files, say so in the guide.
-- The parser has a quadratic loop for very many `@member` lines (20,000 lines take about 5 s); `@prefixed` looks its unit
-  up in a map.
-- A nested file with two `@system` lines is not rejected when included (only as the root); parent systems are parsed
-  twice (inside the root parse and as systems of their own).
-- Fallback preferred units are not members of the system (`USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but `getUnit("s")`
-  is null): decide whether to list them.
+**Status:** open, decision needed.
+- Fallback preferred units are not members of the system (`USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but
+  `getUnit("s")` is null). Indriya 2.2 never returns a non-member: its `Units` registers each unit with its quantity
+  type, and systems-common 2.1's `USCustomary` and `Imperial` return null from `getUnit(Class)` for every type. Options:
+  list the fallback units as members, document the fallback, or return null (then `toSystem(system)` fails for those
+  types).
 
 **Needed by:** nothing.
 

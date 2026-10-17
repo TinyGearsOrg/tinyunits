@@ -40,6 +40,7 @@ import org.tinygears.uom.core.parse.DefinitionException;
 import org.tinygears.uom.core.parse.DefinitionParser;
 import org.tinygears.uom.core.parse.Definitions;
 import org.tinygears.uom.core.parse.Extends;
+import org.tinygears.uom.core.parse.FileDirectives;
 import org.tinygears.uom.core.parse.Member;
 import org.tinygears.uom.core.parse.Preferred;
 import org.tinygears.uom.core.parse.Prefixed;
@@ -151,7 +152,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
             }
         };
         try (Reader reader = Files.newBufferedReader(file)) {
-            return load(source, withoutExtension(source), reader, once(resolver), new HashMap<>());
+            return load(source, withoutExtension(source), reader, fully(resolver), new HashMap<>());
         } catch (UncheckedIOException e) {
             throw e.getCause();
         }
@@ -166,7 +167,9 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      *
      * <p>Formulas may use the symbols {@link UomUnitFormat#standard()} resolves (not labels), and the file may not
      * define any of them. The units are those the file defines, then those of {@code @extends}-ed files, then the
-     * {@code @member}s; units of other included files are usable in formulas only. {@code @preferred Type symbol}
+     * {@code @member}s; units of other included files are usable in formulas only. A file sees the units it defines,
+     * those of the files it includes or extends (transitively) and the built-in symbols, not those of other files.
+     * The root and its parents are built from one parse. {@code @preferred Type symbol}
      * names one of the 33 standard quantity types by simple name; a type without one takes the first
      * {@code @extends}-ed system's preferred unit, else {@link SI}'s. Units are {@code Unit<?>}: narrow them with
      * {@code asType}. Nothing is registered globally, except that {@code ~} lines register their alternate-unit
@@ -185,32 +188,26 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     public static UomSystemOfUnits load(String name, Reader reader, DefinitionParser.Resolver resolver) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(reader, "reader");
-        return load(name, name, reader, resolver == null ? null : once(resolver), new HashMap<>());
+        return load(name, name, reader, resolver == null ? null : fully(resolver), new HashMap<>());
     }
 
-    /** Opens each name once and keeps its text, so parents shared by several files are not read again. */
-    private static DefinitionParser.Resolver once(DefinitionParser.Resolver resolver) {
-        Map<String, String> texts = new HashMap<>();
+    /** Reads each file fully when it is opened, so a failing reader is not mistaken for a missing include. */
+    private static DefinitionParser.Resolver fully(DefinitionParser.Resolver resolver) {
         return name -> {
-            String text = texts.get(name);
-            if (text == null) {
-                try (Reader r = resolver.open(name)) {
-                    if (r == null) {
-                        return null;
-                    }
-                    StringWriter w = new StringWriter();
-                    try {
-                        r.transferTo(w);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(
-                                "cannot read '" + name + "': the resolver returned a failing, closed or reused reader",
-                                e);
-                    }
-                    text = w.toString();
+            try (Reader r = resolver.open(name)) {
+                if (r == null) {
+                    return null;
                 }
-                texts.put(name, text);
+                StringWriter w = new StringWriter();
+                try {
+                    r.transferTo(w);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(
+                            "cannot read '" + name + "': the resolver returned a failing, closed or reused reader",
+                            e);
+                }
+                return new StringReader(w.toString());
             }
-            return new StringReader(text);
         };
     }
 
@@ -219,7 +216,6 @@ public final class UomSystemOfUnits implements SystemOfUnits {
         return dot > 0 ? file.substring(0, dot) : file;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static UomSystemOfUnits load(
             String source,
             String defaultName,
@@ -229,14 +225,42 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     ) {
         UomUnitFormat builtIn = UomUnitFormat.standard();
         Definitions d = DefinitionParser.parse(source, reader, resolver, s -> builtIn.resolve(s).orElse(null));
-        String name = d.system() != null ? d.system() : defaultName;
-        Map<String, UomUnit<?>> units = new LinkedHashMap<>();
-        Map<String, Definition> bySymbol = new HashMap<>();
-        for (Definition def : d.definitions()) {
-            bySymbol.putIfAbsent(def.symbol(), def);
-            if (def.source().equals(source)) {
-                units.put(def.symbol(), def.unit());
+        return build(new Parsed(d), source, defaultName, loaded);
+    }
+
+    /** One parse indexed for building its systems: definitions by symbol, by-file lists, prefixed lines by unit. */
+    private static final class Parsed {
+        final Definitions definitions;
+        final Map<String, Definition> bySymbol = new HashMap<>();
+        final Map<String, List<Definition>> bySource = new HashMap<>();
+        final Map<String, List<Prefixed>> prefixedByUnit = new HashMap<>();
+
+        Parsed(Definitions d) {
+            definitions = d;
+            for (Definition def : d.definitions()) {
+                bySymbol.putIfAbsent(def.symbol(), def);
+                bySource.computeIfAbsent(def.source(), k -> new ArrayList<>()).add(def);
             }
+            for (Prefixed p : d.prefixed()) {
+                prefixedByUnit.computeIfAbsent(p.unitSymbol(), k -> new ArrayList<>()).add(p);
+            }
+        }
+    }
+
+    /** The system of {@code source}, a file of the parse; its parents are built from the same parse, once each. */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static UomSystemOfUnits build(
+            Parsed parsed,
+            String source,
+            String defaultName,
+            Map<String, UomSystemOfUnits> loaded
+    ) {
+        Definitions d = parsed.definitions;
+        FileDirectives file = d.files().get(source);
+        String name = file.system() != null ? file.system() : defaultName;
+        Map<String, UomUnit<?>> units = new LinkedHashMap<>();
+        for (Definition def : parsed.bySource.getOrDefault(source, List.of())) {
+            units.put(def.symbol(), def.unit());
         }
         Set<String> prefixable = new LinkedHashSet<>();
         Set<String> binaryPrefixable = new LinkedHashSet<>();
@@ -246,14 +270,10 @@ public final class UomSystemOfUnits implements SystemOfUnits {
             }
         }
         List<UomSystemOfUnits> parents = new ArrayList<>();
-        for (Extends x : d.extended()) {
+        for (Extends x : file.extended()) {
             UomSystemOfUnits system = loaded.get(x.file());
             if (system == null) {
-                try (Reader r = resolver.open(x.file())) {
-                    system = load(x.file(), withoutExtension(x.file()), r, resolver, loaded);
-                } catch (IOException e) {
-                    throw new DefinitionException(x.source(), x.line(), "cannot include '" + x.file() + "'", e);
-                }
+                system = build(parsed, x.file(), withoutExtension(x.file()), loaded);
                 loaded.put(x.file(), system);
             }
             parents.add(system);
@@ -267,11 +287,11 @@ public final class UomSystemOfUnits implements SystemOfUnits {
                 }
             }
         }
-        for (Member m : d.members()) {
-            Definition def = bySymbol.get(m.symbol());
+        for (Member m : file.members()) {
+            Definition def = parsed.bySymbol.get(m.symbol());
             units.putIfAbsent(m.symbol(), def.unit());
-            for (Prefixed p : d.prefixed()) {
-                if (p.source().equals(def.source()) && p.unitSymbol().equals(m.symbol())) {
+            for (Prefixed p : parsed.prefixedByUnit.getOrDefault(m.symbol(), List.of())) {
+                if (p.source().equals(def.source())) {
                     addPrefixable(p, prefixable, binaryPrefixable);
                 }
             }

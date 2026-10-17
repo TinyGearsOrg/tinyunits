@@ -18,6 +18,7 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -130,11 +131,21 @@ public final class DefinitionParser {
     private final List<Preferred> preferred = new ArrayList<>();
     private final List<Prefixed> prefixed = new ArrayList<>();
     private final Set<String> prefixedSymbols = new HashSet<>();
-    private String system;
-    private final List<Extends> extended = new ArrayList<>();
-    private final List<Member> members = new ArrayList<>();
+    private final Map<String, FileState> files = new LinkedHashMap<>();
     private final List<String> stack = new ArrayList<>();
-    private final Set<String> done = new HashSet<>();
+
+    /** The directives of one file and the files whose symbols it sees: itself and what it includes, transitively. */
+    private static final class FileState {
+        String system;
+        final List<Extends> extended = new ArrayList<>();
+        final List<Member> members = new ArrayList<>();
+        final Set<String> memberSymbols = new HashSet<>();
+        final Set<String> visible = new HashSet<>();
+
+        FileDirectives directives() {
+            return new FileDirectives(system, extended, members);
+        }
+    }
 
     private DefinitionParser(Resolver resolver, Function<String, UomUnit<?>> known) {
         this.resolver = resolver;
@@ -179,12 +190,24 @@ public final class DefinitionParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new Definitions(p.definitions, p.preferred, p.prefixed, p.system, p.extended, p.members);
+        FileState root = p.files.get(source);
+        Map<String, FileDirectives> directives = new LinkedHashMap<>();
+        p.files.forEach((name, f) -> directives.put(name, f.directives()));
+        return new Definitions(
+                p.definitions,
+                p.preferred,
+                p.prefixed,
+                root.system,
+                root.extended,
+                root.members,
+                directives);
     }
 
     private void file(String source, Reader reader) throws IOException {
         stack.add(source);
-        done.add(source);
+        FileState state = new FileState();
+        state.visible.add(source);
+        files.put(source, state);
         BufferedReader in = new BufferedReader(reader);
         int n = 0;
         for (String text = in.readLine(); text != null; text = in.readLine()) {
@@ -225,7 +248,7 @@ public final class DefinitionParser {
                     throw new DefinitionException(src, ln, "expected '@preferred Type symbol'", null);
                 }
                 checkType(src, ln, w[1]);
-                if (!units.containsKey(w[2])) {
+                if (visible(src, w[2]) == null) {
                     throw new DefinitionException(src, ln, "unknown unit '" + w[2] + "'", null);
                 }
                 preferred.add(new Preferred(w[1], w[2], src, ln));
@@ -236,22 +259,22 @@ public final class DefinitionParser {
                 if (w.length != 2) {
                     throw new DefinitionException(src, ln, "expected '@extends name'", null);
                 }
-                if (root() && extended.stream().anyMatch(e -> e.file().equals(w[1]))) {
+                List<Extends> extended = files.get(src).extended;
+                if (extended.stream().anyMatch(e -> e.file().equals(w[1]))) {
                     throw new DefinitionException(src, ln, "duplicate '@extends' of '" + w[1] + "'", null);
                 }
                 include(src, ln, w[1]);
-                if (root()) {
-                    extended.add(new Extends(w[1], src, ln));
-                }
+                extended.add(new Extends(w[1], src, ln));
             }
             case "@member" -> member(src, ln, w);
             default -> throw new DefinitionException(src, ln, "unknown directive '" + w[0] + "'", null);
         }
     }
 
-    // Nested files are parsed on their own by the generator, so their system directives are not the root's.
-    private boolean root() {
-        return stack.size() == 1;
+    /** The definition of {@code symbol} if {@code src} sees it, else null. */
+    private Definition visible(String src, String symbol) {
+        Definition d = bySymbol.get(symbol);
+        return d != null && files.get(src).visible.contains(d.source()) ? d : null;
     }
 
     private void system(String src, int ln, String[] w) {
@@ -261,12 +284,11 @@ public final class DefinitionParser {
         if (!isJavaName(w[1])) {
             throw new DefinitionException(src, ln, "invalid system name '" + w[1] + "'", null);
         }
-        if (root()) {
-            if (system != null) {
-                throw new DefinitionException(src, ln, "duplicate '@system'", null);
-            }
-            system = w[1];
+        FileState state = files.get(src);
+        if (state.system != null) {
+            throw new DefinitionException(src, ln, "duplicate '@system'", null);
         }
+        state.system = w[1];
     }
 
     private static boolean isJavaName(String s) {
@@ -278,19 +300,19 @@ public final class DefinitionParser {
         if (w.length < 2) {
             throw new DefinitionException(src, ln, "expected '@member symbol...'", null);
         }
+        FileState state = files.get(src);
         for (String symbol : List.of(w).subList(1, w.length)) {
-            if (!units.containsKey(symbol)) {
+            Definition d = visible(src, symbol);
+            if (d == null) {
                 throw new DefinitionException(src, ln, "unknown unit '" + symbol + "'", null);
             }
-            if (definitions.stream().anyMatch(d -> d.symbol().equals(symbol) && d.source().equals(src))) {
+            if (d.source().equals(src)) {
                 throw new DefinitionException(src, ln, "unit '" + symbol + "' is defined in this file", null);
             }
-            if (root()) {
-                if (members.stream().anyMatch(m -> m.symbol().equals(symbol))) {
-                    throw new DefinitionException(src, ln, "duplicate member '" + symbol + "'", null);
-                }
-                members.add(new Member(symbol, src, ln));
+            if (!state.memberSymbols.add(symbol)) {
+                throw new DefinitionException(src, ln, "duplicate member '" + symbol + "'", null);
             }
+            state.members.add(new Member(symbol, src, ln));
         }
     }
 
@@ -298,7 +320,7 @@ public final class DefinitionParser {
         if (w.length < 3) {
             throw new DefinitionException(src, ln, "expected '@prefixed unit prefix...'", null);
         }
-        Definition base = bySymbol.get(w[1]);
+        Definition base = visible(src, w[1]);
         if (base == null) {
             throw new DefinitionException(src, ln, "unknown unit '" + w[1] + "'", null);
         }
@@ -331,17 +353,17 @@ public final class DefinitionParser {
             String chain = String.join(" -> ", stack.subList(i, stack.size())) + " -> " + name;
             throw new DefinitionException(src, ln, "include cycle: " + chain, null);
         }
-        if (done.contains(name)) {
-            return;
-        }
-        try (Reader r = resolver == null ? null : resolver.open(name)) {
-            if (r == null) {
-                throw new FileNotFoundException(name);
+        if (!files.containsKey(name)) {
+            try (Reader r = resolver == null ? null : resolver.open(name)) {
+                if (r == null) {
+                    throw new FileNotFoundException(name);
+                }
+                file(name, r);
+            } catch (IOException e) {
+                throw new DefinitionException(src, ln, "cannot include '" + name + "'", e);
             }
-            file(name, r);
-        } catch (IOException e) {
-            throw new DefinitionException(src, ln, "cannot include '" + name + "'", e);
         }
+        files.get(src).visible.addAll(files.get(name).visible);
     }
 
     private void definition(String src, int ln, String t) throws FormulaException {
@@ -425,9 +447,15 @@ public final class DefinitionParser {
         return FormulaEvaluator.evaluate(formula, this::find);
     }
 
+    /** A symbol of the user files that the current file sees, else a built-in one. */
     private UomUnit<?> find(String symbol) {
-        UomUnit<?> unit = units.get(symbol);
-        return unit != null || symbol == null || symbol.isEmpty() ? unit : known.apply(symbol);
+        if (symbol == null || symbol.isEmpty()) {
+            return null;
+        }
+        if (units.containsKey(symbol)) {
+            return visible(stack.get(stack.size() - 1), symbol) != null ? units.get(symbol) : null;
+        }
+        return known.apply(symbol);
     }
 
     private static UomUnit<?> base(String src, int ln, String symbol, String letter) {

@@ -329,7 +329,8 @@ class CatalogEmitterTest {
         Definitions child = DefinitionParser.parse(
                 "b-child.units",
                 new StringReader("@system Child\n@include z.units\n@include a.units\n"),
-                name -> new StringReader(name.equals("z.units") ? "m:metre !L\n" : "@prefixed m k\n"));
+                name -> new StringReader(
+                        name.equals("z.units") ? "m:metre !L\n" : "@include z.units\n@prefixed m k\n"));
         assertEquals(
                 List.of("b-child.units", "a.units", "z.units", "quantity-types.txt"),
                 CatalogEmitter.dataFiles("b-child.units", child));

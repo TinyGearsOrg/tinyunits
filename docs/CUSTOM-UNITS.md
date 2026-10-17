@@ -94,7 +94,9 @@ symbol[:name] body [Type] # comment
 
 - **symbol**: no whitespace, none of the delimiters `* / · ( ) ^ | = # [ ] ! ~ @ , + -`, not starting with a digit or
   `.`, not `pi`. Each symbol is defined once over the root file and the files it includes, and must not be a symbol
-  the built-in catalogs already resolve (see [Symbols](#symbols)).
+  the built-in catalogs already resolve (see [Symbols](#symbols)). A file uses the symbols it defines, those of the
+  files it includes or extends (also through their own includes) and the built-in ones; units of other files are
+  `unknown unit`, even when the root defined them earlier.
 - **name**: optional, `_` stands for a space (`degree_Celsius`); without it the name is the symbol.
 - **body**: a formula (the next section), or one of the special forms: `= f(x)` after a formula (affine unit), `~`
   (alternate unit) or `!` (base unit).
@@ -229,13 +231,15 @@ A directive line starts with `@`; `#` starts a comment.
 
 ### `@system Name`
 
-Names the system (a Java identifier, not a keyword); at most once per file. Without it the name comes from the file
-name (see Loading). In an included file it is ignored; in an `@extends`-ed file it names that parent system.
+Names the system (a Java identifier, not a keyword); at most once per file, included files too. Without it the name
+comes from the file name (see Loading). In an included file it names nothing; in an `@extends`-ed file it names that
+parent system.
 
 ### `@include file`
 
-Makes the units of another user file usable in formulas; they do not become units of this system. A file is read once
-per load (a second `@include` of it is a no-op) and include cycles are errors. Names resolve through the resolver
+Makes the units of another user file usable in this file's formulas and directives, and in those of the files that
+include this one; they do not become units of this system. A file is read once per load (a second `@include` of it is
+a no-op) and include cycles are errors. Names resolve through the resolver
 (`load(Path)`: relative to the root file's directory). The built-in data files are not available: `@include
 si.units` fails unless your resolver provides a file of that name; the built-in symbols are always usable without it.
 
@@ -256,8 +260,9 @@ leagues:double_league 2 league   # league is usable, but not a unit of Shop
 
 Includes the file and makes it a parent: its units (and those of its own parents) become units of this system, its
 `@prefixed` units stay prefixable, and a quantity type without a `@preferred` line here takes the parent's preferred
-unit (the first `@extends` wins; without one, `SI`'s). The parent file is also loaded as a system of its own. A file
-may extend several files, each once.
+unit (the first `@extends` wins; without one, `SI`'s). The parent file is also a system of its own, built from the same
+parse: it sees only its own includes and parents, never the file that extends it. A file may extend several files,
+each once.
 
 ```units road.units
 @system Road

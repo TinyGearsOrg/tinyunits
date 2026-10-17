@@ -11,10 +11,12 @@
 package org.tinygears.uom.core.parse;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The parsed content of a definition file and its includes, in file order. {@code system}, {@code extended} and
  * {@code members} come from the root file only; {@code system} is {@code null} without an {@code @system} line.
+ * {@code files} holds those directives for every file read, the root included, by file name.
  *
  * @param definitions the unit definitions
  * @param preferred the {@code @preferred} directives
@@ -22,6 +24,7 @@ import java.util.List;
  * @param system the system name, or null
  * @param extended the {@code @extends} directives
  * @param members the {@code @member} symbols
+ * @param files the system directives of every file read, by file name
  */
 public record Definitions(
         List<Definition> definitions,
@@ -29,7 +32,8 @@ public record Definitions(
         List<Prefixed> prefixed,
         String system,
         List<Extends> extended,
-        List<Member> members
+        List<Member> members,
+        Map<String, FileDirectives> files
 ) {
     /**
      * Copies the lists.
@@ -40,6 +44,7 @@ public record Definitions(
      * @param system the system name, or null
      * @param extended the {@code @extends} directives
      * @param members the {@code @member} symbols
+     * @param files the system directives of every file read, by file name
      */
     public Definitions {
         definitions = List.copyOf(definitions);
@@ -47,5 +52,6 @@ public record Definitions(
         prefixed = List.copyOf(prefixed);
         extended = List.copyOf(extended);
         members = List.copyOf(members);
+        files = Map.copyOf(files);
     }
 }

@@ -169,7 +169,8 @@ class UnitExpressionEmitterTest {
                 List.of(),
                 null,
                 List.of(),
-                List.of());
+                List.of(),
+                Map.of());
         GenerationException e = assertThrows(
                 GenerationException.class,
                 () -> UnitExpressionEmitter.emit(x, cyclic, imports()));

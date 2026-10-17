@@ -11,7 +11,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 17 (DR-11)
 | Typed quantities | Own typed interfaces extending the standard ones, plus generated `double` and `BigDecimal` implementations (F3 to F5). |
 | Code generation | An internal generator reads data files and writes plain Java sources, which are committed. CI fails if regenerating produces a diff. No annotation processor, no proxies. |
 | Catalogs | Text data files are the single source of truth (F15). They generate typed catalogs; the same parser loads user files at run time (F17, section 5). |
-| User extension | Users load their own `.units` files at run time (`UomSystemOfUnits.load`) and get `Unit<?>` back (F18). User-defined quantity types are out of scope. |
+| User extension | Users load their own `.units` files at run time (`UomSystemOfUnits.load`) and get `Unit<?>` back (F18); a file sees only what it includes (DR-16). User-defined quantity types are out of scope. |
 | Precision | Mixing `double` and `BigDecimal` gives `BigDecimal`, the `double` read as its shortest decimal; symmetric (F23, DR-14). |
 | Irrational factors | Pi and roots are enclosed by directed rounding; decimal results are rounded correctly (DR-15). |
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
@@ -283,6 +283,21 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Revisit if.* A unit's factor and offset are both irrational in practice, so the cap is reached.
 - *See.* Section 4, "Irrational factors"; `IrrationalsTest`, `AbstractDecimalQuantityArithmeticTest`,
   `ConvertersDecimalTest`.
+
+**DR-16 A definition file sees only what it includes.**
+- *Decision.* A file's formulas, `@preferred`, `@prefixed` and `@member` lines resolve the symbols the file defines,
+  those of the files it includes or extends (transitively) and the built-in symbols; a unit of another file, even one
+  the root defined earlier, is `unknown unit`. Every file's `@system`, `@extends` and `@member` lines are recorded and
+  checked, not only the root's, so `UomSystemOfUnits.load` builds the root and its parents from one parse.
+- *Why.* An extended parent was parsed a second time on its own to build its system, which made a chain of n files
+  cost n^2 / 2 file parses (500 files of 40 units: over 10 s). One parse is exact only if a parent cannot see the file that extends
+  it, so visibility must follow the includes. The rule is the one the generator already applies (it parses every data
+  file on its own), and it holds for `@include` and `@extends` alike.
+- *Rejected.* Visibility in parse order (an included file saw every unit parsed before it): files then depended on
+  where they were included, and a parent could not be built from the root's parse. Keeping that rule and parsing
+  parents again: quadratic in the depth of `@extends`.
+- *Revisit if.* Users need shared definitions without an `@include` in each file.
+- *See.* docs/CUSTOM-UNITS.md, "Definition lines" and "Directives"; `DefinitionParserTest`, `UserUnitsTest`.
 
 ## 2. Modules and data flow
 
@@ -616,8 +631,10 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
     extension (`load(Path)`) or `name` as given (Reader variant).
   - `load(Path)` resolves every `@include`/`@extends` name, in nested files too, against the root file's directory (one
     flat namespace). A name must be relative and stay inside that directory lexically and by real path (symbolic links
-    resolved). The resolver is called at most once per name per `load` call; parents are cached per call. No built-in
-    files exist: `@include si.units` fails unless the user's resolver provides it.
+    resolved). The resolver is called at most once per name per `load` call. One parse serves the root and every
+    parent: the parser records `@system`, `@extends` and `@member` per file (`Definitions.files`), and each file sees
+    only its own symbols, those of the files it includes or extends, and the built-in ones (DR-16). No built-in files
+    exist: `@include si.units` fails unless the user's resolver provides it.
   - `UomUnitFormat.with(UomSystemOfUnits...)` returns a new format over the existing systems followed by the given
     ones, labels copied. A symbol of a given system that resolves (exactly or as a prefixed form) or as a label to a
     different unit is an `IllegalArgumentException` naming both systems; equal units are fine. Two formats can hold

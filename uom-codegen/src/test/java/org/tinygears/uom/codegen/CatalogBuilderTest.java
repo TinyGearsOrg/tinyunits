@@ -299,7 +299,8 @@ class CatalogBuilderTest {
                 parsed.prefixed(),
                 "T",
                 List.of(),
-                List.of());
+                List.of(),
+                parsed.files());
         fails(() -> CatalogBuilder.catalogs(Map.of("test.units", d), types(d)), 7, "unknown unit 'nope'");
     }
 
@@ -359,7 +360,8 @@ class CatalogBuilderTest {
                 List.of(),
                 "T",
                 List.of(),
-                List.of(new Member("zz", "test.units", 5)));
+                List.of(new Member("zz", "test.units", 5)),
+                parsed.files());
         fails(() -> CatalogBuilder.catalogs(Map.of("test.units", d), types(d)), 5, "unknown unit 'zz'");
     }
 

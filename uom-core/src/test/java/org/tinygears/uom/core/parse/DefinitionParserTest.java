@@ -278,7 +278,16 @@ class DefinitionParserTest {
         assertEquals(plain, parse(HAPPY.replace("\n", "\r\n")));
         assertEquals(plain, parse(HAPPY.replace("\n", "\r")));
         assertEquals(plain, parse(HAPPY.replace(" ", "\t")));
-        assertEquals(new Definitions(List.of(), List.of(), List.of(), null, List.of(), List.of()), parse(""));
+        assertEquals(
+                new Definitions(
+                        List.of(),
+                        List.of(),
+                        List.of(),
+                        null,
+                        List.of(),
+                        List.of(),
+                        Map.of("test.units", new FileDirectives(null, List.of(), List.of()))),
+                parse(""));
         assertEquals(List.of("m"), symbols(parse("  \n\t\nm !L\n   \n")));
         Definitions u = parse(BASE + "Ω:ohm m\nµ:micro 1|1000000\nx Ω µ\n");
         assertEquals(METRE.divide(1000000), find(u, "x").unit());
@@ -489,9 +498,71 @@ class DefinitionParserTest {
 
     @Test
     void extendsInIncludedFileIsNotReported() {
-        Definitions d = parse("@include a\n@extends c\n", Map.of("a", "@extends b\n", "b", BASE, "c", "c1 m\n"));
+        Definitions d = parse(
+                "@include a\n@extends c\n",
+                Map.of("a", "@extends b\n", "b", BASE, "c", "@include b\nc1 m\n"));
         assertEquals(List.of("m", "kg", "s", "K", "c1"), symbols(d));
         assertEquals(List.of(new Extends("c", "test.units", 2)), d.extended());
+        // but kept as a directive of its own file
+        assertEquals(List.of(new Extends("b", "a", 1)), d.files().get("a").extended());
+    }
+
+    @Test
+    void everyFileKeepsItsOwnSystemDirectives() {
+        Definitions d = parse(
+                "@system Top\n@extends a\n",
+                Map.of("a", "@system A\n@extends b\n@include c\n@member c1\n", "b", BASE, "c", "@include b\nc1 2 m\n"));
+        assertEquals(
+                Map.of(
+                        "test.units",
+                        new FileDirectives("Top", List.of(new Extends("a", "test.units", 2)), List.of()),
+                        "a",
+                        new FileDirectives("A", List.of(new Extends("b", "a", 2)), List.of(new Member("c1", "a", 4))),
+                        "b",
+                        new FileDirectives(null, List.of(), List.of()),
+                        "c",
+                        new FileDirectives(null, List.of(), List.of())),
+                d.files());
+        assertEquals("Top", d.system());
+        assertEquals(List.of(new Extends("a", "test.units", 2)), d.extended());
+        assertEquals(List.of(), d.members());
+    }
+
+    @Test
+    void anIncludedFileIsCheckedLikeTheRoot() {
+        fails("@include a\n", Map.of("a", "@system A\n@system B\n"), "a:2: duplicate '@system'");
+        fails("@include a\n", Map.of("a", "@include b\n@member m kg m\n", "b", BASE), "a:2: duplicate member 'm'");
+        fails("@include a\n", Map.of("a", "@extends b\n@extends b\n", "b", BASE), "a:2: duplicate '@extends' of 'b'");
+    }
+
+    @Test
+    void aFileSeesOnlyItsOwnSymbolsAndThoseItIncludes() {
+        Map<String, String> files = Map
+                .of("b", BASE, "c", "c1 2 r\n", "p", "@member r\n", "q", "@preferred Length r\n");
+        // r is defined by the root before c is included, but c does not include the root
+        fails("@include b\nr 2 m\n@include c\n", files, "c:1: unknown unit 'r'");
+        fails("@include b\nr 2 m\n@include p\n", files, "p:1: unknown unit 'r'");
+        fails("@include b\nr 2 m\n@include q\n", files, "q:1: unknown unit 'r'");
+        // what an included file includes is visible to the includer too
+        Definitions d = parse("@include c2\nr 2 c1\n", Map.of("b", BASE, "c2", "@include b\nc1 2 m\n"));
+        assertEquals(List.of("m", "kg", "s", "K", "c1", "r"), symbols(d));
+    }
+
+    @Test
+    void manyMembersParseInLinearTime() {
+        // each member was checked against every definition and every earlier member: 20,000 took about 5 s
+        int n = 50_000;
+        StringBuilder lib = new StringBuilder(BASE);
+        StringBuilder root = new StringBuilder("@include lib\n");
+        for (int i = 0; i < n; i++) {
+            lib.append('u').append(i).append(" 2 m\n");
+            root.append("@member u").append(i).append('\n');
+        }
+        Definitions d = assertTimeoutPreemptively(
+                Duration.ofSeconds(10),
+                () -> parse(root.toString(), Map.of("lib", lib.toString())));
+        assertEquals(n, d.members().size());
+        assertEquals(new Member("u49999", "test.units", n + 1), d.members().get(n - 1));
     }
 
     @Test

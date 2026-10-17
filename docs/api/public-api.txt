@@ -156,7 +156,8 @@ org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinyge
 org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Member> members()
 org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Preferred> preferred()
 org.tinygears.uom.core.parse Definitions member public java.util.List<org.tinygears.uom.core.parse.Prefixed> prefixed()
-org.tinygears.uom.core.parse Definitions member public org.tinygears.uom.core.parse.Definitions(java.util.List<org.tinygears.uom.core.parse.Definition>,java.util.List<org.tinygears.uom.core.parse.Preferred>,java.util.List<org.tinygears.uom.core.parse.Prefixed>,java.lang.String,java.util.List<org.tinygears.uom.core.parse.Extends>,java.util.List<org.tinygears.uom.core.parse.Member>)
+org.tinygears.uom.core.parse Definitions member public java.util.Map<java.lang.String, org.tinygears.uom.core.parse.FileDirectives> files()
+org.tinygears.uom.core.parse Definitions member public org.tinygears.uom.core.parse.Definitions(java.util.List<org.tinygears.uom.core.parse.Definition>,java.util.List<org.tinygears.uom.core.parse.Preferred>,java.util.List<org.tinygears.uom.core.parse.Prefixed>,java.lang.String,java.util.List<org.tinygears.uom.core.parse.Extends>,java.util.List<org.tinygears.uom.core.parse.Member>,java.util.Map<java.lang.String, org.tinygears.uom.core.parse.FileDirectives>)
 org.tinygears.uom.core.parse Definitions type public final record org.tinygears.uom.core.parse.Definitions extends java.lang.Record
 org.tinygears.uom.core.parse Extends member public final boolean equals(java.lang.Object)
 org.tinygears.uom.core.parse Extends member public final int hashCode()
@@ -166,6 +167,14 @@ org.tinygears.uom.core.parse Extends member public java.lang.String file()
 org.tinygears.uom.core.parse Extends member public java.lang.String source()
 org.tinygears.uom.core.parse Extends member public org.tinygears.uom.core.parse.Extends(java.lang.String,java.lang.String,int)
 org.tinygears.uom.core.parse Extends type public final record org.tinygears.uom.core.parse.Extends extends java.lang.Record
+org.tinygears.uom.core.parse FileDirectives member public final boolean equals(java.lang.Object)
+org.tinygears.uom.core.parse FileDirectives member public final int hashCode()
+org.tinygears.uom.core.parse FileDirectives member public final java.lang.String toString()
+org.tinygears.uom.core.parse FileDirectives member public java.lang.String system()
+org.tinygears.uom.core.parse FileDirectives member public java.util.List<org.tinygears.uom.core.parse.Extends> extended()
+org.tinygears.uom.core.parse FileDirectives member public java.util.List<org.tinygears.uom.core.parse.Member> members()
+org.tinygears.uom.core.parse FileDirectives member public org.tinygears.uom.core.parse.FileDirectives(java.lang.String,java.util.List<org.tinygears.uom.core.parse.Extends>,java.util.List<org.tinygears.uom.core.parse.Member>)
+org.tinygears.uom.core.parse FileDirectives type public final record org.tinygears.uom.core.parse.FileDirectives extends java.lang.Record
 org.tinygears.uom.core.parse FormulaEvaluator member public static org.tinygears.uom.core.UomUnit<?> evaluate(java.lang.String,java.util.function.Function<java.lang.String, org.tinygears.uom.core.UomUnit<?>>) throws org.tinygears.uom.core.parse.FormulaException
 org.tinygears.uom.core.parse FormulaEvaluator type public final class org.tinygears.uom.core.parse.FormulaEvaluator
 org.tinygears.uom.core.parse FormulaException member public int column()

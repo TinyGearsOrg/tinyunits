@@ -11,7 +11,7 @@
 package org.tinygears.uom.core.parse;
 
 /**
- * An {@code @extends file} directive of the root file.
+ * An {@code @extends file} directive.
  *
  * @param file the extended file
  * @param source the file the line is in

@@ -231,7 +231,7 @@ class UserUnitsTest {
                 "@system Base\nrod:rod 5.5 yd\n@prefixed rod k\n@preferred Length rod\n"
                         + "fortnight 14 d\n@preferred Time fortnight\n",
                 "extra.units",
-                "pole 2 rod\nhide 120 m^2\n");
+                "@include base.units\npole 2 rod\nhide 120 m^2\n");
         UomSystemOfUnits c = load(
                 "@extends base.units\n@include extra.units\n@system Child\nleague 3 mi\n"
                         + "@member pole\nweek 7 d\n@preferred Time week\n",
@@ -550,6 +550,56 @@ class UserUnitsTest {
         assertEquals(1 + 3 * depth, s.symbols().size());
         assertEquals(files.keySet(), opens.keySet());
         assertTrue(opens.values().stream().allMatch(n -> n == 1), opens.toString());
+    }
+
+    @Test
+    void aFileSeesOnlyWhatItIncludes() {
+        // extra.units uses rod of a sibling file without including it
+        Map<String, String> files = Map.of("base.units", "rod 5.5 yd\n", "extra.units", "pole 2 rod\n");
+        fails("@include base.units\n@include extra.units\n", files, "extra.units:1: unknown unit 'rod'");
+        // a parent can not use units of the file that extends it
+        fails(
+                "ell 45 in\n@extends p.units\n",
+                Map.of("p.units", "double_ell 2 ell\n"),
+                "p.units:1: unknown unit 'ell'");
+    }
+
+    @Test
+    void aChainOfParentsIsParsedOnce() {
+        // Each parent was parsed again on its own, so a chain of n files took n^2 / 2 file parses.
+        int depth = 500;
+        int perFile = 40;
+        Map<String, String> files = new HashMap<>();
+        for (int i = 1; i <= depth; i++) {
+            StringBuilder text = new StringBuilder(i == depth ? "" : "@extends c" + (i + 1) + ".units\n");
+            for (int j = 0; j < perFile; j++) {
+                text.append("u").append(i).append('_').append(j).append(' ').append(j + 1).append(" m\n");
+            }
+            files.put("c" + i + ".units", text.toString());
+        }
+        UomSystemOfUnits s = assertTimeoutPreemptively(
+                Duration.ofSeconds(10),
+                () -> load("@extends c1.units\n", files));
+        assertEquals(depth * perFile, s.symbols().size());
+        assertEquals(SI.METRE.multiply(40), s.getUnit("u500_39"));
+    }
+
+    @Test
+    void manyMembersOfPrefixedUnitsLoadInLinearTime() {
+        // Each member was checked against every definition, and its prefixed lines found by a scan of all of them.
+        int n = 20_000;
+        StringBuilder lib = new StringBuilder();
+        StringBuilder root = new StringBuilder("@include lib.units\n");
+        for (int i = 0; i < n; i++) {
+            lib.append('u').append(i).append(" 2 m\n@prefixed u").append(i).append(" k\n");
+            root.append("@member u").append(i).append('\n');
+        }
+        UomSystemOfUnits s = assertTimeoutPreemptively(
+                Duration.ofSeconds(10),
+                () -> load(root.toString(), Map.of("lib.units", lib.toString())));
+        assertEquals(n, s.symbols().size());
+        assertTrue(s.isPrefixable("u19999"));
+        assertEquals(SI.METRE.multiply(2000), UomUnitFormat.standard().with(s).parse("ku19999"));
     }
 
     @Test
