@@ -20,7 +20,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.internal.BoundedCache;
+import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.internal.BoundedCache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

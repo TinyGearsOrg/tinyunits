@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.UnitConverter;
 
+import org.tinygears.uom.engine.Factor;
+
 /**
  * An affine converter {@code x -> factor() * x + offset()}. Sealed: the converters of this library are the only
  * implementation, so equality by factor and offset is symmetric.

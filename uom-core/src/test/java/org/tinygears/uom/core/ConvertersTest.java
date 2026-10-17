@@ -18,6 +18,8 @@ import javax.measure.UnitConverter;
 
 import org.junit.jupiter.api.Test;
 
+import org.tinygears.uom.engine.Factor;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -28,10 +30,10 @@ import static org.tinygears.uom.core.Converters.IDENTITY;
 import static org.tinygears.uom.core.Converters.affine;
 import static org.tinygears.uom.core.Converters.scale;
 import static org.tinygears.uom.core.Converters.shift;
-import static org.tinygears.uom.core.Factor.ONE;
-import static org.tinygears.uom.core.Factor.ZERO;
-import static org.tinygears.uom.core.Factor.of;
-import static org.tinygears.uom.core.Factor.ofLong;
+import static org.tinygears.uom.engine.Factor.ONE;
+import static org.tinygears.uom.engine.Factor.ZERO;
+import static org.tinygears.uom.engine.Factor.of;
+import static org.tinygears.uom.engine.Factor.ofLong;
 
 class ConvertersTest {
 

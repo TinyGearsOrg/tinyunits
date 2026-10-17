@@ -34,6 +34,7 @@
   </developers>
 
   <modules>
+    <module>uom-engine</module>
     <module>uom-core</module>
     <module>uom-codegen</module>
     <module>uom</module>
@@ -307,7 +308,7 @@
                   <doclint>all</doclint>
                   <failOnWarnings>${javadoc.failOnWarnings}</failOnWarnings>
                   <!-- exported to org.tinygears.uom only, not API -->
-                  <excludePackageNames>org.tinygears.uom.core.internal</excludePackageNames>
+                  <excludePackageNames>org.tinygears.uom.engine.internal</excludePackageNames>
                   <bottom>Licensed under the Apache License, Version 2.0.</bottom>
                 </configuration>
               </execution>

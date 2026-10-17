@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core;
+package org.tinygears.uom.engine;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,12 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.tinygears.uom.core.Factor.ONE;
-import static org.tinygears.uom.core.Factor.PI;
-import static org.tinygears.uom.core.Factor.ZERO;
-import static org.tinygears.uom.core.Factor.decimal;
-import static org.tinygears.uom.core.Factor.of;
-import static org.tinygears.uom.core.Factor.ofLong;
+import static org.tinygears.uom.engine.Factor.ONE;
+import static org.tinygears.uom.engine.Factor.PI;
+import static org.tinygears.uom.engine.Factor.ZERO;
+import static org.tinygears.uom.engine.Factor.decimal;
+import static org.tinygears.uom.engine.Factor.of;
+import static org.tinygears.uom.engine.Factor.ofLong;
 
 class FactorTest {
 
@@ -123,7 +123,6 @@ class FactorTest {
                 assertEquals(
                         "factor too large",
                         assertThrows(ArithmeticException.class, () -> decimal(new BigDecimal(v))).getMessage());
-                assertThrows(ArithmeticException.class, () -> BaseUnits.METRE.multiply(new BigDecimal(v)));
             }
         });
         assertEquals(decimal("0.0254"), decimal(new BigDecimal("0.0254")));

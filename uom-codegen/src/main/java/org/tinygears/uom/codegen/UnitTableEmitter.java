@@ -18,8 +18,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.parse.Definition;
+import org.tinygears.uom.engine.Factor;
 
 /** Writes {@code docs/UNITS.md}: every unit of every catalog with its exact factor and offset to the system unit. */
 public final class UnitTableEmitter {

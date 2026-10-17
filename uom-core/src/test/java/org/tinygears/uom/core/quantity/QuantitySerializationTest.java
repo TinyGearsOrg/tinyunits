@@ -692,7 +692,7 @@ class QuantitySerializationTest {
             assertEquals(100_000, ((BigDecimal) q.divide(7).getValue()).precision());
             assertEquals(new BigDecimal("0.0015"), q.to(KILOMETRE).getValue());
             assertEquals(100_000, ((BigDecimal) q.to(foot).getValue()).precision());
-            UomUnit<Length> piMetre = UomUnit.unchecked(METRE.scaledBy(org.tinygears.uom.core.Factor.PI));
+            UomUnit<Length> piMetre = UomUnit.unchecked(METRE.scaledBy(org.tinygears.uom.engine.Factor.PI));
             assertEquals(100_000, ((BigDecimal) q.to(piMetre).getValue()).precision());
             assertEquals(
                     1,

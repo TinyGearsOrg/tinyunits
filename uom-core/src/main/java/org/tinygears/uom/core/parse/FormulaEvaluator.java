@@ -16,8 +16,8 @@ import java.util.function.Supplier;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 
 /**
  * Evaluates unit formulas such as {@code kg m / s^2} with a recursive-descent parser.

@@ -16,6 +16,8 @@ import javax.measure.Unit;
 
 import org.junit.jupiter.api.Test;
 
+import org.tinygears.uom.engine.Factor;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.KILOGRAM;
 import static org.tinygears.uom.core.BaseUnits.METRE;
@@ -166,5 +169,18 @@ class UomUnitTest {
         // an alternate atom stays itself
         UomUnit<?> hz = ONE.divide(SECOND).alternate("Hz");
         assertEquals(Map.of(hz, 1, METRE, 1), hz.multiply(METRE).getBaseUnits());
+    }
+
+    @Test
+    void aHugeDecimalFactorIsRejectedFromItsScale() {
+        assertTimeoutPreemptively(java.time.Duration.ofSeconds(1), () -> {
+            for (String v : new String[] { "1e1000000", "1e-1000000" }) {
+                assertEquals(
+                        "factor too large",
+                        assertThrows(
+                                ArithmeticException.class,
+                                () -> BaseUnits.METRE.multiply(new java.math.BigDecimal(v))).getMessage());
+            }
+        });
     }
 }

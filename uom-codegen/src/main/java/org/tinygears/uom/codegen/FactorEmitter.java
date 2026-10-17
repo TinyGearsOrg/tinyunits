@@ -12,7 +12,7 @@ package org.tinygears.uom.codegen;
 
 import java.math.BigInteger;
 
-import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.engine.Factor;
 
 /** Writes a Java expression that evaluates to a factor equal to a given one, without double literals. */
 public final class FactorEmitter {
@@ -21,7 +21,7 @@ public final class FactorEmitter {
 
     /** {@code imports} gives the names of the classes the expression uses. */
     public static String emit(Factor factor, Imports imports) {
-        String factorClass = imports.name("org.tinygears.uom.core.Factor");
+        String factorClass = imports.name("org.tinygears.uom.engine.Factor");
         if (factor.equals(Factor.ZERO)) {
             return factorClass + ".ZERO";
         }

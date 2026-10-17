@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.systems.UomServiceProvider;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Pins the public API of both modules (docs/API.md) to docs/api/public-api.txt; {@code -Duom.writeApi} rewrites the
+ * Pins the public API of the modules (docs/API.md) to docs/api/public-api.txt; {@code -Duom.writeApi} rewrites the
  * file. Each module is read from the class path entry of one of its classes (uom-core from the reactor or ~/.m2).
  */
 class ApiSurfaceTest {
@@ -56,6 +57,7 @@ class ApiSurfaceTest {
     @Test
     void matchesPinnedApi() throws Exception {
         List<String> actual = new ArrayList<>();
+        actual.addAll(surface(module(Factor.class)));
         actual.addAll(surface(module(UomUnit.class)));
         actual.addAll(surface(module(UomServiceProvider.class)));
         if (System.getProperty("uom.writeApi") != null) {
@@ -81,15 +83,25 @@ class ApiSurfaceTest {
         assertEquals(
                 Set.of("org.tinygears.uom.core", "org.tinygears.uom.core.parse", "org.tinygears.uom.core.quantity"),
                 exported);
-        // spi is the hook the provider implements, internal the helpers the formats share: both for uom only.
-        for (String hidden : List.of("org.tinygears.uom.core.spi", "org.tinygears.uom.core.internal")) {
-            assertEquals(
-                    Set.of("org.tinygears.uom"),
-                    core.descriptor().exports().stream().filter(e -> e.source().equals(hidden)).findFirst()
-                            .orElseThrow().targets(),
-                    hidden);
-        }
+        // spi is the hook the provider implements, for uom only
+        assertEquals(
+                Set.of("org.tinygears.uom"),
+                core.descriptor().exports().stream().filter(e -> e.source().equals("org.tinygears.uom.core.spi"))
+                        .findFirst().orElseThrow().targets());
         assertTrue(core.descriptor().opens().isEmpty());
+        // the engine's helpers are for the other modules of uom only
+        ModuleReference engine = module(Factor.class);
+        assertEquals(
+                Set.of("org.tinygears.uom.engine"),
+                engine.descriptor().exports().stream().filter(e -> !e.isQualified())
+                        .map(ModuleDescriptor.Exports::source).collect(Collectors.toSet()));
+        assertEquals(
+                Set.of("org.tinygears.uom.core", "org.tinygears.uom"),
+                engine.descriptor().exports().stream()
+                        .filter(e -> e.source().equals("org.tinygears.uom.engine.internal")).findFirst().orElseThrow()
+                        .targets());
+        assertTrue(engine.descriptor().requires().stream().noneMatch(r -> r.name().equals("java.measure")));
+        assertTrue(engine.descriptor().opens().isEmpty());
         ModuleReference uom = module(UomServiceProvider.class);
         assertEquals(
                 Set.of("org.tinygears.uom.quantity", "org.tinygears.uom.systems"),
@@ -101,13 +113,14 @@ class ApiSurfaceTest {
     @Test
     void onlyTheInternalAndSpiPackagesHavePublicTypesOutsideTheExports() throws Exception {
         List<String> hidden = new ArrayList<>();
-        for (ModuleReference m : List.of(module(UomUnit.class), module(UomServiceProvider.class))) {
+        for (ModuleReference m : List
+                .of(module(Factor.class), module(UomUnit.class), module(UomServiceProvider.class))) {
             surface(m).stream().filter(l -> l.contains(" hidden ")).forEach(hidden::add);
         }
         assertFalse(hidden.isEmpty());
         for (String line : hidden) {
             assertTrue(
-                    line.startsWith("org.tinygears.uom.core.internal ")
+                    line.startsWith("org.tinygears.uom.engine.internal ")
                             || line.startsWith("org.tinygears.uom.core.spi "),
                     line);
         }
@@ -138,7 +151,11 @@ class ApiSurfaceTest {
                                 + r.modifiers().stream().map(x -> x.toString().toLowerCase(Locale.ROOT) + " ").sorted()
                                         .collect(Collectors.joining())
                                 + r.name()));
-        d.exports().forEach(e -> lines.add(name + " module exports " + e));
+        // Exports.toString lists the targets in hash order; sorted, the line is stable.
+        d.exports().forEach(
+                e -> lines.add(
+                        name + " module exports " + e.source()
+                                + (e.isQualified() ? " to " + new java.util.TreeSet<>(e.targets()) : "")));
         d.opens().forEach(o -> lines.add(name + " module opens " + o));
         d.provides().forEach(p -> lines.add(name + " module provides " + p));
         Set<String> exported = d.exports().stream().filter(e -> !e.isQualified()).map(ModuleDescriptor.Exports::source)

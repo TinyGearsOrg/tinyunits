@@ -24,10 +24,11 @@ import java.util.List;
 import java.util.Objects;
 import javax.measure.UnitConverter;
 
-import org.tinygears.uom.core.internal.Decimals;
-import org.tinygears.uom.core.internal.Interval;
-import org.tinygears.uom.core.internal.Irrationals;
-import org.tinygears.uom.core.internal.SerialForm;
+import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.internal.Decimals;
+import org.tinygears.uom.engine.internal.Interval;
+import org.tinygears.uom.engine.internal.Irrationals;
+import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
  * Serializable through a proxy: one step is rebuilt with {@link Converters}; several are validated and rebuilt

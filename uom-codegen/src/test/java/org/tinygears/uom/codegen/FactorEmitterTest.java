@@ -21,7 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.engine.Factor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -70,10 +70,10 @@ class FactorEmitterTest {
         assertEquals("Factor.ONE", FactorEmitter.emit(Factor.ONE, imports));
         assertEquals("Factor.ZERO", FactorEmitter.emit(Factor.ZERO, imports));
         assertEquals("Factor.PI", FactorEmitter.emit(Factor.PI, imports));
-        assertEquals("import org.tinygears.uom.core.Factor;\n\n", imports.block());
+        assertEquals("import org.tinygears.uom.engine.Factor;\n\n", imports.block());
         assertEquals(
                 "Factor.of(new BigInteger(\"1\"), new BigInteger(\"180\"), 1, 1)",
                 FactorEmitter.emit(Factor.PI.divide(Factor.ofLong(180)), imports));
-        assertEquals("import java.math.BigInteger;\n\nimport org.tinygears.uom.core.Factor;\n\n", imports.block());
+        assertEquals("import java.math.BigInteger;\n\nimport org.tinygears.uom.engine.Factor;\n\n", imports.block());
     }
 }

@@ -64,8 +64,8 @@ import javax.measure.quantity.Volume;
 import javax.measure.spi.QuantityFactory;
 
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.internal.SerialForm;
 import org.tinygears.uom.core.spi.Providers;
+import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
  * Serialized form of a quantity: kind, type name, unit, scale and the exact value (raw {@code double} bits, or the

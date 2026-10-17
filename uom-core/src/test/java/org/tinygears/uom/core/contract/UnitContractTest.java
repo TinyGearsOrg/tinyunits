@@ -25,9 +25,9 @@ import javax.measure.quantity.Temperature;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.TestServiceProvider;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

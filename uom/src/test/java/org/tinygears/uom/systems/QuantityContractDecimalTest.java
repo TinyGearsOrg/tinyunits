@@ -17,9 +17,9 @@ import javax.measure.quantity.Speed;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
+import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.quantity.Angle;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Temperature;

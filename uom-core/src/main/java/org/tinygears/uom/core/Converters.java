@@ -10,6 +10,8 @@
 
 package org.tinygears.uom.core;
 
+import org.tinygears.uom.engine.Factor;
+
 /** Factories of the affine converters. */
 public final class Converters {
 

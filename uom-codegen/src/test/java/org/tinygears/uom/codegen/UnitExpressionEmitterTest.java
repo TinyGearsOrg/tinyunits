@@ -204,7 +204,7 @@ class UnitExpressionEmitterTest {
         assertTrue(text.endsWith(".transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO))"), text);
         assertEquals(
                 "import org.tinygears.uom.core.BaseUnits;\nimport org.tinygears.uom.core.Converters;\n"
-                        + "import org.tinygears.uom.core.Factor;\n\n",
+                        + "import org.tinygears.uom.engine.Factor;\n\n",
                 imports.block());
         UomUnit<?> result = run(text + ".named(\"min\", \"minute\")", imports);
         assertEquals(unit, result);

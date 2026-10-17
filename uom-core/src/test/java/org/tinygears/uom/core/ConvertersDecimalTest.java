@@ -20,12 +20,14 @@ import javax.measure.quantity.Length;
 
 import org.junit.jupiter.api.Test;
 
+import org.tinygears.uom.engine.Factor;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 import static org.tinygears.uom.core.Converters.affine;
-import static org.tinygears.uom.core.Factor.of;
+import static org.tinygears.uom.engine.Factor.of;
 
 class ConvertersDecimalTest {
 

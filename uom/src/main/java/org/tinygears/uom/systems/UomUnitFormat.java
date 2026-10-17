@@ -34,11 +34,11 @@ import javax.measure.format.MeasurementParseException;
 import javax.measure.format.UnitFormat;
 
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.internal.BoundedCache;
 import org.tinygears.uom.core.parse.FormulaEvaluator;
 import org.tinygears.uom.core.parse.FormulaException;
+import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.internal.BoundedCache;
 
 /**
  * Formats units by label or symbol and parses unit formulas such as {@code kg·m/s^2} over systems of units.

@@ -25,13 +25,13 @@ import javax.measure.Unit;
 import javax.measure.spi.QuantityFactory;
 import javax.measure.spi.SystemOfUnits;
 
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.internal.Decimals;
-import org.tinygears.uom.core.internal.Interval;
-import org.tinygears.uom.core.internal.Irrationals;
 import org.tinygears.uom.core.spi.Providers;
+import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.internal.Decimals;
+import org.tinygears.uom.engine.internal.Interval;
+import org.tinygears.uom.engine.internal.Irrationals;
 
 /**
  * Base class of the generated {@link BigDecimal} quantities; {@code R} is the typed interface returned by

@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Operating rules for AI coding agents working in this repository: uom, a JSR-385 (unit-api 2.2) implementation in Java
-with the modules `uom-core`, `uom`, `uom-codegen` (internal generator), `uom-tck` and `uom-examples`. Claude Code loads
+with the modules `uom-engine`, `uom-core`, `uom`, `uom-codegen` (internal generator), `uom-tck` and `uom-examples`. Claude Code loads
 this file through `CLAUDE.md`, a symbolic link to it; other agents read it directly.
 
 This is the short, must-follow contract. The commands and the reasons behind the rules are in

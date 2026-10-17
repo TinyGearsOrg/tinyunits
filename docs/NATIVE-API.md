@@ -1,7 +1,11 @@
 # A native API next to the JSR-385 implementation
 
-**Status:** proposal, not decided (TODO item 33). Nothing here describes the code as it is; section 1 does, and
-sections 2 to 6 propose. A decision gets a record in [DESIGN.md](DESIGN.md) section 1.
+**Status:** proposal, not decided (TODO item 33). Section 1 describes the code as it is, sections 2 to 6 propose. A
+decision gets a record in [DESIGN.md](DESIGN.md) section 1.
+
+**Progress** (branch `native-prototype`): step 1 has started. `uom-engine` exists and holds `Factor` and the
+`internal` helpers (decimals, irrational enclosures, caches, serial form); `uom-core` depends on it. Next: dimensions,
+atoms and the alternate-unit registry, then the unit algebra and the converters.
 
 ## 1. The constraint
 

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-MODULES=(uom-core uom)
+MODULES=(uom-engine uom-core uom)
 JAVADOC=${JAVA_HOME:+$JAVA_HOME/bin/}javadoc
 
 fail() { echo "check-javadoc: FAIL: $*" >&2; exit 1; }

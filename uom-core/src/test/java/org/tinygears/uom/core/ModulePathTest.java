@@ -30,7 +30,8 @@ class ModulePathTest {
     @Test
     void describesModuleOnModulePath() throws Exception {
         Path classes = Path.of("").toAbsolutePath().resolve("target/classes");
-        Assumptions.assumeTrue(Files.isDirectory(classes), "no target/classes");
+        Path engine = Path.of("").toAbsolutePath().resolve("../uom-engine/target/classes").normalize();
+        Assumptions.assumeTrue(Files.isDirectory(classes) && Files.isDirectory(engine), "no target/classes");
         String jar = null;
         for (String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
             if (Path.of(entry).getFileName().toString().equals("unit-api-2.2.jar")) {
@@ -44,7 +45,7 @@ class ModulePathTest {
                 List.of(
                         java,
                         "--module-path",
-                        classes + File.pathSeparator + jar,
+                        classes + File.pathSeparator + engine + File.pathSeparator + jar,
                         "--describe-module",
                         "org.tinygears.uom.core"),
                 Duration.ofSeconds(30));
@@ -55,10 +56,10 @@ class ModulePathTest {
                         "exports org.tinygears.uom.core.quantity"),
                 out.lines().map(String::strip).filter(l -> l.startsWith("exports ")).sorted().toList(),
                 out);
-        // spi (the provider's hook) and internal (helpers of the formats) are exported to uom only, not to everyone.
+        // spi, the provider's hook, is exported to uom only; the engine's helpers are exported by the engine.
         assertTrue(out.contains("qualified exports org.tinygears.uom.core.spi to org.tinygears.uom"), out);
-        assertTrue(out.contains("qualified exports org.tinygears.uom.core.internal to org.tinygears.uom"), out);
         assertTrue(out.contains("requires java.measure transitive"), out);
+        assertTrue(out.contains("requires org.tinygears.uom.engine transitive"), out);
     }
 
     @Test

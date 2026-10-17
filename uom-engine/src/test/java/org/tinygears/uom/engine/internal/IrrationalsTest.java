@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.internal;
+package org.tinygears.uom.engine.internal;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -21,14 +21,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.engine.Factor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.tinygears.uom.core.Factor.PI;
-import static org.tinygears.uom.core.Factor.ofLong;
+import static org.tinygears.uom.engine.Factor.PI;
+import static org.tinygears.uom.engine.Factor.ofLong;
 
 /** Pi, its cache, and the enclosures and correct rounding of irrational factors. */
 class IrrationalsTest {

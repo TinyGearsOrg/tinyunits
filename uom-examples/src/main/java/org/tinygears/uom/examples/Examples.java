@@ -220,7 +220,7 @@ public final class Examples {
 
     /** The filter the README recommends for streams that are not trusted. */
     static final String SERIAL_FILTER = "maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;"
-            + "org.tinygears.uom.core.**;org.tinygears.uom.quantity.*;javax.measure.**;java.lang.*;java.math.*;!*";
+            + "org.tinygears.uom.engine.*;org.tinygears.uom.core.**;org.tinygears.uom.quantity.*;javax.measure.**;java.lang.*;java.math.*;!*";
 
     private static Object roundTrip(Object value) {
         try {

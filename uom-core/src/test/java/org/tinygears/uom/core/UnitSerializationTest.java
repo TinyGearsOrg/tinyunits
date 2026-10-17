@@ -36,6 +36,7 @@ import javax.measure.MeasurementException;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.serial.SerialCheck;
+import org.tinygears.uom.engine.Factor;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -298,7 +299,8 @@ class UnitSerializationTest {
 
     @Test
     void roundTripOnTheModulePath() throws Exception {
-        String modules = location(UomUnit.class) + File.pathSeparator + location(javax.measure.Unit.class);
+        String modules = location(UomUnit.class) + File.pathSeparator + location(Factor.class) + File.pathSeparator
+                + location(javax.measure.Unit.class);
         String out = ModulePathTest.runBounded(
                 List.of(
                         java(),
@@ -371,38 +373,6 @@ class UnitSerializationTest {
 
     private static UnitAtom atom(UomUnit<?> base) {
         return base.atoms().keySet().iterator().next();
-    }
-
-    @Test
-    void forgedFactors() throws Exception {
-        BigInteger one = BigInteger.ONE;
-        InvalidObjectException e = assertInvalid(
-                "invalid factor: division by zero",
-                new Factor.Proxy(one, BigInteger.ZERO, 0, 1));
-        assertTrue(e.getCause() instanceof ArithmeticException, e.getCause().toString());
-        assertInvalid("invalid factor: root index must be positive: -1", new Factor.Proxy(one, one, 0, -1));
-        assertInvalid("invalid factor: root index must be positive: 0", new Factor.Proxy(one, one, 0, 0));
-        assertInvalid("invalid factor: null numerator", new Factor.Proxy(null, one, 0, 1));
-        assertInvalid("invalid factor: null denominator", new Factor.Proxy(one, null, 0, 1));
-        // Non-normalised parts are normalised on read.
-        assertEquals(Factor.of(1, 2), roundTrip(new Factor.Proxy(BigInteger.TWO, BigInteger.valueOf(4), 0, 1)));
-        assertEquals(
-                Factor.of(-3, 2),
-                roundTrip(new Factor.Proxy(BigInteger.valueOf(6), BigInteger.valueOf(-4), 0, 1)));
-        assertEquals(Factor.ofLong(2), roundTrip(new Factor.Proxy(BigInteger.valueOf(4), one, 0, 2)));
-        assertEquals(Factor.PI, roundTrip(new Factor.Proxy(one, one, 2, 2)));
-    }
-
-    @Test
-    void forgedHugeNumeratorIsRejectedQuickly() {
-        // Two random coprime-looking 4M-bit values: reducing them by gcd first would take minutes.
-        BigInteger n = new BigInteger(4_000_000, new Random(1));
-        BigInteger d = new BigInteger(4_000_000, new Random(2));
-        assertTimeoutPreemptively(Duration.ofSeconds(10), () -> {
-            assertInvalid("invalid factor: factor too large", new Factor.Proxy(n, d, 0, 1));
-            assertInvalid("invalid factor: factor too large", new Factor.Proxy(n, BigInteger.ONE, 0, 1));
-            assertInvalid("invalid factor: factor too large", new Factor.Proxy(BigInteger.ONE, d, 0, 1));
-        });
     }
 
     @Test
@@ -511,11 +481,12 @@ class UnitSerializationTest {
                         Factor.ZERO,
                         new Factor[] { two, Factor.ofLong(3) },
                         new Factor[] { Factor.ZERO, Factor.ZERO }));
-        InvalidObjectException e = assertThrows(
-                InvalidObjectException.class,
-                () -> readReplacing(
-                        Converters.scale(two),
-                        o -> o instanceof Factor.Proxy ? new Factor.Proxy(BigInteger.ONE, BigInteger.ZERO, 0, 1) : o));
+        // a factor 1/3 whose denominator is patched to 0 in the stream: numerator bytes [1], denominator bytes [3]
+        byte[] third = serialize(Converters.scale(Factor.of(1, 3)));
+        int at = indexOf(third, new byte[] { 0, 0, 0, 1, 1, 0, 0, 0, 1, 3 });
+        assertTrue(at > 0);
+        third[at + 9] = 0;
+        InvalidObjectException e = assertThrows(InvalidObjectException.class, () -> deserialize(third));
         assertEquals("invalid factor: division by zero", e.getMessage());
         UomConverter copy = (UomConverter) deserialize(
                 serialize(
@@ -584,8 +555,7 @@ class UnitSerializationTest {
 
     @Test
     void forgedLengthIsRejectedBeforeAllocation() throws Exception {
-        byte[] bytes = serialize(
-                new Factor.Proxy(new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }), BigInteger.ONE, 0, 1));
+        byte[] bytes = serialize(Factor.of(new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }), BigInteger.ONE));
         byte[] marker = { 0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54 };
         int at = indexOf(bytes, marker);
         assertTrue(at > 0);
@@ -622,30 +592,11 @@ class UnitSerializationTest {
                 () -> deserialize(patchLength(dim, at, -2, 0)));
         assertEquals("negative length -2", e.getMessage());
 
-        byte[] factor = serialize(
-                new Factor.Proxy(new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }), BigInteger.ONE, 0, 1));
+        byte[] factor = serialize(Factor.of(new BigInteger(1, new byte[] { 0x51, 0x52, 0x53, 0x54 }), BigInteger.ONE));
         int n = indexOf(factor, new byte[] { 0, 0, 0, 4, 0x51, 0x52, 0x53, 0x54 });
         assertTrue(n > 0);
         e = assertThrows(InvalidObjectException.class, () -> deserialize(patchLength(factor, n, 0, 4)));
         assertEquals("invalid factor: empty number", e.getMessage());
-    }
-
-    @Test
-    void factorByteCapIsExact() throws Exception {
-        // 8193 bytes hold up to 65_543 bits with the sign; 65_544 bits need 8194 and are refused before allocation.
-        BigInteger max = BigInteger.ONE.shiftLeft(65_536).subtract(BigInteger.ONE);
-        assertEquals(8193, max.toByteArray().length);
-        assertEquals(max, ((Factor) deserialize(serialize(new Factor.Proxy(max, BigInteger.TWO, 0, 1)))).numerator());
-        BigInteger widest = BigInteger.ONE.shiftLeft(65_542);
-        assertEquals(8193, widest.toByteArray().length);
-        InvalidObjectException e = assertInvalid(
-                "invalid factor: factor too large",
-                new Factor.Proxy(widest, BigInteger.ONE, 0, 1));
-        assertTrue(e.getCause() instanceof ArithmeticException, "rejected by the bit check after reading");
-        BigInteger over = BigInteger.ONE.shiftLeft(65_543);
-        assertEquals(8194, over.toByteArray().length);
-        e = assertInvalid("invalid factor: factor too large", new Factor.Proxy(over, BigInteger.ONE, 0, 1));
-        assertNull(e.getCause(), "rejected by the byte cap before reading");
     }
 
     @Test
@@ -655,7 +606,7 @@ class UnitSerializationTest {
         // The third factor written is the first step factor.
         InvalidObjectException e = assertThrows(
                 InvalidObjectException.class,
-                () -> readReplacing(chain, o -> o instanceof Factor.Proxy && ++seen[0] == 3 ? "x" : o));
+                () -> readReplacing(chain, o -> isFactorProxy(o) && ++seen[0] == 3 ? "x" : o));
         assertEquals(6, seen[0]);
         assertEquals("expected Factor, got java.lang.String", e.getMessage());
         e = assertThrows(
@@ -721,6 +672,11 @@ class UnitSerializationTest {
                                 new Factor[] { Factor.ONE, Factor.ONE },
                                 new Factor[] { r2, r2.negate() })));
         assertEquals(Converters.IDENTITY, ok);
+    }
+
+    /** Whether {@code o} is the serialization proxy of a factor, which the engine does not expose. */
+    private static boolean isFactorProxy(Object o) {
+        return o.getClass().getName().equals("org.tinygears.uom.engine.Factor$Proxy");
     }
 
     private static int indexOf(byte[] bytes, byte[] part) {

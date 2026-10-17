@@ -27,9 +27,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -752,7 +752,7 @@ class AbstractDecimalQuantityArithmeticTest {
                     : new Rat(x.unscaledValue().multiply(BigInteger.TEN.pow(-x.scale())), BigInteger.ONE);
         }
 
-        static Rat of(org.tinygears.uom.core.Factor f) {
+        static Rat of(org.tinygears.uom.engine.Factor f) {
             return new Rat(f.numerator(), f.denominator());
         }
 

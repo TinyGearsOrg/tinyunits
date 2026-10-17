@@ -23,10 +23,10 @@ import javax.measure.UnitConverter;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UnitAtom;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 
 /** Subprocess check: reads golden units in a fresh JVM, then round trips in that runtime. Arg: golden dir. */
 public final class SerialCheck {

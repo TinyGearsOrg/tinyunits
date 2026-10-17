@@ -13,7 +13,7 @@ package org.tinygears.uom.core.parse;
 import java.math.BigInteger;
 import java.util.function.Supplier;
 
-import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.engine.Factor;
 
 /** Parses a function of {@code x} such as {@code (x - 32) * 5|9} and reduces it to {@code a*x + b}. */
 final class AffineFunction {

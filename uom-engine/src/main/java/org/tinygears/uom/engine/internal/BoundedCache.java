@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.internal;
+package org.tinygears.uom.engine.internal;
 
 import java.util.Map;
 import java.util.Objects;

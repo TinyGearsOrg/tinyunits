@@ -34,7 +34,10 @@ class ModulePathTest {
     private static String modulePath() {
         Path classes = HERE.resolve("target/classes");
         Path core = HERE.resolve("../uom-core/target/classes").normalize();
-        Assumptions.assumeTrue(Files.isDirectory(classes) && Files.isDirectory(core), "sibling classes not built");
+        Path engine = HERE.resolve("../uom-engine/target/classes").normalize();
+        Assumptions.assumeTrue(
+                Files.isDirectory(classes) && Files.isDirectory(core) && Files.isDirectory(engine),
+                "sibling classes not built");
         String jar = null;
         for (String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
             if (Path.of(entry).getFileName().toString().equals("unit-api-2.2.jar")) {
@@ -42,7 +45,7 @@ class ModulePathTest {
             }
         }
         Assumptions.assumeTrue(jar != null, "unit-api-2.2.jar not on the class path");
-        return String.join(File.pathSeparator, classes.toString(), jar, core.toString());
+        return String.join(File.pathSeparator, classes.toString(), jar, core.toString(), engine.toString());
     }
 
     @Test

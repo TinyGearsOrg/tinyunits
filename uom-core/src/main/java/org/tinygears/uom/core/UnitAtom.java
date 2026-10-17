@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
-import org.tinygears.uom.core.internal.SerialForm;
+import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
  * An irreducible unit: one of the SI base units or an alternate unit. Serializable through a proxy that carries

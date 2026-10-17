@@ -51,8 +51,8 @@ import javax.measure.quantity.Volume;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.quantity.AmountOfSubstanceFactory;
 import org.tinygears.uom.quantity.AngleFactory;
 import org.tinygears.uom.quantity.CatalyticActivityFactory;

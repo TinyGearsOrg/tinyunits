@@ -378,16 +378,17 @@ behaviour for users is in the linked documents. The full discussion and probe re
 
 | Module | Contents | Published |
 |--------|----------|-----------|
+| `uom-engine` | No JSR-385 types: `Factor` (exact rationals, powers of pi, roots) and, in a package exported to the other modules only, the decimal and interval arithmetic, caches and serial-form helpers (`internal`). The first step of docs/NATIVE-API.md | yes |
 | `uom-core` | `Dimension`, `Unit`, converters, prefixes, the `.units` parser, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`) | yes |
 | `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`, `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; no `.units` resources are shipped | yes |
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
 | `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
 
-Dependencies: `uom` -> `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core` and the Eclipse JDT formatter jars, on the
-class path (they split packages, so the generator is not a named module). Module names:
-`org.tinygears.uom.core` and `org.tinygears.uom` (requires the core transitively); they require
-`java.measure`. The quantity types and the catalogs are one module because the typed quantities
+Dependencies: `uom` -> `uom-core` -> `uom-engine`, and `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core` and the
+Eclipse JDT formatter jars, on the class path (they split packages, so the generator is not a named module). Module
+names: `org.tinygears.uom.engine` (no `java.measure`), `org.tinygears.uom.core` (requires the engine and
+`java.measure` transitively) and `org.tinygears.uom` (requires the core transitively). The quantity types and the catalogs are one module because the typed quantities
 need the provider (`asType`, products, factories through `ServiceProvider`). The provider is declared with `provides` and `META-INF/services`.
 
 ## 3. Units core (`uom-core`)

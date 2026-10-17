@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core.internal;
+package org.tinygears.uom.engine.internal;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-import org.tinygears.uom.core.Factor;
+import org.tinygears.uom.engine.Factor;
 
 /**
  * Enclosures of factors with pi or a root, in directed rounding, and correct rounding by widening them until both

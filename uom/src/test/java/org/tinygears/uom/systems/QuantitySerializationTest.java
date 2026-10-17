@@ -279,7 +279,10 @@ class QuantitySerializationTest {
     void freshJvmReadsGoldenFilesOnTheModulePath() throws Exception {
         Path classes = HERE.resolve("target/classes");
         Path core = HERE.resolve("../uom-core/target/classes").normalize();
-        assertTrue(Files.isDirectory(classes) && Files.isDirectory(core), "module classes not built");
+        Path engine = HERE.resolve("../uom-engine/target/classes").normalize();
+        assertTrue(
+                Files.isDirectory(classes) && Files.isDirectory(core) && Files.isDirectory(engine),
+                "module classes not built");
         String jar = null;
         for (String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
             if (Path.of(entry).getFileName().toString().equals("unit-api-2.2.jar")) {
@@ -299,7 +302,12 @@ class QuantitySerializationTest {
                             JAVA,
                             "-XX:-UsePerfData",
                             "--module-path",
-                            String.join(File.pathSeparator, classes.toString(), core.toString(), jar),
+                            String.join(
+                                    File.pathSeparator,
+                                    classes.toString(),
+                                    core.toString(),
+                                    engine.toString(),
+                                    jar),
                             "--add-modules",
                             "org.tinygears.uom",
                             "-cp",

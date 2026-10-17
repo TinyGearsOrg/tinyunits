@@ -20,11 +20,11 @@ import javax.measure.spi.SystemOfUnits;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.core.quantity.AbstractDoubleQuantity;
+import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.quantity.Area;
 import org.tinygears.uom.quantity.ElectricCharge;
 import org.tinygears.uom.quantity.ElectricCurrent;

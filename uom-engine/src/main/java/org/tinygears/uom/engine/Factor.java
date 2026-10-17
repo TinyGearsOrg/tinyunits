@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core;
+package org.tinygears.uom.engine;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -21,9 +21,9 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.core.internal.Decimals;
-import org.tinygears.uom.core.internal.Irrationals;
-import org.tinygears.uom.core.internal.SerialForm;
+import org.tinygears.uom.engine.internal.Decimals;
+import org.tinygears.uom.engine.internal.Irrationals;
+import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
  * Exact number {@code sign(n) * (|n|/d * pi^k)^(1/r)}, kept in a normal form: gcd-reduced, {@code d > 0},

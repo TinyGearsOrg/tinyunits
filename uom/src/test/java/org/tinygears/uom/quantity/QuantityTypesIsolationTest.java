@@ -80,6 +80,7 @@ class QuantityTypesIsolationTest {
             super(new URL[] {
                 codeSource(Length.class),
                 codeSource(AbstractDoubleQuantity.class),
+                codeSource(org.tinygears.uom.engine.Factor.class),
                 codeSource(Unit.class) }, ClassLoader.getPlatformClassLoader());
         }
 

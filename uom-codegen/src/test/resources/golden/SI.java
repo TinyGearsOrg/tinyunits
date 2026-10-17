@@ -21,8 +21,8 @@ import javax.measure.quantity.Time;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.quantity.LengthFactory;
 import org.tinygears.uom.quantity.TimeFactory;
 

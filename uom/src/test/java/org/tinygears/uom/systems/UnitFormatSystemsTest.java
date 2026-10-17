@@ -28,8 +28,8 @@ import javax.measure.format.MeasurementParseException;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.systems.SystemsCatalogTest.Catalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

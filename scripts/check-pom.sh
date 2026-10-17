@@ -10,7 +10,7 @@ set -euo pipefail
 
 SCRIPT=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
 ROOT=${CHECK_POM_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}
-MODULES=(uom-core uom-codegen uom uom-tck uom-examples)
+MODULES=(uom-engine uom-core uom-codegen uom uom-tck uom-examples)
 
 fail() { echo "check-pom: FAIL: $*" >&2; exit 1; }
 
@@ -51,7 +51,7 @@ self_test() {
     "release-deps-rule|drop('pom.xml', '<requireReleaseDeps>', '</requireReleaseDeps>')|lacks the rule requireReleaseDeps"
     "release-version-order|move_enforcer_last()|must be declared before central-publishing-maven-plugin"
     "release-version-module-override|sub('uom-core/pom.xml', '</project>', '<profiles><profile><id>release</id><build><plugins><plugin><artifactId>maven-enforcer-plugin</artifactId><executions><execution><id>enforce-release-version</id><phase>none</phase></execution></executions></plugin></plugins></build></profile></profiles></project>')|uom-core: release: maven-enforcer-plugin executions must be bound to validate and deploy"
-    "manifest-vendor|drop('pom.xml', '<Implementation-Vendor>', '</Implementation-Vendor>')|uom-core: manifest entry Implementation-Vendor is ''"
+    "manifest-vendor|drop('pom.xml', '<Implementation-Vendor>', '</Implementation-Vendor>')|uom-engine: manifest entry Implementation-Vendor is ''"
     "distribution-management|sub('pom.xml', '<issueManagement>', '<distributionManagement><repository><id>x</id><url>https://example.invalid/repo</url></repository></distributionManagement><issueManagement>')|distributionManagement must not be set"
     "alt-deployment-property|sub('pom.xml', '<surefire.version>', '<altDeploymentRepository>x::https://example.invalid/repo</altDeploymentRepository><surefire.version>')|property altDeploymentRepository must not be set"
     "release-active|sub('pom.xml', '<id>release</id>', '<id>release</id><activation><activeByDefault>true</activeByDefault></activation>')|release profile must not have an activation"
@@ -148,7 +148,7 @@ def plugin(p, aid):
     return next((x for (g, a), x in plugins(p).items() if a == aid), None)
 
 REPO = 'https://github.com/TinyGearsOrg/tinyunits'
-PUBLISHED = ['uom-parent', 'uom-core', 'uom']
+PUBLISHED = ['uom-parent', 'uom-engine', 'uom-core', 'uom']
 UNPUBLISHED = ['uom-codegen', 'uom-tck', 'uom-examples']
 RELEASE_ONLY = ['maven-source-plugin', 'maven-javadoc-plugin', 'maven-gpg-plugin', 'central-publishing-maven-plugin']
 
@@ -300,7 +300,7 @@ for mode, eff in (('default', default), ('release', rel)):
                 for v in [e.text or ''] + list(e.attrib.values()):
                     if '${' in v:
                         fail("%s: %s: unresolved expression '%s' in <%s>" % (a, mode, v.strip(), e.tag))
-        if a in ('uom-core', 'uom') and mode == 'default':
+        if a in ('uom-engine', 'uom-core', 'uom') and mode == 'default':
             jar = plugin(p, 'maven-jar-plugin')
             for entry, want in (('Implementation-Title', text(p, 'name')), ('Implementation-Version', text(p, 'version')),
                                 ('Implementation-Vendor', 'TinyGearsOrg')):

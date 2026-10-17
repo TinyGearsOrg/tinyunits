@@ -35,9 +35,10 @@ import javax.measure.Unit;
 import javax.measure.UnitConverter;
 import javax.measure.spi.QuantityFactory;
 
-import org.tinygears.uom.core.internal.BoundedCache;
-import org.tinygears.uom.core.internal.SerialForm;
 import org.tinygears.uom.core.spi.Providers;
+import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.engine.internal.BoundedCache;
+import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
  * A product of atoms with integer exponents, an affine converter to the system unit, and labels. Serializable

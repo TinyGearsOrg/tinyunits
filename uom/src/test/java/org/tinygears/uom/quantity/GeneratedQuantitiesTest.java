@@ -221,6 +221,7 @@ class GeneratedQuantitiesTest {
         URL[] urls = {
             codeSource(Length.class),
             codeSource(org.tinygears.uom.core.quantity.AbstractDoubleQuantity.class),
+            codeSource(org.tinygears.uom.engine.Factor.class),
             codeSource(Unit.class) };
         try (Loader l = new Loader(urls)) {
             assertNull(l.loaded("org.tinygears.uom.quantity.QuantityTypes"));
