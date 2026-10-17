@@ -384,6 +384,8 @@ behaviour for users is in the linked documents. The full discussion and probe re
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
 | `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
+| `uom-native` | Prototype of a native API on `uom-engine` (docs/NATIVE-API.md): `Unit<Length>` with this library's types, typed products; no JSR-385 types | no |
+| `uom-native-jsr` | Prototype bridge between the native and the JSR-385 quantities (`Jsr`) | no |
 
 Dependencies: `uom` -> `uom-core` -> `uom-engine`, and `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core` and the
 Eclipse JDT formatter jars, on the class path (they split packages, so the generator is not a named module). Module

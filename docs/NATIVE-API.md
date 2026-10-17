@@ -14,7 +14,25 @@ decision gets a record in [DESIGN.md](DESIGN.md) section 1.
   metric and binary prefixes; `UomSystemOfUnits` and `UomUnitFormat` wrap its results as `UomUnit`s, and a formula
   that is one looked-up symbol still gives that unit itself. The parser's tests stay in `uom-core`, which has both
   APIs.
-- Next: the native slice.
+- Done: the native slice. `uom-native` (module `org.tinygears.uom.nativeapi`, on the engine only) has
+  `Quantity<Q>`, `Unit<Q>`, `Length`, `Time`, `Speed` in `double`, the products `Length.divide(Time)` (a `Speed`),
+  `Speed.multiply(Time)` (a `Length`) and `Length.divide(Speed)` (a `Time`), and the SI units of the slice;
+  `uom-native-jsr` converts both ways between them and the JSR-385 quantities (`Jsr.toJsr`, `Jsr.length`, ...).
+
+**Findings of the prototype**, against the criteria of section 6:
+- Unit declarations: `Unit<Length> km = SI.KILOMETRE` compiles with this library's `Length`; no `var`, `Unit<?>` or
+  qualified name is needed, because the native `Unit` is not bound to `Q extends javax.measure.Quantity<Q>`.
+- Typed products: `Length.of(42.195, km).divide(Time.of(3, h))` is a `Speed`; each relation is one method on each
+  side, so the 33 types need a relation table and generated methods.
+- Boundary cost: both APIs wrap the same engine units, so a conversion copies the value and wraps the unit. Measured on
+  JDK 25 (warm, 2 million calls): native to JSR-385 27 ns, back 15 ns, against 15 to 23 ns for one `add` or `divide`
+  on either side: the boundary costs about one arithmetic operation.
+- Shared code: the engine carries the algebra, conversion, parser, registry and serialization; the native slice is
+  577 lines over it with Javadoc (quantities, units, catalog), the bridge 115. What does not carry over is the
+  quantity arithmetic of `uom-core` (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`, `Precision`), which is
+  written against the JSR-385 types; a native API with decimals would need it again or a JSR-free version of it.
+- Next: the decision of section 6 (complete the split, keep one JSR-385 implementation, or ship the native API with
+  the JSR-385 side as an adapter).
 
 ## 1. The constraint
 

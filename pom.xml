@@ -40,6 +40,8 @@
     <module>uom</module>
     <module>uom-tck</module>
     <module>uom-examples</module>
+    <module>uom-native</module>
+    <module>uom-native-jsr</module>
   </modules>
 
   <scm child.scm.connection.inherit.append.path="false"
@@ -346,6 +348,8 @@
                 <artifact>uom-codegen</artifact>
                 <artifact>uom-tck</artifact>
                 <artifact>uom-examples</artifact>
+                <artifact>uom-native</artifact>
+                <artifact>uom-native-jsr</artifact>
               </excludeArtifacts>
             </configuration>
           </plugin>

@@ -12,7 +12,7 @@ set -euo pipefail
 SCRIPT=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PUBLISHED=(uom-parent uom-engine uom-core uom)
-UNPUBLISHED=(uom-codegen uom-tck uom-examples)
+UNPUBLISHED=(uom-codegen uom-tck uom-examples uom-native uom-native-jsr)
 # Maven 3.9 chained local repository (comma-separated tail): installs go to the temporary head, the tail is only read
 TAIL=${VERIFY_REPO_TAIL:-$HOME/.m2/repository}
 [[ -n ${VERIFY_REPO_TAIL:-} || -d $TAIL ]] || TAIL=

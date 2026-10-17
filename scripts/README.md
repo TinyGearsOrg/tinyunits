@@ -18,7 +18,8 @@ plugins are cached), then:
 
 1. **Release build** as above.
 2. **Installed artifacts:** `uom-parent` (pom), `uom-engine`, `uom-core` and `uom` (pom, jar, sources and javadoc jar), exactly;
-   `uom-codegen`, `uom-tck` and `uom-examples` are installed (pom and jar) but have no sources or javadoc jar (they
+   `uom-codegen`, `uom-tck`, `uom-examples`, `uom-native` and `uom-native-jsr` are installed (pom and jar) but have no
+   sources or javadoc jar (they
    are never deployed, see `check-pom.sh`). The jars contain `module-info.class`, `META-INF/LICENSE` (equal to
    `LICENSE`), the manifest entries (`Implementation-Title`, `-Version`, `-Vendor`, `Build-Jdk-Spec` of the JDK, no
    `Automatic-Module-Name`) and nothing else (no tests, no data files); the sources jars likewise; the javadoc jars document no internal package;

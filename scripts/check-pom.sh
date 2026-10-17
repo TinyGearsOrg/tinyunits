@@ -10,7 +10,7 @@ set -euo pipefail
 
 SCRIPT=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
 ROOT=${CHECK_POM_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}
-MODULES=(uom-engine uom-core uom-codegen uom uom-tck uom-examples)
+MODULES=(uom-engine uom-core uom-codegen uom uom-tck uom-examples uom-native uom-native-jsr)
 
 fail() { echo "check-pom: FAIL: $*" >&2; exit 1; }
 
@@ -32,7 +32,7 @@ self_test() {
     "enforcer-rule|drop('pom.xml', '<banDuplicatePomDependencyVersions', '/>')|enforcer rule banDuplicatePomDependencyVersions"
     "outputTimestamp|drop('pom.xml', '<project.build.outputTimestamp>', '</project.build.outputTimestamp>')|project.build.outputTimestamp"
     "exclude-artifacts|drop('pom.xml', '<excludeArtifacts>', '</excludeArtifacts>')|central-publishing excludeArtifacts is []"
-    "exclude-tck|sub('pom.xml', '<artifact>uom-tck</artifact>', '')|central-publishing excludeArtifacts is ['uom-codegen', 'uom-examples']"
+    "exclude-tck|sub('pom.xml', '<artifact>uom-tck</artifact>', '')|central-publishing excludeArtifacts is ['uom-codegen', 'uom-examples', 'uom-native', 'uom-native-jsr']"
     "ignore-published|drop('pom.xml', '<ignorePublishedComponents>', '</ignorePublishedComponents>')|central-publishing ignorePublishedComponents is ''"
     "wait-for-publish|drop('pom.xml', '<waitForPublishCompletion>', '</waitForPublishCompletion>')|central-publishing waitForPublishCompletion is ''"
     "fail-on-build-failure|drop('pom.xml', '<failOnBuildFailure>', '</failOnBuildFailure>')|central-publishing failOnBuildFailure is ''"
@@ -149,7 +149,7 @@ def plugin(p, aid):
 
 REPO = 'https://github.com/TinyGearsOrg/tinyunits'
 PUBLISHED = ['uom-parent', 'uom-engine', 'uom-core', 'uom']
-UNPUBLISHED = ['uom-codegen', 'uom-tck', 'uom-examples']
+UNPUBLISHED = ['uom-codegen', 'uom-tck', 'uom-examples', 'uom-native', 'uom-native-jsr']
 RELEASE_ONLY = ['maven-source-plugin', 'maven-javadoc-plugin', 'maven-gpg-plugin', 'central-publishing-maven-plugin']
 
 raw = load(sys.argv[1])
