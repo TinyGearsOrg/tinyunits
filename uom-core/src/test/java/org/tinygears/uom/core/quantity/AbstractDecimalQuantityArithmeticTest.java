@@ -331,18 +331,23 @@ class AbstractDecimalQuantityArithmeticTest {
     }
 
     @Test
-    void equivalenceToleranceFollowsTheLowestPrecision() {
-        assertTrue(q("1", METRE).isEquivalentTo(q("1.0000000000000000000000000000000001", METRE)));
-        // Unlimited contexts use p = 34: a 5e-34 difference is within 1e-33 relative, 2e-33 is not.
-        TestLengthDecimalImpl one = q("1.00000000000000000000000000000000000000", METRE, UNLIMITED);
-        assertTrue(one.isEquivalentTo(q("1.00000000000000000000000000000000050000", METRE, UNLIMITED)));
-        assertFalse(one.isEquivalentTo(q("1.00000000000000000000000000000000200000", METRE, UNLIMITED)));
-        assertFalse(q("1", METRE, UNLIMITED).isEquivalentTo(q("1.000000000000000000000000000000002", METRE)));
-        // DECIMAL32 on either side gives p = 7: relative 1e-6.
-        assertTrue(q("1", METRE).isEquivalentTo(q("1.000001", METRE, MathContext.DECIMAL32)));
-        assertTrue(q("1.000001", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1", METRE)));
-        assertFalse(q("1", METRE).isEquivalentTo(q("1.000002", METRE, MathContext.DECIMAL32)));
-        assertFalse(q("1", METRE).isEquivalentTo(q("1.000001", METRE)));
+    void decimalEquivalenceIsExactWhateverTheContext() {
+        MathContext p1 = new MathContext(1);
+        // The former tolerance max(|a|, |b|) * 10^(1 - p) made every two same-sign values equivalent at precision 1.
+        assertFalse(q("1", METRE, p1).isEquivalentTo(q("1.9", METRE, p1)));
+        assertFalse(q("1", METRE, p1).isEquivalentTo(q("100", METRE, p1)));
+        assertTrue(q("1", METRE, p1).isEquivalentTo(q("1.000", METRE, p1)));
+        assertFalse(q("1", METRE).isEquivalentTo(q("1.0000000000000000000000000000000001", METRE)));
+        assertFalse(q("1", METRE).isEquivalentTo(q("1.000001", METRE, MathContext.DECIMAL32)));
+        assertFalse(q("1000000", METRE, MathContext.DECIMAL32).isEquivalentTo(q("999999", METRE)));
+        // exact across units, and alike when both sides rounded the same value in the same context
+        assertTrue(q("1", INCH, p1).isEquivalentTo(q("0.0254", METRE)));
+        assertTrue(q("1", KILOMETRE).divide(3).isEquivalentTo(q("1000", METRE).divide(3)));
+        // a value rounded from an irrational one is not its source
+        String pi34 = "3.141592653589793238462643383279503";
+        assertFalse(q(pi34, METRE).isEquivalentTo(q("1", PI_M)));
+        assertFalse(q("1", PI_M).isEquivalentTo(q(pi34, METRE)));
+        assertTrue(q("2", PI_M).isEquivalentTo(q("1", PI_M).add(q("1", PI_M))));
     }
 
     @Test
@@ -499,14 +504,6 @@ class AbstractDecimalQuantityArithmeticTest {
         assertEquals(1, q("0.0000001", CELSIUS, MathContext.DECIMAL32).compareTo(q("273.15", KELVIN)));
         assertEquals(-1, q("-459.67", FAHRENHEIT, new MathContext(1)).compareTo(q("1e-30", KELVIN)));
         assertEquals(0, q("-459.67", FAHRENHEIT).compareTo(q("0", KELVIN)));
-    }
-
-    @Test
-    void equivalenceBoundIsInclusiveAndUsesTheLargerMagnitude() {
-        // p = 7: tolerance max(|a|, |b|) * 1e-6, exactly 1 here.
-        assertTrue(q("1000000", METRE, MathContext.DECIMAL32).isEquivalentTo(q("999999", METRE)));
-        assertTrue(q("999999", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1000000", METRE)));
-        assertFalse(q("999999", METRE, MathContext.DECIMAL32).isEquivalentTo(q("1000001", METRE)));
     }
 
     private static final List<BigDecimal> OUT_OF_SCALE = List

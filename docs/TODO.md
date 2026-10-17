@@ -60,8 +60,6 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 ## 22. Decimal arithmetic residuals
 
 **Status:** open.
-- The `isEquivalentTo` tolerance `10^(1-p)` is 1 at precision 1, so any two same-sign values within a factor of two are
-  equivalent: document it or require a minimum precision.
 - Cost: a huge integer parses with a full superlinear `BigDecimal` parse (no digit bound at parse time; two million
   digits take tens of seconds). Only the scale and quantity contexts are bounded. At precision 100000 inexact results below
   1 throw `ArithmeticException("scale out of range")`.

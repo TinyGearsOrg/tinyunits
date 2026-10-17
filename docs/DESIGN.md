@@ -14,7 +14,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 17 (DR-11)
 | User extension | Users load their own `.units` files at run time (`UomSystemOfUnits.load`) and get `Unit<?>` back (F18); a file sees only what it includes (DR-16). User-defined quantity types are out of scope. |
 | Precision | Mixing `double` and `BigDecimal` gives `BigDecimal`, the `double` read as its shortest decimal; symmetric (F23, DR-14). |
 | Irrational factors | Pi and roots are enclosed by directed rounding; decimal results are rounded correctly (DR-15). |
-| Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
+| Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo` (exact for decimals, `1e-12` relative with a `double`, DR-18); `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
 | Java baseline | Java 17; releases built with JDK 21 (DR-11). |
 | Information units | An `Information` catalog with bit and byte as untyped alternate atoms, metric and binary prefixes (DR-12). |
 | Systems of units | Catalogs and preferred units over the SI dimensions; own base units and dimension models belong in a separate library (DR-13). |
@@ -247,8 +247,8 @@ behaviour for users is in the linked documents. The full discussion and probe re
 **DR-14 Mixing precisions: the decimal wins.**
 - *Decision.* An operation on a `double` and a `BigDecimal` quantity (add, subtract, multiply, divide, `compareTo`) is
   decimal: the `double` value is read as its shortest decimal (`BigDecimal.valueOf`), the result is a `BigDecimal`
-  quantity in the decimal operand's context, in either operand order. `isEquivalentTo` keeps the tolerance of the less
-  precise operand. A NaN or infinite `double` throws `ArithmeticException` in that arithmetic; `compareTo` keeps the
+  quantity in the decimal operand's context, in either operand order. `isEquivalentTo` against a `double` operand keeps
+  the `double` tolerance. A NaN or infinite `double` throws `ArithmeticException` in that arithmetic; `compareTo` keeps the
   `Double.compare` order for it. Scalar arguments keep adopting the receiver's precision (F23).
 - *Why.* The former rule, the lower precision wins, was right about accuracy: a `double` operand carries 15 to 17
   digits, and doing the arithmetic in `double` adds about one more rounding error of that size, so promoting does not
@@ -313,6 +313,21 @@ behaviour for users is in the linked documents. The full discussion and probe re
   and the last label wins).
 - *Revisit if.* Users need one label to apply to every format they create.
 - *See.* `UomUnitFormat` class Javadoc; `UnitFormatTest.labelsBelongToTheirFormatAndNeverChangeToString`.
+
+**DR-18 Decimal `isEquivalentTo` is exact.**
+- *Decision.* Two decimal quantities are equivalent when `compareTo` is 0: the exact system-unit values agree, whatever
+  their contexts. A `double` on either side keeps the relative tolerance `1e-12`.
+- *Why.* The former tolerance `max(|a|, |b|) * 10^(1 - p)`, `p` the lower precision of the contexts, followed the
+  context, which rounds results but says nothing about how precise a value is: at precision 1 every two values of the
+  same sign were equivalent (`1 m` and `100 m`), at precision 2 `1 m` and `1.1 m`. The unit-api Javadoc asks for
+  `that ≡ this`; Indriya 2.2 compares exactly (`compareTo == 0`), pint and UnitsNet compare exactly and offer tolerance
+  as an explicit call. Decimal `compareTo` is exact, through pi and roots too (DR-15), so no conversion noise needs a
+  tolerance; `double` arithmetic does, so it keeps one.
+- *Rejected.* A tolerance of one unit in the last place at the context precision: still context-driven, and `1 m` and
+  `1.9 m` stay equivalent at precision 1. Keeping the old rule with a minimum precision.
+- *Revisit if.* Users compare values rounded on their way (a converted `57.29577951308232087679815481410517°` is not
+  `1 rad`): an explicit tolerance method, such as `isEquivalentTo(that, relativeTolerance)`, would serve them.
+- *See.* `AbstractDecimalQuantityArithmeticTest.decimalEquivalenceIsExactWhateverTheContext`; REQUIREMENTS F20.
 
 ## 2. Modules and data flow
 
@@ -516,12 +531,11 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     the operands' digits.
 - **Equality (F20).** `equals`: same implementation class, same unit, same scale, same value. `double`: `Double.compare`.
   Decimal (D4): `compareTo == 0`, so `1.0 m` equals `1.00 m`; the `MathContext` is not part of equality; `hashCode` uses
-  `stripTrailingZeros()`. `LengthDouble` never equals `LengthDecimal`. `isEquivalentTo`: same value after conversion to the
-  same unit within a relative tolerance, with no absolute floor (asymmetric near zero for offset units). `double`
-  (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`): equal or `|a - b| <= 1e-12 * max(|a|, |b|)`; NaN is equivalent to nothing.
-  Decimal (D5): after converting `that` into this unit, equal by `compareTo` or `|a - b| <= max(|a|, |b|) * 10^(1 - p)`,
-  where `p` is the lowest non-zero precision of the two contexts (34 when both are unlimited); against a `double` operand
-  the `double` rule applies. At precision 1 the tolerance is 1 (degenerate, parked).
+  `stripTrailingZeros()`. `LengthDouble` never equals `LengthDecimal`. `isEquivalentTo`: the same amount after conversion to
+  the same unit. `double` (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`): equal or `|a - b| <= 1e-12 * max(|a|, |b|)`, with
+  no absolute floor (asymmetric near zero for offset units); NaN is equivalent to nothing. Decimal (D5, DR-18): exact,
+  `compareTo == 0` on the system-unit values, whatever the contexts; against a `double` operand the `double` rule
+  applies.
 - **Ordering (D1, D6, F22).** Quantities implement `Comparable<Quantity<Q>>`, as the `Quantity` Javadoc requires. `double`:
   `Double.compare` of the system-unit values. Decimal: the difference of the system-unit values is evaluated once, with no
   context rounding, and its sign decides, so the ordering is a consistent total preorder; against a `double` operand it

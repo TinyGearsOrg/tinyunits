@@ -120,10 +120,9 @@ System.out.println(Quantities.getQuantity(1, Units.METRE).equals(indriyaGeneric.
 
 ### isEquivalentTo has a tolerance in uom
 
-uom treats two quantities as equivalent when their values in the same unit agree within a relative tolerance (F20):
-`1e-12` for `double` (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`), `10^(1-p)` for a `BigDecimal` at precision `p`,
-so rounding noise from a conversion does not matter. Indriya compares
-the converted values exactly. Quantities of different dimensions are not equivalent in uom; Indriya throws.
+uom treats two `double` quantities as equivalent when their values in the same unit agree within the relative
+tolerance `1e-12` (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`, F20), so rounding noise from a conversion does not
+matter; two `BigDecimal` quantities are compared exactly, as Indriya compares every pair (DR-18). Quantities of different dimensions are not equivalent in uom; Indriya throws.
 
 ```java
 import tech.units.indriya.quantity.Quantities;
