@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A radioactivity of the native API.
@@ -27,7 +28,7 @@ import org.tinygears.uom.Unit;
 public interface Radioactivity extends Quantity<Radioactivity> {
 
     /** The system unit of {@code Radioactivity}, {@code Bq}. */
-    Unit<Radioactivity> SYSTEM_UNIT = Unit
+    Unit<Radioactivity> SYSTEM_UNIT = Units
             .of(Radioactivity.class, BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Bq").named("Bq", "becquerel"));
 
     /**

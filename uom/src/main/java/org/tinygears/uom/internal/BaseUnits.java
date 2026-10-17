@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom;
+package org.tinygears.uom.internal;
 
 import org.tinygears.uom.engine.UnitAtom;
 

@@ -26,6 +26,7 @@ import org.tinygears.uom.QuantityFormat;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.UnitFormat;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.jsr.UomUnit;
 import org.tinygears.uom.jsr.quantity.UomQuantity;
 import org.tinygears.uom.jsr.systems.UomQuantityFormat;
@@ -76,7 +77,7 @@ class FormatParityTest {
         int n = 0;
         for (SystemOfUnits system : UnitSystems.all()) {
             for (Unit<?> unit : system.units()) {
-                UomUnit<?> jsr = UomUnit.of(unit.engine());
+                UomUnit<?> jsr = UomUnit.of(Units.engine(unit));
                 assertEquals(JSR.format(jsr), NATIVE.format(unit), unit.toString());
                 assertEquals(
                         JSR.withSuperscripts(true).format(jsr),
@@ -96,7 +97,7 @@ class FormatParityTest {
     }
 
     private static String describe(Unit<?> u) {
-        return u.engine().toString() + " | " + u.engine().definition() + " | " + NATIVE.format(u);
+        return Units.engine(u).toString() + " | " + Units.engine(u).definition() + " | " + NATIVE.format(u);
     }
 
     private static String describe(javax.measure.Unit<?> u) {
@@ -150,8 +151,9 @@ class FormatParityTest {
     }
 
     private static String describe(Quantity<?> q, QuantityFormat f) {
-        return q.value() + " " + q.value().getClass().getSimpleName() + " " + q.mathContext() + " " + q.unit().engine()
-                + " " + q.unit().type().getSimpleName() + " " + q.scale() + " | " + f.format(q);
+        return q.value() + " " + q.value().getClass().getSimpleName() + " " + q.mathContext() + " "
+                + Units.engine(q.unit()) + " " + q.unit().type().getSimpleName() + " " + q.scale() + " | "
+                + f.format(q);
     }
 
     private static String describe(UomQuantity<?, ?> q, UomQuantityFormat f) {
@@ -171,13 +173,13 @@ class FormatParityTest {
         UomSystemOfUnits j = UomSystemOfUnits.load("game.units", new StringReader(text), null);
         assertEquals(j.getName(), n.name());
         List<String> ns = new ArrayList<>();
-        n.units().forEach(u -> ns.add(u.symbol() + " " + u.engine().definition()));
+        n.units().forEach(u -> ns.add(u.symbol() + " " + Units.engine(u).definition()));
         List<String> js = new ArrayList<>();
         j.getUnits().forEach(u -> js.add(u.getSymbol() + " " + ((UomUnit<?>) u).engine().definition()));
         assertEquals(js, ns);
         assertEquals(
                 ((UomUnit<?>) j.getUnit(javax.measure.quantity.Length.class)).engine(),
-                n.unit(org.tinygears.uom.quantity.Length.class).engine());
+                Units.engine(n.unit(org.tinygears.uom.quantity.Length.class)));
         assertEquals(j.isPrefixable("league"), n.isPrefixable("league"));
         String nativeText = new QuantityFormat(NATIVE.with(n))
                 .format(new QuantityFormat(NATIVE.with(n)).parse("3 kleague"));

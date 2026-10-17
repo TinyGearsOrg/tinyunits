@@ -89,7 +89,8 @@ describe_expected() { # <artifact> <version>
       'qualified exports org.tinygears.uom.engine.internal to org.tinygears.uom org.tinygears.uom.jsr' ;;
     uom) printf '%s\n' "org.tinygears.uom@$2" 'exports org.tinygears.uom' 'exports org.tinygears.uom.quantity' \
       'exports org.tinygears.uom.systems' 'requires java.base mandated' \
-      'requires org.tinygears.uom.engine transitive' ;;
+      'requires org.tinygears.uom.engine transitive' \
+      'qualified exports org.tinygears.uom.internal to org.tinygears.uom.jsr' ;;
     uom-jsr) printf '%s\n' "org.tinygears.uom.jsr@$2" 'exports org.tinygears.uom.jsr' \
       'exports org.tinygears.uom.jsr.quantity' 'exports org.tinygears.uom.jsr.systems' 'requires java.base mandated' \
       'requires java.measure transitive' 'requires org.tinygears.uom transitive' \

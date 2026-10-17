@@ -16,11 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -62,27 +63,27 @@ public final class ESU {
     }
 
     /** The statcoulomb, {@code statC}. */
-    public static final Unit<ElectricCharge> STATCOULOMB = Unit.of(
+    public static final Unit<ElectricCharge> STATCOULOMB = Units.of(
             ElectricCharge.class,
             BaseUnits.AMPERE.multiply(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 2997924580L), Factor.ZERO))
                     .named("statC", "statcoulomb"));
 
     /** The statampere, {@code statA}. */
-    public static final Unit<ElectricCurrent> STATAMPERE = Unit.of(
+    public static final Unit<ElectricCurrent> STATAMPERE = Units.of(
             ElectricCurrent.class,
             BaseUnits.AMPERE.transform(Converter.affine(Factor.of(1L, 2997924580L), Factor.ZERO))
                     .named("statA", "statampere"));
 
     /** The statvolt, {@code statV}. */
-    public static final Unit<ElectricPotential> STATVOLT = Unit.of(
+    public static final Unit<ElectricPotential> STATVOLT = Units.of(
             ElectricPotential.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(149896229L, 500000L), Factor.ZERO))
                     .named("statV", "statvolt"));
 
     /** The statohm, {@code statΩ}. */
-    public static final Unit<ElectricResistance> STATOHM = Unit.of(
+    public static final Unit<ElectricResistance> STATOHM = Units.of(
             ElectricResistance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(3))
@@ -90,7 +91,7 @@ public final class ESU {
                     .named("statΩ", "statohm"));
 
     /** The statfarad, {@code statF}. */
-    public static final Unit<ElectricCapacitance> STATFARAD = Unit.of(
+    public static final Unit<ElectricCapacitance> STATFARAD = Units.of(
             ElectricCapacitance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2))
@@ -98,7 +99,7 @@ public final class ESU {
                     .named("statF", "statfarad"));
 
     /** The stathenry, {@code statH}. */
-    public static final Unit<ElectricInductance> STATHENRY = Unit.of(
+    public static final Unit<ElectricInductance> STATHENRY = Units.of(
             ElectricInductance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2))

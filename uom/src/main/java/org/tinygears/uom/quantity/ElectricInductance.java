@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An electric inductance of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface ElectricInductance extends Quantity<ElectricInductance> {
 
     /** The system unit of {@code ElectricInductance}, {@code H}. */
-    Unit<ElectricInductance> SYSTEM_UNIT = Unit.of(
+    Unit<ElectricInductance> SYSTEM_UNIT = Units.of(
             ElectricInductance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2)).named("H", "henry"));

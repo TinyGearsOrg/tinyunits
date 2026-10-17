@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.engine.UnitAtom;
-import org.tinygears.uom.engine.UnitException;
 import org.tinygears.uom.quantity.Area;
 import org.tinygears.uom.quantity.Energy;
 import org.tinygears.uom.quantity.Force;
@@ -185,6 +184,22 @@ class NativeQuantityTest {
         Unit<Length> yard = SI.METRE.scaledBy(Factor.of(1143, 1250)).named("yd", "yard");
         assertEquals(USCustomary.YARD, yard);
         assertNull(SI.METRE.scaledBy(Factor.ofLong(2)).symbol());
+    }
+
+    @Test
+    void convertersAreExactAndNative() {
+        Converter c = SI.DEGREE_CELSIUS.converterTo(USCustomary.DEGREE_FAHRENHEIT);
+        assertEquals(212.0, c.convert(100));
+        assertEquals(new BigDecimal("212.0"), c.convert(new BigDecimal("100"), MathContext.UNLIMITED));
+        assertEquals(Factor.of(9, 5), c.factor());
+        assertEquals(Factor.ofLong(32), c.offset());
+        assertFalse(c.isLinear());
+        assertEquals(100.0, c.inverse().convert(212));
+        assertTrue(c.concatenate(c.inverse()).isIdentity());
+        assertEquals(SI.METRE.converterTo(SI.KILOMETRE), SI.METRE.converterTo(SI.KILOMETRE));
+        assertEquals(
+                "incompatible dimensions: m and s",
+                assertThrows(UnitException.class, () -> SI.METRE.converterTo(SI.SECOND)).getMessage());
     }
 
     @Test

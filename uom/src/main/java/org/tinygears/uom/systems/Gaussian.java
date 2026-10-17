@@ -16,11 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -62,7 +63,7 @@ public final class Gaussian {
     }
 
     /** The franklin, {@code Fr}. */
-    public static final Unit<ElectricCharge> FRANKLIN = Unit.of(
+    public static final Unit<ElectricCharge> FRANKLIN = Units.of(
             ElectricCharge.class,
             BaseUnits.AMPERE.multiply(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 2997924580L), Factor.ZERO)).named("Fr", "franklin"));

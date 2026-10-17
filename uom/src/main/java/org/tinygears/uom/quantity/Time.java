@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A time of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Time extends Quantity<Time> {
 
     /** The system unit of {@code Time}, {@code s}. */
-    Unit<Time> SYSTEM_UNIT = Unit.of(Time.class, BaseUnits.SECOND);
+    Unit<Time> SYSTEM_UNIT = Units.of(Time.class, BaseUnits.SECOND);
 
     /**
      * An absolute double quantity.

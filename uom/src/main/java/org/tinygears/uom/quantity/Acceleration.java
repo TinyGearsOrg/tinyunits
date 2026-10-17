@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An acceleration of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Acceleration extends Quantity<Acceleration> {
 
     /** The system unit of {@code Acceleration}, {@code m/s^2}. */
-    Unit<Acceleration> SYSTEM_UNIT = Unit.of(
+    Unit<Acceleration> SYSTEM_UNIT = Units.of(
             Acceleration.class,
             BaseUnits.METRE.divide(BaseUnits.SECOND.pow(2)).named("m/s^2", "metre per second squared"));
 

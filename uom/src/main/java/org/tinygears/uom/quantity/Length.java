@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A length of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Length extends Quantity<Length> {
 
     /** The system unit of {@code Length}, {@code m}. */
-    Unit<Length> SYSTEM_UNIT = Unit.of(Length.class, BaseUnits.METRE);
+    Unit<Length> SYSTEM_UNIT = Units.of(Length.class, BaseUnits.METRE);
 
     /**
      * An absolute double quantity.

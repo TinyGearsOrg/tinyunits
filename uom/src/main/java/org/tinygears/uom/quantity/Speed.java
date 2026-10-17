@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A speed of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Speed extends Quantity<Speed> {
 
     /** The system unit of {@code Speed}, {@code m/s}. */
-    Unit<Speed> SYSTEM_UNIT = Unit
+    Unit<Speed> SYSTEM_UNIT = Units
             .of(Speed.class, BaseUnits.METRE.divide(BaseUnits.SECOND).named("m/s", "metre per second"));
 
     /**

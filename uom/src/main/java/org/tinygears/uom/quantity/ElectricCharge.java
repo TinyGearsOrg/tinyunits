@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An electric charge of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface ElectricCharge extends Quantity<ElectricCharge> {
 
     /** The system unit of {@code ElectricCharge}, {@code C}. */
-    Unit<ElectricCharge> SYSTEM_UNIT = Unit
+    Unit<ElectricCharge> SYSTEM_UNIT = Units
             .of(ElectricCharge.class, BaseUnits.AMPERE.multiply(BaseUnits.SECOND).named("C", "coulomb"));
 
     /**

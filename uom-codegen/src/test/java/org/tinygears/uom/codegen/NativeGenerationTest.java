@@ -67,7 +67,7 @@ class NativeGenerationTest {
         String length = out.quantities().get("Length.java");
         assertTrue(length.startsWith(Headers.java("data/quantity-types.txt and data/quantity-relations.txt")));
         assertTrue(length.contains("\n    Speed divide(Time time);\n"), length);
-        assertTrue(length.contains("\n    Unit<Length> SYSTEM_UNIT = Unit.of(Length.class, BaseUnits.METRE);\n"));
+        assertTrue(length.contains("\n    Unit<Length> SYSTEM_UNIT = Units.of(Length.class, BaseUnits.METRE);\n"));
         assertTrue(
                 out.quantities().get("LengthValue.java").contains(
                         "\n    public Speed divide(Time time) {\n        return product(time, true, Speed.SYSTEM_UNIT,"
@@ -81,7 +81,7 @@ class NativeGenerationTest {
                         .contains("\n    public static final Unit<Speed> METRE_PER_SECOND = Speed.SYSTEM_UNIT;\n"));
         String energy = out.quantities().get("Energy.java");
         assertTrue(
-                energy.contains("Unit.of(\n            Energy.class,\n            BaseUnits.KILOGRAM.multiply("),
+                energy.contains("Units.of(\n            Energy.class,\n            BaseUnits.KILOGRAM.multiply("),
                 energy);
     }
 

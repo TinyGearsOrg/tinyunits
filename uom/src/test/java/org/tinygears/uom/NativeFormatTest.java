@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.tinygears.uom.engine.Factor;
-import org.tinygears.uom.engine.parse.DefinitionException;
 import org.tinygears.uom.quantity.Force;
 import org.tinygears.uom.quantity.Length;
 import org.tinygears.uom.quantity.Speed;
@@ -49,9 +48,14 @@ class NativeFormatTest {
     void unitsFormatAndParse() {
         assertEquals("km", units.format(SI.KILOMETRE));
         assertEquals("km/h", units.format(SI.KILOMETRE.divide(SI.HOUR)));
-        assertEquals("mHz", units.format(SI.HERTZ.scaledBy(Factor.of(1, 1000))));
-        assertEquals("1000·min", units.format(SI.MINUTE.scaledBy(Factor.ofLong(1000))));
-        assertEquals("K + 5", units.format(SI.KELVIN.shiftedBy(Factor.ofLong(5))));
+        assertEquals("mHz", units.format(SI.HERTZ.divide(1000)));
+        assertEquals("1000·min", units.format(SI.MINUTE.multiply(1000)));
+        assertEquals("K + 5", units.format(SI.KELVIN.shift(5)));
+        assertEquals(SI.DEGREE_CELSIUS, SI.KELVIN.shift(273.15));
+        assertEquals(USCustomary.FOOT, SI.METRE.multiply(0.3048));
+        assertEquals(SI.KILOMETRE, SI.METRE.multiply(new BigDecimal("1E3")));
+        assertEquals(SI.METRE.scaledBy(Factor.PI), SI.METRE.scaledBy(Factor.PI).multiply(1));
+        assertThrows(IllegalArgumentException.class, () -> SI.METRE.multiply(Double.NaN));
         assertEquals("m/s²", units.withSuperscripts(true).format(SI.METRE.divide(SI.SECOND.pow(2))));
         assertEquals("(m/s)/s", units.format(Speed.SYSTEM_UNIT.divide(SI.SECOND)));
         assertSame(SI.MINUTE, units.parse("min"));
@@ -124,10 +128,16 @@ class NativeFormatTest {
         assertEquals("x.units", fromReader.name());
         assertEquals(Length.class, fromReader.unit("y").orElseThrow().type());
         assertSame(SI.METRE, fromReader.unit(Length.class));
-        assertEquals(
-                "x.units:1: unknown unit 'foo'",
-                assertThrows(
-                        DefinitionException.class,
-                        () -> SystemOfUnits.load("x.units", new StringReader("y:yy 2 foo\n"), null)).getMessage());
+        DefinitionException e = assertThrows(
+                DefinitionException.class,
+                () -> SystemOfUnits.load("x.units", new StringReader("y:yy 2 foo\n"), null));
+        assertEquals("x.units:1: unknown unit 'foo'", e.getMessage());
+        assertEquals("x.units", e.source());
+        assertEquals(1, e.line());
+        SystemOfUnits shop = SystemOfUnits.load(
+                "shop.units",
+                new StringReader("@include common.units\nleagues 2 league\n"),
+                name -> name.equals("common.units") ? new StringReader("league:league 3 mi\n") : null);
+        assertEquals("[leagues]", shop.units().toString());
     }
 }

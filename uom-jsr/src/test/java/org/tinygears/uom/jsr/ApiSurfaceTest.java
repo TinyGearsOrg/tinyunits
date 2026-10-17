@@ -88,10 +88,18 @@ class ApiSurfaceTest {
         assertTrue(jsr.descriptor().opens().isEmpty());
         assertEquals(jsr, module(UomServiceProvider.class));
         ModuleReference uom = module(org.tinygears.uom.Quantity.class);
-        Set<String> packages = Set.of("org.tinygears.uom", "org.tinygears.uom.quantity", "org.tinygears.uom.systems");
+        Set<String> api = Set.of("org.tinygears.uom", "org.tinygears.uom.quantity", "org.tinygears.uom.systems");
         assertEquals(
-                packages,
-                uom.descriptor().exports().stream().map(ModuleDescriptor.Exports::source).collect(Collectors.toSet()));
+                api,
+                uom.descriptor().exports().stream().filter(e -> !e.isQualified()).map(ModuleDescriptor.Exports::source)
+                        .collect(Collectors.toSet()));
+        // internal, the engine side of units, is for uom-jsr's conversion only
+        assertEquals(
+                Set.of("org.tinygears.uom.jsr"),
+                uom.descriptor().exports().stream().filter(e -> e.source().equals("org.tinygears.uom.internal"))
+                        .findFirst().orElseThrow().targets());
+        Set<String> packages = new java.util.HashSet<>(api);
+        packages.add("org.tinygears.uom.internal");
         assertEquals(packages, uom.descriptor().packages());
         assertTrue(uom.descriptor().requires().stream().noneMatch(r -> r.name().equals("java.measure")));
         assertTrue(uom.descriptor().opens().isEmpty());
@@ -128,6 +136,7 @@ class ApiSurfaceTest {
                     line.startsWith("org.tinygears.uom.engine.internal ")
                             || line.startsWith("org.tinygears.uom.engine.arithmetic ")
                             || line.startsWith("org.tinygears.uom.engine.format ")
+                            || line.startsWith("org.tinygears.uom.internal ")
                             || line.startsWith("org.tinygears.uom.jsr.spi "),
                     line);
         }

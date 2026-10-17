@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Untyped;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.jsr.UomUnit;
 import org.tinygears.uom.jsr.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.quantity.Length;
@@ -40,7 +41,7 @@ class JsrBridgeTest {
         assertEquals(42.195, jsr.getValue());
         assertEquals("km", jsr.getUnit().getSymbol());
         // the JSR-385 side wraps the very engine unit of the native side
-        assertSame(SI.KILOMETRE.engine(), ((UomUnit<?>) jsr.getUnit()).engine());
+        assertSame(Units.engine(SI.KILOMETRE), ((UomUnit<?>) jsr.getUnit()).engine());
         assertEquals(42195.0, jsr.to(org.tinygears.uom.jsr.systems.SI.METRE).getValue());
         assertEquals(nativeLength, Jsr.fromJsr(jsr, Length.class));
     }

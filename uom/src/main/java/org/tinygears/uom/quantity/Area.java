@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An area of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Area extends Quantity<Area> {
 
     /** The system unit of {@code Area}, {@code m²}. */
-    Unit<Area> SYSTEM_UNIT = Unit.of(Area.class, BaseUnits.METRE.pow(2).named("m²", "square metre"));
+    Unit<Area> SYSTEM_UNIT = Units.of(Area.class, BaseUnits.METRE.pow(2).named("m²", "square metre"));
 
     /**
      * An absolute double quantity.

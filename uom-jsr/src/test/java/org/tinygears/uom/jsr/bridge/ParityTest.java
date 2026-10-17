@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.jsr.UomUnit;
 import org.tinygears.uom.jsr.quantity.UomQuantity;
 import org.tinygears.uom.quantity.Length;
@@ -54,7 +55,7 @@ class ParityTest {
             for (int i = 0; i < n.size(); i++) {
                 Unit<?> nu = (Unit<?>) n.get(i);
                 UomUnit<?> ju = (UomUnit<?>) j.get(i);
-                assertEquals(ju.engine(), nu.engine(), name + " " + ju);
+                assertEquals(ju.engine(), Units.engine(nu), name + " " + ju);
                 assertEquals(ju.getSymbol(), nu.symbol(), name + " " + ju);
                 assertEquals(ju.getName(), nu.name(), name + " " + ju);
             }
@@ -63,7 +64,7 @@ class ParityTest {
             assertEquals(33, np.size(), name);
             np.forEach((type, unit) -> {
                 UomUnit<?> ju = (UomUnit<?>) jp.get(standard((Class<?>) type));
-                assertEquals(ju.engine(), ((Unit<?>) unit).engine(), name + " " + type);
+                assertEquals(ju.engine(), Units.engine((Unit<?>) unit), name + " " + type);
                 assertEquals(ju.getSymbol(), ((Unit<?>) unit).symbol(), name + " " + type);
             });
             units += n.size();
@@ -78,7 +79,7 @@ class ParityTest {
             UomUnit<?> j = (UomUnit<?>) Class
                     .forName("org.tinygears.uom.jsr.quantity." + type.getSimpleName() + "Factory")
                     .getField("SYSTEM_UNIT").get(null);
-            assertEquals(j.engine(), n.engine(), type.getSimpleName());
+            assertEquals(j.engine(), Units.engine(n), type.getSimpleName());
             assertEquals(j.getSymbol(), n.symbol(), type.getSimpleName());
             assertEquals(QuantityTypes.dimension(type), j.engine().dimension(), type.getSimpleName());
         }
@@ -166,7 +167,7 @@ class ParityTest {
             UomQuantity<?, ?> jq = (UomQuantity<?, ?>) j;
             assertEquals(jq.getValue(), q.value(), what);
             assertEquals(jq.getScale().name(), q.scale().name(), what);
-            assertEquals(((UomUnit<?>) jq.getUnit()).engine(), q.unit().engine(), what);
+            assertEquals(((UomUnit<?>) jq.getUnit()).engine(), Units.engine(q.unit()), what);
             assertEquals(jq.getUnit().getSymbol(), q.unit().symbol(), what);
             assertEquals(
                     jq instanceof org.tinygears.uom.jsr.quantity.AbstractDecimalQuantity<?, ?> d

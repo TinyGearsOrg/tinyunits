@@ -17,11 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -147,7 +148,7 @@ public final class SI {
     public static final Unit<RadiationDoseEffective> SIEVERT = RadiationDoseEffective.SYSTEM_UNIT;
 
     /** The degree Celsius, {@code °C}. */
-    public static final Unit<Temperature> DEGREE_CELSIUS = Unit.of(
+    public static final Unit<Temperature> DEGREE_CELSIUS = Units.of(
             Temperature.class,
             BaseUnits.KELVIN.transform(Converter.affine(Factor.ONE, Factor.of(5463L, 20L)))
                     .named("°C", "degree Celsius"));
@@ -159,43 +160,43 @@ public final class SI {
     public static final Unit<Volume> CUBIC_METRE = Volume.SYSTEM_UNIT;
 
     /** The gram, {@code g}. */
-    public static final Unit<Mass> GRAM = Unit.of(
+    public static final Unit<Mass> GRAM = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("g", "gram"));
 
     /** The minute, {@code min}. */
-    public static final Unit<Time> MINUTE = Unit.of(
+    public static final Unit<Time> MINUTE = Units.of(
             Time.class,
             BaseUnits.SECOND.transform(Converter.affine(Factor.of(60L, 1L), Factor.ZERO)).named("min", "minute"));
 
     /** The hour, {@code h}. */
-    public static final Unit<Time> HOUR = Unit.of(
+    public static final Unit<Time> HOUR = Units.of(
             Time.class,
             BaseUnits.SECOND.transform(Converter.affine(Factor.of(3600L, 1L), Factor.ZERO)).named("h", "hour"));
 
     /** The day, {@code d}. */
-    public static final Unit<Time> DAY = Unit.of(
+    public static final Unit<Time> DAY = Units.of(
             Time.class,
             BaseUnits.SECOND.transform(Converter.affine(Factor.of(86400L, 1L), Factor.ZERO)).named("d", "day"));
 
     /** The hectare, {@code ha}. */
-    public static final Unit<Area> HECTARE = Unit.of(
+    public static final Unit<Area> HECTARE = Units.of(
             Area.class,
             BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(10000L, 1L), Factor.ZERO))
                     .named("ha", "hectare"));
 
     /** The litre, {@code L}. */
-    public static final Unit<Volume> LITRE = Unit.of(
+    public static final Unit<Volume> LITRE = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("L", "litre"));
 
     /** The tonne, {@code t}. */
-    public static final Unit<Mass> TONNE = Unit.of(
+    public static final Unit<Mass> TONNE = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("t", "tonne"));
 
     /** The electronvolt, {@code eV}. */
-    public static final Unit<Energy> ELECTRONVOLT = Unit.of(
+    public static final Unit<Energy> ELECTRONVOLT = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(
@@ -209,7 +210,7 @@ public final class SI {
                     .named("eV", "electronvolt"));
 
     /** The dalton, {@code Da}. */
-    public static final Unit<Mass> DALTON = Unit.of(
+    public static final Unit<Mass> DALTON = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(
                     Converter.affine(
@@ -222,13 +223,13 @@ public final class SI {
                     .named("Da", "dalton"));
 
     /** The astronomical unit, {@code au}. */
-    public static final Unit<Length> ASTRONOMICAL_UNIT = Unit.of(
+    public static final Unit<Length> ASTRONOMICAL_UNIT = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(149597870700L, 1L), Factor.ZERO))
                     .named("au", "astronomical unit"));
 
     /** The degree, {@code deg}. */
-    public static final Unit<Angle> DEGREE = Unit.of(
+    public static final Unit<Angle> DEGREE = Units.of(
             Angle.class,
             BaseUnits.ONE.alternate("rad")
                     .transform(
@@ -236,390 +237,390 @@ public final class SI {
                     .named("deg", "degree"));
 
     /** The arcminute, {@code arcmin}. */
-    public static final Unit<Angle> ARCMINUTE = Unit.of(
+    public static final Unit<Angle> ARCMINUTE = Units.of(
             Angle.class,
             BaseUnits.ONE.alternate("rad").transform(
                     Converter.affine(Factor.of(new BigInteger("1"), new BigInteger("10800"), 1, 1), Factor.ZERO))
                     .named("arcmin", "arcminute"));
 
     /** The arcsecond, {@code arcsec}. */
-    public static final Unit<Angle> ARCSECOND = Unit.of(
+    public static final Unit<Angle> ARCSECOND = Units.of(
             Angle.class,
             BaseUnits.ONE.alternate("rad").transform(
                     Converter.affine(Factor.of(new BigInteger("1"), new BigInteger("648000"), 1, 1), Factor.ZERO))
                     .named("arcsec", "arcsecond"));
 
     /** The kilometre, {@code km}. */
-    public static final Unit<Length> KILOMETRE = Unit.of(
+    public static final Unit<Length> KILOMETRE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("km", "kilometre"));
 
     /** The centimetre, {@code cm}. */
-    public static final Unit<Length> CENTIMETRE = Unit.of(
+    public static final Unit<Length> CENTIMETRE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1L, 100L), Factor.ZERO)).named("cm", "centimetre"));
 
     /** The millimetre, {@code mm}. */
-    public static final Unit<Length> MILLIMETRE = Unit.of(
+    public static final Unit<Length> MILLIMETRE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mm", "millimetre"));
 
     /** The micrometre, {@code µm}. */
-    public static final Unit<Length> MICROMETRE = Unit.of(
+    public static final Unit<Length> MICROMETRE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µm", "micrometre"));
 
     /** The nanometre, {@code nm}. */
-    public static final Unit<Length> NANOMETRE = Unit.of(
+    public static final Unit<Length> NANOMETRE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nm", "nanometre"));
 
     /** The picometre, {@code pm}. */
-    public static final Unit<Length> PICOMETRE = Unit.of(
+    public static final Unit<Length> PICOMETRE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1L, 1000000000000L), Factor.ZERO))
                     .named("pm", "picometre"));
 
     /** The milligram, {@code mg}. */
-    public static final Unit<Mass> MILLIGRAM = Unit.of(
+    public static final Unit<Mass> MILLIGRAM = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("mg", "milligram"));
 
     /** The microgram, {@code µg}. */
-    public static final Unit<Mass> MICROGRAM = Unit.of(
+    public static final Unit<Mass> MICROGRAM = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("µg", "microgram"));
 
     /** The millisecond, {@code ms}. */
-    public static final Unit<Time> MILLISECOND = Unit.of(
+    public static final Unit<Time> MILLISECOND = Units.of(
             Time.class,
             BaseUnits.SECOND.transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("ms", "millisecond"));
 
     /** The microsecond, {@code µs}. */
-    public static final Unit<Time> MICROSECOND = Unit.of(
+    public static final Unit<Time> MICROSECOND = Units.of(
             Time.class,
             BaseUnits.SECOND.transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µs", "microsecond"));
 
     /** The nanosecond, {@code ns}. */
-    public static final Unit<Time> NANOSECOND = Unit.of(
+    public static final Unit<Time> NANOSECOND = Units.of(
             Time.class,
             BaseUnits.SECOND.transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("ns", "nanosecond"));
 
     /** The picosecond, {@code ps}. */
-    public static final Unit<Time> PICOSECOND = Unit.of(
+    public static final Unit<Time> PICOSECOND = Units.of(
             Time.class,
             BaseUnits.SECOND.transform(Converter.affine(Factor.of(1L, 1000000000000L), Factor.ZERO))
                     .named("ps", "picosecond"));
 
     /** The milliampere, {@code mA}. */
-    public static final Unit<ElectricCurrent> MILLIAMPERE = Unit.of(
+    public static final Unit<ElectricCurrent> MILLIAMPERE = Units.of(
             ElectricCurrent.class,
             BaseUnits.AMPERE.transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mA", "milliampere"));
 
     /** The microampere, {@code µA}. */
-    public static final Unit<ElectricCurrent> MICROAMPERE = Unit.of(
+    public static final Unit<ElectricCurrent> MICROAMPERE = Units.of(
             ElectricCurrent.class,
             BaseUnits.AMPERE.transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µA", "microampere"));
 
     /** The millikelvin, {@code mK}. */
-    public static final Unit<Temperature> MILLIKELVIN = Unit.of(
+    public static final Unit<Temperature> MILLIKELVIN = Units.of(
             Temperature.class,
             BaseUnits.KELVIN.transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mK", "millikelvin"));
 
     /** The microkelvin, {@code µK}. */
-    public static final Unit<Temperature> MICROKELVIN = Unit.of(
+    public static final Unit<Temperature> MICROKELVIN = Units.of(
             Temperature.class,
             BaseUnits.KELVIN.transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µK", "microkelvin"));
 
     /** The nanokelvin, {@code nK}. */
-    public static final Unit<Temperature> NANOKELVIN = Unit.of(
+    public static final Unit<Temperature> NANOKELVIN = Units.of(
             Temperature.class,
             BaseUnits.KELVIN.transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nK", "nanokelvin"));
 
     /** The millicandela, {@code mcd}. */
-    public static final Unit<LuminousIntensity> MILLICANDELA = Unit.of(
+    public static final Unit<LuminousIntensity> MILLICANDELA = Units.of(
             LuminousIntensity.class,
             BaseUnits.CANDELA.transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mcd", "millicandela"));
 
     /** The kilocandela, {@code kcd}. */
-    public static final Unit<LuminousIntensity> KILOCANDELA = Unit.of(
+    public static final Unit<LuminousIntensity> KILOCANDELA = Units.of(
             LuminousIntensity.class,
             BaseUnits.CANDELA.transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kcd", "kilocandela"));
 
     /** The millimole, {@code mmol}. */
-    public static final Unit<AmountOfSubstance> MILLIMOLE = Unit.of(
+    public static final Unit<AmountOfSubstance> MILLIMOLE = Units.of(
             AmountOfSubstance.class,
             BaseUnits.MOLE.transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mmol", "millimole"));
 
     /** The millikatal, {@code mkat}. */
-    public static final Unit<CatalyticActivity> MILLIKATAL = Unit.of(
+    public static final Unit<CatalyticActivity> MILLIKATAL = Units.of(
             CatalyticActivity.class,
             BaseUnits.MOLE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mkat", "millikatal"));
 
     /** The microkatal, {@code µkat}. */
-    public static final Unit<CatalyticActivity> MICROKATAL = Unit.of(
+    public static final Unit<CatalyticActivity> MICROKATAL = Units.of(
             CatalyticActivity.class,
             BaseUnits.MOLE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µkat", "microkatal"));
 
     /** The nanokatal, {@code nkat}. */
-    public static final Unit<CatalyticActivity> NANOKATAL = Unit.of(
+    public static final Unit<CatalyticActivity> NANOKATAL = Units.of(
             CatalyticActivity.class,
             BaseUnits.MOLE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nkat", "nanokatal"));
 
     /** The kilokatal, {@code kkat}. */
-    public static final Unit<CatalyticActivity> KILOKATAL = Unit.of(
+    public static final Unit<CatalyticActivity> KILOKATAL = Units.of(
             CatalyticActivity.class,
             BaseUnits.MOLE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kkat", "kilokatal"));
 
     /** The kilohertz, {@code kHz}. */
-    public static final Unit<Frequency> KILOHERTZ = Unit.of(
+    public static final Unit<Frequency> KILOHERTZ = Units.of(
             Frequency.class,
             BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz")
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("kHz", "kilohertz"));
 
     /** The megahertz, {@code MHz}. */
-    public static final Unit<Frequency> MEGAHERTZ = Unit.of(
+    public static final Unit<Frequency> MEGAHERTZ = Units.of(
             Frequency.class,
             BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz")
                     .transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO)).named("MHz", "megahertz"));
 
     /** The gigahertz, {@code GHz}. */
-    public static final Unit<Frequency> GIGAHERTZ = Unit.of(
+    public static final Unit<Frequency> GIGAHERTZ = Units.of(
             Frequency.class,
             BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz")
                     .transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO)).named("GHz", "gigahertz"));
 
     /** The terahertz, {@code THz}. */
-    public static final Unit<Frequency> TERAHERTZ = Unit.of(
+    public static final Unit<Frequency> TERAHERTZ = Units.of(
             Frequency.class,
             BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Hz")
                     .transform(Converter.affine(Factor.of(1000000000000L, 1L), Factor.ZERO)).named("THz", "terahertz"));
 
     /** The kilonewton, {@code kN}. */
-    public static final Unit<Force> KILONEWTON = Unit.of(
+    public static final Unit<Force> KILONEWTON = Units.of(
             Force.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("kN", "kilonewton"));
 
     /** The millinewton, {@code mN}. */
-    public static final Unit<Force> MILLINEWTON = Unit.of(
+    public static final Unit<Force> MILLINEWTON = Units.of(
             Force.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mN", "millinewton"));
 
     /** The hectopascal, {@code hPa}. */
-    public static final Unit<Pressure> HECTOPASCAL = Unit.of(
+    public static final Unit<Pressure> HECTOPASCAL = Units.of(
             Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(100L, 1L), Factor.ZERO)).named("hPa", "hectopascal"));
 
     /** The kilopascal, {@code kPa}. */
-    public static final Unit<Pressure> KILOPASCAL = Unit.of(
+    public static final Unit<Pressure> KILOPASCAL = Units.of(
             Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("kPa", "kilopascal"));
 
     /** The megapascal, {@code MPa}. */
-    public static final Unit<Pressure> MEGAPASCAL = Unit.of(
+    public static final Unit<Pressure> MEGAPASCAL = Units.of(
             Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO)).named("MPa", "megapascal"));
 
     /** The gigapascal, {@code GPa}. */
-    public static final Unit<Pressure> GIGAPASCAL = Unit.of(
+    public static final Unit<Pressure> GIGAPASCAL = Units.of(
             Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO)).named("GPa", "gigapascal"));
 
     /** The kilojoule, {@code kJ}. */
-    public static final Unit<Energy> KILOJOULE = Unit.of(
+    public static final Unit<Energy> KILOJOULE = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("kJ", "kilojoule"));
 
     /** The megajoule, {@code MJ}. */
-    public static final Unit<Energy> MEGAJOULE = Unit.of(
+    public static final Unit<Energy> MEGAJOULE = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO)).named("MJ", "megajoule"));
 
     /** The gigajoule, {@code GJ}. */
-    public static final Unit<Energy> GIGAJOULE = Unit.of(
+    public static final Unit<Energy> GIGAJOULE = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO)).named("GJ", "gigajoule"));
 
     /** The millijoule, {@code mJ}. */
-    public static final Unit<Energy> MILLIJOULE = Unit.of(
+    public static final Unit<Energy> MILLIJOULE = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mJ", "millijoule"));
 
     /** The kilowatt, {@code kW}. */
-    public static final Unit<Power> KILOWATT = Unit.of(
+    public static final Unit<Power> KILOWATT = Units.of(
             Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("kW", "kilowatt"));
 
     /** The megawatt, {@code MW}. */
-    public static final Unit<Power> MEGAWATT = Unit.of(
+    public static final Unit<Power> MEGAWATT = Units.of(
             Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO)).named("MW", "megawatt"));
 
     /** The gigawatt, {@code GW}. */
-    public static final Unit<Power> GIGAWATT = Unit.of(
+    public static final Unit<Power> GIGAWATT = Units.of(
             Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO)).named("GW", "gigawatt"));
 
     /** The milliwatt, {@code mW}. */
-    public static final Unit<Power> MILLIWATT = Unit.of(
+    public static final Unit<Power> MILLIWATT = Units.of(
             Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mW", "milliwatt"));
 
     /** The millicoulomb, {@code mC}. */
-    public static final Unit<ElectricCharge> MILLICOULOMB = Unit.of(
+    public static final Unit<ElectricCharge> MILLICOULOMB = Units.of(
             ElectricCharge.class,
             BaseUnits.AMPERE.multiply(BaseUnits.SECOND).transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mC", "millicoulomb"));
 
     /** The microcoulomb, {@code µC}. */
-    public static final Unit<ElectricCharge> MICROCOULOMB = Unit.of(
+    public static final Unit<ElectricCharge> MICROCOULOMB = Units.of(
             ElectricCharge.class,
             BaseUnits.AMPERE.multiply(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO)).named("µC", "microcoulomb"));
 
     /** The kilovolt, {@code kV}. */
-    public static final Unit<ElectricPotential> KILOVOLT = Unit.of(
+    public static final Unit<ElectricPotential> KILOVOLT = Units.of(
             ElectricPotential.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("kV", "kilovolt"));
 
     /** The millivolt, {@code mV}. */
-    public static final Unit<ElectricPotential> MILLIVOLT = Unit.of(
+    public static final Unit<ElectricPotential> MILLIVOLT = Units.of(
             ElectricPotential.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mV", "millivolt"));
 
     /** The microvolt, {@code µV}. */
-    public static final Unit<ElectricPotential> MICROVOLT = Unit.of(
+    public static final Unit<ElectricPotential> MICROVOLT = Units.of(
             ElectricPotential.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO)).named("µV", "microvolt"));
 
     /** The millifarad, {@code mF}. */
-    public static final Unit<ElectricCapacitance> MILLIFARAD = Unit.of(
+    public static final Unit<ElectricCapacitance> MILLIFARAD = Units.of(
             ElectricCapacitance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2)).transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mF", "millifarad"));
 
     /** The microfarad, {@code µF}. */
-    public static final Unit<ElectricCapacitance> MICROFARAD = Unit.of(
+    public static final Unit<ElectricCapacitance> MICROFARAD = Units.of(
             ElectricCapacitance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2)).transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µF", "microfarad"));
 
     /** The nanofarad, {@code nF}. */
-    public static final Unit<ElectricCapacitance> NANOFARAD = Unit.of(
+    public static final Unit<ElectricCapacitance> NANOFARAD = Units.of(
             ElectricCapacitance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2)).transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO))
                     .named("nF", "nanofarad"));
 
     /** The picofarad, {@code pF}. */
-    public static final Unit<ElectricCapacitance> PICOFARAD = Unit.of(
+    public static final Unit<ElectricCapacitance> PICOFARAD = Units.of(
             ElectricCapacitance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000000000000L), Factor.ZERO)).named("pF", "picofarad"));
 
     /** The kiloohm, {@code kΩ}. */
-    public static final Unit<ElectricResistance> KILOOHM = Unit.of(
+    public static final Unit<ElectricResistance> KILOOHM = Units.of(
             ElectricResistance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(3)).transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kΩ", "kiloohm"));
 
     /** The megaohm, {@code MΩ}. */
-    public static final Unit<ElectricResistance> MEGAOHM = Unit.of(
+    public static final Unit<ElectricResistance> MEGAOHM = Units.of(
             ElectricResistance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(3)).transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("MΩ", "megaohm"));
 
     /** The millisiemens, {@code mS}. */
-    public static final Unit<ElectricConductance> MILLISIEMENS = Unit.of(
+    public static final Unit<ElectricConductance> MILLISIEMENS = Units.of(
             ElectricConductance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(3)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2)).transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mS", "millisiemens"));
 
     /** The milliweber, {@code mWb}. */
-    public static final Unit<MagneticFlux> MILLIWEBER = Unit.of(
+    public static final Unit<MagneticFlux> MILLIWEBER = Units.of(
             MagneticFlux.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mWb", "milliweber"));
 
     /** The millitesla, {@code mT}. */
-    public static final Unit<MagneticFluxDensity> MILLITESLA = Unit.of(
+    public static final Unit<MagneticFluxDensity> MILLITESLA = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mT", "millitesla"));
 
     /** The microtesla, {@code µT}. */
-    public static final Unit<MagneticFluxDensity> MICROTESLA = Unit.of(
+    public static final Unit<MagneticFluxDensity> MICROTESLA = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO)).named("µT", "microtesla"));
 
     /** The nanotesla, {@code nT}. */
-    public static final Unit<MagneticFluxDensity> NANOTESLA = Unit.of(
+    public static final Unit<MagneticFluxDensity> NANOTESLA = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("nT", "nanotesla"));
 
     /** The millihenry, {@code mH}. */
-    public static final Unit<ElectricInductance> MILLIHENRY = Unit.of(
+    public static final Unit<ElectricInductance> MILLIHENRY = Units.of(
             ElectricInductance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2)).transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mH", "millihenry"));
 
     /** The microhenry, {@code µH}. */
-    public static final Unit<ElectricInductance> MICROHENRY = Unit.of(
+    public static final Unit<ElectricInductance> MICROHENRY = Units.of(
             ElectricInductance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2)).transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("µH", "microhenry"));
 
     /** The nanohenry, {@code nH}. */
-    public static final Unit<ElectricInductance> NANOHENRY = Unit.of(
+    public static final Unit<ElectricInductance> NANOHENRY = Units.of(
             ElectricInductance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("nH", "nanohenry"));
 
     /** The kiloelectronvolt, {@code keV}. */
-    public static final Unit<Energy> KILOELECTRONVOLT = Unit.of(
+    public static final Unit<Energy> KILOELECTRONVOLT = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2)).transform(
                     Converter.affine(
@@ -628,7 +629,7 @@ public final class SI {
                     .named("keV", "kiloelectronvolt"));
 
     /** The megaelectronvolt, {@code MeV}. */
-    public static final Unit<Energy> MEGAELECTRONVOLT = Unit.of(
+    public static final Unit<Energy> MEGAELECTRONVOLT = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2)).transform(
                     Converter.affine(
@@ -637,106 +638,106 @@ public final class SI {
                     .named("MeV", "megaelectronvolt"));
 
     /** The gigaelectronvolt, {@code GeV}. */
-    public static final Unit<Energy> GIGAELECTRONVOLT = Unit.of(
+    public static final Unit<Energy> GIGAELECTRONVOLT = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(801088317L, 5000000000000000000L), Factor.ZERO))
                     .named("GeV", "gigaelectronvolt"));
 
     /** The teraelectronvolt, {@code TeV}. */
-    public static final Unit<Energy> TERAELECTRONVOLT = Unit.of(
+    public static final Unit<Energy> TERAELECTRONVOLT = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(801088317L, 5000000000000000L), Factor.ZERO))
                     .named("TeV", "teraelectronvolt"));
 
     /** The millilitre, {@code mL}. */
-    public static final Unit<Volume> MILLILITRE = Unit.of(
+    public static final Unit<Volume> MILLILITRE = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("mL", "millilitre"));
 
     /** The centilitre, {@code cL}. */
-    public static final Unit<Volume> CENTILITRE = Unit.of(
+    public static final Unit<Volume> CENTILITRE = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(1L, 100000L), Factor.ZERO))
                     .named("cL", "centilitre"));
 
     /** The decilitre, {@code dL}. */
-    public static final Unit<Volume> DECILITRE = Unit.of(
+    public static final Unit<Volume> DECILITRE = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(1L, 10000L), Factor.ZERO))
                     .named("dL", "decilitre"));
 
     /** The kilobecquerel, {@code kBq}. */
-    public static final Unit<Radioactivity> KILOBECQUEREL = Unit.of(
+    public static final Unit<Radioactivity> KILOBECQUEREL = Units.of(
             Radioactivity.class,
             BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Bq")
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("kBq", "kilobecquerel"));
 
     /** The megabecquerel, {@code MBq}. */
-    public static final Unit<Radioactivity> MEGABECQUEREL = Unit.of(
+    public static final Unit<Radioactivity> MEGABECQUEREL = Units.of(
             Radioactivity.class,
             BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Bq")
                     .transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO)).named("MBq", "megabecquerel"));
 
     /** The gigabecquerel, {@code GBq}. */
-    public static final Unit<Radioactivity> GIGABECQUEREL = Unit.of(
+    public static final Unit<Radioactivity> GIGABECQUEREL = Units.of(
             Radioactivity.class,
             BaseUnits.ONE.divide(BaseUnits.SECOND).alternate("Bq")
                     .transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("GBq", "gigabecquerel"));
 
     /** The milligray, {@code mGy}. */
-    public static final Unit<RadiationDoseAbsorbed> MILLIGRAY = Unit.of(
+    public static final Unit<RadiationDoseAbsorbed> MILLIGRAY = Units.of(
             RadiationDoseAbsorbed.class,
             BaseUnits.METRE.pow(2).divide(BaseUnits.SECOND.pow(2)).alternate("Gy")
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mGy", "milligray"));
 
     /** The millisievert, {@code mSv}. */
-    public static final Unit<RadiationDoseEffective> MILLISIEVERT = Unit.of(
+    public static final Unit<RadiationDoseEffective> MILLISIEVERT = Units.of(
             RadiationDoseEffective.class,
             BaseUnits.METRE.pow(2).divide(BaseUnits.SECOND.pow(2)).alternate("Sv")
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mSv", "millisievert"));
 
     /** The microsievert, {@code µSv}. */
-    public static final Unit<RadiationDoseEffective> MICROSIEVERT = Unit.of(
+    public static final Unit<RadiationDoseEffective> MICROSIEVERT = Units.of(
             RadiationDoseEffective.class,
             BaseUnits.METRE.pow(2).divide(BaseUnits.SECOND.pow(2)).alternate("Sv")
                     .transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO)).named("µSv", "microsievert"));
 
     /** The milliradian, {@code mrad}. */
-    public static final Unit<Angle> MILLIRADIAN = Unit.of(
+    public static final Unit<Angle> MILLIRADIAN = Units.of(
             Angle.class,
             BaseUnits.ONE.alternate("rad").transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("mrad", "milliradian"));
 
     /** The kilolux, {@code klx}. */
-    public static final Unit<Illuminance> KILOLUX = Unit.of(
+    public static final Unit<Illuminance> KILOLUX = Units.of(
             Illuminance.class,
             BaseUnits.CANDELA.multiply(BaseUnits.ONE.alternate("sr")).divide(BaseUnits.METRE.pow(2))
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("klx", "kilolux"));
 
     /** The millilumen, {@code mlm}. */
-    public static final Unit<LuminousFlux> MILLILUMEN = Unit.of(
+    public static final Unit<LuminousFlux> MILLILUMEN = Units.of(
             LuminousFlux.class,
             BaseUnits.CANDELA.multiply(BaseUnits.ONE.alternate("sr"))
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("mlm", "millilumen"));
 
     /** The kilolumen, {@code klm}. */
-    public static final Unit<LuminousFlux> KILOLUMEN = Unit.of(
+    public static final Unit<LuminousFlux> KILOLUMEN = Units.of(
             LuminousFlux.class,
             BaseUnits.CANDELA.multiply(BaseUnits.ONE.alternate("sr"))
                     .transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO)).named("klm", "kilolumen"));
 
     /** The millisteradian, {@code msr}. */
-    public static final Unit<SolidAngle> MILLISTERADIAN = Unit.of(
+    public static final Unit<SolidAngle> MILLISTERADIAN = Units.of(
             SolidAngle.class,
             BaseUnits.ONE.alternate("sr").transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO))
                     .named("msr", "millisteradian"));
 
     /** The kilodalton, {@code kDa}. */
-    public static final Unit<Mass> KILODALTON = Unit.of(
+    public static final Unit<Mass> KILODALTON = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(
                     Converter.affine(
@@ -749,7 +750,7 @@ public final class SI {
                     .named("kDa", "kilodalton"));
 
     /** The megadalton, {@code MDa}. */
-    public static final Unit<Mass> MEGADALTON = Unit.of(
+    public static final Unit<Mass> MEGADALTON = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(
                     Converter.affine(
@@ -762,19 +763,19 @@ public final class SI {
                     .named("MDa", "megadalton"));
 
     /** The kilotonne, {@code kt}. */
-    public static final Unit<Mass> KILOTONNE = Unit.of(
+    public static final Unit<Mass> KILOTONNE = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("kt", "kilotonne"));
 
     /** The megatonne, {@code Mt}. */
-    public static final Unit<Mass> MEGATONNE = Unit.of(
+    public static final Unit<Mass> MEGATONNE = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("Mt", "megatonne"));
 
     /** The gigatonne, {@code Gt}. */
-    public static final Unit<Mass> GIGATONNE = Unit.of(
+    public static final Unit<Mass> GIGATONNE = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(1000000000000L, 1L), Factor.ZERO))
                     .named("Gt", "gigatonne"));

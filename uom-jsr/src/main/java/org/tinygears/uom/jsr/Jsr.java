@@ -21,6 +21,7 @@ import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.Untyped;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.jsr.UomUnit;
 import org.tinygears.uom.jsr.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.jsr.quantity.QuantityTypes;
@@ -55,7 +56,7 @@ public final class Jsr {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static UomQuantity<?, ?> toJsr(Quantity<?> quantity) {
         Objects.requireNonNull(quantity, "quantity");
-        UomUnit<?> unit = UomUnit.of(quantity.unit().engine());
+        UomUnit<?> unit = UomUnit.of(Units.engine(quantity.unit()));
         Number value = quantity.value();
         MathContext mc = quantity.mathContext();
         javax.measure.Quantity.Scale scale = quantity.scale() == Scale.RELATIVE
@@ -97,7 +98,7 @@ public final class Jsr {
      */
     public static <Q extends Quantity<Q>> Q fromJsr(javax.measure.Quantity<?> quantity, Class<Q> type) {
         Objects.requireNonNull(quantity, "quantity");
-        Unit<Untyped> unit = Unit.of(Untyped.class, engine(quantity.getUnit()));
+        Unit<Untyped> unit = Units.of(Untyped.class, engine(quantity.getUnit()));
         Scale scale = quantity.getScale() == javax.measure.Quantity.Scale.RELATIVE ? Scale.RELATIVE : Scale.ABSOLUTE;
         Untyped q = quantity.getValue() instanceof BigDecimal d
                 ? Untyped.of(d, unit, scale, context(quantity))

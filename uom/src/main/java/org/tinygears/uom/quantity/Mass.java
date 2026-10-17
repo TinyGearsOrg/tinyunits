@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A mass of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Mass extends Quantity<Mass> {
 
     /** The system unit of {@code Mass}, {@code kg}. */
-    Unit<Mass> SYSTEM_UNIT = Unit.of(Mass.class, BaseUnits.KILOGRAM);
+    Unit<Mass> SYSTEM_UNIT = Units.of(Mass.class, BaseUnits.KILOGRAM);
 
     /**
      * An absolute double quantity.

@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A catalytic activity of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface CatalyticActivity extends Quantity<CatalyticActivity> {
 
     /** The system unit of {@code CatalyticActivity}, {@code kat}. */
-    Unit<CatalyticActivity> SYSTEM_UNIT = Unit
+    Unit<CatalyticActivity> SYSTEM_UNIT = Units
             .of(CatalyticActivity.class, BaseUnits.MOLE.divide(BaseUnits.SECOND).named("kat", "katal"));
 
     /**

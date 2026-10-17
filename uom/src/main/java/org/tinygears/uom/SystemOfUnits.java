@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.tinygears.uom.engine.format.UnitSystem;
 import org.tinygears.uom.engine.format.UnitSystemLoader;
-import org.tinygears.uom.engine.parse.DefinitionParser;
 import org.tinygears.uom.quantity.QuantityTypes;
 import org.tinygears.uom.systems.SI;
 import org.tinygears.uom.systems.UnitSystems;
@@ -84,33 +84,46 @@ public final class SystemOfUnits {
 
     /**
      * Loads a system from a {@code .units} file in UTF-8; included and extended files are resolved in its directory
-     * and must stay inside it. See {@link #load(String, Reader, DefinitionParser.Resolver)}.
+     * and must stay inside it. See {@link #load(String, Reader, Function)}.
      *
      * @param file the root file
      * @return the system
      * @throws IOException when the file itself can not be read
-     * @throws org.tinygears.uom.engine.parse.DefinitionException for an error in a file, with its name and line
+     * @throws DefinitionException for an error in a file, with its name and line
      */
     public static SystemOfUnits load(Path file) throws IOException {
-        return wrap(UnitSystemLoader.load(file, builtins()));
+        try {
+            return wrap(UnitSystemLoader.load(file, builtins()));
+        } catch (org.tinygears.uom.engine.parse.DefinitionException e) {
+            throw definition(e);
+        }
     }
 
     /**
      * Loads a system from {@code reader} (not closed), using {@code name} as file name in messages and as the system
-     * name when there is no {@code @system} line; {@code resolver} opens included and extended files (null: none).
+     * name when there is no {@code @system} line; {@code includes} opens included and extended files by name, null
+     * for a name it does not have (the function itself null: none).
      * Formulas may use the symbols of {@link UnitFormat#standard()}, which the file may not define; a type without a
      * {@code @preferred} unit takes the first {@code @extends}-ed system's, else SI's. A unit is typed with the
      * quantity type of its system unit, else {@link Untyped}.
      *
      * @param name the file name in messages and the default system name
      * @param reader the content of the root file
-     * @param resolver opens included and extended files, or null
+     * @param includes opens included and extended files, or null
      * @return the system
-     * @throws org.tinygears.uom.engine.parse.DefinitionException for an error in a file, with its name and line
+     * @throws DefinitionException for an error in a file, with its name and line
      * @throws java.io.UncheckedIOException when a reader can not be read
      */
-    public static SystemOfUnits load(String name, Reader reader, DefinitionParser.Resolver resolver) {
-        return wrap(UnitSystemLoader.load(name, reader, resolver, builtins()));
+    public static SystemOfUnits load(String name, Reader reader, Function<String, Reader> includes) {
+        try {
+            return wrap(UnitSystemLoader.load(name, reader, includes == null ? null : includes::apply, builtins()));
+        } catch (org.tinygears.uom.engine.parse.DefinitionException e) {
+            throw definition(e);
+        }
+    }
+
+    private static DefinitionException definition(org.tinygears.uom.engine.parse.DefinitionException e) {
+        return new DefinitionException(e.getMessage(), e.source(), e.line(), e);
     }
 
     private static UnitSystemLoader.Builtins builtins() {

@@ -72,6 +72,7 @@ org.tinygears.uom.engine Factor member public static org.tinygears.uom.engine.Fa
 org.tinygears.uom.engine Factor member public static org.tinygears.uom.engine.Factor of(java.math.BigInteger,java.math.BigInteger,int,int)
 org.tinygears.uom.engine Factor member public static org.tinygears.uom.engine.Factor of(long,long)
 org.tinygears.uom.engine Factor member public static org.tinygears.uom.engine.Factor ofLong(long)
+org.tinygears.uom.engine Factor member public static org.tinygears.uom.engine.Factor valueOf(java.lang.Number)
 org.tinygears.uom.engine Factor type public final class org.tinygears.uom.engine.Factor implements java.io.Serializable
 org.tinygears.uom.engine Unit member public boolean equals(java.lang.Object)
 org.tinygears.uom.engine Unit member public boolean isCompatible(org.tinygears.uom.engine.Unit)
@@ -254,15 +255,22 @@ org.tinygears.uom AbstractQuantity member public org.tinygears.uom.Untyped multi
 org.tinygears.uom AbstractQuantity type public abstract class org.tinygears.uom.AbstractQuantity<Q extends org.tinygears.uom.Quantity<Q>> implements org.tinygears.uom.Quantity<Q>, java.io.Serializable
 org.tinygears.uom AbstractQuantity$Factory member public abstract R create(double,java.math.BigDecimal,java.math.MathContext,org.tinygears.uom.Unit<R>,org.tinygears.uom.Scale)
 org.tinygears.uom AbstractQuantity$Factory type public abstract static interface org.tinygears.uom.AbstractQuantity$Factory<R extends org.tinygears.uom.Quantity<R>>
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit AMPERE
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit CANDELA
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit KELVIN
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit KILOGRAM
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit METRE
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit MOLE
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit ONE
-org.tinygears.uom BaseUnits member public static final org.tinygears.uom.engine.Unit SECOND
-org.tinygears.uom BaseUnits type public final class org.tinygears.uom.BaseUnits
+org.tinygears.uom Converter member public boolean equals(java.lang.Object)
+org.tinygears.uom Converter member public boolean isIdentity()
+org.tinygears.uom Converter member public boolean isLinear()
+org.tinygears.uom Converter member public double convert(double)
+org.tinygears.uom Converter member public int hashCode()
+org.tinygears.uom Converter member public java.lang.String toString()
+org.tinygears.uom Converter member public java.math.BigDecimal convert(java.math.BigDecimal,java.math.MathContext)
+org.tinygears.uom Converter member public org.tinygears.uom.Converter concatenate(org.tinygears.uom.Converter)
+org.tinygears.uom Converter member public org.tinygears.uom.Converter inverse()
+org.tinygears.uom Converter member public org.tinygears.uom.engine.Factor factor()
+org.tinygears.uom Converter member public org.tinygears.uom.engine.Factor offset()
+org.tinygears.uom Converter type public final class org.tinygears.uom.Converter
+org.tinygears.uom DefinitionException member public int line()
+org.tinygears.uom DefinitionException member public java.lang.String source()
+org.tinygears.uom DefinitionException member public org.tinygears.uom.DefinitionException(java.lang.String,java.lang.String,int,java.lang.Throwable)
+org.tinygears.uom DefinitionException type public final class org.tinygears.uom.DefinitionException extends java.lang.RuntimeException
 org.tinygears.uom ParseException member public int position()
 org.tinygears.uom ParseException member public java.lang.String text()
 org.tinygears.uom ParseException member public org.tinygears.uom.ParseException(java.lang.String,java.lang.CharSequence,int)
@@ -313,7 +321,7 @@ org.tinygears.uom SystemOfUnits member public java.lang.String toString()
 org.tinygears.uom SystemOfUnits member public java.util.Optional<org.tinygears.uom.Unit<?>> unit(java.lang.String)
 org.tinygears.uom SystemOfUnits member public java.util.Set<org.tinygears.uom.Unit<?>> units()
 org.tinygears.uom SystemOfUnits member public org.tinygears.uom.SystemOfUnits(java.lang.String,java.util.List<org.tinygears.uom.Unit<?>>,java.util.Map<java.lang.Class<?>, org.tinygears.uom.Unit<?>>,java.util.Set<java.lang.String>,java.util.Set<java.lang.String>)
-org.tinygears.uom SystemOfUnits member public static org.tinygears.uom.SystemOfUnits load(java.lang.String,java.io.Reader,org.tinygears.uom.engine.parse.DefinitionParser$Resolver)
+org.tinygears.uom SystemOfUnits member public static org.tinygears.uom.SystemOfUnits load(java.lang.String,java.io.Reader,java.util.function.Function<java.lang.String, java.io.Reader>)
 org.tinygears.uom SystemOfUnits member public static org.tinygears.uom.SystemOfUnits load(java.nio.file.Path) throws java.io.IOException
 org.tinygears.uom SystemOfUnits type public final class org.tinygears.uom.SystemOfUnits
 org.tinygears.uom Unit member public <T extends org.tinygears.uom.Quantity<T>> org.tinygears.uom.Unit<T> asType(java.lang.Class<T>)
@@ -324,19 +332,23 @@ org.tinygears.uom Unit member public java.lang.Class<Q> type()
 org.tinygears.uom Unit member public java.lang.String name()
 org.tinygears.uom Unit member public java.lang.String symbol()
 org.tinygears.uom Unit member public java.lang.String toString()
+org.tinygears.uom Unit member public org.tinygears.uom.Converter converterTo(org.tinygears.uom.Unit<?>)
+org.tinygears.uom Unit member public org.tinygears.uom.Unit<Q> divide(java.lang.Number)
+org.tinygears.uom Unit member public org.tinygears.uom.Unit<Q> multiply(java.lang.Number)
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<Q> named(java.lang.String,java.lang.String)
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<Q> scaledBy(org.tinygears.uom.engine.Factor)
+org.tinygears.uom Unit member public org.tinygears.uom.Unit<Q> shift(java.lang.Number)
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<Q> shiftedBy(org.tinygears.uom.engine.Factor)
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<Q> systemUnit()
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<org.tinygears.uom.Untyped> divide(org.tinygears.uom.Unit<?>)
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<org.tinygears.uom.Untyped> inverse()
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<org.tinygears.uom.Untyped> multiply(org.tinygears.uom.Unit<?>)
 org.tinygears.uom Unit member public org.tinygears.uom.Unit<org.tinygears.uom.Untyped> pow(int)
-org.tinygears.uom Unit member public org.tinygears.uom.engine.Converter converterTo(org.tinygears.uom.Unit<?>)
 org.tinygears.uom Unit member public org.tinygears.uom.engine.Dimension dimension()
-org.tinygears.uom Unit member public org.tinygears.uom.engine.Unit engine()
-org.tinygears.uom Unit member public static <Q extends org.tinygears.uom.Quantity<Q>> org.tinygears.uom.Unit<Q> of(java.lang.Class<Q>,org.tinygears.uom.engine.Unit)
 org.tinygears.uom Unit type public final class org.tinygears.uom.Unit<Q extends org.tinygears.uom.Quantity<Q>> implements java.io.Serializable
+org.tinygears.uom UnitException member public org.tinygears.uom.UnitException(java.lang.String)
+org.tinygears.uom UnitException member public org.tinygears.uom.UnitException(java.lang.String,java.lang.Throwable)
+org.tinygears.uom UnitException type public final class org.tinygears.uom.UnitException extends java.lang.RuntimeException
 org.tinygears.uom UnitFormat member public boolean writesSuperscripts()
 org.tinygears.uom UnitFormat member public java.lang.String format(org.tinygears.uom.Unit<?>)
 org.tinygears.uom UnitFormat member public java.util.Optional<org.tinygears.uom.Unit<?>> resolve(java.lang.String)
@@ -353,9 +365,12 @@ org.tinygears.uom Untyped member public static org.tinygears.uom.Untyped of(java
 org.tinygears.uom Untyped member public static org.tinygears.uom.Untyped of(java.math.BigDecimal,org.tinygears.uom.Unit<?>,org.tinygears.uom.Scale,java.math.MathContext)
 org.tinygears.uom Untyped type public abstract interface org.tinygears.uom.Untyped extends org.tinygears.uom.Quantity<org.tinygears.uom.Untyped>
 org.tinygears.uom module exports org.tinygears.uom
+org.tinygears.uom module exports org.tinygears.uom.internal to [org.tinygears.uom.jsr]
 org.tinygears.uom module exports org.tinygears.uom.quantity
 org.tinygears.uom module exports org.tinygears.uom.systems
 org.tinygears.uom module requires transitive org.tinygears.uom.engine
+org.tinygears.uom.internal hidden org.tinygears.uom.internal.BaseUnits
+org.tinygears.uom.internal hidden org.tinygears.uom.internal.Units
 org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Force multiply(org.tinygears.uom.quantity.Mass)
 org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Speed multiply(org.tinygears.uom.quantity.Time)
 org.tinygears.uom.quantity Acceleration member public static final org.tinygears.uom.Unit<org.tinygears.uom.quantity.Acceleration> SYSTEM_UNIT

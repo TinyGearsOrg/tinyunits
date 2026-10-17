@@ -16,11 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -62,212 +63,212 @@ public final class USCustomary {
     }
 
     /** The inch, {@code in}. */
-    public static final Unit<Length> INCH = Unit.of(
+    public static final Unit<Length> INCH = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(127L, 5000L), Factor.ZERO)).named("in", "inch"));
 
     /** The foot, {@code ft}. */
-    public static final Unit<Length> FOOT = Unit.of(
+    public static final Unit<Length> FOOT = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(381L, 1250L), Factor.ZERO)).named("ft", "foot"));
 
     /** The yard, {@code yd}. */
-    public static final Unit<Length> YARD = Unit.of(
+    public static final Unit<Length> YARD = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1143L, 1250L), Factor.ZERO)).named("yd", "yard"));
 
     /** The mile, {@code mi}. */
-    public static final Unit<Length> MILE = Unit.of(
+    public static final Unit<Length> MILE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(201168L, 125L), Factor.ZERO)).named("mi", "mile"));
 
     /** The nautical mile, {@code nmi}. */
-    public static final Unit<Length> NAUTICAL_MILE = Unit.of(
+    public static final Unit<Length> NAUTICAL_MILE = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1852L, 1L), Factor.ZERO))
                     .named("nmi", "nautical mile"));
 
     /** The fathom, {@code fathom}. */
-    public static final Unit<Length> FATHOM = Unit.of(
+    public static final Unit<Length> FATHOM = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1143L, 625L), Factor.ZERO)).named("fathom", "fathom"));
 
     /** The foot US, {@code ft_US}. */
-    public static final Unit<Length> FOOT_US = Unit.of(
+    public static final Unit<Length> FOOT_US = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(1200L, 3937L), Factor.ZERO))
                     .named("ft_US", "foot US"));
 
     /** The mile US, {@code mi_US}. */
-    public static final Unit<Length> MILE_US = Unit.of(
+    public static final Unit<Length> MILE_US = Units.of(
             Length.class,
             BaseUnits.METRE.transform(Converter.affine(Factor.of(6336000L, 3937L), Factor.ZERO))
                     .named("mi_US", "mile US"));
 
     /** The square inch, {@code in²}. */
-    public static final Unit<Area> SQUARE_INCH = Unit.of(
+    public static final Unit<Area> SQUARE_INCH = Units.of(
             Area.class,
             BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(16129L, 25000000L), Factor.ZERO))
                     .named("in²", "square inch"));
 
     /** The square foot, {@code ft²}. */
-    public static final Unit<Area> SQUARE_FOOT = Unit.of(
+    public static final Unit<Area> SQUARE_FOOT = Units.of(
             Area.class,
             BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(145161L, 1562500L), Factor.ZERO))
                     .named("ft²", "square foot"));
 
     /** The acre, {@code ac}. */
-    public static final Unit<Area> ACRE = Unit.of(
+    public static final Unit<Area> ACRE = Units.of(
             Area.class,
             BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(316160658L, 78125L), Factor.ZERO))
                     .named("ac", "acre"));
 
     /** The acre US, {@code ac_US}. */
-    public static final Unit<Area> ACRE_US = Unit.of(
+    public static final Unit<Area> ACRE_US = Units.of(
             Area.class,
             BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(62726400000L, 15499969L), Factor.ZERO))
                     .named("ac_US", "acre US"));
 
     /** The cubic inch, {@code in³}. */
-    public static final Unit<Volume> CUBIC_INCH = Unit.of(
+    public static final Unit<Volume> CUBIC_INCH = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(2048383L, 125000000000L), Factor.ZERO))
                     .named("in³", "cubic inch"));
 
     /** The cubic foot, {@code ft³}. */
-    public static final Unit<Volume> CUBIC_FOOT = Unit.of(
+    public static final Unit<Volume> CUBIC_FOOT = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(55306341L, 1953125000L), Factor.ZERO))
                     .named("ft³", "cubic foot"));
 
     /** The gallon US, {@code gal_US}. */
-    public static final Unit<Volume> GALLON_US = Unit.of(
+    public static final Unit<Volume> GALLON_US = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 125000000000L), Factor.ZERO))
                     .named("gal_US", "gallon US"));
 
     /** The quart US, {@code qt_US}. */
-    public static final Unit<Volume> QUART_US = Unit.of(
+    public static final Unit<Volume> QUART_US = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 500000000000L), Factor.ZERO))
                     .named("qt_US", "quart US"));
 
     /** The pint US, {@code pt_US}. */
-    public static final Unit<Volume> PINT_US = Unit.of(
+    public static final Unit<Volume> PINT_US = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 1000000000000L), Factor.ZERO))
                     .named("pt_US", "pint US"));
 
     /** The cup US, {@code cup_US}. */
-    public static final Unit<Volume> CUP_US = Unit.of(
+    public static final Unit<Volume> CUP_US = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 2000000000000L), Factor.ZERO))
                     .named("cup_US", "cup US"));
 
     /** The fluid ounce US, {@code floz_US}. */
-    public static final Unit<Volume> FLUID_OUNCE_US = Unit.of(
+    public static final Unit<Volume> FLUID_OUNCE_US = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 16000000000000L), Factor.ZERO))
                     .named("floz_US", "fluid ounce US"));
 
     /** The tablespoon US, {@code tbsp_US}. */
-    public static final Unit<Volume> TABLESPOON_US = Unit.of(
+    public static final Unit<Volume> TABLESPOON_US = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 32000000000000L), Factor.ZERO))
                     .named("tbsp_US", "tablespoon US"));
 
     /** The teaspoon US, {@code tsp_US}. */
-    public static final Unit<Volume> TEASPOON_US = Unit.of(
+    public static final Unit<Volume> TEASPOON_US = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(157725491L, 32000000000000L), Factor.ZERO))
                     .named("tsp_US", "teaspoon US"));
 
     /** The pound, {@code lb}. */
-    public static final Unit<Mass> POUND = Unit.of(
+    public static final Unit<Mass> POUND = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(45359237L, 100000000L), Factor.ZERO))
                     .named("lb", "pound"));
 
     /** The ounce, {@code oz}. */
-    public static final Unit<Mass> OUNCE = Unit.of(
+    public static final Unit<Mass> OUNCE = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(45359237L, 1600000000L), Factor.ZERO))
                     .named("oz", "ounce"));
 
     /** The grain, {@code gr}. */
-    public static final Unit<Mass> GRAIN = Unit.of(
+    public static final Unit<Mass> GRAIN = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(6479891L, 100000000000L), Factor.ZERO))
                     .named("gr", "grain"));
 
     /** The ton US, {@code ton_US}. */
-    public static final Unit<Mass> TON_US = Unit.of(
+    public static final Unit<Mass> TON_US = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(45359237L, 50000L), Factor.ZERO))
                     .named("ton_US", "ton US"));
 
     /** The pound force, {@code lbf}. */
-    public static final Unit<Force> POUND_FORCE = Unit.of(
+    public static final Unit<Force> POUND_FORCE = Units.of(
             Force.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(8896443230521L, 2000000000000L), Factor.ZERO))
                     .named("lbf", "pound force"));
 
     /** The pound force per square inch, {@code psi}. */
-    public static final Unit<Pressure> POUND_FORCE_PER_SQUARE_INCH = Unit.of(
+    public static final Unit<Pressure> POUND_FORCE_PER_SQUARE_INCH = Units.of(
             Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(8896443230521L, 1290320000L), Factor.ZERO))
                     .named("psi", "pound force per square inch"));
 
     /** The British thermal unit IT, {@code BTU_IT}. */
-    public static final Unit<Energy> BRITISH_THERMAL_UNIT_IT = Unit.of(
+    public static final Unit<Energy> BRITISH_THERMAL_UNIT_IT = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(52752792631L, 50000000L), Factor.ZERO))
                     .named("BTU_IT", "British thermal unit IT"));
 
     /** The British thermal unit th, {@code BTU_th}. */
-    public static final Unit<Energy> BRITISH_THERMAL_UNIT_TH = Unit.of(
+    public static final Unit<Energy> BRITISH_THERMAL_UNIT_TH = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(23722880951L, 22500000L), Factor.ZERO))
                     .named("BTU_th", "British thermal unit th"));
 
     /** The horsepower, {@code hp}. */
-    public static final Unit<Power> HORSEPOWER = Unit.of(
+    public static final Unit<Power> HORSEPOWER = Units.of(
             Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(37284993579113511L, 50000000000000L), Factor.ZERO))
                     .named("hp", "horsepower"));
 
     /** The metric horsepower, {@code hp_M}. */
-    public static final Unit<Power> METRIC_HORSEPOWER = Unit.of(
+    public static final Unit<Power> METRIC_HORSEPOWER = Units.of(
             Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(588399L, 800L), Factor.ZERO))
                     .named("hp_M", "metric horsepower"));
 
     /** The mile per hour, {@code mph}. */
-    public static final Unit<Speed> MILE_PER_HOUR = Unit.of(
+    public static final Unit<Speed> MILE_PER_HOUR = Units.of(
             Speed.class,
             BaseUnits.METRE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(1397L, 3125L), Factor.ZERO))
                     .named("mph", "mile per hour"));
 
     /** The knot, {@code kn}. */
-    public static final Unit<Speed> KNOT = Unit.of(
+    public static final Unit<Speed> KNOT = Units.of(
             Speed.class,
             BaseUnits.METRE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(463L, 900L), Factor.ZERO))
                     .named("kn", "knot"));
 
     /** The degree Fahrenheit, {@code °F}. */
-    public static final Unit<Temperature> DEGREE_FAHRENHEIT = Unit.of(
+    public static final Unit<Temperature> DEGREE_FAHRENHEIT = Units.of(
             Temperature.class,
             BaseUnits.KELVIN.transform(Converter.affine(Factor.of(5L, 9L), Factor.of(45967L, 180L)))
                     .named("°F", "degree Fahrenheit"));
 
     /** The degree Rankine, {@code °R}. */
-    public static final Unit<Temperature> DEGREE_RANKINE = Unit.of(
+    public static final Unit<Temperature> DEGREE_RANKINE = Units.of(
             Temperature.class,
             BaseUnits.KELVIN.transform(Converter.affine(Factor.of(5L, 9L), Factor.ZERO)).named("°R", "degree Rankine"));
 

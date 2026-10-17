@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A pressure of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Pressure extends Quantity<Pressure> {
 
     /** The system unit of {@code Pressure}, {@code Pa}. */
-    Unit<Pressure> SYSTEM_UNIT = Unit.of(
+    Unit<Pressure> SYSTEM_UNIT = Units.of(
             Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2)).named("Pa", "pascal"));
 

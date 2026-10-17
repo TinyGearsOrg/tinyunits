@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A force of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Force extends Quantity<Force> {
 
     /** The system unit of {@code Force}, {@code N}. */
-    Unit<Force> SYSTEM_UNIT = Unit.of(
+    Unit<Force> SYSTEM_UNIT = Units.of(
             Force.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2)).named("N", "newton"));
 

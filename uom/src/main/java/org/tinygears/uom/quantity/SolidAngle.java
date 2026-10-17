@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A solid angle of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface SolidAngle extends Quantity<SolidAngle> {
 
     /** The system unit of {@code SolidAngle}, {@code sr}. */
-    Unit<SolidAngle> SYSTEM_UNIT = Unit.of(SolidAngle.class, BaseUnits.ONE.alternate("sr").named("sr", "steradian"));
+    Unit<SolidAngle> SYSTEM_UNIT = Units.of(SolidAngle.class, BaseUnits.ONE.alternate("sr").named("sr", "steradian"));
 
     /**
      * An absolute double quantity.

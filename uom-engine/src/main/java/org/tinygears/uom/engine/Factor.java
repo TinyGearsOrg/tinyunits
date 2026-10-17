@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.tinygears.uom.engine.internal.Decimals;
 import org.tinygears.uom.engine.internal.Irrationals;
@@ -142,6 +144,34 @@ public final class Factor implements Serializable {
         return value.scale() >= 0
                 ? of(value.unscaledValue(), BigInteger.TEN.pow(value.scale()))
                 : of(value.unscaledValue().multiply(BigInteger.TEN.pow(-value.scale())), BigInteger.ONE);
+    }
+
+    /**
+     * The exact value of a number as written: an integer type exactly, a {@link BigDecimal} as is, a {@code double} or
+     * {@code float} as its shortest decimal ({@code 0.3048} is 3048/10000, not the binary value).
+     *
+     * @param n the number
+     * @return the factor
+     * @throws IllegalArgumentException if {@code n} is NaN or infinite
+     * @throws ArithmeticException if the value needs more than 65536 bits
+     */
+    public static Factor valueOf(Number n) {
+        Objects.requireNonNull(n, "number");
+        if (n instanceof Byte || n instanceof Short || n instanceof Integer || n instanceof Long
+                || n instanceof AtomicInteger || n instanceof AtomicLong) {
+            return ofLong(n.longValue());
+        }
+        if (n instanceof BigInteger b) {
+            return of(b, BigInteger.ONE);
+        }
+        if (n instanceof BigDecimal b) {
+            return decimal(b);
+        }
+        double d = n.doubleValue();
+        if (!Double.isFinite(d)) {
+            throw new IllegalArgumentException("not a finite number: " + n);
+        }
+        return decimal(n instanceof Float f ? new BigDecimal(Float.toString(f)) : BigDecimal.valueOf(d));
     }
 
     private static Factor make(BigInteger n, BigInteger d, int k, int r) {

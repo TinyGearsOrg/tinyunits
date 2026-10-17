@@ -135,7 +135,8 @@ class DocsSnippetsTest {
                             b.toString());
                     assertEquals(
                             expected,
-                            assertThrows(DefinitionException.class, () -> loadNative(b, files)).getMessage(),
+                            assertThrows(org.tinygears.uom.DefinitionException.class, () -> loadNative(b, files))
+                                    .getMessage(),
                             b + " (uom)");
                 }));
                 case "java" -> tests.add(DynamicTest.dynamicTest(b.toString(), () -> java(b)));

@@ -16,10 +16,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.engine.Factor;
-import org.tinygears.uom.engine.UnitException;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /**
@@ -39,6 +38,21 @@ public final class Unit<Q extends Quantity<Q>> implements Serializable {
     /** The engine unit. */
     private final org.tinygears.uom.engine.Unit engine;
 
+    static {
+        // the generated catalogs and uom-jsr reach the engine side of units through internal.Units
+        Units.setAccess(new Units.Access() {
+            @Override
+            public <T extends Quantity<T>> Unit<T> of(Class<T> type, org.tinygears.uom.engine.Unit engine) {
+                return Unit.of(type, engine);
+            }
+
+            @Override
+            public org.tinygears.uom.engine.Unit engine(Unit<?> unit) {
+                return unit.engine;
+            }
+        });
+    }
+
     private Unit(Class<Q> type, org.tinygears.uom.engine.Unit engine) {
         this.type = type;
         this.engine = engine;
@@ -53,7 +67,7 @@ public final class Unit<Q extends Quantity<Q>> implements Serializable {
      * @return the unit
      * @throws IllegalArgumentException if the unit's dimension is not the type's
      */
-    public static <Q extends Quantity<Q>> Unit<Q> of(Class<Q> type, org.tinygears.uom.engine.Unit engine) {
+    static <Q extends Quantity<Q>> Unit<Q> of(Class<Q> type, org.tinygears.uom.engine.Unit engine) {
         Objects.requireNonNull(type, "type");
         Objects.requireNonNull(engine, "engine");
         if (type != Untyped.class) {
@@ -78,12 +92,8 @@ public final class Unit<Q extends Quantity<Q>> implements Serializable {
         return type;
     }
 
-    /**
-     * The engine unit.
-     *
-     * @return the engine unit
-     */
-    public org.tinygears.uom.engine.Unit engine() {
+    /** The engine unit. */
+    org.tinygears.uom.engine.Unit engine() {
         return engine;
     }
 
@@ -141,14 +151,18 @@ public final class Unit<Q extends Quantity<Q>> implements Serializable {
      * @throws UnitException if the dimensions differ or no exact converter exists
      */
     public Converter converterTo(Unit<?> that) {
+        return new Converter(engineConverterTo(that));
+    }
+
+    /** The engine converter to {@code that}, with the exceptions of {@link #converterTo}. */
+    org.tinygears.uom.engine.Converter engineConverterTo(Unit<?> that) {
         if (!isCompatible(that)) {
             throw new UnitException("incompatible dimensions: " + this + " and " + that);
         }
         try {
             return engine.converterTo(that.engine);
         } catch (ArithmeticException e) {
-            throw (UnitException) new UnitException(
-                    "cannot convert " + this + " to " + that + " exactly: " + e.getMessage()).initCause(e);
+            throw new UnitException("cannot convert " + this + " to " + that + " exactly: " + e.getMessage(), e);
         }
     }
 
@@ -192,7 +206,43 @@ public final class Unit<Q extends Quantity<Q>> implements Serializable {
     }
 
     /**
-     * This unit times an exact factor, unlabelled.
+     * This unit times a number as written: an integer exactly, a {@code double} as its shortest decimal
+     * ({@code 0.3048}), a {@link java.math.BigDecimal} as is; unlabelled.
+     *
+     * @param factor the number
+     * @return the scaled unit of the same type
+     * @throws IllegalArgumentException if {@code factor} is NaN or infinite
+     */
+    public Unit<Q> multiply(Number factor) {
+        return scaledBy(Factor.valueOf(factor));
+    }
+
+    /**
+     * This unit divided by a number as written, as {@link #multiply(Number)}.
+     *
+     * @param divisor the number, not zero
+     * @return the scaled unit of the same type
+     * @throws IllegalArgumentException if {@code divisor} is NaN or infinite
+     * @throws ArithmeticException if {@code divisor} is zero
+     */
+    public Unit<Q> divide(Number divisor) {
+        return scaledBy(Factor.ONE.divide(Factor.valueOf(divisor)));
+    }
+
+    /**
+     * This unit shifted by an offset as written ({@code 273.15} exactly), unlabelled: the kelvin shifted by
+     * {@code 273.15} is the degree Celsius.
+     *
+     * @param offset the number
+     * @return the shifted unit of the same type
+     * @throws IllegalArgumentException if {@code offset} is NaN or infinite
+     */
+    public Unit<Q> shift(Number offset) {
+        return shiftedBy(Factor.valueOf(offset));
+    }
+
+    /**
+     * This unit times an exact factor, unlabelled; for factors with pi or roots, which no number writes.
      *
      * @param factor the factor
      * @return the scaled unit of the same type
@@ -202,7 +252,7 @@ public final class Unit<Q extends Quantity<Q>> implements Serializable {
     }
 
     /**
-     * This unit shifted by an exact offset, unlabelled.
+     * This unit shifted by an exact offset, unlabelled; for offsets with pi or roots.
      *
      * @param offset the offset
      * @return the shifted unit of the same type

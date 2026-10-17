@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An energy of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Energy extends Quantity<Energy> {
 
     /** The system unit of {@code Energy}, {@code J}. */
-    Unit<Energy> SYSTEM_UNIT = Unit.of(
+    Unit<Energy> SYSTEM_UNIT = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2)).named("J", "joule"));
 

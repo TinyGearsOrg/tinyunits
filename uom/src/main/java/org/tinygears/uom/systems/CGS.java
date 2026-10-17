@@ -16,12 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.Untyped;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -63,79 +64,79 @@ public final class CGS {
     }
 
     /** The dyne, {@code dyn}. */
-    public static final Unit<Force> DYNE = Unit.of(
+    public static final Unit<Force> DYNE = Units.of(
             Force.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 100000L), Factor.ZERO)).named("dyn", "dyne"));
 
     /** The erg, {@code erg}. */
-    public static final Unit<Energy> ERG = Unit.of(
+    public static final Unit<Energy> ERG = Units.of(
             Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 10000000L), Factor.ZERO)).named("erg", "erg"));
 
     /** The barye, {@code Ba}. */
-    public static final Unit<Pressure> BARYE = Unit.of(
+    public static final Unit<Pressure> BARYE = Units.of(
             Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 10L), Factor.ZERO)).named("Ba", "barye"));
 
     /** The galileo, {@code Gal}. */
-    public static final Unit<Acceleration> GALILEO = Unit.of(
+    public static final Unit<Acceleration> GALILEO = Units.of(
             Acceleration.class,
             BaseUnits.METRE.divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 100L), Factor.ZERO)).named("Gal", "galileo"));
 
     /** The square centimetre, {@code cm²}. */
-    public static final Unit<Area> SQUARE_CENTIMETRE = Unit.of(
+    public static final Unit<Area> SQUARE_CENTIMETRE = Units.of(
             Area.class,
             BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(1L, 10000L), Factor.ZERO))
                     .named("cm²", "square centimetre"));
 
     /** The cubic centimetre, {@code cm³}. */
-    public static final Unit<Volume> CUBIC_CENTIMETRE = Unit.of(
+    public static final Unit<Volume> CUBIC_CENTIMETRE = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO))
                     .named("cm³", "cubic centimetre"));
 
     /** The poise, {@code P}. */
-    public static final Unit<Untyped> POISE = Unit.of(
+    public static final Unit<Untyped> POISE = Units.of(
             Untyped.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 10L), Factor.ZERO)).named("P", "poise"));
 
     /** The stokes, {@code St}. */
-    public static final Unit<Untyped> STOKES = Unit.of(
+    public static final Unit<Untyped> STOKES = Units.of(
             Untyped.class,
             BaseUnits.METRE.pow(2).divide(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 10000L), Factor.ZERO)).named("St", "stokes"));
 
     /** The centipoise, {@code cP}. */
-    public static final Unit<Untyped> CENTIPOISE = Unit.of(
+    public static final Unit<Untyped> CENTIPOISE = Units.of(
             Untyped.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 1000L), Factor.ZERO)).named("cP", "centipoise"));
 
     /** The millipoise, {@code mP}. */
-    public static final Unit<Untyped> MILLIPOISE = Unit.of(
+    public static final Unit<Untyped> MILLIPOISE = Units.of(
             Untyped.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 10000L), Factor.ZERO)).named("mP", "millipoise"));
 
     /** The centistokes, {@code cSt}. */
-    public static final Unit<Untyped> CENTISTOKES = Unit.of(
+    public static final Unit<Untyped> CENTISTOKES = Units.of(
             Untyped.class,
             BaseUnits.METRE.pow(2).divide(BaseUnits.SECOND)
                     .transform(Converter.affine(Factor.of(1L, 1000000L), Factor.ZERO)).named("cSt", "centistokes"));
 
     /** The milligalileo, {@code mGal}. */
-    public static final Unit<Acceleration> MILLIGALILEO = Unit.of(
+    public static final Unit<Acceleration> MILLIGALILEO = Units.of(
             Acceleration.class,
             BaseUnits.METRE.divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 100000L), Factor.ZERO)).named("mGal", "milligalileo"));
 
     /** The microgalileo, {@code µGal}. */
-    public static final Unit<Acceleration> MICROGALILEO = Unit.of(
+    public static final Unit<Acceleration> MICROGALILEO = Units.of(
             Acceleration.class,
             BaseUnits.METRE.divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("µGal", "microgalileo"));

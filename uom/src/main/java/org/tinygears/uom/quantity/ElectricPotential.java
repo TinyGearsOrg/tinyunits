@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An electric potential of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface ElectricPotential extends Quantity<ElectricPotential> {
 
     /** The system unit of {@code ElectricPotential}, {@code V}. */
-    Unit<ElectricPotential> SYSTEM_UNIT = Unit.of(
+    Unit<ElectricPotential> SYSTEM_UNIT = Units.of(
             ElectricPotential.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
                     .named("V", "volt"));

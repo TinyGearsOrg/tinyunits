@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A magnetic flux of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface MagneticFlux extends Quantity<MagneticFlux> {
 
     /** The system unit of {@code MagneticFlux}, {@code Wb}. */
-    Unit<MagneticFlux> SYSTEM_UNIT = Unit.of(
+    Unit<MagneticFlux> SYSTEM_UNIT = Units.of(
             MagneticFlux.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .named("Wb", "weber"));

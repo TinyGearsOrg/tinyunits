@@ -82,6 +82,12 @@ completing it runs in five stages: (1) the 33 types generated with typed product
   `java` block against `uom` and a `java jsr` block against `uom-jsr`, and loads every `units` block with both, which
   must agree. `Examples` shows the native API (with typed products and `Jsr`), `JsrExamples` the JSR-385 one; every
   native section prints what its JSR-385 counterpart prints, and the consumer of `verify-release.sh` runs both.
+- After the split: the native API names no engine type but the value types `Factor` and `Dimension`. `Unit.converterTo`
+  returns a native `Converter`; `Unit.multiply`, `divide` and `shift` take numbers as written (`Factor.valueOf`, the
+  rule `uom-jsr` uses too), `scaledBy` and `shiftedBy` keep `Factor` for pi and roots; `SystemOfUnits.load` takes a
+  `Function<String, Reader>`; errors are the native `UnitException` and `DefinitionException`. The engine side of units
+  (`Unit.of` over an engine unit, the engine unit of a unit, `BaseUnits`) moved to the package `internal`, exported to
+  `uom-jsr` only, which the generated code and `Jsr` use.
 
 ## 1. The constraint
 

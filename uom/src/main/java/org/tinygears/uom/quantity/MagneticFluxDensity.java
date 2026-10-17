@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A magnetic flux density of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface MagneticFluxDensity extends Quantity<MagneticFluxDensity> {
 
     /** The system unit of {@code MagneticFluxDensity}, {@code T}. */
-    Unit<MagneticFluxDensity> SYSTEM_UNIT = Unit.of(
+    Unit<MagneticFluxDensity> SYSTEM_UNIT = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2)).named("T", "tesla"));
 

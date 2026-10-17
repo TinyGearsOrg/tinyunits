@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An electric current of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface ElectricCurrent extends Quantity<ElectricCurrent> {
 
     /** The system unit of {@code ElectricCurrent}, {@code A}. */
-    Unit<ElectricCurrent> SYSTEM_UNIT = Unit.of(ElectricCurrent.class, BaseUnits.AMPERE);
+    Unit<ElectricCurrent> SYSTEM_UNIT = Units.of(ElectricCurrent.class, BaseUnits.AMPERE);
 
     /**
      * An absolute double quantity.

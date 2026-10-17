@@ -16,11 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -62,43 +63,43 @@ public final class Imperial {
     }
 
     /** The stone, {@code st}. */
-    public static final Unit<Mass> STONE = Unit.of(
+    public static final Unit<Mass> STONE = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(317514659L, 50000000L), Factor.ZERO))
                     .named("st", "stone"));
 
     /** The ton UK, {@code ton_UK}. */
-    public static final Unit<Mass> TON_UK = Unit.of(
+    public static final Unit<Mass> TON_UK = Units.of(
             Mass.class,
             BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(317514659L, 312500L), Factor.ZERO))
                     .named("ton_UK", "ton UK"));
 
     /** The gallon UK, {@code gal_UK}. */
-    public static final Unit<Volume> GALLON_UK = Unit.of(
+    public static final Unit<Volume> GALLON_UK = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(454609L, 100000000L), Factor.ZERO))
                     .named("gal_UK", "gallon UK"));
 
     /** The quart UK, {@code qt_UK}. */
-    public static final Unit<Volume> QUART_UK = Unit.of(
+    public static final Unit<Volume> QUART_UK = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(454609L, 400000000L), Factor.ZERO))
                     .named("qt_UK", "quart UK"));
 
     /** The pint UK, {@code pt_UK}. */
-    public static final Unit<Volume> PINT_UK = Unit.of(
+    public static final Unit<Volume> PINT_UK = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(454609L, 800000000L), Factor.ZERO))
                     .named("pt_UK", "pint UK"));
 
     /** The gill UK, {@code gi_UK}. */
-    public static final Unit<Volume> GILL_UK = Unit.of(
+    public static final Unit<Volume> GILL_UK = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(454609L, 3200000000L), Factor.ZERO))
                     .named("gi_UK", "gill UK"));
 
     /** The fluid ounce UK, {@code floz_UK}. */
-    public static final Unit<Volume> FLUID_OUNCE_UK = Unit.of(
+    public static final Unit<Volume> FLUID_OUNCE_UK = Units.of(
             Volume.class,
             BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(454609L, 16000000000L), Factor.ZERO))
                     .named("floz_UK", "fluid ounce UK"));

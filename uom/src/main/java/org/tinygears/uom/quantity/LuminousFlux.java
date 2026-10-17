@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A luminous flux of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface LuminousFlux extends Quantity<LuminousFlux> {
 
     /** The system unit of {@code LuminousFlux}, {@code lm}. */
-    Unit<LuminousFlux> SYSTEM_UNIT = Unit
+    Unit<LuminousFlux> SYSTEM_UNIT = Units
             .of(LuminousFlux.class, BaseUnits.CANDELA.multiply(BaseUnits.ONE.alternate("sr")).named("lm", "lumen"));
 
     /**

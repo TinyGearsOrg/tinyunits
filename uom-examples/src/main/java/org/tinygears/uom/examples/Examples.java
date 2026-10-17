@@ -31,7 +31,6 @@ import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.UnitFormat;
 import org.tinygears.uom.Untyped;
-import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.jsr.Jsr;
 import org.tinygears.uom.quantity.Angle;
 import org.tinygears.uom.quantity.Dimensionless;
@@ -188,8 +187,8 @@ public final class Examples {
         Dimensionless size = file.as(Dimensionless.class);
         return format.format(file) + " / " + format.format(rate) + " = " + transfer.to(SI.SECOND) + " | "
                 + format.format(size.to(Information.MEGABYTE.asType(Dimensionless.class))) + " | "
-                + units.format(Information.BYTE.scaledBy(Factor.ofLong(1024))) + " vs "
-                + units.format(Information.BYTE.scaledBy(Factor.ofLong(1000)));
+                + units.format(Information.BYTE.multiply(1024)) + " vs "
+                + units.format(Information.BYTE.multiply(1000));
     }
 
     /** Units and quantities are Serializable; a round trip gives equal objects. */
@@ -232,10 +231,10 @@ public final class Examples {
     /** A shifted unit without a symbol formats as a formula that parses back to an equal unit. */
     static String offsetUnits() {
         UnitFormat format = UnitFormat.standard();
-        Unit<?> shifted = SI.KELVIN.shiftedBy(Factor.ofLong(5));
+        Unit<?> shifted = SI.KELVIN.shift(5);
         String text = format.format(shifted);
         return text + " | parses back equal: " + format.parse(text).equals(shifted) + " | "
-                + format.format(SI.DEGREE_CELSIUS.scaledBy(Factor.ofLong(2)));
+                + format.format(SI.DEGREE_CELSIUS.multiply(2));
     }
 
     /**

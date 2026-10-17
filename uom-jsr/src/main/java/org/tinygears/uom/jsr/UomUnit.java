@@ -16,14 +16,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.measure.IncommensurableException;
 import javax.measure.MeasurementException;
 import javax.measure.Prefix;
@@ -466,20 +462,6 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     }
 
     private static Factor toFactor(Number n) {
-        if (n instanceof Byte || n instanceof Short || n instanceof Integer || n instanceof Long
-                || n instanceof AtomicInteger || n instanceof AtomicLong) {
-            return Factor.ofLong(n.longValue());
-        }
-        if (n instanceof BigInteger b) {
-            return Factor.of(b, BigInteger.ONE);
-        }
-        if (n instanceof BigDecimal b) {
-            return Factor.decimal(b);
-        }
-        double d = n.doubleValue();
-        if (!Double.isFinite(d)) {
-            throw new IllegalArgumentException("not a finite number: " + n);
-        }
-        return Factor.decimal(n instanceof Float f ? new BigDecimal(Float.toString(f)) : BigDecimal.valueOf(d));
+        return Factor.valueOf(n);
     }
 }

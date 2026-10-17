@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A volume of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface Volume extends Quantity<Volume> {
 
     /** The system unit of {@code Volume}, {@code m³}. */
-    Unit<Volume> SYSTEM_UNIT = Unit.of(Volume.class, BaseUnits.METRE.pow(3).named("m³", "cubic metre"));
+    Unit<Volume> SYSTEM_UNIT = Units.of(Volume.class, BaseUnits.METRE.pow(3).named("m³", "cubic metre"));
 
     /**
      * An absolute double quantity.

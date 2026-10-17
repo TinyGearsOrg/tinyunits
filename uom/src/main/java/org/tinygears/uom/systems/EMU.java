@@ -17,12 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.Untyped;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -64,57 +65,57 @@ public final class EMU {
     }
 
     /** The abampere, {@code abA}. */
-    public static final Unit<ElectricCurrent> ABAMPERE = Unit.of(
+    public static final Unit<ElectricCurrent> ABAMPERE = Units.of(
             ElectricCurrent.class,
             BaseUnits.AMPERE.transform(Converter.affine(Factor.of(10L, 1L), Factor.ZERO)).named("abA", "abampere"));
 
     /** The abcoulomb, {@code abC}. */
-    public static final Unit<ElectricCharge> ABCOULOMB = Unit.of(
+    public static final Unit<ElectricCharge> ABCOULOMB = Units.of(
             ElectricCharge.class,
             BaseUnits.AMPERE.multiply(BaseUnits.SECOND).transform(Converter.affine(Factor.of(10L, 1L), Factor.ZERO))
                     .named("abC", "abcoulomb"));
 
     /** The abvolt, {@code abV}. */
-    public static final Unit<ElectricPotential> ABVOLT = Unit.of(
+    public static final Unit<ElectricPotential> ABVOLT = Units.of(
             ElectricPotential.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("abV", "abvolt"));
 
     /** The abohm, {@code abΩ}. */
-    public static final Unit<ElectricResistance> ABOHM = Unit.of(
+    public static final Unit<ElectricResistance> ABOHM = Units.of(
             ElectricResistance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(3))
                     .transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abΩ", "abohm"));
 
     /** The abfarad, {@code abF}. */
-    public static final Unit<ElectricCapacitance> ABFARAD = Unit.of(
+    public static final Unit<ElectricCapacitance> ABFARAD = Units.of(
             ElectricCapacitance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
                     .divide(BaseUnits.METRE.pow(2)).transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("abF", "abfarad"));
 
     /** The abhenry, {@code abH}. */
-    public static final Unit<ElectricInductance> ABHENRY = Unit.of(
+    public static final Unit<ElectricInductance> ABHENRY = Units.of(
             ElectricInductance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abH", "abhenry"));
 
     /** The gauss, {@code G}. */
-    public static final Unit<MagneticFluxDensity> GAUSS = Unit.of(
+    public static final Unit<MagneticFluxDensity> GAUSS = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 10000L), Factor.ZERO)).named("G", "gauss"));
 
     /** The maxwell, {@code Mx}. */
-    public static final Unit<MagneticFlux> MAXWELL = Unit.of(
+    public static final Unit<MagneticFlux> MAXWELL = Units.of(
             MagneticFlux.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("Mx", "maxwell"));
 
     /** The gilbert, {@code Gb}. */
-    public static final Unit<ElectricCurrent> GILBERT = Unit.of(
+    public static final Unit<ElectricCurrent> GILBERT = Units.of(
             ElectricCurrent.class,
             BaseUnits.AMPERE
                     .transform(
@@ -122,7 +123,7 @@ public final class EMU {
                     .named("Gb", "gilbert"));
 
     /** The oersted, {@code Oe}. */
-    public static final Unit<Untyped> OERSTED = Unit.of(
+    public static final Unit<Untyped> OERSTED = Units.of(
             Untyped.class,
             BaseUnits.AMPERE.divide(BaseUnits.METRE)
                     .transform(
@@ -130,19 +131,19 @@ public final class EMU {
                     .named("Oe", "oersted"));
 
     /** The milligauss, {@code mG}. */
-    public static final Unit<MagneticFluxDensity> MILLIGAUSS = Unit.of(
+    public static final Unit<MagneticFluxDensity> MILLIGAUSS = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 10000000L), Factor.ZERO)).named("mG", "milligauss"));
 
     /** The microgauss, {@code µG}. */
-    public static final Unit<MagneticFluxDensity> MICROGAUSS = Unit.of(
+    public static final Unit<MagneticFluxDensity> MICROGAUSS = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 10000000000L), Factor.ZERO)).named("µG", "microgauss"));
 
     /** The nanogauss, {@code nG}. */
-    public static final Unit<MagneticFluxDensity> NANOGAUSS = Unit.of(
+    public static final Unit<MagneticFluxDensity> NANOGAUSS = Units.of(
             MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
                     .transform(Converter.affine(Factor.of(1L, 10000000000000L), Factor.ZERO)).named("nG", "nanogauss"));

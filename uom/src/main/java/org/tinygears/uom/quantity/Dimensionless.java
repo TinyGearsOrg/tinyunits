@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A dimensionless of the native API.
@@ -27,7 +28,7 @@ import org.tinygears.uom.Unit;
 public interface Dimensionless extends Quantity<Dimensionless> {
 
     /** The system unit of {@code Dimensionless}, {@code 1}. */
-    Unit<Dimensionless> SYSTEM_UNIT = Unit.of(Dimensionless.class, BaseUnits.ONE);
+    Unit<Dimensionless> SYSTEM_UNIT = Units.of(Dimensionless.class, BaseUnits.ONE);
 
     /**
      * An absolute double quantity.

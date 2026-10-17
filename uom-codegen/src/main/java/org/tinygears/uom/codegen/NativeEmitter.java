@@ -36,7 +36,8 @@ public final class NativeEmitter {
     static final String BASE = "org.tinygears.uom";
     static final String QUANTITY = BASE + ".quantity";
     static final String SYSTEMS = BASE + ".systems";
-    private static final String BASE_UNITS = BASE + ".BaseUnits";
+    private static final String BASE_UNITS = BASE + ".internal.BaseUnits";
+    private static final String UNITS = BASE + ".internal.Units";
     private static final Pattern FACTORY_UNIT = Pattern
             .compile("org\\.tinygears\\.uom\\.jsr\\.quantity\\.(\\w+)Factory\\.SYSTEM_UNIT");
     private static final Map<String, String> BASE_ATOMS = Map.of(
@@ -81,7 +82,7 @@ public final class NativeEmitter {
             public interface $T extends org.tinygears.uom.Quantity<$T> {
 
                 /** The system unit of {@code $T}, {@code $S}. */
-                org.tinygears.uom.Unit<$T> SYSTEM_UNIT = org.tinygears.uom.Unit.of($T.class, $U);
+                org.tinygears.uom.Unit<$T> SYSTEM_UNIT = org.tinygears.uom.internal.Units.of($T.class, $U);
 
                 /**
                  * An absolute double quantity.
@@ -267,7 +268,7 @@ public final class NativeEmitter {
                     }
                 }
 
-                // Apart from DIMENSIONS, which Unit.of reads while the system units initialise.
+                // Apart from DIMENSIONS, which Units.of reads while the system units initialise.
                 private static final class Factories {
                     static final java.util.Map<Class<?>, org.tinygears.uom.AbstractQuantity.Factory<?>> ALL =
                             java.util.Map.ofEntries($F);
@@ -368,7 +369,8 @@ public final class NativeEmitter {
                 } catch (GenerationException x) {
                     throw new GenerationException(d.source(), d.line(), x.getMessage(), x);
                 }
-                unit = unitClass + ".of(" + type + ".class, " + named(unit, d.symbol(), d.name(), imports) + ")";
+                unit = imports.name(UNITS) + ".of(" + type + ".class, " + named(unit, d.symbol(), d.name(), imports)
+                        + ")";
             }
             out.append("\n    /** The ").append(d.name()).append(", {@code ").append(d.symbol())
                     .append("}. */\n    public static final ").append(unitClass).append('<').append(type).append("> ")

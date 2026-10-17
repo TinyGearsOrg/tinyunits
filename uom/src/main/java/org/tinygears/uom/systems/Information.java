@@ -17,12 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.SystemOfUnits;
 import org.tinygears.uom.Unit;
 import org.tinygears.uom.Untyped;
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 import org.tinygears.uom.quantity.Acceleration;
 import org.tinygears.uom.quantity.AmountOfSubstance;
 import org.tinygears.uom.quantity.Angle;
@@ -64,130 +65,130 @@ public final class Information {
     }
 
     /** The bit, {@code bit}. */
-    public static final Unit<Untyped> BIT = Unit.of(Untyped.class, BaseUnits.ONE.alternate("bit").named("bit", "bit"));
+    public static final Unit<Untyped> BIT = Units.of(Untyped.class, BaseUnits.ONE.alternate("bit").named("bit", "bit"));
 
     /** The byte, {@code B}. */
-    public static final Unit<Untyped> BYTE = Unit.of(
+    public static final Unit<Untyped> BYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8L, 1L), Factor.ZERO))
                     .named("B", "byte"));
 
     /** The kilobit, {@code kbit}. */
-    public static final Unit<Untyped> KILOBIT = Unit.of(
+    public static final Unit<Untyped> KILOBIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO))
                     .named("kbit", "kilobit"));
 
     /** The megabit, {@code Mbit}. */
-    public static final Unit<Untyped> MEGABIT = Unit.of(
+    public static final Unit<Untyped> MEGABIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO))
                     .named("Mbit", "megabit"));
 
     /** The gigabit, {@code Gbit}. */
-    public static final Unit<Untyped> GIGABIT = Unit.of(
+    public static final Unit<Untyped> GIGABIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
                     .named("Gbit", "gigabit"));
 
     /** The terabit, {@code Tbit}. */
-    public static final Unit<Untyped> TERABIT = Unit.of(
+    public static final Unit<Untyped> TERABIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000000000000L, 1L), Factor.ZERO))
                     .named("Tbit", "terabit"));
 
     /** The kibibit, {@code Kibit}. */
-    public static final Unit<Untyped> KIBIBIT = Unit.of(
+    public static final Unit<Untyped> KIBIBIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1024L, 1L), Factor.ZERO))
                     .named("Kibit", "kibibit"));
 
     /** The mebibit, {@code Mibit}. */
-    public static final Unit<Untyped> MEBIBIT = Unit.of(
+    public static final Unit<Untyped> MEBIBIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1048576L, 1L), Factor.ZERO))
                     .named("Mibit", "mebibit"));
 
     /** The gibibit, {@code Gibit}. */
-    public static final Unit<Untyped> GIBIBIT = Unit.of(
+    public static final Unit<Untyped> GIBIBIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1073741824L, 1L), Factor.ZERO))
                     .named("Gibit", "gibibit"));
 
     /** The tebibit, {@code Tibit}. */
-    public static final Unit<Untyped> TEBIBIT = Unit.of(
+    public static final Unit<Untyped> TEBIBIT = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1099511627776L, 1L), Factor.ZERO))
                     .named("Tibit", "tebibit"));
 
     /** The kilobyte, {@code kB}. */
-    public static final Unit<Untyped> KILOBYTE = Unit.of(
+    public static final Unit<Untyped> KILOBYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000L, 1L), Factor.ZERO))
                     .named("kB", "kilobyte"));
 
     /** The megabyte, {@code MB}. */
-    public static final Unit<Untyped> MEGABYTE = Unit.of(
+    public static final Unit<Untyped> MEGABYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000L, 1L), Factor.ZERO))
                     .named("MB", "megabyte"));
 
     /** The gigabyte, {@code GB}. */
-    public static final Unit<Untyped> GIGABYTE = Unit.of(
+    public static final Unit<Untyped> GIGABYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000L, 1L), Factor.ZERO))
                     .named("GB", "gigabyte"));
 
     /** The terabyte, {@code TB}. */
-    public static final Unit<Untyped> TERABYTE = Unit.of(
+    public static final Unit<Untyped> TERABYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000000L, 1L), Factor.ZERO))
                     .named("TB", "terabyte"));
 
     /** The petabyte, {@code PB}. */
-    public static final Unit<Untyped> PETABYTE = Unit.of(
+    public static final Unit<Untyped> PETABYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000000000L, 1L), Factor.ZERO))
                     .named("PB", "petabyte"));
 
     /** The exabyte, {@code EB}. */
-    public static final Unit<Untyped> EXABYTE = Unit.of(
+    public static final Unit<Untyped> EXABYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000000000000L, 1L), Factor.ZERO))
                     .named("EB", "exabyte"));
 
     /** The kibibyte, {@code KiB}. */
-    public static final Unit<Untyped> KIBIBYTE = Unit.of(
+    public static final Unit<Untyped> KIBIBYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8192L, 1L), Factor.ZERO))
                     .named("KiB", "kibibyte"));
 
     /** The mebibyte, {@code MiB}. */
-    public static final Unit<Untyped> MEBIBYTE = Unit.of(
+    public static final Unit<Untyped> MEBIBYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8388608L, 1L), Factor.ZERO))
                     .named("MiB", "mebibyte"));
 
     /** The gibibyte, {@code GiB}. */
-    public static final Unit<Untyped> GIBIBYTE = Unit.of(
+    public static final Unit<Untyped> GIBIBYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8589934592L, 1L), Factor.ZERO))
                     .named("GiB", "gibibyte"));
 
     /** The tebibyte, {@code TiB}. */
-    public static final Unit<Untyped> TEBIBYTE = Unit.of(
+    public static final Unit<Untyped> TEBIBYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8796093022208L, 1L), Factor.ZERO))
                     .named("TiB", "tebibyte"));
 
     /** The pebibyte, {@code PiB}. */
-    public static final Unit<Untyped> PEBIBYTE = Unit.of(
+    public static final Unit<Untyped> PEBIBYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(9007199254740992L, 1L), Factor.ZERO))
                     .named("PiB", "pebibyte"));
 
     /** The exbibyte, {@code EiB}. */
-    public static final Unit<Untyped> EXBIBYTE = Unit.of(
+    public static final Unit<Untyped> EXBIBYTE = Units.of(
             Untyped.class,
             BaseUnits.ONE.alternate("bit")
                     .transform(

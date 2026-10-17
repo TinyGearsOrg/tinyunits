@@ -31,7 +31,7 @@ import java.math.MathContext;
  *       the others are {@link Untyped}.</li>
  * </ul>
  * Operations on units of different dimensions (possible with {@link Untyped}) throw
- * {@link org.tinygears.uom.engine.UnitException}. Immutable.
+ * {@link UnitException}. Immutable.
  *
  * @param <Q> the quantity type
  */

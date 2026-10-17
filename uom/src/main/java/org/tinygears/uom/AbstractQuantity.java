@@ -122,7 +122,7 @@ public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantit
 
     @Override
     public Q to(Unit<Q> target) {
-        Converter c = unit.converterTo(target);
+        Converter c = unit.engineConverterTo(target);
         if (decimal == null) {
             return create(DoubleArithmetic.convert(value, c, relative()), null, null, target, scale);
         }
@@ -161,7 +161,7 @@ public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantit
                     unit.engine(),
                     other.value().doubleValue(),
                     u.engine(),
-                    u.converterTo(unit),
+                    u.engineConverterTo(unit),
                     delta,
                     subtract);
             return create(r, null, null, unit, result);
@@ -313,7 +313,7 @@ public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantit
         if (!unit.isCompatible(other.unit())) {
             return false;
         }
-        Converter c = other.unit().converterTo(unit);
+        Converter c = other.unit().engineConverterTo(unit);
         boolean deltas = bothRelative(other);
         Number n = other.value();
         if (decimal != null && Precision.kind(n) == Precision.Kind.DECIMAL) {
@@ -385,7 +385,7 @@ public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantit
      * Compares the amounts in the system unit, exactly if either is decimal; two {@code RELATIVE} quantities as
      * differences. NaN and infinities keep the order of {@link Double#compare}. Not consistent with equals.
      *
-     * @throws org.tinygears.uom.engine.UnitException if the dimensions differ
+     * @throws UnitException if the dimensions differ
      */
     @Override
     public int compareTo(Q other) {
@@ -408,7 +408,7 @@ public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantit
 
     private void requireCompatible(Unit<?> u) {
         if (!unit.isCompatible(u)) {
-            throw new org.tinygears.uom.engine.UnitException("incompatible dimensions: " + unit + " and " + u);
+            throw new UnitException("incompatible dimensions: " + unit + " and " + u);
         }
     }
 

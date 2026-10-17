@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A temperature of the native API.
@@ -27,7 +28,7 @@ import org.tinygears.uom.Unit;
 public interface Temperature extends Quantity<Temperature> {
 
     /** The system unit of {@code Temperature}, {@code K}. */
-    Unit<Temperature> SYSTEM_UNIT = Unit.of(Temperature.class, BaseUnits.KELVIN);
+    Unit<Temperature> SYSTEM_UNIT = Units.of(Temperature.class, BaseUnits.KELVIN);
 
     /**
      * An absolute double quantity.

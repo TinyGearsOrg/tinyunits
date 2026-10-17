@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A luminous intensity of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface LuminousIntensity extends Quantity<LuminousIntensity> {
 
     /** The system unit of {@code LuminousIntensity}, {@code cd}. */
-    Unit<LuminousIntensity> SYSTEM_UNIT = Unit.of(LuminousIntensity.class, BaseUnits.CANDELA);
+    Unit<LuminousIntensity> SYSTEM_UNIT = Units.of(LuminousIntensity.class, BaseUnits.CANDELA);
 
     /**
      * An absolute double quantity.

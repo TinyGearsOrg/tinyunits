@@ -164,7 +164,7 @@ public final class QuantityTypes {
         }
     }
 
-    // Apart from DIMENSIONS, which Unit.of reads while the system units initialise.
+    // Apart from DIMENSIONS, which Units.of reads while the system units initialise.
     private static final class Factories {
         static final Map<Class<?>, AbstractQuantity.Factory<?>> ALL = Map.ofEntries(
                 Map.entry(Acceleration.class, (AbstractQuantity.Factory<Acceleration>) AccelerationValue::new),

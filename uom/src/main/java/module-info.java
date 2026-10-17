@@ -14,10 +14,13 @@
  * ({@code org.tinygears.uom.systems}), on the engine ({@code org.tinygears.uom.engine}). The JSR-385
  * implementation is the module {@code org.tinygears.uom.jsr}.
  */
+@SuppressWarnings("module") // the qualified export names org.tinygears.uom.jsr, which is compiled later
 module org.tinygears.uom {
     requires transitive org.tinygears.uom.engine;
 
     exports org.tinygears.uom;
     exports org.tinygears.uom.quantity;
     exports org.tinygears.uom.systems;
+    // The engine side of units, for uom-jsr's conversion to and from this API; not API.
+    exports org.tinygears.uom.internal to org.tinygears.uom.jsr;
 }

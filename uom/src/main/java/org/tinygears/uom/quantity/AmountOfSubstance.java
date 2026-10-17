@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * An amount of substance of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface AmountOfSubstance extends Quantity<AmountOfSubstance> {
 
     /** The system unit of {@code AmountOfSubstance}, {@code mol}. */
-    Unit<AmountOfSubstance> SYSTEM_UNIT = Unit.of(AmountOfSubstance.class, BaseUnits.MOLE);
+    Unit<AmountOfSubstance> SYSTEM_UNIT = Units.of(AmountOfSubstance.class, BaseUnits.MOLE);
 
     /**
      * An absolute double quantity.

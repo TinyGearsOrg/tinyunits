@@ -16,10 +16,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.tinygears.uom.BaseUnits;
 import org.tinygears.uom.Quantity;
 import org.tinygears.uom.Scale;
 import org.tinygears.uom.Unit;
+import org.tinygears.uom.internal.BaseUnits;
+import org.tinygears.uom.internal.Units;
 
 /**
  * A radiation dose absorbed of the native API.
@@ -28,7 +29,7 @@ import org.tinygears.uom.Unit;
 public interface RadiationDoseAbsorbed extends Quantity<RadiationDoseAbsorbed> {
 
     /** The system unit of {@code RadiationDoseAbsorbed}, {@code Gy}. */
-    Unit<RadiationDoseAbsorbed> SYSTEM_UNIT = Unit.of(
+    Unit<RadiationDoseAbsorbed> SYSTEM_UNIT = Units.of(
             RadiationDoseAbsorbed.class,
             BaseUnits.METRE.pow(2).divide(BaseUnits.SECOND.pow(2)).alternate("Gy").named("Gy", "gray"));
 
