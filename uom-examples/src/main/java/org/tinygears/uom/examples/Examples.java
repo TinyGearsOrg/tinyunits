@@ -30,6 +30,7 @@ import javax.measure.format.UnitFormat;
 import javax.measure.spi.FormatService;
 import javax.measure.spi.ServiceProvider;
 
+import org.tinygears.uom.quantity.Angle;
 import org.tinygears.uom.quantity.Dimensionless;
 import org.tinygears.uom.quantity.ElectricCharge;
 import org.tinygears.uom.quantity.Energy;
@@ -65,9 +66,9 @@ public final class Examples {
         return total + " = " + inMetres;
     }
 
-    /** Dividing quantities gives a quantity in system units; Speed.from gives it its type back. */
+    /** Dividing quantities gives a UomQuantity in system units; as(Speed.class) gives it its type back, no cast. */
     static String speed() {
-        Speed speed = Speed.from(Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR)));
+        Speed speed = Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR)).as(Speed.class);
         return speed.getValue() + " " + speed.to(SI.METRE_PER_SECOND).getUnit();
     }
 
@@ -82,6 +83,21 @@ public final class Examples {
         Length km = Length.of(2, SI.KILOMETRE);
         Length m = Length.of(2000, SI.METRE);
         return "equals=" + km.equals(m) + " equivalent=" + km.isEquivalentTo(m);
+    }
+
+    /**
+     * isEquivalentTo, the standard method, compares decimals exactly, so a value rounded on its way differs from its
+     * source; isCloseTo compares within a tolerance the caller states, relative or as a quantity.
+     */
+    static String closeness() {
+        Angle radian = Angle.of(BigDecimal.ONE, SI.RADIAN);
+        Angle degrees = radian.to(SI.DEGREE);
+        Length foot = Length.of(1, USCustomary.FOOT);
+        Length measured = Length.of(0.305, SI.METRE);
+        return degrees + " | equivalent: " + degrees.isEquivalentTo(radian) + ", within 1e-30: "
+                + degrees.isCloseTo(radian, 1e-30) + " | 1 ft within 1 mm of " + measured + ": "
+                + foot.isCloseTo(measured, Length.of(1, SI.MILLIMETRE)) + ", within 0.1 mm: "
+                + foot.isCloseTo(measured, Length.of(0.1, SI.MILLIMETRE));
     }
 
     /** Units and quantities from text, and back to text. */
@@ -105,7 +121,10 @@ public final class Examples {
         return provider.getClass().getSimpleName() + " " + mass.isEquivalentTo(viaFactory);
     }
 
-    /** Derived units keep their dimension: the product of force and length is energy. */
+    /**
+     * Derived units keep their dimension: the product of force and length is energy. A value typed as the standard
+     * Quantity, as code written against JSR-385 only holds it, is narrowed with Energy.from.
+     */
     static String work() {
         Quantity<?> product = Force.of(10, SI.NEWTON).multiply(Length.of(3, SI.METRE));
         Energy work = Energy.from(product);
@@ -239,7 +258,7 @@ public final class Examples {
 
     /**
      * Parsing gives double quantities by default; withDecimals gives BigDecimal quantities that keep every digit and
-     * the scale of the text. The parsed object has the quantity type of its unit, so Length.from narrows it.
+     * the scale of the text. The parsed object has the quantity type of its unit, so as(Length.class) narrows it.
      */
     static String decimalParse() {
         UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard());
@@ -247,7 +266,7 @@ public final class Examples {
         Quantity<?> plain = format.parse("1.50 km");
         // The context, 7 digits here, applies to later arithmetic; the parsed value is never rounded to it.
         UomQuantityFormat decimals = format.withDecimals(MathContext.DECIMAL32);
-        Length length = Length.from(decimals.parse("1.234567890 km"));
+        Length length = decimals.parse("1.234567890 km").as(Length.class);
         BigDecimal value = (BigDecimal) length.getValue();
         // A unit without a quantity type gives an untyped decimal quantity.
         Quantity<?> momentum = decimals.parse("2.0 kg·m/s");
@@ -265,7 +284,7 @@ public final class Examples {
                 """;
         UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval.units", new StringReader(file), null);
         UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
-        Length distance = Length.from(format.parse("2 league"));
+        Length distance = format.parse("2 league").as(Length.class);
         return medieval.getName() + " | " + distance + " = " + distance.to(SI.KILOMETRE) + " = "
                 + distance.toSystem(medieval);
     }
@@ -276,6 +295,7 @@ public final class Examples {
         out.put("speed", speed());
         out.put("temperature", temperature());
         out.put("equality", equality());
+        out.put("closeness", closeness());
         out.put("formats", formats());
         out.put("provider", provider());
         out.put("work", work());

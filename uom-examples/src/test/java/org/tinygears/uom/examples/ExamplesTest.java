@@ -29,6 +29,10 @@ class ExamplesTest {
                         Map.entry("speed", "10.0 m/s"),
                         Map.entry("temperature", "373.15 K | 100.0 °C"),
                         Map.entry("equality", "equals=false equivalent=true"),
+                        Map.entry(
+                                "closeness",
+                                "57.29577951308232087679815481410517 deg | equivalent: false, within 1e-30: true"
+                                        + " | 1 ft within 1 mm of 0.305 m: true, within 0.1 mm: false"),
                         Map.entry("formats", "km mK km^2 | 20.0 km"),
                         Map.entry("provider", "UomServiceProvider true"),
                         Map.entry("work", "30.0 J"),
