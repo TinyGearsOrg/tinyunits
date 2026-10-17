@@ -190,6 +190,21 @@
                   </arguments>
                 </configuration>
               </execution>
+              <execution>
+                <id>generate-native</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.tinygears.uom.codegen.GenerateNative</mainClass>
+                  <arguments>
+                    <argument>${maven.multiModuleProjectDirectory}/data</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom-native/src/main/java/org/tinygears/uom/nativeapi/quantity</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom-native/src/main/java/org/tinygears/uom/nativeapi/systems</argument>
+                  </arguments>
+                </configuration>
+              </execution>
             </executions>
           </plugin>
         </plugins>

@@ -1,0 +1,35 @@
+# Relations between the quantity types, for the typed products of the native API (uom-native).
+# Format: one "Result = Left * Right" or "Result = Left / Right" per line, with type names from quantity-types.txt.
+# Each relation gives the four methods it implies: for C = A * B, A.multiply(B) and B.multiply(A) are a C, and
+# C.divide(A) is a B, C.divide(B) an A; for C = A / B, A.divide(B) is a C, A.divide(C) a B, and B.multiply(C) and
+# C.multiply(B) are an A. The generator checks the dimensions and refuses a method that two relations imply.
+# Types of equal dimension (Frequency and Radioactivity, the two doses, Angle and Dimensionless) take part in at most
+# one relation per method. Text after '#' is a comment; blank lines are ignored.
+
+# Mechanics
+Area = Length * Length
+Volume = Area * Length
+Speed = Length / Time
+Acceleration = Speed / Time
+Force = Mass * Acceleration
+Pressure = Force / Area
+Energy = Force * Length
+Energy = Pressure * Volume
+Power = Energy / Time
+Power = Force * Speed
+
+# Electromagnetism
+ElectricCharge = ElectricCurrent * Time
+ElectricPotential = Power / ElectricCurrent
+ElectricResistance = ElectricPotential / ElectricCurrent
+ElectricConductance = ElectricCurrent / ElectricPotential
+ElectricCapacitance = ElectricCharge / ElectricPotential
+MagneticFlux = ElectricPotential * Time
+MagneticFluxDensity = MagneticFlux / Area
+ElectricInductance = MagneticFlux / ElectricCurrent
+
+# Photometry, chemistry, radiation
+LuminousFlux = LuminousIntensity * SolidAngle
+Illuminance = LuminousFlux / Area
+CatalyticActivity = AmountOfSubstance / Time
+RadiationDoseAbsorbed = Energy / Mass

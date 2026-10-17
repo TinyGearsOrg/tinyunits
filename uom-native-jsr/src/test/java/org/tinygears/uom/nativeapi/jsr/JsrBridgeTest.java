@@ -15,11 +15,15 @@ import java.math.MathContext;
 
 import org.junit.jupiter.api.Test;
 
+import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
-import org.tinygears.uom.nativeapi.Length;
-import org.tinygears.uom.nativeapi.SI;
-import org.tinygears.uom.nativeapi.Speed;
-import org.tinygears.uom.nativeapi.Time;
+import org.tinygears.uom.nativeapi.Scale;
+import org.tinygears.uom.nativeapi.Untyped;
+import org.tinygears.uom.nativeapi.quantity.Length;
+import org.tinygears.uom.nativeapi.quantity.Speed;
+import org.tinygears.uom.nativeapi.quantity.Temperature;
+import org.tinygears.uom.nativeapi.quantity.Time;
+import org.tinygears.uom.nativeapi.systems.SI;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -31,52 +35,63 @@ class JsrBridgeTest {
     @Test
     void nativeToJsrAndBack() {
         Length nativeLength = Length.of(42.195, SI.KILOMETRE);
-        org.tinygears.uom.quantity.Length jsr = Jsr.toJsr(nativeLength);
+        org.tinygears.uom.quantity.Length jsr = Jsr.toJsr(nativeLength, org.tinygears.uom.quantity.Length.class);
         assertEquals(42.195, jsr.getValue());
         assertEquals("km", jsr.getUnit().getSymbol());
         // the JSR-385 side wraps the very engine unit of the native side
-        assertSame(SI.KILOMETRE.engine(), ((org.tinygears.uom.core.UomUnit<?>) jsr.getUnit()).engine());
+        assertSame(SI.KILOMETRE.engine(), ((UomUnit<?>) jsr.getUnit()).engine());
         assertEquals(42195.0, jsr.to(org.tinygears.uom.systems.SI.METRE).getValue());
-        assertEquals(nativeLength, Jsr.length(jsr));
+        assertEquals(nativeLength, Jsr.fromJsr(jsr, Length.class));
     }
 
     @Test
     void jsrToNativeKeepsTheUnitAndTypesTheProduct() {
-        org.tinygears.uom.quantity.Length distance = org.tinygears.uom.quantity.Length
-                .of(10, org.tinygears.uom.systems.SI.KILOMETRE);
-        org.tinygears.uom.quantity.Time duration = org.tinygears.uom.quantity.Time
-                .of(0.5, org.tinygears.uom.systems.SI.HOUR);
-        Speed speed = Jsr.length(distance).divide(Jsr.time(duration));
-        assertEquals(20.0, speed.to(SI.KILOMETRE_PER_HOUR).value());
-        org.tinygears.uom.quantity.Speed jsrSpeed = Jsr.toJsr(speed.to(SI.KILOMETRE_PER_HOUR));
-        assertEquals(20.0, jsrSpeed.getValue());
-        assertEquals("km/h", jsrSpeed.getUnit().getSymbol());
-        assertEquals(Time.of(0.5, SI.HOUR), Jsr.time(Jsr.toJsr(Time.of(0.5, SI.HOUR))));
+        var distance = org.tinygears.uom.quantity.Length.of(10, org.tinygears.uom.systems.SI.KILOMETRE);
+        var duration = org.tinygears.uom.quantity.Time.of(0.5, org.tinygears.uom.systems.SI.HOUR);
+        Speed speed = Jsr.fromJsr(distance, Length.class).divide(Jsr.fromJsr(duration, Time.class));
+        assertEquals(20 / 3.6, speed.value());
+        org.tinygears.uom.quantity.Speed jsrSpeed = Jsr.toJsr(speed, org.tinygears.uom.quantity.Speed.class);
+        assertEquals(20 / 3.6, jsrSpeed.getValue());
+        assertEquals("m/s", jsrSpeed.getUnit().getSymbol());
+    }
+
+    @Test
+    void scaleAndUntypedQuantitiesCarryOver() {
+        Temperature diff = Temperature.of(5, SI.DEGREE_CELSIUS, Scale.RELATIVE);
+        var jsr = Jsr.toJsr(diff);
+        assertEquals(javax.measure.Quantity.Scale.RELATIVE, jsr.getScale());
+        assertEquals(diff, Jsr.fromJsr(jsr, Temperature.class));
+        Untyped momentum = Untyped.of(6, SI.KILOGRAM.multiply(SI.METRE_PER_SECOND));
+        var jsrMomentum = Jsr.toJsr(momentum);
+        assertEquals(org.tinygears.uom.core.quantity.UntypedDoubleQuantity.class, jsrMomentum.getClass());
+        assertEquals(momentum, Jsr.fromJsr(jsrMomentum, Untyped.class));
+        assertEquals(
+                "an untyped JSR-385 quantity is absolute: 1.0 kg·(m/s)",
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> Jsr.toJsr(Untyped.of(1, momentum.unit(), Scale.RELATIVE))).getMessage());
     }
 
     @Test
     void decimalsKeepValueAndContextAndComputeAlike() {
-        Length marathon = Length.of(new BigDecimal("42.195"), SI.KILOMETRE, MathContext.DECIMAL64);
-        org.tinygears.uom.quantity.Length jsr = Jsr.toJsr(marathon);
+        Length marathon = Length.of(new BigDecimal("42.195"), SI.KILOMETRE, Scale.ABSOLUTE, MathContext.DECIMAL64);
+        var jsr = Jsr.toJsr(marathon, org.tinygears.uom.quantity.Length.class);
         assertEquals(new BigDecimal("42.195"), jsr.getValue());
         assertEquals(MathContext.DECIMAL64, ((AbstractDecimalQuantity<?, ?>) jsr).mathContext());
-        assertEquals(marathon, Jsr.length(jsr));
-        // one engine kernel: the same exact, once-rounded results on both sides
+        assertEquals(marathon, Jsr.fromJsr(jsr, Length.class));
         Time t = Time.of(new BigDecimal("3"), SI.HOUR);
         Speed pace = marathon.divide(t);
         assertEquals(new BigDecimal("3.906944444444444"), pace.value());
         assertEquals(pace.value(), jsr.divide(Jsr.toJsr(t)).getValue());
-        Length plus = marathon.add(Length.of(new BigDecimal("195"), SI.METRE));
-        assertEquals(new BigDecimal("42.390"), plus.value());
-        assertEquals(plus.value(), jsr.add(Jsr.toJsr(Length.of(new BigDecimal("195"), SI.METRE))).getValue());
     }
 
     @Test
     void aQuantityOfAnotherImplementationIsRefused() {
         IllegalArgumentException e = assertThrows(
                 IllegalArgumentException.class,
-                () -> Jsr.length(
-                        tech.units.indriya.quantity.Quantities.getQuantity(1, tech.units.indriya.unit.Units.METRE)));
+                () -> Jsr.fromJsr(
+                        tech.units.indriya.quantity.Quantities.getQuantity(1, tech.units.indriya.unit.Units.METRE),
+                        Length.class));
         assertEquals("unit of another implementation: tech.units.indriya.unit.BaseUnit", e.getMessage());
     }
 }

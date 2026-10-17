@@ -12,111 +12,97 @@ package org.tinygears.uom.nativeapi.jsr;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
-import org.tinygears.uom.nativeapi.Length;
+import org.tinygears.uom.core.quantity.UntypedDecimalQuantity;
+import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
+import org.tinygears.uom.core.quantity.UomQuantity;
 import org.tinygears.uom.nativeapi.Quantity;
-import org.tinygears.uom.nativeapi.Speed;
-import org.tinygears.uom.nativeapi.Time;
+import org.tinygears.uom.nativeapi.Scale;
 import org.tinygears.uom.nativeapi.Unit;
+import org.tinygears.uom.nativeapi.Untyped;
+import org.tinygears.uom.quantity.QuantityTypes;
 
 /**
  * Converts between the native quantities and the JSR-385 quantities of uom. Both sides wrap the same engine units, so
- * a conversion copies the value, its number type and context, and wraps the unit; nothing is converted or rounded. A
- * decimal of another implementation's quantity has no context and counts as unlimited. The slice has no offset units,
- * so the scale is not carried.
+ * a conversion copies the value, its number type, scale and context, and wraps the unit; nothing is converted or
+ * rounded. A native type maps to the JSR-385 type of the same name ({@code Length} to
+ * {@code javax.measure.quantity.Length}), {@link Untyped} to an untyped quantity. A decimal of another
+ * implementation's quantity has no context and counts as unlimited.
  */
 public final class Jsr {
+    // javax.measure.quantity.Length by simple name; the 33 types share their names on both sides
+    private static final Map<String, Class<?>> STANDARD = QuantityTypes.types().stream()
+            .collect(Collectors.toUnmodifiableMap(Class::getSimpleName, Function.identity()));
 
     private Jsr() {
     }
 
     /**
-     * The JSR-385 length of a native one.
+     * The JSR-385 quantity of a native one.
      *
-     * @param length the native length
-     * @return the JSR-385 length, a {@code javax.measure.quantity.Length}
+     * @param quantity the native quantity
+     * @return the JSR-385 quantity: the typed interface of uom of the same name, or an untyped one
+     * @throws IllegalArgumentException for an untyped {@code RELATIVE} quantity, which JSR-385 untyped quantities
+     *     cannot carry
      */
-    public static org.tinygears.uom.quantity.Length toJsr(Length length) {
-        UomUnit<javax.measure.quantity.Length> unit = jsrUnit(length);
-        return length.value() instanceof BigDecimal d
-                ? org.tinygears.uom.quantity.Length
-                        .of(d, unit, javax.measure.Quantity.Scale.ABSOLUTE, length.mathContext())
-                : org.tinygears.uom.quantity.Length.of(length.value().doubleValue(), unit);
+    // the standard type is looked up by name, so its factory is one of a raw quantity type
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static UomQuantity<?, ?> toJsr(Quantity<?> quantity) {
+        Objects.requireNonNull(quantity, "quantity");
+        UomUnit<?> unit = UomUnit.of(quantity.unit().engine());
+        Number value = quantity.value();
+        MathContext mc = quantity.mathContext();
+        javax.measure.Quantity.Scale scale = quantity.scale() == Scale.RELATIVE
+                ? javax.measure.Quantity.Scale.RELATIVE
+                : javax.measure.Quantity.Scale.ABSOLUTE;
+        Class<?> standard = STANDARD.get(quantity.unit().type().getSimpleName());
+        if (standard == null) {
+            if (scale == javax.measure.Quantity.Scale.RELATIVE) {
+                throw new IllegalArgumentException("an untyped JSR-385 quantity is absolute: " + quantity);
+            }
+            return value instanceof BigDecimal d
+                    ? UntypedDecimalQuantity.of(d, unit, mc)
+                    : UntypedDoubleQuantity.of(value.doubleValue(), unit);
+        }
+        javax.measure.Quantity<?> q = QuantityTypes.factory((Class) standard).create(value, unit, scale);
+        return q instanceof AbstractDecimalQuantity<?, ?> d ? d.withMathContext(mc) : (UomQuantity<?, ?>) q;
     }
 
     /**
-     * The JSR-385 time of a native one.
+     * The JSR-385 quantity of a native one as {@code type}, such as {@code org.tinygears.uom.quantity.Length}.
      *
-     * @param time the native time
-     * @return the JSR-385 time
+     * @param <T> the typed interface
+     * @param quantity the native quantity
+     * @param type the typed interface of uom
+     * @return the JSR-385 quantity
      */
-    public static org.tinygears.uom.quantity.Time toJsr(Time time) {
-        UomUnit<javax.measure.quantity.Time> unit = jsrUnit(time);
-        return time.value() instanceof BigDecimal d
-                ? org.tinygears.uom.quantity.Time.of(d, unit, javax.measure.Quantity.Scale.ABSOLUTE, time.mathContext())
-                : org.tinygears.uom.quantity.Time.of(time.value().doubleValue(), unit);
+    public static <T extends UomQuantity<?, T>> T toJsr(Quantity<?> quantity, Class<T> type) {
+        return toJsr(quantity).as(type);
     }
 
     /**
-     * The JSR-385 speed of a native one.
+     * The native quantity of a JSR-385 one of this implementation, as {@code type}.
      *
-     * @param speed the native speed
-     * @return the JSR-385 speed
+     * @param <Q> the native quantity type
+     * @param quantity the JSR-385 quantity
+     * @param type the native quantity type, such as {@code Length.class}
+     * @return the native quantity
+     * @throws IllegalArgumentException if the unit is of another implementation or not one of {@code type}
      */
-    public static org.tinygears.uom.quantity.Speed toJsr(Speed speed) {
-        UomUnit<javax.measure.quantity.Speed> unit = jsrUnit(speed);
-        return speed.value() instanceof BigDecimal d
-                ? org.tinygears.uom.quantity.Speed
-                        .of(d, unit, javax.measure.Quantity.Scale.ABSOLUTE, speed.mathContext())
-                : org.tinygears.uom.quantity.Speed.of(speed.value().doubleValue(), unit);
-    }
-
-    /**
-     * The native length of a JSR-385 one of this implementation.
-     *
-     * @param length the JSR-385 length
-     * @return the native length
-     * @throws IllegalArgumentException if the unit is of another implementation
-     */
-    public static Length length(javax.measure.Quantity<javax.measure.quantity.Length> length) {
-        Unit<Length> unit = Unit.of(Length.class, engine(length.getUnit()));
-        return length.getValue() instanceof BigDecimal d
-                ? Length.of(d, unit, context(length))
-                : Length.of(length.getValue().doubleValue(), unit);
-    }
-
-    /**
-     * The native time of a JSR-385 one of this implementation.
-     *
-     * @param time the JSR-385 time
-     * @return the native time
-     * @throws IllegalArgumentException if the unit is of another implementation
-     */
-    public static Time time(javax.measure.Quantity<javax.measure.quantity.Time> time) {
-        Unit<Time> unit = Unit.of(Time.class, engine(time.getUnit()));
-        return time.getValue() instanceof BigDecimal d
-                ? Time.of(d, unit, context(time))
-                : Time.of(time.getValue().doubleValue(), unit);
-    }
-
-    /**
-     * The native speed of a JSR-385 one of this implementation.
-     *
-     * @param speed the JSR-385 speed
-     * @return the native speed
-     * @throws IllegalArgumentException if the unit is of another implementation
-     */
-    public static Speed speed(javax.measure.Quantity<javax.measure.quantity.Speed> speed) {
-        Unit<Speed> unit = Unit.of(Speed.class, engine(speed.getUnit()));
-        return speed.getValue() instanceof BigDecimal d
-                ? Speed.of(d, unit, context(speed))
-                : Speed.of(speed.getValue().doubleValue(), unit);
-    }
-
-    private static <J extends javax.measure.Quantity<J>> UomUnit<J> jsrUnit(Quantity<?> q) {
-        return UomUnit.unchecked(UomUnit.of(q.unit().engine()));
+    public static <Q extends Quantity<Q>> Q fromJsr(javax.measure.Quantity<?> quantity, Class<Q> type) {
+        Objects.requireNonNull(quantity, "quantity");
+        Unit<Untyped> unit = Unit.of(Untyped.class, engine(quantity.getUnit()));
+        Scale scale = quantity.getScale() == javax.measure.Quantity.Scale.RELATIVE ? Scale.RELATIVE : Scale.ABSOLUTE;
+        Untyped q = quantity.getValue() instanceof BigDecimal d
+                ? Untyped.of(d, unit, scale, context(quantity))
+                : Untyped.of(quantity.getValue().doubleValue(), unit, scale);
+        return q.as(type);
     }
 
     private static MathContext context(javax.measure.Quantity<?> q) {

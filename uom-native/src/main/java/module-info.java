@@ -16,4 +16,6 @@ module org.tinygears.uom.nativeapi {
     requires transitive org.tinygears.uom.engine;
 
     exports org.tinygears.uom.nativeapi;
+    exports org.tinygears.uom.nativeapi.quantity;
+    exports org.tinygears.uom.nativeapi.systems;
 }

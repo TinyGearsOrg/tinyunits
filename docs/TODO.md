@@ -120,12 +120,13 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 ## 33. A native API next to the JSR-385 implementation
 
-**Status:** open, proposal. JSR-385's generics (`Q extends Quantity<Q>`) keep our typed interfaces out of unit types and
-type tokens and rule out typed products. [NATIVE-API.md](NATIVE-API.md) proposes a JSR-free engine, a native API with
-its own `Unit<Q>` and `Quantity<Q>` over our types, and the JSR-385 implementation as a separate module, with a
-prototype plan.
+**Status:** decided (DESIGN DR-21), in progress on branch `native-prototype`: complete the split, the native API as
+`uom` and the JSR-385 implementation as `uom-jsr`. Done: the engine with the shared arithmetic, the 33 generated native
+types with typed products, the native catalogs, offset units, the bridge. Open: stage 4, native formats and systems
+(their parser and printer moved into the engine), `toSystem`, run-time `.units` files, serialization; stage 5, the
+renames, docs, examples and the TCK on `uom-jsr` ([NATIVE-API.md](NATIVE-API.md), "Progress").
 
-**Needed by:** decide before 1.0 (module boundaries and the public API).
+**Needed by:** before 1.0 (module boundaries and the public API).
 
 ## 34. Quantity products and offset sums recompute exact algebra
 

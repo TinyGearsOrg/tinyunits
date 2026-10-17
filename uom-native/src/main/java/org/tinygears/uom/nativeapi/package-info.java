@@ -9,9 +9,10 @@
  */
 
 /**
- * A prototype of the native API (docs/NATIVE-API.md): {@link org.tinygears.uom.nativeapi.Unit Unit&lt;Length&gt;}
- * takes this library's {@link org.tinygears.uom.nativeapi.Length}, and products of typed quantities are typed
- * ({@code Length.divide(Time)} is a {@link org.tinygears.uom.nativeapi.Speed}). A slice: length, time and speed, in
- * {@code double}.
+ * The native API of uom (docs/NATIVE-API.md): {@link org.tinygears.uom.nativeapi.Quantity} and
+ * {@link org.tinygears.uom.nativeapi.Unit} typed with this library's quantity types, so a unit is a
+ * {@code Unit<Length>} and the product of typed quantities is typed ({@code Length.divide(Time)} is a {@code Speed}).
+ * The types are generated into {@code org.tinygears.uom.nativeapi.quantity}, the catalogs into
+ * {@code org.tinygears.uom.nativeapi.systems}; the arithmetic is the engine's, shared with the JSR-385 quantities.
  */
 package org.tinygears.uom.nativeapi;

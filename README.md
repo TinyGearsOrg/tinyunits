@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1289 tests (engine 64, core 510, codegen 179, uom 409, tck 113, examples 2, native 8, native-jsr 4). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1306 tests (engine 64, core 510, codegen 188, uom 409, tck 113, examples 2, native 11, native-jsr 9). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
@@ -88,8 +88,9 @@ transitively).
 - `uom-codegen`: the generator (internal, not published).
 - `uom-tck`: runs the JSR-385 TCK against `uom` (test only, not published).
 - `uom-examples`: runnable usage examples (not published); see below.
-- `uom-native` and `uom-native-jsr`: the prototype of a native API on the engine and its bridge to the JSR-385
-  quantities (not published; [docs/NATIVE-API.md](docs/NATIVE-API.md)).
+- `uom-native` and `uom-native-jsr`: the prototype of a native API on the engine (the 33 types with typed products,
+  the eight catalogs, generated) and its bridge to the JSR-385 quantities (not published;
+  [docs/NATIVE-API.md](docs/NATIVE-API.md)).
 
 Build and test everything: `mvn -q -B clean verify` (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 

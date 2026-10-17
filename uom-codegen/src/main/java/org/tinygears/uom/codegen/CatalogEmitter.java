@@ -193,7 +193,7 @@ public final class CatalogEmitter {
     }
 
     /** The constant of a system unit named by its type's line: {@code metre per second} is {@code METRE_PER_SECOND}. */
-    private static String constantName(QuantityTypeSpec t) {
+    static String constantName(QuantityTypeSpec t) {
         return t.systemName().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]", "_");
     }
 

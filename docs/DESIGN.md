@@ -363,6 +363,24 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Revisit if.* A real catalog needs to declare an alternate unit of another atom as the preferred unit of a type.
 - *See.* docs/CUSTOM-UNITS.md, `@preferred`; `UserUnitsTest.preferredErrors`, `CatalogBuilderTest`.
 
+**DR-21 A native API next to the JSR-385 implementation (in progress).**
+- *Decision.* Complete the split of docs/NATIVE-API.md: the native API, with its own `Quantity<Q>` and `Unit<Q>` over
+  this library's types, becomes the artifact `uom` (packages `org.tinygears.uom.*`), the JSR-385 implementation moves
+  to `uom-jsr` (`org.tinygears.uom.jsr.*`); both build on `uom-engine` and its quantity arithmetic. The native API keeps
+  the JSR-385 model of offsets, a `Scale` on the quantity. Until the renames it lives in `uom-native`
+  (`org.tinygears.uom.nativeapi`).
+- *Why.* Inside JSR-385 our types cannot be unit type parameters or type tokens and products cannot be typed (section
+  1 of NATIVE-API.md). The prototype showed both are solved by a native API, that the engine carries the algebra,
+  parser and arithmetic for both (the arithmetic moved without a change of results or speed), and that a conversion
+  between the APIs costs about one arithmetic operation.
+- *Rejected.* Keeping the single JSR-385 implementation (the workarounds stay: `var`, `as`, untyped products). The
+  native API with the JSR-385 side as thin wrappers over it: one extra object per JSR operation, and the native API
+  would have to cover all of JSR-385 before the adapter works. Separate point and difference types (`Temperature`,
+  `TemperatureDifference`) instead of `Scale`: a new design, and the bridge would map a scale to a type.
+- *Revisit if.* Keeping two APIs in step (formats, systems, serialization, documentation) costs more than users of the
+  native API gain; then one of the rejected options.
+- *See.* docs/NATIVE-API.md; `NativeQuantityTest`, `ParityTest`, `RelationsParserTest`, `NativeGenerationTest`.
+
 ## 2. Modules and data flow
 
 ```
@@ -385,8 +403,8 @@ behaviour for users is in the linked documents. The full discussion and probe re
 | `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
 | `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
 | `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
-| `uom-native` | Prototype of a native API on `uom-engine` (docs/NATIVE-API.md): `Unit<Length>` with this library's types, typed products, `double` and decimal quantities on the engine's arithmetic; no JSR-385 types | no |
-| `uom-native-jsr` | Prototype bridge between the native and the JSR-385 quantities (`Jsr`) | no |
+| `uom-native` | Prototype of the native API on `uom-engine` (docs/NATIVE-API.md): `Quantity`, `Unit<Length>` with this library's types, `Scale`, `Untyped`; generated, the 33 types with the typed products of `data/quantity-relations.txt` and the eight catalogs; `double` and decimal quantities on the engine's arithmetic; no JSR-385 types | no |
+| `uom-native-jsr` | Prototype bridge between the native and the JSR-385 quantities (`Jsr.toJsr`, `Jsr.fromJsr`), and the parity tests of the two APIs | no |
 
 Dependencies: `uom` -> `uom-core` -> `uom-engine`, and `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core` and the
 Eclipse JDT formatter jars, on the class path (they split packages, so the generator is not a named module). Module
@@ -582,7 +600,8 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
 ## 5. Data files, generator and parser
 
 Files live in `data/`: `quantity-types.txt` (quantity types and their system units, built from
-the standard's 33 types, no extras) and one `.units` file per unit system: `si.units`, `us-customary.units`,
+the standard's 33 types, no extras), `quantity-relations.txt` (the relations between the types that give the native
+API its typed products, such as `Speed = Length / Time`) and one `.units` file per unit system: `si.units`, `us-customary.units`,
 `imperial.units`, `cgs.units`, `cgs-esu.units`, `cgs-emu.units` and `cgs-gaussian.units`. They are not shipped as
 resources: the catalogs are generated only, and users load their own files at run time (below).
 
@@ -591,7 +610,11 @@ and the eight `.units` files listed in `Generate.CATALOGS` (`si.units` first) an
 `uom/src/main/java/org/tinygears/uom/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
 `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`) into `uom/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
 file missing from the list is caught by the data-versus-list test, not by the generator. `Generate` takes
-three arguments: `<dataDir> <quantitiesOut> <systemsOut>`.
+four arguments: `<dataDir> <quantitiesOut> <systemsOut> <docsOut>`. `GenerateNative` writes the native API from the
+same files and `quantity-relations.txt` (`<dataDir> <quantitiesOut> <systemsOut>`): per type an interface with its
+factories, `SYSTEM_UNIT` and typed products and a class, the registry `QuantityTypes`, and the eight catalogs with
+`Unit<Length>` constants built from engine units; it refuses a relation whose dimensions disagree and a method two
+relations imply. The `generate` profile runs both.
 
 - `data/si.units` holds the SI definitions (BIPM SI Brochure, 9th edition) and the curated
   `@prefixed` lines; it yields 128

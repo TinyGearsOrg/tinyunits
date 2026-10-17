@@ -114,20 +114,9 @@ public final class Generate {
      * {@code config/eclipse-java-formatter.xml} next to {@code dataDir}, as Spotless formats the hand-written ones.
      */
     public static Output generate(Path dataDir) {
-        Map<String, Definitions> parsed = new LinkedHashMap<>();
-        for (String file : CATALOGS) {
-            parsed.put(file, parse(dataDir, file));
-        }
+        Map<String, Definitions> parsed = catalogs(dataDir);
         Definitions si = parsed.get(CATALOGS.get(0));
-        List<QuantityTypeSpec> specs;
-        try (Reader in = open(dataDir, TYPES)) {
-            specs = QuantityTypesParser.parse(TYPES, in, si);
-        } catch (IOException | UncheckedIOException e) {
-            throw new GenerationException(TYPES, 0, "cannot read " + TYPES, e);
-        }
-        if (specs.isEmpty()) {
-            throw new GenerationException(TYPES, 0, "no quantity types defined");
-        }
+        List<QuantityTypeSpec> specs = types(dataDir, si);
         Map<String, String> files = new TreeMap<>();
         for (QuantityTypeSpec s : specs) {
             files.put(s.name() + ".java", SourceEmitter.typedInterface(s));
@@ -146,8 +135,7 @@ public final class Generate {
                         CatalogEmitter
                                 .catalog(c, parsed.get(file), file.equals(CATALOGS.get(0)) ? unnamed : List.of())));
         // Formatted as Spotless formats the hand-written sources, so a generated file is also formatted.
-        JavaFormatter formatter = new JavaFormatter(
-                dataDir.toAbsolutePath().normalize().resolveSibling("config").resolve("eclipse-java-formatter.xml"));
+        JavaFormatter formatter = formatter(dataDir);
         files.replaceAll(formatter::format);
         systems.replaceAll(formatter::format);
         return new Output(
@@ -156,7 +144,36 @@ public final class Generate {
                 Map.of("UNITS.md", UnitTableEmitter.table(catalogs, specs)));
     }
 
-    private static Definitions parse(Path dataDir, String file) {
+    /** The catalog files parsed, in {@link #CATALOGS} order. */
+    static Map<String, Definitions> catalogs(Path dataDir) {
+        Map<String, Definitions> parsed = new LinkedHashMap<>();
+        for (String file : CATALOGS) {
+            parsed.put(file, parse(dataDir, file));
+        }
+        return parsed;
+    }
+
+    /** The quantity types of {@code data/quantity-types.txt}, evaluated in the SI definitions. */
+    static List<QuantityTypeSpec> types(Path dataDir, Definitions si) {
+        List<QuantityTypeSpec> specs;
+        try (Reader in = open(dataDir, TYPES)) {
+            specs = QuantityTypesParser.parse(TYPES, in, si);
+        } catch (IOException | UncheckedIOException e) {
+            throw new GenerationException(TYPES, 0, "cannot read " + TYPES, e);
+        }
+        if (specs.isEmpty()) {
+            throw new GenerationException(TYPES, 0, "no quantity types defined");
+        }
+        return specs;
+    }
+
+    /** {@code config/eclipse-java-formatter.xml} next to {@code dataDir}, the profile Spotless formats with. */
+    static JavaFormatter formatter(Path dataDir) {
+        return new JavaFormatter(
+                dataDir.toAbsolutePath().normalize().resolveSibling("config").resolve("eclipse-java-formatter.xml"));
+    }
+
+    static Definitions parse(Path dataDir, String file) {
         try (Reader in = open(dataDir, file)) {
             return DefinitionParser.parse(file, in, name -> open(dataDir, name));
         } catch (DefinitionException e) {
@@ -167,11 +184,11 @@ public final class Generate {
         }
     }
 
-    private static Reader open(Path dataDir, String name) throws IOException {
+    static Reader open(Path dataDir, String name) throws IOException {
         return Files.newBufferedReader(dataDir.resolve(name), StandardCharsets.UTF_8);
     }
 
-    private static List<String> differences(Map<String, String> files, Path outDir) throws IOException {
+    static List<String> differences(Map<String, String> files, Path outDir) throws IOException {
         List<String> problems = new ArrayList<>();
         for (Map.Entry<String, String> f : files.entrySet()) {
             Path p = outDir.resolve(f.getKey());
@@ -188,7 +205,7 @@ public final class Generate {
     }
 
     /** A target that exists and is not generated-looking is hand-written and must not be overwritten. */
-    private static void refuseHandWritten(Map<String, String> files, Path outDir) throws IOException {
+    static void refuseHandWritten(Map<String, String> files, Path outDir) throws IOException {
         for (String name : files.keySet()) {
             Path p = outDir.resolve(name);
             if (Files.isRegularFile(p) && !isGenerated(p)) {
@@ -197,7 +214,7 @@ public final class Generate {
         }
     }
 
-    private static void write(Map<String, String> files, Path outDir) throws IOException {
+    static void write(Map<String, String> files, Path outDir) throws IOException {
         Files.createDirectories(outDir);
         for (Map.Entry<String, String> f : files.entrySet()) {
             Files.write(outDir.resolve(f.getKey()), f.getValue().getBytes(StandardCharsets.UTF_8));

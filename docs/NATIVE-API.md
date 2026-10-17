@@ -1,9 +1,11 @@
 # A native API next to the JSR-385 implementation
 
-**Status:** proposal, not decided (TODO item 33). Section 1 describes the code as it is, sections 2 to 6 propose. A
-decision gets a record in [DESIGN.md](DESIGN.md) section 1.
+**Status:** decided, in progress: complete the split ([DESIGN.md](DESIGN.md) DR-21; TODO item 33). Section 1
+describes the JSR-385 constraint, sections 2 to 6 the proposal the prototype tested.
 
-**Progress** (branch `native-prototype`): step 1 is done; step 2 (the judgement) is next.
+**Progress** (branch `native-prototype`): the prototype (steps 1 and 2) is done and the split decided (DR-21);
+completing it runs in five stages: (1) the 33 types generated with typed products, (2) the catalogs, (3) offset units,
+(4) formats and systems, (5) the renames to `uom` and `uom-jsr`, docs, examples and the TCK. Stages 1 to 3 are done.
 - Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException`, `Converter`
   (affine, exact, with its steps) and `Unit` (atoms, converter, labels, the algebra and the converter cache) and, in
   `internal`, the alternate-unit registry, the catalog service (`UnitCatalogs` through `ServiceLoader`, which `uom`
@@ -45,8 +47,18 @@ decision gets a record in [DESIGN.md](DESIGN.md) section 1.
   unit. The JSR-385 side builds the product unit on every call (the engine's `m.divide(s)` alone takes 1.5 µs), and
   the `double` sum through an offset unit inverts the converter to the system unit on every call (1.2 µs with exact
   factors); caching both is TODO item 34.
-- Next: the decision of section 6 (complete the split, keep one JSR-385 implementation, or ship the native API with
-  the JSR-385 side as an adapter).
+- Stages 1 to 3: `GenerateNative` writes, from the data files of the JSR-385 side and
+  `data/quantity-relations.txt` (22 relations, 86 typed methods), the 33 native types (interface with factories,
+  `SYSTEM_UNIT` and typed products, and a class; 5679 lines with the registry) and the eight catalogs with
+  `Unit<Length>` constants built from engine units (2450 lines). The hand-written base (`Quantity`, `Unit`, `Scale`,
+  `Untyped`, `AbstractQuantity`, `BaseUnits`) is 1082 lines with Javadoc; offsets and `Scale` follow the JSR-385 rules
+  through the shared kernel. `ParityTest` checks that the two sides hold the same 321 catalog units and 33 system units,
+  and that sums, differences, products, quotients, scalars, conversions, comparisons, equivalence and closeness give
+  the same value, scale, unit and context for lengths and temperatures in both number types and scales. A typed
+  `double` add takes 10 to 11 ns, a typed `divide(Time)` 7 ns (JDK 25).
+- Not yet native: formats (unit and quantity, parse and print), `SystemOfUnits` and `toSystem`, user `.units` files at
+  run time, serialization, a `ServiceProvider`. Those are stage 4; the formats need their parser and printer moved
+  into the engine, as the arithmetic was.
 
 ## 1. The constraint
 
