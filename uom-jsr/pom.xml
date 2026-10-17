@@ -41,25 +41,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-testCompile</id>
-            <configuration>
-              <!-- DocsSnippetsTest compiles the java blocks of the documents with javax.tools -->
-              <compilerArgs combine.children="append">
-                <arg>--add-modules</arg>
-                <arg>java.compiler</arg>
-                <arg>--add-reads</arg>
-                <arg>org.tinygears.uom.jsr=java.compiler</arg>
-              </compilerArgs>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>

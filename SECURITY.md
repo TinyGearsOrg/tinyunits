@@ -14,13 +14,13 @@ see. Reports are answered on a best-effort basis; a fix is released before the d
 
 ## Java serialization
 
-Units and quantities are `Serializable` through serialization proxies. A proxy rebuilds the object through the public
+Units and quantities of both APIs are `Serializable` through serialization proxies. A proxy rebuilds the object through the public
 factories, so reading re-checks the invariants and a forged stream that violates them fails with
 `InvalidObjectException`. The steps of a multi-step converter that cannot be checked against its factor and offset
 (a part over 4096 bits) are dropped, so it reads as one step. An alternate atom whose symbol is not registered, even
 after the catalogs are loaded (an atom of a user `.units` file that is not loaded), cannot be checked and reads as an
-unregistered atom. A quantity reads back through the factory of this implementation's provider, else of the current
-`ServiceProvider`. Systems and formats are not serializable. The serialized form may change in any release
+unregistered atom. A quantity of `uom` reads back through the factory of its type; one of `uom-jsr` through the factory
+of this implementation's provider, else of the current `ServiceProvider`. Systems and formats are not serializable. The serialized form may change in any release
 before 1.0 (see [docs/API.md](docs/API.md)).
 
 The checks run after the JDK has read the stream: the JDK allocates its arrays and strings, and resolves its classes,
@@ -29,14 +29,16 @@ and allows only the needed classes. This filter, also used by `serialization()` 
 [`Examples.java`](uom-examples/src/main/java/org/tinygears/uom/examples/Examples.java), is a starting point:
 
 ```
-maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;org.tinygears.uom.engine.*;org.tinygears.uom.jsr.**;javax.measure.**;java.lang.*;java.math.*;!*
+maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;org.tinygears.uom.**;javax.measure.**;java.lang.*;java.math.*;!*
 ```
 
-`org.tinygears.uom.jsr.**` also covers the quantity classes the proxies resolve to, which the filter checks too. Set it for the whole JVM with `-Djdk.serialFilter=<filter>`, or per stream:
+`org.tinygears.uom.**` covers the engine and both APIs, including the quantity classes the proxies resolve to, which the
+filter checks too; `javax.measure.**` is needed for `uom-jsr` only. Set it for the whole JVM with
+`-Djdk.serialFilter=<filter>`, or per stream:
 
 ```java
 String filter = "maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;"
-        + "org.tinygears.uom.engine.*;org.tinygears.uom.jsr.**;javax.measure.**;java.lang.*;java.math.*;!*";
+        + "org.tinygears.uom.**;javax.measure.**;java.lang.*;java.math.*;!*";
 Length length = Length.of(new BigDecimal("1.50"), SI.KILOMETRE);
 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {

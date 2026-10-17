@@ -68,8 +68,9 @@ skip them.
 - `ApiSurfaceTest` pins the public API to `docs/api/public-api.txt`. A deliberate API change rewrites the file with
   `mvn -B verify -Duom.writeApi`, and its diff is part of the change ([docs/API.md](docs/API.md)).
 - `DocsSnippetsTest` runs the `units`, `units-error` and `java` blocks of `README.md`, `docs/CUSTOM-UNITS.md`,
-  `docs/OFFSET-UNITS.md`, `docs/PROVIDERS.md`, `docs/INDRIYA.md` and `SECURITY.md`: keep them true when the behaviour
-  changes.
+  `docs/OFFSET-UNITS.md`, `docs/PROVIDERS.md`, `docs/INDRIYA.md` and `SECURITY.md`: a `java` block compiles against
+  `uom`, a `java jsr` block against `uom-jsr`, and a `units` block loads with both, which must agree. Keep them true
+  when the behaviour changes.
 - Release checks: `bash scripts/check-pom.sh` (POM metadata and release profile; `--self-test` proves its checks
   fail), `bash scripts/check-javadoc.sh` (no javadoc warnings in the published modules),
   `bash scripts/verify-release.sh` (release artifacts, reproducibility, jlink and a consumer project; uploads nothing;

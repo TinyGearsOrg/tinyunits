@@ -4,12 +4,13 @@ Some units have an offset: `0 °C` is `273.15 K`, and `32 °F` is `0 °C`. The s
 things: a **point** on the scale ("it is 20 °C outside") or a **difference** between two points ("it is 5 °C warmer").
 A point converts through the offset (20 °C is 293.15 K); a difference does not (a rise of 5 °C is a rise of 5 K).
 
-uom keeps the two apart with the standard `Quantity.Scale` of every quantity:
+uom keeps the two apart with the scale of every quantity: `Scale` in `uom`, the standard `Quantity.Scale` in `uom-jsr`,
+with the same values and the same rules in both. The examples use `uom`:
 
 | Scale | Meaning | How to get one |
 |---|---|---|
 | `ABSOLUTE` (default) | a point; conversions apply the offset | `Temperature.of(20, SI.DEGREE_CELSIUS)` |
-| `RELATIVE` | a difference; conversions use the factor only | `Temperature.of(5, SI.DEGREE_CELSIUS, Quantity.Scale.RELATIVE)` |
+| `RELATIVE` | a difference; conversions use the factor only | `Temperature.of(5, SI.DEGREE_CELSIUS, Scale.RELATIVE)` |
 
 For a unit without an offset (metre, kelvin, hertz, ...) the scale makes no difference to any result. It is kept and
 compared by `equals`, written by serialization and not written by the format; a parse always gives `ABSOLUTE`.
@@ -36,8 +37,8 @@ converted to the system unit, combined, and the result converted back to the uni
 not mention `Scale`. For a unit without an offset the rule is plain arithmetic. For an offset unit it gives results
 that are correct for conversion but odd for sums of points, because adding two points has no physical meaning.
 
-A quantity-by-quantity product returns an `ABSOLUTE` quantity in system units without a typed class, whatever the scales
-of the operands.
+A quantity-by-quantity product returns an `ABSOLUTE` quantity in system units, whatever the scales of the operands:
+typed where a relation between the types is declared (`uom`), else untyped.
 
 ## Derived units: °C/m, J/(kg·°C)
 
@@ -56,7 +57,7 @@ A point plus a difference is a point; a difference converts without the offset:
 
 ```java
 Temperature boiling = Temperature.of(100, SI.DEGREE_CELSIUS);
-Temperature rise = Temperature.of(5, SI.DEGREE_CELSIUS, Quantity.Scale.RELATIVE);
+Temperature rise = Temperature.of(5, SI.DEGREE_CELSIUS, Scale.RELATIVE);
 System.out.println(boiling.add(rise));            // prints: 105.0 °C
 System.out.println(rise.to(SI.KELVIN));           // prints: 5.0 K
 System.out.println(boiling.to(SI.KELVIN));        // prints: 373.15 K
@@ -66,7 +67,7 @@ A difference in kelvin is added to a point in degrees Celsius by its size, not t
 
 ```java
 Temperature start = Temperature.of(2, SI.DEGREE_CELSIUS);
-Temperature gain = Temperature.of(5, SI.KELVIN, Quantity.Scale.RELATIVE);
+Temperature gain = Temperature.of(5, SI.KELVIN, Scale.RELATIVE);
 System.out.println(start.add(gain));              // prints: 7.0 °C
 System.out.println(start.subtract(gain));         // prints: -3.0 °C
 ```
@@ -74,11 +75,11 @@ System.out.println(start.subtract(gain));         // prints: -3.0 °C
 Two differences give a difference, and a difference can be scaled:
 
 ```java
-Temperature a = Temperature.of(2, SI.DEGREE_CELSIUS, Quantity.Scale.RELATIVE);
-Temperature b = Temperature.of(1, SI.DEGREE_CELSIUS, Quantity.Scale.RELATIVE);
+Temperature a = Temperature.of(2, SI.DEGREE_CELSIUS, Scale.RELATIVE);
+Temperature b = Temperature.of(1, SI.DEGREE_CELSIUS, Scale.RELATIVE);
 System.out.println(a.add(b));                     // prints: 3.0 °C
 System.out.println(a.multiply(2));                // prints: 4.0 °C
-System.out.println(a.isEquivalentTo(Temperature.of(2, SI.KELVIN, Quantity.Scale.RELATIVE))); // prints: true
+System.out.println(a.isEquivalentTo(Temperature.of(2, SI.KELVIN, Scale.RELATIVE))); // prints: true
 ```
 
 Two points follow the literal rule (the default scale is `ABSOLUTE`):
@@ -97,21 +98,21 @@ difference when it should convert without the offset:
 ```java
 Temperature later = Temperature.of(25, SI.DEGREE_CELSIUS);
 Temperature earlier = Temperature.of(20, SI.DEGREE_CELSIUS);
-Quantity<?> kelvin = later.to(SI.KELVIN).subtract(earlier.to(SI.KELVIN));
-Temperature difference = Temperature.of(kelvin.getValue().doubleValue(), SI.KELVIN, Quantity.Scale.RELATIVE);
+Temperature kelvin = later.to(SI.KELVIN).subtract(earlier.to(SI.KELVIN));
+Temperature difference = Temperature.of(kelvin.value().doubleValue(), SI.KELVIN, Scale.RELATIVE);
 System.out.println(difference.to(SI.DEGREE_CELSIUS)); // prints: 5.0 °C
 ```
 
 A difference divided by a length is a gradient, and the derived units parse and convert by their factor:
 
 ```java
-Temperature rise = Temperature.of(20, SI.DEGREE_CELSIUS, Quantity.Scale.RELATIVE);
+Temperature rise = Temperature.of(20, SI.DEGREE_CELSIUS, Scale.RELATIVE);
 Temperature point = Temperature.of(20, SI.DEGREE_CELSIUS);
 Length two = Length.of(2, SI.METRE);
 System.out.println(rise.divide(two));             // prints: 10.0 K/m
 System.out.println(point.divide(two));            // prints: 146.575 K/m
-System.out.println(UomUnitFormat.standard().parse("°C/m").equals(UomUnitFormat.standard().parse("K/m"))); // prints: true
-System.out.println(UomUnitFormat.standard().parse("J/(kg·°C)").equals(UomUnitFormat.standard().parse("J/(kg·K)"))); // prints: true
+System.out.println(UnitFormat.standard().parse("°C/m").equals(UnitFormat.standard().parse("K/m"))); // prints: true
+System.out.println(UnitFormat.standard().parse("J/(kg·°C)").equals(UnitFormat.standard().parse("J/(kg·K)"))); // prints: true
 System.out.println(SI.DEGREE_CELSIUS.divide(SI.METRE));  // prints: °C/m
 ```
 

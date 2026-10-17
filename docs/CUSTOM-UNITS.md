@@ -1,12 +1,14 @@
 # Custom units
 
-A `.units` file defines units in text. `UomSystemOfUnits.load` reads one at run time and returns a system of units
-that formats, parses and converts like the built-in catalogs. The built-in catalogs (`SI`, `USCustomary`, `Imperial`,
+A `.units` file defines units in text. `SystemOfUnits.load` reads one at run time and returns a system of units
+that formats, parses and converts like the built-in catalogs. The examples use `uom`; in `uom-jsr` the same classes are
+`SystemOfUnits`, `UnitFormat` and `QuantityFormat`, with the same rules and messages. The built-in catalogs (`SI`, `USCustomary`, `Imperial`,
 `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`, see [UNITS.md](UNITS.md)) are generated from files in the same syntax in
 [`data/`](../data); those files are not shipped, and a few constructs only matter to the generator (noted below).
 
 Every `units` and `java` block of this document is loaded, compiled and, where it shows `// prints:`, run by
-`DocsSnippetsTest`; every `units-error` block fails with the message of its `# error:` line.
+`DocsSnippetsTest`; every `units-error` block fails with the message of its `# error:` line. The `units` blocks are
+loaded by both APIs.
 
 ## A first file
 
@@ -28,55 +30,56 @@ String text = """
         @prefixed league k
         @preferred Length furlong
         """;
-UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval.units", new StringReader(text), null);
-UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
+SystemOfUnits medieval = SystemOfUnits.load("medieval.units", new StringReader(text), null);
+QuantityFormat format = new QuantityFormat(UnitFormat.standard().with(medieval));
 Quantity<?> parsed = format.parse("2 league");
-Length distance = Length.from(parsed);
-System.out.println(medieval.getName() + " " + medieval.getUnits());  // prints: Medieval [league, furlong, rod, kleague]
+Length distance = parsed.as(Length.class);
+System.out.println(medieval.name() + " " + medieval.units());  // prints: Medieval [league, furlong, rod, kleague]
 System.out.println(distance.toSystem(medieval));                          // prints: 48.0 furlong
 System.out.println(distance.to(SI.KILOMETRE));                      // prints: 9.656064 km
-System.out.println(Length.from(format.parse("1 Mleague")).to(SI.KILOMETRE));
+System.out.println(format.parse("1 Mleague").as(Length.class).to(SI.KILOMETRE));
 // prints: 4828032.0 km
 ```
 
-The units are `Unit<?>`: a loaded file cannot add Java types, so `asType` narrows a quantity to one of the 33
-standard quantity types, and the typed interfaces of `org.tinygears.uom.jsr.quantity` take it from there.
+A loaded file cannot add Java types: a unit gets the quantity type of its system unit (the league is a `Unit<Length>`),
+else it is a `Unit<Untyped>`, and `as` narrows a parsed quantity to one of the 33 types. In `uom-jsr` the loaded units
+are `Unit<?>`, narrowed with `asType`.
 
 ## Loading
 
-- `UomSystemOfUnits.load(Path file)` reads the file as UTF-8. `@include` and `@extends` names, in nested files too,
+- `SystemOfUnits.load(Path file)` reads the file as UTF-8. `@include` and `@extends` names, in nested files too,
   resolve against the directory of this root file (one flat namespace). A name must be relative and stay inside that
   directory, both as written and after resolving symbolic links, else it cannot be included. The system name is the
   `@system` name, else the file name without its extension. An unreadable root file throws `IOException`
   (`NoSuchFileException`, `MalformedInputException` when it is not UTF-8).
-- `UomSystemOfUnits.load(String name, Reader reader, DefinitionParser.Resolver resolver)` reads from any `Reader` (not
+- `SystemOfUnits.load(String name, Reader reader, DefinitionParser.Resolver resolver)` reads from any `Reader` (not
   closed). `name` is used in messages and, verbatim with its extension, as the system name when there is no `@system`
   line. `resolver` opens included and extended files by name (null: none, so `@include` and `@extends` fail).
 - An error in a file, included files too, throws `DefinitionException` with the message `file:line: text`.
 - Nothing is registered globally, except `~` lines (see the caveats). To parse and format the new symbols, add the
-  system to a format: `UomUnitFormat.standard().with(system)` returns a new format and leaves the old one unchanged.
+  system to a format: `UnitFormat.standard().with(system)` returns a new format and leaves the old one unchanged.
 
 ```java
-UomSystemOfUnits fromFile = UomSystemOfUnits.load(Path.of("units/medieval.units"));
+SystemOfUnits fromFile = SystemOfUnits.load(Path.of("units/medieval.units"));
 ```
 
 ```java
 Map<String, String> files = Map.of(
         "common.units", "league:league 3 mi\n",
         "shop.units", "@include common.units\nleagues:double_league 2 league\n");
-UomSystemOfUnits shop = UomSystemOfUnits.load("shop.units", new StringReader(files.get("shop.units")),
+SystemOfUnits shop = SystemOfUnits.load("shop.units", new StringReader(files.get("shop.units")),
         name -> files.containsKey(name) ? new StringReader(files.get(name)) : null);
-System.out.println(shop.getName() + " " + shop.getUnits());  // prints: shop.units [leagues]
+System.out.println(shop.name() + " " + shop.units());  // prints: shop.units [leagues]
 ```
 
 `with` rejects a symbol of the new system that already means a different unit in the format, so two user systems that
 define the same symbol differently cannot share one format:
 
 ```java
-UomSystemOfUnits a = UomSystemOfUnits.load("a.units", new StringReader("@system A\nxx 1 m\n"), null);
-UomSystemOfUnits b = UomSystemOfUnits.load("b.units", new StringReader("@system B\nxx 2 m\n"), null);
+SystemOfUnits a = SystemOfUnits.load("a.units", new StringReader("@system A\nxx 1 m\n"), null);
+SystemOfUnits b = SystemOfUnits.load("b.units", new StringReader("@system B\nxx 2 m\n"), null);
 try {
-    UomUnitFormat.standard().with(a, b);
+    UnitFormat.standard().with(a, b);
 } catch (IllegalArgumentException e) {
     System.out.println(e.getMessage());  // prints: symbol 'xx' of B is a different unit in A
 }
@@ -101,7 +104,7 @@ symbol[:name] body [Type] # comment
 - **body**: a formula (the next section), or one of the special forms: `= f(x)` after a formula (affine unit), `~`
   (alternate unit) or `!` (base unit).
 - **[Type]**: a quantity type name such as `[Speed]`, spelled `[A-Z][A-Za-z0-9]*`. The generator uses it to type the
-  catalog constants; at run time only its spelling is checked, so narrow quantities with `asType` instead.
+  catalog constants; at run time only its spelling is checked, and a unit is typed by its system unit.
 
 A definition must come before its use: there is one pass and no forward reference.
 
@@ -134,13 +137,13 @@ shift   = ("+" | "-") number                      only at the end, never inside 
 - An exponent is `^n` or superscript digits glued to a symbol, a `pi` or a `)`: `m/s²`, `s⁻¹`, `kg·m²/s³`, `(m/s)²`
   (the digits `⁰¹²³⁴⁵⁶⁷⁸⁹` and `⁻`). A symbol that is a unit as a whole wins, so the catalog's `m²` and `cm²` are what
   they are, and `km²` is `(km)^2`. Superscripts are read everywhere a formula is, also in `.units` files.
-- `UomUnitFormat` writes `^n` by default (`m/s^2`); `withSuperscripts(true)` returns a format that writes superscripts
-  (`m/s²`), also through a `UomQuantityFormat` over it. `toString` of units and quantities stays ASCII. An exponent right
+- `UnitFormat` writes `^n` by default (`m/s^2`); `withSuperscripts(true)` returns a format that writes superscripts
+  (`m/s²`), also through a `QuantityFormat` over it. `toString` of units and quantities stays ASCII. An exponent right
   after a symbol that already ends in a superscript keeps its caret (`m²^2`), because `m²²` would read as `m^22`.
 
 ```java
-UomUnitFormat ascii = UomUnitFormat.standard();
-UomUnitFormat unicode = ascii.withSuperscripts(true);
+UnitFormat ascii = UnitFormat.standard();
+UnitFormat unicode = ascii.withSuperscripts(true);
 System.out.println(ascii.format(ascii.parse("m/s²")));          // prints: m/s^2
 System.out.println(unicode.format(ascii.parse("m/s^2")));       // prints: m/s²
 System.out.println(unicode.format(ascii.parse("kg·m²/s³")));    // prints: kg·m²/s³
@@ -274,9 +277,9 @@ stage 2 league                   # Road has stage, league and kleague; Length pr
 Map<String, String> files = Map.of(
         "common.units", "@system Common\nleague:league 3 mi\n@prefixed league k\n@preferred Length league\n",
         "road.units", "@system Road\n@extends common.units\nstage 2 league\n");
-UomSystemOfUnits road = UomSystemOfUnits.load("road.units", new StringReader(files.get("road.units")),
+SystemOfUnits road = SystemOfUnits.load("road.units", new StringReader(files.get("road.units")),
         name -> files.containsKey(name) ? new StringReader(files.get(name)) : null);
-System.out.println(road.getUnits());                     // prints: [stage, league, kleague]
+System.out.println(road.units());                     // prints: [stage, league, kleague]
 System.out.println(Length.of(1, SI.KILOMETRE).toSystem(road)); // prints: 0.207123730745778 league
 System.out.println(road.isPrefixable("league"));         // prints: true
 ```
@@ -299,7 +302,7 @@ step 0.75 m
 Sets the unit `quantity.toSystem(system)` converts to for one of the 33 standard quantity types (simple name, such as
 `Length` or `MagneticFlux`). The unit must be defined in the user files before this line, be a unit of the system and
 have the type's system unit, not only its dimension: an alternate unit of another atom is refused (`Bq` is not a
-preferred unit for `Frequency`, though `asType` views a becquerel quantity as one). One line per type. A type without a line takes the first parent's preferred unit, else
+preferred unit for `Frequency`, though `as` (`asType` in `uom-jsr`) views a becquerel quantity as one). One line per type. A type without a line takes the first parent's preferred unit, else
 `SI`'s.
 
 ```units-error
@@ -326,7 +329,7 @@ league:league 3 mi
 # error: example.units:3: unit 'kleague' is already prefixed
 ```
 
-`UomUnitFormat.label` rejects a label that already reads as another unit, exactly or as a prefix on a prefixable unit
+`UnitFormat.label` rejects a label that already reads as another unit, exactly or as a prefix on a prefixable unit
 (`Gm` is the gigametre). In code, `Unit.prefix` only scales: the result has no symbol, because whether a prefix applies
 (`km`, but not `kmin` or `km²`) and what else the symbol means is known to a system, not to the unit; a system names
 the units of its `@prefixed` lines and a format reads and writes a prefix on a prefixable symbol: an unnamed
@@ -395,8 +398,8 @@ tick 1 s
 
 ## Symbols
 
-A user symbol must not be one that `UomUnitFormat.standard()` resolves: an exact catalog symbol, or a prefix on
-a prefixable catalog unit (`km`, `µs`, `GiB`). Labels added with `UomUnitFormat.label` are not visible to the loader.
+A user symbol must not be one that `UnitFormat.standard()` resolves: an exact catalog symbol, or a prefix on
+a prefixable catalog unit (`km`, `µs`, `GiB`). Labels added with `UnitFormat.label` are not visible to the loader.
 `@prefixed u k` checks only the generated `ku` against the built-in symbols, though every prefix `u` takes is
 readable at run time; an exact built-in symbol wins over such a reading.
 
@@ -423,6 +426,7 @@ not the micro sign U+00B5 of the metric prefix, and the ohm sign U+2126 is not t
   extension in both. Use `@system` for a stable name.
 - **Only user units in directives.** `@preferred`, `@member` and `@prefixed` name units of the user files; a built-in
   symbol such as `mi` is `unknown unit 'mi'` there (define an alias, `mile 1 mi`, if needed).
-- **Aliases.** A unit equal to another unit of the system (`marker 1 league`) is listed once by `getUnits()`, under
+- **Aliases.** A unit equal to another unit of the system (`marker 1 league`) is listed once by `units()`, under
   the first symbol; both symbols parse.
-- **`[Type]` is not checked at run time.** Only its spelling is; the loaded units are `Unit<?>`.
+- **`[Type]` is not checked at run time.** Only its spelling is; a loaded unit is typed by its system unit (`uom`) or is a
+  `Unit<?>` (`uom-jsr`).

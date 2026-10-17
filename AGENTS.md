@@ -33,7 +33,8 @@ conflicts with an explicit request from the user, ask before overriding it.
 - The public API is pinned by `ApiSurfaceTest`. A deliberate API change rewrites `docs/api/public-api.txt` with
   `mvn -B verify -Duom.writeApi`; review the diff, it is part of the change ([docs/API.md](docs/API.md)).
 - The `java`, `units` and `units-error` blocks of the user documents run in `DocsSnippetsTest` (the list is in that
-  test); a `// prints:` comment is the expected output. Keep them true when behaviour changes.
+  test); a `// prints:` comment is the expected output. A `java` block uses `uom`, a `java jsr` block `uom-jsr`; a
+  `units` block loads with both. Keep them true when behaviour changes.
 - The output of `uom-examples` is pinned twice: `ExamplesTest` and `scripts/consumer/expected-output.txt`, which
   `scripts/verify-release.sh` compares. Update both.
 - The README status paragraph states the test counts per module; update them when they change.

@@ -183,7 +183,7 @@ consumer() { # <repo>
   v=$(version_of "$repo")
   rm -rf "$c" && cp -r "$ROOT/scripts/consumer" "$c"
   mkdir -p "$c/src/main/java/org/tinygears/uom/examples"
-  cp "$ROOT/uom-examples/src/main/java/org/tinygears/uom/examples/Examples.java" "$c/src/main/java/org/tinygears/uom/examples/"
+  cp "$ROOT"/uom-examples/src/main/java/org/tinygears/uom/examples/*.java "$c/src/main/java/org/tinygears/uom/examples/"
   # module-info.java present: Maven compiles on the module path
   mvn_repo "$repo" -f "$c/pom.xml" -Duom.version="$v" package dependency:build-classpath \
     -Dmdep.outputFile="$c/classpath.txt" > "$tmp/consumer.log" 2>&1 \
@@ -196,7 +196,7 @@ consumer() { # <repo>
     [[ ":$cp:" == *":$repo/org/tinygears/$a/$v/$a-$v.jar:"* ]] || fail "consumer: $a not resolved from $repo"
   done
   mkdir -p "$c/cp"
-  javac --release 17 -encoding UTF-8 -cp "$cp" -d "$c/cp" "$c/src/main/java/org/tinygears/uom/examples/Examples.java" \
+  javac --release 17 -encoding UTF-8 -cp "$cp" -d "$c/cp" "$c"/src/main/java/org/tinygears/uom/examples/*.java \
     || fail "consumer: javac on the class path failed"
   run_examples "class path" java -cp "$c/cp:$cp" "$MAIN"
   CONSUMER_PATH=$c/target/uom-consumer-1.jar:$cp

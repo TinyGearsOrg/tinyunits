@@ -1,6 +1,7 @@
 # uom compared with Indriya
 
-Indriya is the reference implementation of JSR-385. Generic code that uses only the `javax.measure` API runs on both,
+Indriya is the reference implementation of JSR-385; this page concerns `uom-jsr`, the JSR-385 implementation of uom.
+Generic code that uses only the `javax.measure` API runs on both,
 but the two answer some questions differently. This page lists the differences found by running the same cases on uom
 and on Indriya 2.2 on one class path. Every example below runs in the build (`DocsSnippetsTest`, with Indriya as a
 test dependency) and prints both results, so the page breaks when either library changes.
@@ -21,7 +22,7 @@ A uom unit equals another when both have the same atoms and the same converter t
 written (F21). Indriya compares how the unit was built: `km` from a prefix and `m·1000` are different units there, though
 they are equivalent. `isEquivalentTo` agrees in both.
 
-```java
+```java jsr
 import tech.units.indriya.unit.Units;
 System.out.println(SI.KILOMETRE.equals(SI.METRE.multiply(1000)));                    // prints: true
 System.out.println(MetricPrefix.KILO(Units.METRE).equals(Units.METRE.multiply(1000))); // prints: false
@@ -42,7 +43,7 @@ uom gives prefixed units a symbol and a lower-case name (`km`, `kilometre`; `new
 without either and capitalises some names (`Newton`). An unnamed unit prints in uom as the standard format writes it,
 which looks for an equal unit of the catalogs (`km`, `ft`); Indriya prints how it was built.
 
-```java
+```java jsr
 import tech.units.indriya.unit.Units;
 System.out.println(SI.KILOMETRE.getSymbol() + " " + SI.KILOMETRE.getName());                 // prints: km kilometre
 System.out.println(MetricPrefix.KILO(Units.METRE).getSymbol() + " " + MetricPrefix.KILO(Units.METRE).getName()); // prints: null null
@@ -58,7 +59,7 @@ writes superscripts, and some units as single compatibility characters: the cubi
 Celsius as `℃` (U+2103). Indriya writes the micro prefix as the Greek letter mu `μ` (U+03BC); uom uses the micro sign
 `µ` (U+00B5) that `MetricPrefix.MICRO` defines.
 
-```java
+```java jsr
 import tech.units.indriya.unit.Units;
 System.out.println(SI.METRE.divide(SI.SECOND.pow(2)) + " " + Units.METRE.divide(Units.SECOND.pow(2))); // prints: m/s^2 m/s²
 System.out.println(SI.CUBIC_METRE + " " + Units.CUBIC_METRE);                         // prints: m³ ㎥
@@ -75,7 +76,7 @@ System.out.println(SI.METRE.prefix(MetricPrefix.MICRO) + " " + MetricPrefix.MICR
 equals the named unit: `kPa` has the system unit `kg/(m·s^2)`, which equals `Pa`. Indriya gives `Pa`. A pressure in
 kilopascal converted to system units therefore prints as `5000.0 kg/(m·s^2)`.
 
-```java
+```java jsr
 import tech.units.indriya.unit.Units;
 System.out.println(SI.KILOPASCAL.getSystemUnit());                                    // prints: kg/(m·s^2)
 System.out.println(SI.KILOPASCAL.getSystemUnit().equals(SI.PASCAL));                  // prints: true
@@ -90,7 +91,7 @@ A uom quantity holds a `double` or a `BigDecimal` (F5); any other `Number` becom
 `Number` it was given, so an `Integer` stays an `Integer` and prints without a decimal point, and integer division
 gives a `BigDecimal`.
 
-```java
+```java jsr
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 System.out.println(Length.of(1, SI.KILOMETRE));                                        // prints: 1.0 km
@@ -105,7 +106,7 @@ Quantity `equals` is strict in both: `1 km` does not equal `1000 m`, and `compar
 `double` and `BigDecimal` quantities apart (F20) and a typed quantity apart from an untyped one of the same unit;
 Indriya compares the values numerically and has a single quantity class.
 
-```java
+```java jsr
 import javax.measure.spi.ServiceProvider;
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
@@ -124,7 +125,7 @@ uom treats two `double` quantities as equivalent when their values in the same u
 tolerance `1e-12` (`AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE`, F20), so rounding noise from a conversion does not
 matter; two `BigDecimal` quantities are compared exactly, as Indriya compares every pair (DR-18). Quantities of different dimensions are not equivalent in uom; Indriya throws.
 
-```java
+```java jsr
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 System.out.println(Length.of(1, SI.METRE).isEquivalentTo(Length.of(Math.nextUp(1.0), SI.METRE)));  // prints: true
@@ -164,7 +165,7 @@ a 34-digit `BigDecimal`, while in uom the context decides), so with Indriya two 
 different types and rounding although the caller chose neither. In uom the caller chooses the precision once, on the
 format, and every parsed quantity converts with it; mixing a `double` and a decimal quantity gives a decimal (F23).
 
-```java
+```java jsr
 import javax.measure.format.QuantityFormat;
 import javax.measure.spi.ServiceProvider;
 QuantityFormat uom = ServiceProvider.of("TinyGears").getFormatService().getQuantityFormat();
@@ -209,7 +210,7 @@ Both parse the SI units and symbols, run-time metric prefixes (`Mm`, `dam`, `mHz
 
 uom has the degree, arcminute and arcsecond as `deg`, `arcmin` and `arcsec`.
 
-```java
+```java jsr
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.ServiceProvider;
 UnitFormat uom = ServiceProvider.of("TinyGears").getFormatService().getUnitFormat();
@@ -223,7 +224,7 @@ System.out.println(indriya.parse("m2") + " " + indriya.parse("l") + " " + indriy
 **Open.** A unit that uom parses from a formula keeps the formula, normalised, as its symbol: `m*s^-1` prints as
 `m·s^-1`, though it equals `m/s`. Indriya prints the unit it built: `m/s`.
 
-```java
+```java jsr
 import javax.measure.format.UnitFormat;
 import javax.measure.spi.ServiceProvider;
 UnitFormat uom = ServiceProvider.of("TinyGears").getFormatService().getUnitFormat();

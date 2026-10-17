@@ -1,5 +1,7 @@
 # Using uom next to other JSR-385 implementations
 
+This page concerns `uom-jsr`, the JSR-385 implementation of uom; the native API (`uom`) has no service provider.
+
 uom registers one JSR-385 service provider, `UomServiceProvider`, with the name `TinyGears` and priority 100. Another
 implementation on the same class path or module path registers its own: Indriya 2.2 is named `Default` and has priority
 10. unit-api picks the **current** provider, the one with the highest priority unless the program sets one with
@@ -12,7 +14,7 @@ With uom and Indriya both present, uom is current because its priority is higher
 `ServiceProvider.setCurrent(ServiceProvider.of("Default"))`. Providers are found by name, `TinyGears` or `Default`; a
 provider without a name is found only by the value of its `toString()`.
 
-```java
+```java jsr
 import javax.measure.spi.ServiceProvider;
 System.out.println(ServiceProvider.of("TinyGears").getPriority()); // prints: 100
 System.out.println(ServiceProvider.current());                     // prints: TinyGears
@@ -24,7 +26,7 @@ Narrowing a quantity with `asType`, narrowing a unit with `asType` and reading a
 factory of uom, and they find it themselves: the current provider if it is uom's, otherwise uom's provider among
 `ServiceProvider.available()`, which is kept after the first lookup. So they work whichever provider is current:
 
-```java
+```java jsr
 Quantity<?> speed = Length.of(6, SI.METRE).divide(Time.of(2, SI.SECOND)).asType(javax.measure.quantity.Speed.class);
 System.out.println(speed);                                     // prints: 3.0 m/s
 ```

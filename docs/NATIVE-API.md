@@ -5,8 +5,7 @@ describes the JSR-385 constraint, sections 2 to 6 the proposal the prototype tes
 
 **Progress** (branch `native-prototype`): the prototype (steps 1 and 2) is done and the split decided (DR-21);
 completing it runs in five stages: (1) the 33 types generated with typed products, (2) the catalogs, (3) offset units,
-(4) formats and systems, (5) the renames to `uom` and `uom-jsr`, docs, examples and the TCK. Stages 1 to 4 and the
-renames of stage 5 are done; this document keeps the module and package names of the time it describes (see
+(4) formats and systems, (5) the renames to `uom` and `uom-jsr`, docs, examples and the TCK. All five stages are done; this document keeps the module and package names of the time it describes (see
 "Stage 5a" below for the mapping).
 - Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException`, `Converter`
   (affine, exact, with its steps) and `Unit` (atoms, converter, labels, the algebra and the converter cache) and, in
@@ -78,6 +77,11 @@ renames of stage 5 are done; this document keeps the module and package names of
   real provider is always present, so the tests of the provider mechanism install `TestServiceProvider` for their
   duration (`TestProviderExtension`); serialized streams name the new classes (the golden files are rewritten). 1318
   tests (engine 64, uom 18, uom-jsr 933, codegen 188, tck 113, examples 2).
+- Stage 5b, the user documents: the README, CUSTOM-UNITS.md, OFFSET-UNITS.md and SECURITY.md present `uom` first and
+  name the `uom-jsr` classes where they differ; PROVIDERS.md and INDRIYA.md concern `uom-jsr`. `DocsSnippetsTest` runs a
+  `java` block against `uom` and a `java jsr` block against `uom-jsr`, and loads every `units` block with both, which
+  must agree. `Examples` shows the native API (with typed products and `Jsr`), `JsrExamples` the JSR-385 one; every
+  native section prints what its JSR-385 counterpart prints, and the consumer of `verify-release.sh` runs both.
 
 ## 1. The constraint
 

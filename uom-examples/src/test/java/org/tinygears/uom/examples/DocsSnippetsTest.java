@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.jsr;
+package org.tinygears.uom.examples;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,6 +37,8 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
+import org.tinygears.uom.SystemOfUnits;
+import org.tinygears.uom.Unit;
 import org.tinygears.uom.engine.parse.DefinitionException;
 import org.tinygears.uom.jsr.systems.UomSystemOfUnits;
 
@@ -45,10 +47,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Runs the fenced blocks of the user documents. {@code units} blocks load (an optional second info word names the
- * file, for {@code @include} by other blocks of the same document); {@code units-error} blocks fail with the message
- * of their {@code # error: } line; {@code java} blocks compile as a method body and, if they have
- * {@code // prints: } comments, run and print exactly those lines.
+ * Runs the fenced blocks of the user documents. {@code units} blocks load through both APIs, to the same symbols (an
+ * optional second info word names the file, for {@code @include} by other blocks of the same document);
+ * {@code units-error} blocks fail on both with the message of their {@code # error: } line; {@code java} blocks
+ * compile as a method body against the native API ({@code java jsr}: against the JSR-385 implementation) and, if they
+ * have {@code // prints: } comments, run and print exactly those lines.
  */
 class DocsSnippetsTest {
     private static final List<Path> DOCS = List.of(
@@ -58,8 +61,11 @@ class DocsSnippetsTest {
             Path.of("../docs/PROVIDERS.md"),
             Path.of("../docs/INDRIYA.md"),
             Path.of("../SECURITY.md"));
-    private static final String IMPORTS = "import java.io.*; import java.math.*; import java.nio.file.*;"
-            + " import java.util.*; import javax.measure.*; import org.tinygears.uom.jsr.quantity.*;"
+    private static final String JAVA = "import java.io.*; import java.math.*; import java.nio.file.*;"
+            + " import java.util.*;";
+    private static final String NATIVE = JAVA + " import org.tinygears.uom.*; import org.tinygears.uom.quantity.*;"
+            + " import org.tinygears.uom.systems.*; import org.tinygears.uom.engine.Factor;\n";
+    private static final String JSR = JAVA + " import javax.measure.*; import org.tinygears.uom.jsr.quantity.*;"
             + " import org.tinygears.uom.jsr.systems.*;\n";
     private static final String ERROR = "# error: ";
     private static final String PRINTS = "// prints: ";
@@ -112,7 +118,13 @@ class DocsSnippetsTest {
         List<DynamicTest> tests = new ArrayList<>();
         for (Block b : blocks) {
             switch (b.tag()) {
-                case "units" -> tests.add(DynamicTest.dynamicTest(b.toString(), () -> load(b, files)));
+                case "units" -> tests.add(DynamicTest.dynamicTest(b.toString(), () -> {
+                    UomSystemOfUnits jsr = load(b, files);
+                    SystemOfUnits uom = loadNative(b, files);
+                    List<String> symbols = new ArrayList<>();
+                    jsr.getUnits().forEach(u -> symbols.add(u.getSymbol()));
+                    assertEquals(symbols, uom.units().stream().map(Unit::symbol).toList(), b.toString());
+                }));
                 case "units-error" -> tests.add(DynamicTest.dynamicTest(b.toString(), () -> {
                     String expected = b.text().lines().filter(l -> l.startsWith(ERROR)).findFirst()
                             .orElseThrow(() -> new AssertionError(b + ": no '" + ERROR + "' line"))
@@ -121,6 +133,10 @@ class DocsSnippetsTest {
                             expected,
                             assertThrows(DefinitionException.class, () -> load(b, files)).getMessage(),
                             b.toString());
+                    assertEquals(
+                            expected,
+                            assertThrows(DefinitionException.class, () -> loadNative(b, files)).getMessage(),
+                            b + " (uom)");
                 }));
                 case "java" -> tests.add(DynamicTest.dynamicTest(b.toString(), () -> java(b)));
                 // not run; any other tag is a typo that would drop a block from this test
@@ -166,8 +182,18 @@ class DocsSnippetsTest {
                 });
     }
 
+    private static SystemOfUnits loadNative(Block b, Map<String, String> files) {
+        return SystemOfUnits.load(b.name() != null ? b.name() : "example.units", new StringReader(b.text()), name -> {
+            String text = files.get(b.doc() + "/" + name);
+            return text == null ? null : new StringReader(text);
+        });
+    }
+
     private static void java(Block b) throws Exception {
-        StringBuilder imports = new StringBuilder(IMPORTS);
+        if (b.name() != null && !b.name().equals("jsr")) {
+            throw new AssertionError(b + ": unknown java info word '" + b.name() + "'");
+        }
+        StringBuilder imports = new StringBuilder("jsr".equals(b.name()) ? JSR : NATIVE);
         StringBuilder body = new StringBuilder();
         List<String> expected = new ArrayList<>();
         for (String line : b.text().lines().toList()) {

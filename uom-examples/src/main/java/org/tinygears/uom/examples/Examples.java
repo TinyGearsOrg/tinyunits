@@ -23,35 +23,37 @@ import java.math.MathContext;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import javax.measure.Quantity;
-import javax.measure.Unit;
-import javax.measure.format.QuantityFormat;
-import javax.measure.format.UnitFormat;
-import javax.measure.spi.FormatService;
-import javax.measure.spi.ServiceProvider;
 
-import org.tinygears.uom.jsr.quantity.Angle;
-import org.tinygears.uom.jsr.quantity.Dimensionless;
-import org.tinygears.uom.jsr.quantity.ElectricCharge;
-import org.tinygears.uom.jsr.quantity.Energy;
-import org.tinygears.uom.jsr.quantity.Force;
-import org.tinygears.uom.jsr.quantity.Length;
-import org.tinygears.uom.jsr.quantity.Mass;
-import org.tinygears.uom.jsr.quantity.Speed;
-import org.tinygears.uom.jsr.quantity.Temperature;
-import org.tinygears.uom.jsr.quantity.Time;
-import org.tinygears.uom.jsr.quantity.Volume;
-import org.tinygears.uom.jsr.systems.CGS;
-import org.tinygears.uom.jsr.systems.Gaussian;
-import org.tinygears.uom.jsr.systems.Imperial;
-import org.tinygears.uom.jsr.systems.Information;
-import org.tinygears.uom.jsr.systems.SI;
-import org.tinygears.uom.jsr.systems.USCustomary;
-import org.tinygears.uom.jsr.systems.UomQuantityFormat;
-import org.tinygears.uom.jsr.systems.UomSystemOfUnits;
-import org.tinygears.uom.jsr.systems.UomUnitFormat;
+import org.tinygears.uom.Quantity;
+import org.tinygears.uom.QuantityFormat;
+import org.tinygears.uom.Scale;
+import org.tinygears.uom.SystemOfUnits;
+import org.tinygears.uom.Unit;
+import org.tinygears.uom.UnitFormat;
+import org.tinygears.uom.Untyped;
+import org.tinygears.uom.engine.Factor;
+import org.tinygears.uom.jsr.Jsr;
+import org.tinygears.uom.quantity.Angle;
+import org.tinygears.uom.quantity.Dimensionless;
+import org.tinygears.uom.quantity.ElectricCharge;
+import org.tinygears.uom.quantity.Energy;
+import org.tinygears.uom.quantity.Force;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.Speed;
+import org.tinygears.uom.quantity.Temperature;
+import org.tinygears.uom.quantity.Time;
+import org.tinygears.uom.quantity.Volume;
+import org.tinygears.uom.systems.CGS;
+import org.tinygears.uom.systems.Gaussian;
+import org.tinygears.uom.systems.Imperial;
+import org.tinygears.uom.systems.Information;
+import org.tinygears.uom.systems.SI;
+import org.tinygears.uom.systems.USCustomary;
 
-/** Usage examples; each method returns what it prints so that a test can check it. */
+/**
+ * Usage examples of the native API ({@code uom}), then of the JSR-385 implementation ({@link JsrExamples}); each
+ * method returns what it prints so that a test can check it.
+ */
 public final class Examples {
     private Examples() {
     }
@@ -60,16 +62,15 @@ public final class Examples {
     static String basics() {
         Length marathon = Length.of(42.195, SI.KILOMETRE);
         Length lap = Length.of(400, SI.METRE);
-        // Strict overload: only Length can be added to a Length.
         Length total = marathon.add(lap);
         Length inMetres = total.to(SI.METRE);
         return total + " = " + inMetres;
     }
 
-    /** Dividing quantities gives a UomQuantity in system units; as(Speed.class) gives it its type back, no cast. */
+    /** A length divided by a time is a Speed: the relation is declared, so the product is typed. */
     static String speed() {
-        Speed speed = Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR)).as(Speed.class);
-        return speed.getValue() + " " + speed.to(SI.METRE_PER_SECOND).getUnit();
+        Speed speed = Length.of(36, SI.KILOMETRE).divide(Time.of(1, SI.HOUR));
+        return speed.value() + " " + speed.unit();
     }
 
     /** Offset units: Celsius to kelvin and back. */
@@ -86,8 +87,8 @@ public final class Examples {
     }
 
     /**
-     * isEquivalentTo, the standard method, compares decimals exactly, so a value rounded on its way differs from its
-     * source; isCloseTo compares within a tolerance the caller states, relative or as a quantity.
+     * isEquivalentTo compares decimals exactly, so a value rounded on its way differs from its source; isCloseTo
+     * compares within a tolerance the caller states, relative or as a quantity.
      */
     static String closeness() {
         Angle radian = Angle.of(BigDecimal.ONE, SI.RADIAN);
@@ -100,35 +101,21 @@ public final class Examples {
                 + foot.isCloseTo(measured, Length.of(0.1, SI.MILLIMETRE));
     }
 
-    /** Units and quantities from text, and back to text. */
+    /** Units and quantities from text, and back to text; a parsed quantity has the type of its unit. */
     static String formats() {
-        FormatService formats = ServiceProvider.current().getFormatService();
-        UnitFormat unitFormat = formats.getUnitFormat();
-        QuantityFormat quantityFormat = formats.getQuantityFormat();
-        Unit<?> millikelvin = unitFormat.parse("mK");
-        Unit<?> squareKm = unitFormat.parse("km^2");
-        Quantity<?> parsed = quantityFormat.parse("20 km");
-        return unitFormat.format(SI.KILOMETRE) + " " + millikelvin + " " + squareKm + " | " + parsed.getValue() + " "
-                + parsed.getUnit();
+        UnitFormat units = UnitFormat.standard();
+        QuantityFormat quantities = new QuantityFormat(units);
+        Unit<?> millikelvin = units.parse("mK");
+        Unit<?> squareKm = units.parse("km^2");
+        Length parsed = quantities.parse("20 km").as(Length.class);
+        return units.format(SI.KILOMETRE) + " " + units.format(millikelvin) + " " + units.format(squareKm) + " | "
+                + parsed.value() + " " + parsed.unit();
     }
 
-    /** Plain JSR-385 code finds the implementation through the service provider. */
-    static String provider() {
-        ServiceProvider provider = ServiceProvider.current();
-        Mass mass = Mass.of(2, SI.KILOGRAM);
-        Quantity<javax.measure.quantity.Mass> viaFactory = provider
-                .getQuantityFactory(javax.measure.quantity.Mass.class).create(2, SI.KILOGRAM);
-        return provider.getClass().getSimpleName() + " " + mass.isEquivalentTo(viaFactory);
-    }
-
-    /**
-     * Derived units keep their dimension: the product of force and length is energy. A value typed as the standard
-     * Quantity, as code written against JSR-385 only holds it, is narrowed with Energy.from.
-     */
+    /** Force times length is an Energy, typed by the declared relation. */
     static String work() {
-        Quantity<?> product = Force.of(10, SI.NEWTON).multiply(Length.of(3, SI.METRE));
-        Energy work = Energy.from(product);
-        return work.to(SI.JOULE).getValue() + " J";
+        Energy work = Force.of(10, SI.NEWTON).multiply(Length.of(3, SI.METRE));
+        return work.to(SI.JOULE).value() + " J";
     }
 
     /** BigDecimal quantities add exactly where doubles do not; division rounds to DECIMAL128 by default. */
@@ -150,7 +137,7 @@ public final class Examples {
         Length sum = decimal.add(binary);
         boolean sameEitherWay = sum.equals(binary.add(decimal));
         Length doublesOnly = Length.of(0.1, SI.METRE).add(binary);
-        return sum.getValue().getClass().getSimpleName() + " " + sum + " | same either way: " + sameEitherWay
+        return sum.value().getClass().getSimpleName() + " " + sum + " | same either way: " + sameEitherWay
                 + " | doubles only: " + doublesOnly + ", equivalent: " + sum.isEquivalentTo(doublesOnly);
     }
 
@@ -158,10 +145,8 @@ public final class Examples {
     static String contexts() {
         Length precise = Length.of(new BigDecimal("1.23456789"), SI.METRE);
         Length rounded = precise.toDecimal(new MathContext(4));
-        Length viaFactory = Length
-                .of(new BigDecimal("1.23456789"), SI.METRE, Quantity.Scale.ABSOLUTE, MathContext.DECIMAL32);
-        return rounded + " | " + viaFactory.divide(3) + " | "
-                + precise.toDouble().getValue().getClass().getSimpleName();
+        Length viaFactory = Length.of(new BigDecimal("1.23456789"), SI.METRE, Scale.ABSOLUTE, MathContext.DECIMAL32);
+        return rounded + " | " + viaFactory.divide(3) + " | " + precise.toDouble().value().getClass().getSimpleName();
     }
 
     /** Strict equals separates the precisions; isEquivalentTo compares what they measure. */
@@ -175,10 +160,10 @@ public final class Examples {
 
     /** The quantity format prints a decimal with its own digits; the default parse gives a double quantity. */
     static String decimalFormat() {
-        QuantityFormat format = ServiceProvider.current().getFormatService().getQuantityFormat();
+        QuantityFormat format = QuantityFormat.standard();
         Quantity<?> parsed = format.parse("1.50 km");
         String printed = format.format(Length.of(new BigDecimal("1.50"), SI.KILOMETRE));
-        return printed + " | " + parsed.getValue().getClass().getSimpleName() + " " + parsed.getValue();
+        return printed + " | " + parsed.value().getClass().getSimpleName() + " " + parsed.value();
     }
 
     /** quantity.toSystem(system) converts to the system's preferred unit; US and imperial gallons differ. */
@@ -193,21 +178,18 @@ public final class Examples {
                 + ElectricCharge.of(1, SI.COULOMB).toSystem(Gaussian.SYSTEM);
     }
 
-    /**
-     * Information units: decimal and binary prefixes. Bit and byte have no quantity type; they are dimensionless,
-     * as the radian is, so Dimensionless.from narrows a size for conversion.
-     */
+    /** Information units: decimal and binary prefixes. Bit and byte are dimensionless, as the radian is. */
     static String information() {
-        UomUnitFormat units = UomUnitFormat.standard();
-        UomQuantityFormat format = new UomQuantityFormat(units);
+        UnitFormat units = UnitFormat.standard();
+        QuantityFormat format = new QuantityFormat(units);
         Quantity<?> file = format.parse("1.5 GiB");
         Quantity<?> rate = format.parse("100 Mbit/s");
-        Time transfer = Time.from(file.divide(rate));
-        Dimensionless size = Dimensionless.from(file);
-        return file + " / " + rate + " = " + transfer.to(SI.SECOND) + " | "
-                + size.to(Information.MEGABYTE.asType(javax.measure.quantity.Dimensionless.class)) + " | "
-                + units.format(Information.BYTE.multiply(1024)) + " vs "
-                + units.format(Information.BYTE.multiply(1000));
+        Time transfer = file.divide(rate).as(Time.class);
+        Dimensionless size = file.as(Dimensionless.class);
+        return format.format(file) + " / " + format.format(rate) + " = " + transfer.to(SI.SECOND) + " | "
+                + format.format(size.to(Information.MEGABYTE.asType(Dimensionless.class))) + " | "
+                + units.format(Information.BYTE.scaledBy(Factor.ofLong(1024))) + " vs "
+                + units.format(Information.BYTE.scaledBy(Factor.ofLong(1000)));
     }
 
     /** Units and quantities are Serializable; a round trip gives equal objects. */
@@ -218,11 +200,11 @@ public final class Examples {
                 + roundTrip(length).equals(length) + " " + roundTrip(length);
     }
 
-    /** The filter the README recommends for streams that are not trusted. */
+    /** The filter SECURITY.md recommends for streams that are not trusted; it covers both APIs. */
     static final String SERIAL_FILTER = "maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;"
-            + "org.tinygears.uom.engine.*;org.tinygears.uom.jsr.**;javax.measure.**;java.lang.*;java.math.*;!*";
+            + "org.tinygears.uom.**;javax.measure.**;java.lang.*;java.math.*;!*";
 
-    private static Object roundTrip(Object value) {
+    static Object roundTrip(Object value) {
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
@@ -241,37 +223,37 @@ public final class Examples {
 
     /** withLocale localizes the number, never the unit symbol. */
     static String locales() {
-        UomQuantityFormat german = new UomQuantityFormat(UomUnitFormat.standard()).withLocale(Locale.GERMANY);
+        QuantityFormat german = QuantityFormat.standard().withLocale(Locale.GERMANY);
         String printed = german.format(Length.of(1.5, SI.KILOMETRE));
         Quantity<?> parsed = german.parse(printed);
-        return printed + " | " + parsed.getValue() + " " + parsed.getUnit();
+        return printed + " | " + parsed.value() + " " + parsed.unit();
     }
 
     /** A shifted unit without a symbol formats as a formula that parses back to an equal unit. */
     static String offsetUnits() {
-        UomUnitFormat format = UomUnitFormat.standard();
-        Unit<?> shifted = SI.KELVIN.shift(5);
+        UnitFormat format = UnitFormat.standard();
+        Unit<?> shifted = SI.KELVIN.shiftedBy(Factor.ofLong(5));
         String text = format.format(shifted);
         return text + " | parses back equal: " + format.parse(text).equals(shifted) + " | "
-                + format.format(SI.DEGREE_CELSIUS.multiply(2));
+                + format.format(SI.DEGREE_CELSIUS.scaledBy(Factor.ofLong(2)));
     }
 
     /**
      * Parsing gives double quantities by default; withDecimals gives BigDecimal quantities that keep every digit and
-     * the scale of the text. The parsed object has the quantity type of its unit, so as(Length.class) narrows it.
+     * the scale of the text. The parsed quantity has the type of its unit, so as(Length.class) narrows it.
      */
     static String decimalParse() {
-        UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard());
+        QuantityFormat format = QuantityFormat.standard();
         // The default reads the number as a double: 1.50 becomes 1.5.
         Quantity<?> plain = format.parse("1.50 km");
         // The context, 7 digits here, applies to later arithmetic; the parsed value is never rounded to it.
-        UomQuantityFormat decimals = format.withDecimals(MathContext.DECIMAL32);
+        QuantityFormat decimals = format.withDecimals(MathContext.DECIMAL32);
         Length length = decimals.parse("1.234567890 km").as(Length.class);
-        BigDecimal value = (BigDecimal) length.getValue();
+        BigDecimal value = (BigDecimal) length.value();
         // A unit without a quantity type gives an untyped decimal quantity.
-        Quantity<?> momentum = decimals.parse("2.0 kg·m/s");
-        return plain + " " + plain.getValue().getClass().getSimpleName() + " | " + length + " scale " + value.scale()
-                + " | /3 " + length.divide(3) + " | " + momentum + " " + momentum.getValue().getClass().getSimpleName();
+        Untyped momentum = decimals.parse("2.0 kg·m/s").as(Untyped.class);
+        return plain + " " + plain.value().getClass().getSimpleName() + " | " + length + " scale " + value.scale()
+                + " | /3 " + length.divide(3) + " | " + momentum + " " + momentum.value().getClass().getSimpleName();
     }
 
     /** User units: a .units text loaded at run time, used in parsing and as a target system. */
@@ -282,11 +264,19 @@ public final class Examples {
                 furlong:furlong 220 yd
                 @preferred Length furlong
                 """;
-        UomSystemOfUnits medieval = UomSystemOfUnits.load("medieval.units", new StringReader(file), null);
-        UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard().with(medieval));
+        SystemOfUnits medieval = SystemOfUnits.load("medieval.units", new StringReader(file), null);
+        QuantityFormat format = new QuantityFormat(UnitFormat.standard().with(medieval));
         Length distance = format.parse("2 league").as(Length.class);
-        return medieval.getName() + " | " + distance + " = " + distance.to(SI.KILOMETRE) + " = "
+        return medieval.name() + " | " + distance + " = " + distance.to(SI.KILOMETRE) + " = "
                 + distance.toSystem(medieval);
+    }
+
+    /** Jsr converts to and from the JSR-385 quantities of uom-jsr: same engine unit, value, context and scale. */
+    static String bridge() {
+        Length length = Length.of(new BigDecimal("1.50"), SI.KILOMETRE);
+        org.tinygears.uom.jsr.quantity.Length jsr = Jsr.toJsr(length, org.tinygears.uom.jsr.quantity.Length.class);
+        Length back = Jsr.fromJsr(jsr, Length.class);
+        return jsr + " " + jsr.getClass().getInterfaces()[0].getSimpleName() + " | back equal: " + back.equals(length);
     }
 
     static Map<String, String> all() {
@@ -297,7 +287,6 @@ public final class Examples {
         out.put("equality", equality());
         out.put("closeness", closeness());
         out.put("formats", formats());
-        out.put("provider", provider());
         out.put("work", work());
         out.put("decimals", decimals());
         out.put("mixedPrecision", mixedPrecision());
@@ -311,10 +300,12 @@ public final class Examples {
         out.put("offsetUnits", offsetUnits());
         out.put("decimalParse", decimalParse());
         out.put("userUnits", userUnits());
+        out.put("bridge", bridge());
         return out;
     }
 
     public static void main(String[] args) {
         all().forEach((name, result) -> System.out.println(name + ": " + result));
+        JsrExamples.all().forEach((name, result) -> System.out.println("jsr." + name + ": " + result));
     }
 }

@@ -27,7 +27,7 @@ plugins are cached), then:
 3. **Reproducibility:** a second build from another directory into another repository gives byte-identical poms,
    jars, sources and javadoc jars. Builds on different JDKs differ (`Build-Jdk-Spec`); releases use JDK 21.
 4. **Consumer** (`consumer/`): a project that depends only on `org.tinygears:uom-jsr` resolves exactly `uom-jsr`, `uom`,
-   `uom-engine` and `unit-api` 2.2, and runs `uom-examples`' `Examples` (copied in) on the class path and on the module path
+   `uom-engine` and `unit-api` 2.2, and runs `uom-examples`' `Examples` (the package copied in: the native examples, then the JSR-385 ones) on the class path and on the module path
    (module `org.tinygears.uom.consumer`); the output must equal `consumer/expected-output.txt`, the values that
    `ExamplesTest` pins (update both together).
 5. **jlink:** an image with `org.tinygears.uom.jsr`, the consumer and `jdk.localedata` (for the German locale example)
