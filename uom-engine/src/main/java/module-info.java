@@ -9,8 +9,8 @@
  */
 
 /**
- * The engine of uom, free of the JSR-385 API: exact factors with pi and roots, dimensions, unit atoms and the
- * alternate-unit registry, and the decimal and interval arithmetic behind them. The JSR-385 implementation ({@code org.tinygears.uom.core}) builds on it.
+ * The engine of uom, free of the JSR-385 API: exact factors with pi and roots, dimensions, unit atoms, the
+ * alternate-unit registry, affine converters and the unit algebra, and the decimal and interval arithmetic behind them. The JSR-385 implementation ({@code org.tinygears.uom.core}) builds on it.
  */
 @SuppressWarnings("module") // the qualified export names modules that are compiled later
 module org.tinygears.uom.engine {

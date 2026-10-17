@@ -4,11 +4,13 @@
 decision gets a record in [DESIGN.md](DESIGN.md) section 1.
 
 **Progress** (branch `native-prototype`): step 1 is under way.
-- Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException` and, in
+- Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException`, `Converter`
+  (affine, exact, with its steps) and `Unit` (atoms, converter, labels, the algebra and the converter cache) and, in
   `internal`, the alternate-unit registry, the catalog service (`UnitCatalogs` through `ServiceLoader`, which `uom`
-  provides), products of atoms and the decimal, interval, cache and serial-form helpers. `UomDimension` is the
-  JSR-385 dimension over the engine's, `UomUnit` reports a `UnitException` as `MeasurementException`.
-- Next: the unit algebra and the converters, then the parser on engine units.
+  provides), products of atoms and the decimal, interval, cache and serial-form helpers. `UomDimension`, `UomUnit`
+  and the package-private `AffineConverter` are the JSR-385 types over them: they add `asType`, the text of an
+  unnamed unit through the provider, the JSR exceptions, and keep the identity of converters and steps.
+- Next: the parser on engine units, then the native slice.
 
 ## 1. The constraint
 

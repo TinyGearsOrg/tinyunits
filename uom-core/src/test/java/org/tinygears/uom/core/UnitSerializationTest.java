@@ -197,9 +197,9 @@ class UnitSerializationTest {
     void converterCacheIsNotSerialized() throws Exception {
         UomUnit<?> km = METRE.multiply(1000);
         km.getConverterToAny(METRE);
-        assertEquals(1, ConverterCacheTest.cache(km).size());
+        assertEquals(1, EngineProxies.cache(km).size());
         UomUnit<?> copy = roundTrip(km);
-        assertEquals(0, ConverterCacheTest.cache(copy).size());
+        assertEquals(0, EngineProxies.cache(copy).size());
         assertEquals(Factor.ofLong(1000), copy.getConverterToAny(METRE).factor());
     }
 
@@ -454,31 +454,27 @@ class UnitSerializationTest {
     @Test
     void forgedConverters() throws Exception {
         Factor two = Factor.ofLong(2);
-        assertInvalid("invalid converter: null factor", new AffineConverter.Proxy(null, Factor.ZERO, null, null));
-        assertInvalid("invalid converter: null offset", new AffineConverter.Proxy(Factor.ONE, null, null, null));
+        assertInvalid("invalid converter: null factor", forgedConverter(null, Factor.ZERO, null, null));
+        assertInvalid("invalid converter: null offset", forgedConverter(Factor.ONE, null, null, null));
         assertInvalid(
                 "invalid converter: step factors and offsets do not match",
-                new AffineConverter.Proxy(
-                        two,
-                        Factor.ZERO,
-                        new Factor[] { two },
-                        new Factor[] { Factor.ZERO, Factor.ZERO }));
+                forgedConverter(two, Factor.ZERO, new Factor[] { two }, new Factor[] { Factor.ZERO, Factor.ZERO }));
         assertInvalid(
                 "invalid converter: step factors and offsets do not match",
-                new AffineConverter.Proxy(two, Factor.ZERO, new Factor[] { two }, null));
+                forgedConverter(two, Factor.ZERO, new Factor[] { two }, null));
         assertInvalid(
                 "invalid converter: step factors and offsets do not match",
-                new AffineConverter.Proxy(two, Factor.ZERO, new Factor[0], new Factor[0]));
+                forgedConverter(two, Factor.ZERO, new Factor[0], new Factor[0]));
         assertInvalid(
                 "invalid converter: null step",
-                new AffineConverter.Proxy(
+                forgedConverter(
                         two,
                         Factor.ZERO,
                         new Factor[] { two, null },
                         new Factor[] { Factor.ZERO, Factor.ZERO }));
         assertInvalid(
                 "invalid converter: steps do not compose to x -> 1 * x + 0",
-                new AffineConverter.Proxy(
+                forgedConverter(
                         Factor.ONE,
                         Factor.ZERO,
                         new Factor[] { two, Factor.ofLong(3) },
@@ -492,7 +488,7 @@ class UnitSerializationTest {
         assertEquals("invalid factor: division by zero", e.getMessage());
         UomConverter copy = (UomConverter) deserialize(
                 serialize(
-                        new AffineConverter.Proxy(
+                        forgedConverter(
                                 Factor.ofLong(6),
                                 Factor.ZERO,
                                 new Factor[] { two, Factor.ofLong(3) },
@@ -507,7 +503,7 @@ class UnitSerializationTest {
         Factor r2 = Factor.ofLong(2).root(2);
         UomConverter copy = (UomConverter) deserialize(
                 serialize(
-                        new AffineConverter.Proxy(
+                        forgedConverter(
                                 Factor.ONE,
                                 Factor.ZERO,
                                 new Factor[] { Factor.ONE, Factor.ONE },
@@ -527,7 +523,7 @@ class UnitSerializationTest {
         // When the steps do fold, they must agree with the stored values.
         assertInvalid(
                 "invalid converter: steps do not compose to x -> 1 * x + 2",
-                new AffineConverter.Proxy(
+                forgedConverter(
                         Factor.ONE,
                         Factor.ofLong(2),
                         new Factor[] { Factor.ONE, Factor.ONE },
@@ -540,12 +536,11 @@ class UnitSerializationTest {
         Factor[] zeros = new Factor[1000];
         Arrays.fill(ones, Factor.ONE);
         Arrays.fill(zeros, Factor.ZERO);
-        UomConverter max = (UomConverter) deserialize(
-                serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO, ones, zeros)));
+        UomConverter max = (UomConverter) deserialize(serialize(forgedConverter(Factor.ONE, Factor.ZERO, ones, zeros)));
         assertEquals(1000, max.getConversionSteps().size());
         // The writer refuses more than 1000 steps, so the forged count of 100_000 is patched into the stream.
         Factor[] few = Arrays.copyOf(ones, 999);
-        byte[] bytes = serialize(new AffineConverter.Proxy(Factor.ONE, Factor.ZERO, few, Arrays.copyOf(zeros, 999)));
+        byte[] bytes = serialize(forgedConverter(Factor.ONE, Factor.ZERO, few, Arrays.copyOf(zeros, 999)));
         int at = indexOf(bytes, new byte[] { 0, 0, 0x03, (byte) 0xe7 });
         assertTrue(at > 0);
         byte[] forged = patchLength(bytes, at, 100_000, 0);
@@ -619,8 +614,10 @@ class UnitSerializationTest {
         assertEquals("expected UnitAtom, got java.lang.String", e.getMessage());
         e = assertThrows(
                 InvalidObjectException.class,
-                () -> readReplacing(METRE, o -> o instanceof AffineConverter.Proxy ? "x" : o));
-        assertEquals("expected UomConverter, got java.lang.String", e.getMessage());
+                () -> readReplacing(
+                        METRE,
+                        o -> o.getClass().getName().equals("org.tinygears.uom.engine.Converter$Proxy") ? "x" : o));
+        assertEquals("expected Converter, got java.lang.String", e.getMessage());
     }
 
     @Test
@@ -652,7 +649,7 @@ class UnitSerializationTest {
         Factor r3 = Factor.ofLong(3).root(2);
         assertInvalid(
                 "invalid converter: steps do not compose to x -> 1000 * x + 7",
-                new AffineConverter.Proxy(
+                forgedConverter(
                         Factor.ofLong(1000),
                         Factor.ofLong(7),
                         new Factor[] { Factor.ONE, Factor.ONE },
@@ -660,7 +657,7 @@ class UnitSerializationTest {
         // Off by one part in 10^30: still rejected.
         assertInvalid(
                 "invalid converter: steps do not compose to x -> 1 * x + 0",
-                new AffineConverter.Proxy(
+                forgedConverter(
                         Factor.ONE,
                         Factor.ZERO,
                         new Factor[] { Factor.ONE, Factor.ONE },
@@ -670,12 +667,34 @@ class UnitSerializationTest {
                                     .negate() }));
         UomConverter ok = (UomConverter) deserialize(
                 serialize(
-                        new AffineConverter.Proxy(
+                        forgedConverter(
                                 Factor.ONE,
                                 Factor.ZERO,
                                 new Factor[] { Factor.ONE, Factor.ONE },
                                 new Factor[] { r2, r2.negate() })));
         assertEquals(Converters.IDENTITY, ok);
+    }
+
+    /** A converter's stream as the facade writes it, around a forged engine proxy. */
+    private static Serializable forgedConverter(
+            Factor factor,
+            Factor offset,
+            Factor[] stepFactors,
+            Factor[] stepOffsets
+    ) {
+        return new AffineConverter.Proxy(EngineProxies.converter(factor, offset, stepFactors, stepOffsets));
+    }
+
+    /** A unit's stream as the facade writes it, around a forged engine proxy. */
+    private static Serializable forgedUnit(
+            UnitAtom[] atoms,
+            int[] exponents,
+            UomConverter toSystem,
+            String symbol,
+            String name
+    ) {
+        org.tinygears.uom.engine.Converter c = toSystem == null ? null : AffineConverter.engine(toSystem);
+        return new UomUnit.Proxy(EngineProxies.unit(atoms, exponents, c, symbol, name));
     }
 
     /** Whether {@code o} is the serialization proxy of a factor, which the engine does not expose. */
@@ -699,29 +718,22 @@ class UnitSerializationTest {
         UomConverter id = Converters.IDENTITY;
         assertInvalid(
                 "invalid unit: null converter",
-                new UomUnit.Proxy(new UnitAtom[] { m }, new int[] { 1 }, null, "m", null));
+                forgedUnit(new UnitAtom[] { m }, new int[] { 1 }, null, "m", null));
         assertInvalid(
                 "invalid unit: zero scale factor",
-                new UomUnit.Proxy(new UnitAtom[] { m }, new int[] { 1 }, Converters.scale(Factor.ZERO), null, null));
-        assertInvalid("invalid unit: atoms and exponents do not match", new UomUnit.Proxy(null, null, id, null, null));
+                forgedUnit(new UnitAtom[] { m }, new int[] { 1 }, Converters.scale(Factor.ZERO), null, null));
+        assertInvalid("invalid unit: atoms and exponents do not match", forgedUnit(null, null, id, null, null));
         assertInvalid(
                 "invalid unit: atoms and exponents do not match",
-                new UomUnit.Proxy(new UnitAtom[] { m, s }, new int[] { 1 }, id, null, null));
-        assertInvalid(
-                "invalid unit: null atom",
-                new UomUnit.Proxy(new UnitAtom[] { null }, new int[] { 1 }, id, null, null));
+                forgedUnit(new UnitAtom[] { m, s }, new int[] { 1 }, id, null, null));
+        assertInvalid("invalid unit: null atom", forgedUnit(new UnitAtom[] { null }, new int[] { 1 }, id, null, null));
         assertInvalid(
                 "invalid unit: duplicate atom m",
-                new UomUnit.Proxy(new UnitAtom[] { m, m }, new int[] { 1, 2 }, id, null, null));
+                forgedUnit(new UnitAtom[] { m, m }, new int[] { 1, 2 }, id, null, null));
         // Unsorted atoms and zero exponents are normalised on read.
         UomUnit<?> speed = (UomUnit<?>) deserialize(
                 serialize(
-                        new UomUnit.Proxy(
-                                new UnitAtom[] { s, atom(KILOGRAM), m },
-                                new int[] { -1, 0, 1 },
-                                id,
-                                "v",
-                                "speed")));
+                        forgedUnit(new UnitAtom[] { s, atom(KILOGRAM), m }, new int[] { -1, 0, 1 }, id, "v", "speed")));
         assertEquals(METRE.divide(SECOND), speed);
         assertEquals(List.of(m, s), List.copyOf(speed.atoms().keySet()));
         assertEquals("v", speed.getSymbol());

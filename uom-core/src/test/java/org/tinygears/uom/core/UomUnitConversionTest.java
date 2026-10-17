@@ -97,9 +97,9 @@ class UomUnitConversionTest {
         UomUnit<?> piShifted = BaseUnits.KELVIN.scaledBy(Factor.PI).shift(1);
         UomUnit<?> celsius = BaseUnits.KELVIN.shift(new BigDecimal("273.15"));
         assertThrows(UnconvertibleException.class, () -> piShifted.getConverterToAny(celsius));
-        assertFalse(ConverterCacheTest.cache(piShifted).contains(celsius));
+        assertFalse(EngineProxies.cache(piShifted).contains(celsius.engine()));
         assertThrows(UnconvertibleException.class, () -> piShifted.getConverterToAny(celsius));
-        assertEquals(0, ConverterCacheTest.cache(piShifted).size());
+        assertEquals(0, EngineProxies.cache(piShifted).size());
     }
 
     @Test

@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1271 tests (engine 45, core 523, codegen 179, uom 409, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1271 tests (engine 49, core 519, codegen 179, uom 409, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
@@ -81,8 +81,8 @@ transitively).
 
 ## Modules
 
-- `uom-engine`: the part without the JSR-385 API: exact factors (`Factor`, with pi and roots), dimensions, unit atoms
-  and the alternate-unit registry (DESIGN section 2; the start of [docs/NATIVE-API.md](docs/NATIVE-API.md)).
+- `uom-engine`: the part without the JSR-385 API: exact factors (`Factor`, with pi and roots), dimensions, unit atoms,
+  the alternate-unit registry, converters and the unit algebra (DESIGN section 2; the start of [docs/NATIVE-API.md](docs/NATIVE-API.md)).
 - `uom-core`: units, dimensions, converters, the `.units` parser, the shared `double` and `BigDecimal` quantity base classes.
 - `uom`: the library to depend on (JPMS module `org.tinygears.uom`, requires `uom-core` transitively). Package `org.tinygears.uom.quantity`: generated typed quantity interfaces, `double` and `BigDecimal` implementations and factories (33 types, 133 generated files). Package `org.tinygears.uom.systems`: the generated catalogs (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`), `UomSystemOfUnits`, unit and quantity formats, the `ServiceProvider`.
 - `uom-codegen`: the generator (internal, not published).

@@ -19,69 +19,69 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.measure.UnitConverter;
 
+import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
-import org.tinygears.uom.engine.internal.Decimals;
-import org.tinygears.uom.engine.internal.Interval;
-import org.tinygears.uom.engine.internal.Irrationals;
 import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
- * Serializable through a proxy: one step is rebuilt with {@link Converters}; several are validated and rebuilt
- * through the package-private constructor, keeping the stored factor, offset and step order.
+ * The JSR-385 converter over an engine {@link Converter}, which does the arithmetic. Serializable through a proxy
+ * that carries the engine converter.
  */
 final class AffineConverter implements UomConverter, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final Factor factor;
-    private final Factor offset;
-    private final double factorD;
-    private final double offsetD;
-    // the class is written through its Proxy, so the field type need not be serializable
-    @SuppressWarnings("serial")
+    private final Converter engine;
+    // the facades this converter was concatenated from, so the steps keep their identity; null: wrap the engine's
+    @SuppressWarnings("serial") // the class is written through its Proxy
     private final List<UnitConverter> steps;
 
-    AffineConverter(Factor factor, Factor offset) {
-        this(factor, offset, null);
+    AffineConverter(Converter engine) {
+        this(engine, null);
     }
 
-    AffineConverter(Factor factor, Factor offset, List<UnitConverter> steps) {
-        this.factor = factor;
-        this.offset = offset;
-        this.factorD = factor.doubleValue();
-        this.offsetD = offset.doubleValue();
-        this.steps = steps != null ? steps : List.of(this);
+    private AffineConverter(Converter engine, List<UnitConverter> steps) {
+        this.engine = engine;
+        this.steps = steps;
+    }
+
+    /** {@code c} as a JSR-385 converter; the engine's identity gives {@link Converters#IDENTITY}. */
+    static UomConverter of(Converter c) {
+        return c == Converter.IDENTITY ? Converters.IDENTITY : new AffineConverter(c);
+    }
+
+    /** The engine converter of {@code c}, a converter of this library (the interface is sealed). */
+    static Converter engine(UomConverter c) {
+        return ((AffineConverter) c).engine;
     }
 
     @Override
     public Factor factor() {
-        return factor;
+        return engine.factor();
     }
 
     @Override
     public Factor offset() {
-        return offset;
+        return engine.offset();
     }
 
     @Override
     public boolean isIdentity() {
-        return factor.isOne() && offset.isZero();
+        return engine.isIdentity();
     }
 
     @Override
     public boolean isLinear() {
-        return offset.isZero();
+        return engine.isLinear();
     }
 
     @Override
     public UomConverter inverse() {
-        Factor f = Factor.ONE.divide(factor);
-        return new AffineConverter(f, offset.negate().multiply(f));
+        return of(engine.inverse());
     }
 
     @Override
@@ -89,23 +89,25 @@ final class AffineConverter implements UomConverter, Serializable {
         if (!(other instanceof UomConverter o)) {
             throw new IllegalArgumentException("not a UomConverter: " + other);
         }
-        List<UnitConverter> all = new ArrayList<>(steps);
+        List<UnitConverter> all = new java.util.ArrayList<>(getConversionSteps());
         all.addAll(o.getConversionSteps());
-        return new AffineConverter(
-                factor.multiply(o.factor()),
-                factor.multiply(o.offset()).add(offset),
-                List.copyOf(all));
+        return new AffineConverter(engine.concatenate(engine(o)), List.copyOf(all));
     }
 
     @Override
     public List<UnitConverter> getConversionSteps() {
-        return steps;
+        if (steps != null) {
+            return steps;
+        }
+        List<Converter> e = engine.steps();
+        return e.size() == 1 && e.get(0) == engine
+                ? List.of(this)
+                : e.stream().map(s -> (UnitConverter) of(s)).toList();
     }
 
     @Override
     public double convert(double value) {
-        // Adding a zero offset would turn -0.0 into 0.0.
-        return offsetD == 0 ? factorD * value : factorD * value + offsetD;
+        return engine.convert(value);
     }
 
     /**
@@ -129,87 +131,12 @@ final class AffineConverter implements UomConverter, Serializable {
 
     @Override
     public BigDecimal convert(BigDecimal value, MathContext mc) {
-        if (mc.getPrecision() == 0) {
-            if (factor.isExact() && offset.isExact()) {
-                if (terminates(factor) && terminates(offset)) {
-                    return value.multiply(factor.decimalValue(mc)).add(offset.decimalValue(mc));
-                }
-                // value * nf/df + no/do as one quotient: exact if it terminates for this value, as add() is.
-                BigDecimal n = value.multiply(new BigDecimal(factor.numerator().multiply(offset.denominator())))
-                        .add(new BigDecimal(offset.numerator().multiply(factor.denominator())));
-                BigDecimal d = new BigDecimal(factor.denominator().multiply(offset.denominator()));
-                if (Decimals.terminates(n, d)) {
-                    return Decimals.divide(n, d, mc);
-                }
-            }
-            // A non-terminating result or an irrational coefficient: DECIMAL128.
-            return convert(value, MathContext.DECIMAL128);
-        }
-        if (factor.isExact() && offset.isExact()) {
-            // value * nf/df + no/do as one exact quotient, rounded once.
-            BigDecimal t = value.multiply(new BigDecimal(factor.numerator().multiply(offset.denominator())));
-            BigDecimal b = new BigDecimal(offset.numerator().multiply(factor.denominator()));
-            BigDecimal d = new BigDecimal(factor.denominator().multiply(offset.denominator()));
-            int guard = mc.getPrecision() + d.precision() + 1;
-            // Exact quotients take the scale of the sum aligned to scale max(value scale, 0); the zero-term and
-            // negative-scale adjustments reproduce it without the alignment.
-            BigDecimal n = b.signum() == 0
-                    ? t
-                    : t.signum() == 0 ? b.setScale(Math.max(0, Math.min(t.scale(), guard))) : addFar(t, b, guard);
-            BigDecimal q = Decimals.divide(n, d, mc);
-            return q.scale() >= 0
-                    ? q
-                    : q.signum() == 0
-                            ? BigDecimal.ZERO
-                            : q.setScale(Math.min(0, q.scale() + mc.getPrecision() - q.precision()));
-        }
-        // Irrational coefficients: enclosures narrow until both ends round alike. Only two irrational coefficients
-        // that cancel exactly keep them apart; past the cap the lower end rounds.
-        long cap = 2L * (mc.getPrecision() + value.precision()) + 1000;
-        for (int digits = mc.getPrecision() + Irrationals.GUARD;; digits *= 2) {
-            Interval x = Irrationals.enclose(factor, digits).multiply(value)
-                    .add(Irrationals.enclose(offset, digits), digits);
-            BigDecimal r = x.lo().round(mc);
-            if (r.compareTo(x.hi().round(mc)) == 0 || digits > cap) {
-                return r;
-            }
-        }
-    }
-
-    private static boolean terminates(Factor f) {
-        return Decimals.terminates(BigDecimal.ONE, new BigDecimal(f.denominator()));
-    }
-
-    /**
-     * {@code x + y} for the numerator of a quotient rounded to {@code guard - divisorDigits - 1} digits; a term
-     * below 10^k, where k is under both the other term's last digit and the quotient's rounding grid (both
-     * multiples of 10^k), becomes a same-signed 10^(k-1): it rounds identically and skips the scale alignment.
-     */
-    private static BigDecimal addFar(BigDecimal x, BigDecimal y, int guard) {
-        long ex = (long) x.precision() - x.scale() - 1;
-        long ey = (long) y.precision() - y.scale() - 1;
-        BigDecimal big = ex >= ey ? x : y;
-        BigDecimal small = ex >= ey ? y : x;
-        long sticky = Math.min(Math.max(ex, ey) - guard - 1, -(long) big.scale()) - 1;
-        if (Math.min(ex, ey) >= sticky) {
-            return x.add(y);
-        }
-        return big.add(BigDecimal.valueOf(small.signum(), Math.toIntExact(-sticky)));
+        return engine.convert(value, mc);
     }
 
     @Serial
     private Object writeReplace() {
-        if (steps.size() == 1 && steps.get(0) == this) {
-            return new Proxy(factor, offset, null, null);
-        }
-        Factor[] f = new Factor[steps.size()];
-        Factor[] o = new Factor[steps.size()];
-        for (int i = 0; i < f.length; i++) {
-            UomConverter step = (UomConverter) steps.get(i);
-            f[i] = step.factor();
-            o[i] = step.offset();
-        }
-        return new Proxy(factor, offset, f, o);
+        return new Proxy(engine);
     }
 
     @Serial
@@ -217,141 +144,51 @@ final class AffineConverter implements UomConverter, Serializable {
         throw new InvalidObjectException("proxy required");
     }
 
-    /** Serialized form of a converter, steps as parallel arrays (null for one step); package-private for tests. */
+    /** Serialized form: the engine converter, which validates itself; package-private so tests can forge streams. */
     static final class Proxy implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private static final String TOO_MANY_STEPS = "invalid converter: too many conversion steps";
-        private static final MathContext FOLD = new MathContext(60);
-        private static final BigDecimal TOLERANCE = new BigDecimal("1e-40");
-        private static final int MAX_DECIMAL_BITS = 4096;
+        // any serializable object, so tests can forge the engine's proxy
+        private transient Serializable engine;
 
-        private transient Factor factor;
-        private transient Factor offset;
-        private transient Factor[] stepFactors;
-        private transient Factor[] stepOffsets;
-
-        Proxy(Factor factor, Factor offset, Factor[] stepFactors, Factor[] stepOffsets) {
-            this.factor = factor;
-            this.offset = offset;
-            this.stepFactors = stepFactors;
-            this.stepOffsets = stepOffsets;
+        Proxy(Serializable engine) {
+            this.engine = engine;
         }
 
         @Serial
         private void writeObject(ObjectOutputStream out) throws IOException {
             out.defaultWriteObject();
-            out.writeUnshared(factor);
-            out.writeUnshared(offset);
-            SerialForm.writeObjects(out, stepFactors, TOO_MANY_STEPS);
-            SerialForm.writeObjects(out, stepOffsets, TOO_MANY_STEPS);
+            out.writeUnshared(engine);
         }
 
         @Serial
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             in.defaultReadObject();
-            factor = SerialForm.read(in, Factor.class);
-            offset = SerialForm.read(in, Factor.class);
-            stepFactors = SerialForm.readObjects(in, Factor.class, Factor[]::new, TOO_MANY_STEPS);
-            stepOffsets = SerialForm.readObjects(in, Factor.class, Factor[]::new, TOO_MANY_STEPS);
+            engine = SerialForm.read(in, Converter.class);
         }
 
         @Serial
         private Object readResolve() throws InvalidObjectException {
-            try {
-                Objects.requireNonNull(factor, "null factor");
-                Objects.requireNonNull(offset, "null offset");
-                if (stepFactors == null && stepOffsets == null) {
-                    return Converters.affine(factor, offset);
-                }
-                if (stepFactors == null || stepOffsets == null || stepFactors.length != stepOffsets.length
-                        || stepFactors.length == 0) {
-                    throw new IllegalArgumentException("step factors and offsets do not match");
-                }
-                List<UnitConverter> steps = new ArrayList<>(stepFactors.length);
-                Factor f = null;
-                Factor o = null;
-                boolean folded = true;
-                for (int i = 0; i < stepFactors.length; i++) {
-                    Factor sf = Objects.requireNonNull(stepFactors[i], "null step");
-                    Factor so = Objects.requireNonNull(stepOffsets[i], "null step");
-                    steps.add(Converters.affine(sf, so));
-                    if (!folded) {
-                        continue;
-                    }
-                    try {
-                        o = f == null ? so : f.multiply(so).add(o);
-                        f = f == null ? sf : f.multiply(sf);
-                    } catch (ArithmeticException inexact) {
-                        folded = false;
-                    }
-                }
-                // Steps grouped otherwise may not fold exactly left to right; a decimal fold checks them then.
-                Boolean agrees = folded ? Boolean.valueOf(f.equals(factor) && o.equals(offset)) : decimalFoldAgrees();
-                if (agrees == null) {
-                    // Steps that cannot be checked are not trusted: the converter is read as one step.
-                    return Converters.affine(factor, offset);
-                }
-                if (!agrees) {
-                    throw new IllegalArgumentException("steps do not compose to x -> " + factor + " * x + " + offset);
-                }
-                // Validated above; the package-private constructor keeps the stored values and the step list.
-                return new AffineConverter(factor, offset, List.copyOf(steps));
-            } catch (RuntimeException e) {
-                throw (InvalidObjectException) new InvalidObjectException("invalid converter: " + e.getMessage())
-                        .initCause(e);
+            if (engine == null) {
+                throw new InvalidObjectException("invalid converter: null converter");
             }
-        }
-
-        /**
-         * Left fold of the steps to 60 digits against the stored values, within 1e-40 relative to the largest
-         * term (1e-40 absolute if all are zero). Null if the check cannot be made: a part over 4096 bits or a value
-         * without a decimal.
-         */
-        private Boolean decimalFoldAgrees() {
-            List<Factor> all = new ArrayList<>(List.of(factor, offset));
-            all.addAll(List.of(stepFactors));
-            all.addAll(List.of(stepOffsets));
-            if (all.stream().anyMatch(
-                    x -> x.numerator().bitLength() > MAX_DECIMAL_BITS
-                            || x.denominator().bitLength() > MAX_DECIMAL_BITS)) {
-                return null;
-            }
-            try {
-                BigDecimal f = stepFactors[0].decimalValue(FOLD);
-                BigDecimal o = stepOffsets[0].decimalValue(FOLD);
-                BigDecimal terms = o.abs();
-                for (int i = 1; i < stepFactors.length; i++) {
-                    BigDecimal t = f.multiply(stepOffsets[i].decimalValue(FOLD), FOLD);
-                    o = o.add(t, FOLD);
-                    terms = terms.add(t.abs(), FOLD);
-                    f = f.multiply(stepFactors[i].decimalValue(FOLD), FOLD);
-                }
-                return close(f, factor.decimalValue(FOLD), f.abs()) && close(o, offset.decimalValue(FOLD), terms);
-            } catch (ArithmeticException e) {
-                return null;
-            }
-        }
-
-        private static boolean close(BigDecimal a, BigDecimal b, BigDecimal scale) {
-            BigDecimal bound = scale.max(a.abs()).max(b.abs()).multiply(TOLERANCE);
-            return a.subtract(b).abs().compareTo(bound.signum() == 0 ? TOLERANCE : bound) <= 0;
+            return of((Converter) engine);
         }
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof UomConverter c && factor.equals(c.factor()) && offset.equals(c.offset());
+        return o instanceof AffineConverter c && engine.equals(c.engine);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(factor, offset);
+        return engine.hashCode();
     }
 
     @Override
     public String toString() {
-        return "x -> " + factor + " * x + " + offset;
+        return engine.toString();
     }
 }

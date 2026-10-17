@@ -19,14 +19,11 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import javax.measure.IncommensurableException;
 import javax.measure.MeasurementException;
 import javax.measure.Prefix;
@@ -40,14 +37,14 @@ import org.tinygears.uom.core.spi.Providers;
 import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.engine.UnitAtom;
 import org.tinygears.uom.engine.UnitException;
-import org.tinygears.uom.engine.internal.AlternateUnits;
-import org.tinygears.uom.engine.internal.Atoms;
 import org.tinygears.uom.engine.internal.BoundedCache;
 import org.tinygears.uom.engine.internal.SerialForm;
 
 /**
- * A product of atoms with integer exponents, an affine converter to the system unit, and labels. Serializable
- * through a proxy (atoms, converter, symbol and name); the serialized form may change before 1.0.
+ * The JSR-385 unit over an engine {@link org.tinygears.uom.engine.Unit}: a product of atoms with integer exponents,
+ * an affine converter to the system unit, and labels. The engine does the algebra; this class adds what JSR-385
+ * defines ({@code asType}, the text of an unnamed unit, its exceptions). Serializable through a proxy that carries the
+ * engine unit; the serialized form may change before 1.0.
  *
  * @param <Q> the quantity type
  */
@@ -55,32 +52,54 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /** Atoms and their exponents, sorted by symbol; the class is written through its Proxy. */
-    @SuppressWarnings("serial")
-    private final Map<UnitAtom, Integer> atoms;
-    /** Converter to the system unit. */
-    @SuppressWarnings("serial")
-    private final UomConverter toSystem;
-    /** Symbol, or null. */
-    private final String symbol;
-    /** Name, or null. */
-    private final String name;
-    /** Dimension of the atoms. */
-    private final UomDimension dimension;
+    /** The engine unit; the class is written through its Proxy. */
+    private final org.tinygears.uom.engine.Unit unit;
+    /** Its converter to the system unit, as a JSR-385 converter. */
+    private final transient UomConverter toSystem;
+    /** Its dimension, as a JSR-385 dimension. */
+    private final transient UomDimension dimension;
     static final int CONVERTER_CACHE_SIZE = 16;
-    /** Hash of the atoms and the converter; units are cache keys, so it is computed once. */
-    private final transient int hash;
-    /** Converters to the most recently used targets; bounded, so the targets are not all kept alive. */
+    /** Converters to the most recently used targets, so a lookup gives the same instance; bounded. */
     private final transient BoundedCache<UomUnit<?>, UomConverter> converterCache = new BoundedCache<>(
             CONVERTER_CACHE_SIZE);
 
-    private UomUnit(Map<UnitAtom, Integer> atoms, UomConverter toSystem, String symbol, String name) {
-        this.atoms = atoms;
-        this.toSystem = toSystem;
-        this.symbol = symbol;
-        this.name = name;
-        this.dimension = UomDimension.of(Atoms.dimension(atoms));
-        this.hash = Objects.hash(atoms, toSystem);
+    private UomUnit(org.tinygears.uom.engine.Unit unit) {
+        this.unit = unit;
+        this.toSystem = AffineConverter.of(unit.toSystem());
+        this.dimension = UomDimension.of(unit.dimension());
+    }
+
+    /**
+     * The JSR-385 unit of an engine unit.
+     *
+     * @param <Q> the quantity type, which the caller guarantees
+     * @param unit the engine unit
+     * @return the unit
+     */
+    public static <Q extends Quantity<Q>> UomUnit<Q> of(org.tinygears.uom.engine.Unit unit) {
+        return new UomUnit<>(Objects.requireNonNull(unit, "unit"));
+    }
+
+    /**
+     * The engine unit.
+     *
+     * @return the engine unit
+     */
+    public org.tinygears.uom.engine.Unit engine() {
+        return unit;
+    }
+
+    /** This unit for an engine result equal in identity to its own unit, else a new one. */
+    private <T extends Quantity<T>> UomUnit<T> wrap(org.tinygears.uom.engine.Unit u) {
+        if (u == unit) {
+            @SuppressWarnings("unchecked") // the same unit, so the same quantity type
+            UomUnit<T> self = (UomUnit<T>) this;
+            return self;
+        }
+        if (u == org.tinygears.uom.engine.Unit.ONE) {
+            return unchecked(BaseUnits.ONE);
+        }
+        return new UomUnit<>(u);
     }
 
     /**
@@ -113,10 +132,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
             String name
     ) {
         Objects.requireNonNull(toSystem, "toSystem");
-        if (toSystem.factor().isZero()) {
-            throw new ArithmeticException("zero scale factor");
-        }
-        return new UomUnit<>(Atoms.normalize(atoms), toSystem, symbol, name);
+        return new UomUnit<>(org.tinygears.uom.engine.Unit.of(atoms, AffineConverter.engine(toSystem), symbol, name));
     }
 
     /**
@@ -127,7 +143,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      * @return the relabelled unit
      */
     public UomUnit<Q> named(String symbol, String name) {
-        return new UomUnit<>(atoms, toSystem, symbol, name);
+        return new UomUnit<>(unit.named(symbol, name));
     }
 
     /**
@@ -136,7 +152,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      * @return an unmodifiable map
      */
     public Map<UnitAtom, Integer> atoms() {
-        return atoms;
+        return unit.atoms();
     }
 
     /**
@@ -150,12 +166,12 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     @Override
     public String getSymbol() {
-        return symbol;
+        return unit.symbol();
     }
 
     @Override
     public String getName() {
-        return name;
+        return unit.name();
     }
 
     @Override
@@ -170,37 +186,18 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      */
     @Override
     public UomUnit<Q> getSystemUnit() {
-        if (toSystem.isIdentity() && name != null) {
-            return this;
-        }
-        return new UomUnit<>(atoms, Converters.IDENTITY, systemLabel(), null);
-    }
-
-    private String systemLabel() {
-        String num = join(true);
-        String den = join(false);
-        if (den.isEmpty()) {
-            return num.isEmpty() ? "1" : num;
-        }
-        boolean several = atoms.values().stream().filter(n -> n < 0).count() > 1;
-        return (num.isEmpty() ? "1" : num) + "/" + (several ? "(" + den + ")" : den);
-    }
-
-    private String join(boolean positive) {
-        return atoms.entrySet().stream().filter(e -> e.getValue() > 0 == positive)
-                .map(e -> e.getKey().symbol() + (Math.abs(e.getValue()) == 1 ? "" : "^" + Math.abs(e.getValue())))
-                .collect(Collectors.joining("·"));
+        return wrap(unit.systemUnit());
     }
 
     /** Null for a base unit: ONE or a single atom with exponent 1, both with the identity converter. */
     @Override
     public Map<UomUnit<?>, Integer> getBaseUnits() {
-        boolean simple = atoms.isEmpty() || atoms.size() == 1 && atoms.containsValue(1);
-        if (simple && toSystem.equals(Converters.IDENTITY)) {
+        Map<org.tinygears.uom.engine.Unit, Integer> base = unit.baseUnits();
+        if (base == null) {
             return null;
         }
         Map<UomUnit<?>, Integer> m = new LinkedHashMap<>();
-        atoms.forEach((atom, n) -> m.put(new UomUnit<>(Map.of(atom, 1), Converters.IDENTITY, atom.symbol(), null), n));
+        base.forEach((u, n) -> m.put(new UomUnit<>(u), n));
         return Collections.unmodifiableMap(m);
     }
 
@@ -211,12 +208,12 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof UomUnit<?> u && atoms.equals(u.atoms) && toSystem.equals(u.toSystem);
+        return o instanceof UomUnit<?> u && unit.equals(u.unit);
     }
 
     @Override
     public int hashCode() {
-        return hash;
+        return unit.hashCode();
     }
 
     // Guards the provider's format from printing the unit it is formatting again.
@@ -228,8 +225,8 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      */
     @Override
     public String toString() {
-        if (symbol != null) {
-            return symbol;
+        if (unit.symbol() != null) {
+            return unit.symbol();
         }
         if (!PRINTING.get()) {
             PRINTING.set(true);
@@ -242,28 +239,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
                 PRINTING.set(false);
             }
         }
-        return definition();
-    }
-
-    /** {@code f·S + s}: the factor {@code f} and the shift {@code s = offset / f} of the converter to the system unit {@code S}. */
-    private String definition() {
-        String system = systemLabel();
-        if (toSystem.isIdentity()) {
-            return system;
-        }
-        String f = text(toSystem.factor());
-        StringBuilder out = new StringBuilder(f.equals("1") ? system : f + "·" + system);
-        if (!toSystem.isLinear()) {
-            Factor shift = toSystem.offset().divide(toSystem.factor());
-            out.append(shift.signum() < 0 ? " - " : " + ").append(text(shift.signum() < 0 ? shift.negate() : shift));
-        }
-        return out.toString();
-    }
-
-    /** An exact fraction as {@code n|d}, any other factor as {@link Factor#toString()}. */
-    private static String text(Factor f) {
-        String t = f.toString();
-        return t.matches("-?\\d+(/\\d+)?") ? t.replace('/', '|') : t;
+        return unit.definition();
     }
 
     /** Same dimension and an identity converter; alternate atoms may differ, so rad is equivalent to one. */
@@ -304,10 +280,10 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         throw new UnconvertibleException("foreign unit implementation: " + that.getClass().getName());
     }
 
-    /** Caller has checked compatibility, so only valid targets are cached. */
+    /** Caller has checked compatibility. */
     private UomConverter converterTo(UomUnit<?> that) {
         try {
-            return converterCache.get(that, t -> t.toSystem.inverse().concatenate(toSystem));
+            return converterCache.get(that, t -> AffineConverter.of(unit.converterTo(t.unit)));
         } catch (ArithmeticException e) {
             // e.g. an irrational and a rational offset, which no exact factor adds up
             throw (UnconvertibleException) new UnconvertibleException(
@@ -338,22 +314,16 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     @Override
     public UomUnit<Q> alternate(String symbol) {
-        Objects.requireNonNull(symbol, "symbol");
-        if (!toSystem.equals(Converters.IDENTITY)) {
-            throw new IllegalArgumentException("not an unscaled standard unit: " + this);
-        }
-        UnitAtom atom;
         try {
-            atom = AlternateUnits.register(symbol, atoms);
+            return new UomUnit<>(unit.alternate(symbol));
         } catch (UnitException e) {
             throw new MeasurementException(e.getMessage(), e);
         }
-        return new UomUnit<>(Map.of(atom, 1), Converters.IDENTITY, symbol, null);
     }
 
     @Override
     public UomUnit<Q> shift(Number offset) {
-        return transform(Converters.shift(toFactor(offset)));
+        return new UomUnit<>(unit.shiftedBy(toFactor(offset)));
     }
 
     @Override
@@ -363,7 +333,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
 
     @Override
     public UomUnit<Q> multiply(Number multiplier) {
-        return transform(Converters.scale(toFactor(multiplier)));
+        return new UomUnit<>(unit.scaledBy(toFactor(multiplier)));
     }
 
     @Override
@@ -378,12 +348,12 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      * @return the scaled unit
      */
     public UomUnit<?> scaledBy(Factor factor) {
-        return transform(Converters.scale(factor));
+        return new UomUnit<>(unit.scaledBy(factor));
     }
 
     @Override
     public UomUnit<Q> divide(Number divisor) {
-        return transform(Converters.scale(Factor.ONE.divide(toFactor(divisor))));
+        return new UomUnit<>(unit.scaledBy(Factor.ONE.divide(toFactor(divisor))));
     }
 
     @Override
@@ -394,11 +364,10 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
     /** {@code operation} converts from the new unit to this one. */
     @Override
     public UomUnit<Q> transform(UnitConverter operation) {
-        UomConverter c = toSystem.concatenate(operation);
-        if (c.factor().isZero()) {
-            throw new ArithmeticException("zero scale factor: " + this);
+        if (!(operation instanceof UomConverter c)) {
+            throw new IllegalArgumentException("not a UomConverter: " + operation);
         }
-        return new UomUnit<>(atoms, c, null, null);
+        return new UomUnit<>(unit.transform(AffineConverter.engine(c)));
     }
 
     /**
@@ -409,7 +378,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      */
     @Override
     public UomUnit<Q> prefix(Prefix prefix) {
-        return transform(Converters.scale(Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent())));
+        return new UomUnit<>(unit.scaledBy(Factor.decimal(prefix.getValue().toString()).pow(prefix.getExponent())));
     }
 
     /**
@@ -418,66 +387,28 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      */
     @Override
     public UomUnit<?> multiply(Unit<?> multiplier) {
-        return combine(multiplier, false);
+        return wrap(unit.multiply(uomUnit(multiplier).unit));
     }
 
     /** The quotient by {@code divisor}; an offset is dropped as in {@link #multiply(Unit)}. */
     @Override
     public UomUnit<?> divide(Unit<?> divisor) {
-        return combine(divisor, true);
-    }
-
-    private UomUnit<?> combine(Unit<?> other, boolean quotient) {
-        UomUnit<?> that = uomUnit(other);
-        Map<UnitAtom, Integer> m = new LinkedHashMap<>(atoms);
-        that.atoms.forEach((a, n) -> {
-            int e = m.getOrDefault(a, 0);
-            m.put(a, quotient ? Math.subtractExact(e, n) : Math.addExact(e, n));
-        });
-        Factor f = quotient
-                ? toSystem.factor().divide(that.toSystem.factor())
-                : toSystem.factor().multiply(that.toSystem.factor());
-        String s = symbol == null || that.symbol == null
-                ? null
-                : group(symbol, "/") + (quotient ? "/" + group(that.symbol, "·/") : "·" + group(that.symbol, "/"));
-        return of(m, Converters.scale(f), s, null);
+        return wrap(unit.divide(uomUnit(divisor).unit));
     }
 
     @Override
     public UomUnit<?> inverse() {
-        return pow(-1);
+        return wrap(unit.inverse());
     }
 
     @Override
     public UomUnit<?> pow(int n) {
-        if (n == 0) {
-            return BaseUnits.ONE;
-        }
-        if (n == 1) {
-            return this;
-        }
-        Factor f = toSystem.factor().pow(n);
-        Map<UnitAtom, Integer> m = new LinkedHashMap<>();
-        atoms.forEach((a, e) -> m.put(a, Math.multiplyExact(e, n)));
-        return of(m, Converters.scale(f), symbol == null ? null : group(symbol, "·/^") + "^" + n, null);
+        return wrap(unit.pow(n));
     }
 
     @Override
     public UomUnit<?> root(int n) {
-        if (n == 0) {
-            throw new ArithmeticException("zeroth root");
-        }
-        if (n == 1) {
-            return this;
-        }
-        Map<UnitAtom, Integer> m = new LinkedHashMap<>();
-        atoms.forEach((a, e) -> {
-            if (e % n != 0) {
-                throw new ArithmeticException("exponent " + e + " of " + a.symbol() + " not divisible by " + n);
-            }
-            m.put(a, Math.toIntExact((long) e / n));
-        });
-        return of(m, Converters.scale(toSystem.factor().root(n)), null, null);
+        return wrap(unit.root(n));
     }
 
     /**
@@ -487,12 +418,7 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
      */
     @Serial
     private Object writeReplace() {
-        return new Proxy(
-                atoms.keySet().toArray(UnitAtom[]::new),
-                atoms.values().stream().mapToInt(Integer::intValue).toArray(),
-                toSystem,
-                symbol,
-                name);
+        return new Proxy(unit);
     }
 
     /**
@@ -506,63 +432,37 @@ public final class UomUnit<Q extends Quantity<Q>> implements Unit<Q>, Serializab
         throw new InvalidObjectException("proxy required");
     }
 
-    /** Serialized form of a unit; package-private so tests can forge streams. */
+    /** Serialized form: the engine unit, which validates itself; package-private so tests can forge streams. */
     static final class Proxy implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private static final String TOO_MANY_ATOMS = "invalid unit: too many atoms";
-        private static final String TOO_MANY_EXPONENTS = "invalid unit: too many exponents";
+        // any serializable object, so tests can forge the engine's proxy
+        private transient Serializable unit;
 
-        private transient UnitAtom[] atoms;
-        private transient int[] exponents;
-        private transient UomConverter toSystem;
-        private transient String symbol;
-        private transient String name;
-
-        Proxy(UnitAtom[] atoms, int[] exponents, UomConverter toSystem, String symbol, String name) {
-            this.atoms = atoms;
-            this.exponents = exponents;
-            this.toSystem = toSystem;
-            this.symbol = symbol;
-            this.name = name;
+        Proxy(Serializable unit) {
+            this.unit = unit;
         }
 
         @Serial
         private void writeObject(ObjectOutputStream out) throws IOException {
             out.defaultWriteObject();
-            SerialForm.writeObjects(out, atoms, TOO_MANY_ATOMS);
-            SerialForm.writeInts(out, exponents, TOO_MANY_EXPONENTS);
-            out.writeUnshared(toSystem);
-            SerialForm.writeString(out, symbol, "invalid unit: symbol");
-            SerialForm.writeString(out, name, "invalid unit: name");
+            out.writeUnshared(unit);
         }
 
         @Serial
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             in.defaultReadObject();
-            atoms = SerialForm.readObjects(in, UnitAtom.class, UnitAtom[]::new, TOO_MANY_ATOMS);
-            exponents = SerialForm.readInts(in, TOO_MANY_EXPONENTS);
-            toSystem = SerialForm.read(in, UomConverter.class);
-            symbol = SerialForm.readString(in, "invalid unit: symbol");
-            name = SerialForm.readString(in, "invalid unit: name");
+            unit = SerialForm.read(in, org.tinygears.uom.engine.Unit.class);
         }
 
         @Serial
         private Object readResolve() throws InvalidObjectException {
-            try {
-                Objects.requireNonNull(toSystem, "null converter");
-                return of(Atoms.map(atoms, exponents), toSystem, symbol, name);
-            } catch (RuntimeException e) {
-                throw (InvalidObjectException) new InvalidObjectException("invalid unit: " + e.getMessage())
-                        .initCause(e);
+            if (unit == null) {
+                throw new InvalidObjectException("invalid unit: null unit");
             }
+            return new UomUnit<>((org.tinygears.uom.engine.Unit) unit);
         }
-    }
-
-    /** Parenthesizes {@code s} if it contains any of {@code operators}. */
-    private static String group(String s, String operators) {
-        return s.chars().anyMatch(c -> operators.indexOf(c) >= 0) ? "(" + s + ")" : s;
     }
 
     private static Factor toFactor(Number n) {

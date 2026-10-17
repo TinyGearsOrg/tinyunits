@@ -10,13 +10,14 @@
 
 package org.tinygears.uom.core;
 
+import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
 
-/** Factories of the affine converters. */
+/** Factories of the affine converters: the JSR-385 converters over the engine's ({@link Converter}). */
 public final class Converters {
 
     /** The converter {@code x -> x}. */
-    public static final UomConverter IDENTITY = new AffineConverter(Factor.ONE, Factor.ZERO);
+    public static final UomConverter IDENTITY = new AffineConverter(Converter.IDENTITY);
 
     private Converters() {
     }
@@ -29,7 +30,7 @@ public final class Converters {
      * @return the converter
      */
     public static UomConverter affine(Factor factor, Factor offset) {
-        return factor.isOne() && offset.isZero() ? IDENTITY : new AffineConverter(factor, offset);
+        return AffineConverter.of(Converter.affine(factor, offset));
     }
 
     /**

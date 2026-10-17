@@ -12,5 +12,5 @@
 
   <artifactId>uom-engine</artifactId>
   <name>uom-engine</name>
-  <description>Engine of uom, free of the JSR-385 API: exact factors, dimensions, unit atoms and the alternate-unit registry.</description>
+  <description>Engine of uom, free of the JSR-385 API: exact factors, dimensions, unit atoms, converters and the unit algebra.</description>
 </project>

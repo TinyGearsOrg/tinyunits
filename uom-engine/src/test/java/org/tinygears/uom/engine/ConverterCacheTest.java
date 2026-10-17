@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core;
+package org.tinygears.uom.engine;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -20,67 +20,67 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.engine.internal.BoundedCache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.tinygears.uom.core.BaseUnits.METRE;
 
 /** The bounded converter cache of a unit; {@code internal.BoundedCacheTest} covers the cache itself. */
 class ConverterCacheTest {
 
+    private static final Unit METRE = Unit.base(UnitAtom.METRE, "metre");
+
     @SuppressWarnings("unchecked")
-    static BoundedCache<UomUnit<?>, UomConverter> cache(UomUnit<?> u) throws Exception {
-        Field f = UomUnit.class.getDeclaredField("converterCache");
+    static BoundedCache<Unit, Converter> cache(Unit u) throws Exception {
+        Field f = Unit.class.getDeclaredField("converterCache");
         f.setAccessible(true);
-        return (BoundedCache<UomUnit<?>, UomConverter>) f.get(u);
+        return (BoundedCache<Unit, Converter>) f.get(u);
     }
 
-    private static UomUnit<?> scaled(long n) {
-        return METRE.multiply(n);
+    private static Unit scaled(long n) {
+        return METRE.scaledBy(Factor.ofLong(n));
     }
 
     @Test
     void sizeStaysBoundedAndConversionsStayExact() throws Exception {
-        UomUnit<?> metre = METRE.multiply(1);
+        Unit metre = METRE.scaledBy(Factor.ONE);
         for (long n = 1; n <= 1000; n++) {
-            assertEquals(Factor.ONE.divide(Factor.ofLong(n)), metre.getConverterToAny(scaled(n)).factor());
-            assertTrue(cache(metre).size() <= UomUnit.CONVERTER_CACHE_SIZE);
+            assertEquals(Factor.ONE.divide(Factor.ofLong(n)), metre.converterTo(scaled(n)).factor());
+            assertTrue(cache(metre).size() <= Unit.CONVERTER_CACHE_SIZE);
         }
-        assertEquals(UomUnit.CONVERTER_CACHE_SIZE, cache(metre).size());
+        assertEquals(Unit.CONVERTER_CACHE_SIZE, cache(metre).size());
         // An evicted target is computed again, equal to before.
         assertFalse(cache(metre).contains(scaled(1)));
-        assertEquals(Factor.ONE, metre.getConverterToAny(scaled(1)).factor());
+        assertEquals(Factor.ONE, metre.converterTo(scaled(1)).factor());
     }
 
     @Test
     void aTargetUsedSinceTheLastSweepSurvivesEviction() throws Exception {
-        UomUnit<?> metre = METRE.multiply(1);
-        for (long n = 1; n <= UomUnit.CONVERTER_CACHE_SIZE; n++) {
-            metre.getConverterToAny(scaled(n));
+        Unit metre = METRE.scaledBy(Factor.ONE);
+        for (long n = 1; n <= Unit.CONVERTER_CACHE_SIZE; n++) {
+            metre.converterTo(scaled(n));
         }
-        UomUnit<?> hot = scaled(7);
-        for (long n = 100; n < 100 + 4 * UomUnit.CONVERTER_CACHE_SIZE; n++) {
-            metre.getConverterToAny(hot);
-            metre.getConverterToAny(scaled(n));
+        Unit hot = scaled(7);
+        for (long n = 100; n < 100 + 4 * Unit.CONVERTER_CACHE_SIZE; n++) {
+            metre.converterTo(hot);
+            metre.converterTo(scaled(n));
             assertTrue(cache(metre).contains(hot), "evicted after " + n);
-            assertEquals(UomUnit.CONVERTER_CACHE_SIZE, cache(metre).size());
+            assertEquals(Unit.CONVERTER_CACHE_SIZE, cache(metre).size());
         }
     }
 
     @Test
     void hitsReturnTheCachedConverter() throws Exception {
-        UomUnit<?> metre = METRE.multiply(1);
-        UomUnit<?> km = scaled(1000);
-        assertTrue(metre.getConverterToAny(km) == metre.getConverterToAny(scaled(1000)));
+        Unit metre = METRE.scaledBy(Factor.ONE);
+        Unit km = scaled(1000);
+        assertTrue(metre.converterTo(km) == metre.converterTo(scaled(1000)));
         assertEquals(1, cache(metre).size());
     }
 
     @Test
     void concurrentUseStaysBoundedAndCorrect() throws Exception {
-        UomUnit<?> metre = METRE.multiply(1);
+        Unit metre = METRE.scaledBy(Factor.ONE);
         ExecutorService pool = Executors.newFixedThreadPool(8);
         try {
             List<Future<Integer>> results = new ArrayList<>();
@@ -89,7 +89,7 @@ class ConverterCacheTest {
                     int wrong = 0;
                     for (int i = 0; i < 20_000; i++) {
                         long n = 1 + ThreadLocalRandom.current().nextInt(64);
-                        if (!metre.getConverterToAny(scaled(n)).factor().equals(Factor.ONE.divide(Factor.ofLong(n)))) {
+                        if (!metre.converterTo(scaled(n)).factor().equals(Factor.ONE.divide(Factor.ofLong(n)))) {
                             wrong++;
                         }
                     }
@@ -102,6 +102,6 @@ class ConverterCacheTest {
         } finally {
             pool.shutdownNow();
         }
-        assertTrue(cache(metre).size() <= UomUnit.CONVERTER_CACHE_SIZE, "size " + cache(metre).size());
+        assertTrue(cache(metre).size() <= Unit.CONVERTER_CACHE_SIZE, "size " + cache(metre).size());
     }
 }

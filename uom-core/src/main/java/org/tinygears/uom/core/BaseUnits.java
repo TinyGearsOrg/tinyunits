@@ -10,7 +10,6 @@
 
 package org.tinygears.uom.core;
 
-import java.util.Map;
 import javax.measure.quantity.AmountOfSubstance;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.ElectricCurrent;
@@ -40,12 +39,12 @@ public final class BaseUnits {
     /** The candela, {@code cd}. */
     public static final UomUnit<LuminousIntensity> CANDELA = base(UnitAtom.CANDELA, "candela");
     /** The dimensionless unit one, {@code 1}. */
-    public static final UomUnit<Dimensionless> ONE = UomUnit.of(Map.of(), Converters.IDENTITY, "1", "one");
+    public static final UomUnit<Dimensionless> ONE = UomUnit.of(org.tinygears.uom.engine.Unit.ONE);
 
     private BaseUnits() {
     }
 
     private static <Q extends javax.measure.Quantity<Q>> UomUnit<Q> base(UnitAtom atom, String name) {
-        return UomUnit.of(Map.of(atom, 1), Converters.IDENTITY, atom.symbol(), name);
+        return UomUnit.of(org.tinygears.uom.engine.Unit.base(atom, name));
     }
 }
