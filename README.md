@@ -75,6 +75,7 @@ Java 17 or later. Not published yet; after `mvn -q -B install -DskipTests` in th
 - [docs/RELEASING.md](docs/RELEASING.md): the release procedure (for the maintainer).
 - [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md), [docs/DESIGN.md](docs/DESIGN.md) and [docs/TODO.md](docs/TODO.md):
   requirements, design and open decisions.
+- [docs/NATIVE-API.md](docs/NATIVE-API.md): proposal for a native API next to the JSR-385 implementation (not decided).
 - [LICENSE](LICENSE): Apache License 2.0.
 
 ## Modules

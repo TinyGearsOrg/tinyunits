@@ -117,6 +117,15 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 **Needed by:** the CI decisions before the first push of the workflow; the rest nothing.
 
+## 33. A native API next to the JSR-385 implementation
+
+**Status:** open, proposal. JSR-385's generics (`Q extends Quantity<Q>`) keep our typed interfaces out of unit types and
+type tokens and rule out typed products. [NATIVE-API.md](NATIVE-API.md) proposes a JSR-free engine, a native API with
+its own `Unit<Q>` and `Quantity<Q>` over our types, and the JSR-385 implementation as a separate module, with a
+prototype plan.
+
+**Needed by:** decide before 1.0 (module boundaries and the public API).
+
 ## Release readiness
 
 No version has been released, signed, tagged or uploaded. The release is prepared and is the owner's action
