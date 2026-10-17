@@ -5,7 +5,7 @@ describes the JSR-385 constraint, sections 2 to 6 the proposal the prototype tes
 
 **Progress** (branch `native-prototype`): the prototype (steps 1 and 2) is done and the split decided (DR-21);
 completing it runs in five stages: (1) the 33 types generated with typed products, (2) the catalogs, (3) offset units,
-(4) formats and systems, (5) the renames to `uom` and `uom-jsr`, docs, examples and the TCK. Stages 1 to 3 are done.
+(4) formats and systems, (5) the renames to `uom` and `uom-jsr`, docs, examples and the TCK. Stages 1 to 4 are done.
 - Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException`, `Converter`
   (affine, exact, with its steps) and `Unit` (atoms, converter, labels, the algebra and the converter cache) and, in
   `internal`, the alternate-unit registry, the catalog service (`UnitCatalogs` through `ServiceLoader`, which `uom`
@@ -56,9 +56,18 @@ completing it runs in five stages: (1) the 33 types generated with typed product
   and that sums, differences, products, quotients, scalars, conversions, comparisons, equivalence and closeness give
   the same value, scale, unit and context for lengths and temperatures in both number types and scales. A typed
   `double` add takes 10 to 11 ns, a typed `divide(Time)` 7 ns (JDK 25).
-- Not yet native: formats (unit and quantity, parse and print), `SystemOfUnits` and `toSystem`, user `.units` files at
-  run time, serialization, a `ServiceProvider`. Those are stage 4; the formats need their parser and printer moved
-  into the engine, as the arithmetic was.
+- Stage 4: the unit format (labels, symbols, prefixes, multiples, formulas, superscripts), the number text of the
+  quantity format (locales, grouping, decimals), the systems and the loading of `.units` files moved into the engine
+  (`org.tinygears.uom.engine.format`, 1320 lines with Javadoc, exported to `uom` and `uom-native` only).
+  `UomUnitFormat`, `UomQuantityFormat` and `UomSystemOfUnits` are wrappers over it (850 lines, from 1521), their
+  tests unchanged; the native `UnitFormat`, `QuantityFormat`, `SystemOfUnits`, `UnitSystems`, `ParseException` and
+  serialization add 930 lines. Parsed units and quantities are typed by their system unit, else `Untyped`;
+  `Quantity.toSystem(system)` converts to a system's preferred unit. `FormatParityTest` checks that both sides format
+  all 320 catalog units alike (with superscripts too), parse and print formulas and quantities alike in five locales
+  with and without grouping and decimals, errors with message and position included, and load the same `.units`
+  text to the same system. Native units and quantities serialize through a proxy (type name, engine unit, scale,
+  exact value), checked when read.
+- Not native: a `ServiceProvider` and the JSR-385 format service, which are part of JSR-385.
 
 ## 1. The constraint
 

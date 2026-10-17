@@ -12,6 +12,7 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -20,6 +21,9 @@ import org.tinygears.uom.nativeapi.Scale;
 import org.tinygears.uom.nativeapi.Unit;
 
 final class LengthValue extends AbstractQuantity<Length> implements Length {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     LengthValue(double value, BigDecimal decimal, MathContext mc, Unit<Length> unit, Scale scale) {
         super(value, decimal, mc, unit, scale);

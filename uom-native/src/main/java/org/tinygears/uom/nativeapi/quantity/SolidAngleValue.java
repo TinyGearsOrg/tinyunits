@@ -12,6 +12,7 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -20,6 +21,9 @@ import org.tinygears.uom.nativeapi.Scale;
 import org.tinygears.uom.nativeapi.Unit;
 
 final class SolidAngleValue extends AbstractQuantity<SolidAngle> implements SolidAngle {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     SolidAngleValue(double value, BigDecimal decimal, MathContext mc, Unit<SolidAngle> unit, Scale scale) {
         super(value, decimal, mc, unit, scale);

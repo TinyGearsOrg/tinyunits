@@ -12,6 +12,7 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -20,6 +21,9 @@ import org.tinygears.uom.nativeapi.Scale;
 import org.tinygears.uom.nativeapi.Unit;
 
 final class IlluminanceValue extends AbstractQuantity<Illuminance> implements Illuminance {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     IlluminanceValue(double value, BigDecimal decimal, MathContext mc, Unit<Illuminance> unit, Scale scale) {
         super(value, decimal, mc, unit, scale);

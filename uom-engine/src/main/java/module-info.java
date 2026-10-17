@@ -19,7 +19,9 @@ module org.tinygears.uom.engine {
     exports org.tinygears.uom.engine;
     exports org.tinygears.uom.engine.parse;
     // Helpers the other modules of uom share; not API.
-    exports org.tinygears.uom.engine.internal to org.tinygears.uom.core, org.tinygears.uom;
+    exports org.tinygears.uom.engine.internal to org.tinygears.uom.core, org.tinygears.uom, org.tinygears.uom.nativeapi;
+    // The unit format, systems and number text of both APIs; not API.
+    exports org.tinygears.uom.engine.format to org.tinygears.uom, org.tinygears.uom.nativeapi;
     // The quantity arithmetic of both APIs; not API.
     exports org.tinygears.uom.engine.arithmetic to org.tinygears.uom.core, org.tinygears.uom.nativeapi;
 

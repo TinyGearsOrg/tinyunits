@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 final class UntypedValue extends AbstractQuantity<Untyped> implements Untyped {
+    @java.io.Serial
+    private static final long serialVersionUID = 1L;
 
     UntypedValue(double value, BigDecimal decimal, MathContext mc, Unit<Untyped> unit, Scale scale) {
         super(value, decimal, mc, unit, scale);

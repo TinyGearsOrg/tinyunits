@@ -14,10 +14,12 @@ package org.tinygears.uom.nativeapi.systems;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.nativeapi.BaseUnits;
+import org.tinygears.uom.nativeapi.SystemOfUnits;
 import org.tinygears.uom.nativeapi.Unit;
 import org.tinygears.uom.nativeapi.quantity.Acceleration;
 import org.tinygears.uom.nativeapi.quantity.AmountOfSubstance;
@@ -146,6 +148,12 @@ public final class Imperial {
             USCustomary.DEGREE_FAHRENHEIT,
             USCustomary.DEGREE_RANKINE);
 
+    /** The symbols that take a metric prefix in this system. */
+    public static final Set<String> PREFIXABLE = Set.of();
+
+    /** The symbols that take a binary prefix in this system. */
+    public static final Set<String> BINARY_PREFIXABLE = Set.of();
+
     /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, Unit<?>> PREFERRED = Map.<Class<?>, Unit<?>>ofEntries(
             Map.entry(Acceleration.class, Acceleration.SYSTEM_UNIT),
@@ -181,4 +189,12 @@ public final class Imperial {
             Map.entry(Temperature.class, USCustomary.DEGREE_FAHRENHEIT),
             Map.entry(Time.class, Time.SYSTEM_UNIT),
             Map.entry(Volume.class, GALLON_UK));
+
+    /** This system of units. */
+    public static final SystemOfUnits SYSTEM = new SystemOfUnits(
+            "Imperial",
+            UNITS,
+            PREFERRED,
+            PREFIXABLE,
+            BINARY_PREFIXABLE);
 }

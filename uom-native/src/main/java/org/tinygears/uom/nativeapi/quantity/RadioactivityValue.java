@@ -12,6 +12,7 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -20,6 +21,9 @@ import org.tinygears.uom.nativeapi.Scale;
 import org.tinygears.uom.nativeapi.Unit;
 
 final class RadioactivityValue extends AbstractQuantity<Radioactivity> implements Radioactivity {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     RadioactivityValue(double value, BigDecimal decimal, MathContext mc, Unit<Radioactivity> unit, Scale scale) {
         super(value, decimal, mc, unit, scale);

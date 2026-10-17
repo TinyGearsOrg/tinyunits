@@ -12,16 +12,13 @@ package org.tinygears.uom.systems;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,21 +26,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.measure.Dimension;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
 
 import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.engine.parse.Definition;
+import org.tinygears.uom.engine.format.UnitSystem;
+import org.tinygears.uom.engine.format.UnitSystemLoader;
 import org.tinygears.uom.engine.parse.DefinitionException;
 import org.tinygears.uom.engine.parse.DefinitionParser;
-import org.tinygears.uom.engine.parse.Definitions;
-import org.tinygears.uom.engine.parse.Extends;
-import org.tinygears.uom.engine.parse.FileDirectives;
-import org.tinygears.uom.engine.parse.Member;
-import org.tinygears.uom.engine.parse.Preferred;
-import org.tinygears.uom.engine.parse.Prefixed;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /** An immutable system of units indexed by symbol. */
@@ -55,6 +48,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
     private final Map<Class<?>, UomUnit<?>> preferred;
     private final Set<String> prefixable;
     private final Set<String> binaryPrefixable;
+    private final UnitSystem engine;
 
     /**
      * A system whose units take no binary prefix; see {@link #UomSystemOfUnits(String, List, Map, Set, Set)}.
@@ -112,6 +106,19 @@ public final class UomSystemOfUnits implements SystemOfUnits {
                 }
             }
         }
+        Map<String, org.tinygears.uom.engine.Unit> byType = new HashMap<>();
+        this.preferred.forEach((type, unit) -> byType.put(type.getSimpleName(), unit.engine()));
+        this.engine = new UnitSystem(
+                name,
+                index.values().stream().map(UomUnit::engine).toList(),
+                byType,
+                this.prefixable,
+                this.binaryPrefixable);
+    }
+
+    /** The engine system over the same units, for the unit format. */
+    UnitSystem engine() {
+        return engine;
     }
 
     /**
@@ -130,32 +137,7 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * @see #load(String, Reader, DefinitionParser.Resolver)
      */
     public static UomSystemOfUnits load(Path file) throws IOException {
-        Path fileName = file.getFileName();
-        if (fileName == null) {
-            throw new IllegalArgumentException("not a file: " + file);
-        }
-        Path dir = file.toAbsolutePath().normalize().getParent();
-        String source = fileName.toString();
-        DefinitionParser.Resolver resolver = name -> {
-            try {
-                Path p = dir.resolve(name).normalize();
-                if (Path.of(name).isAbsolute() || !p.startsWith(dir)) {
-                    throw new IOException("'" + name + "' is outside of " + dir);
-                }
-                Path real = p.toRealPath();
-                if (!real.startsWith(dir.toRealPath())) {
-                    throw new IOException("'" + name + "' is outside of " + dir + " (symbolic link)");
-                }
-                return new StringReader(Files.readString(real));
-            } catch (InvalidPathException e) {
-                throw new IOException(e.getMessage(), e);
-            }
-        };
-        try (Reader reader = Files.newBufferedReader(file)) {
-            return load(source, withoutExtension(source), reader, fully(resolver), new HashMap<>());
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
-        }
+        return wrap(UnitSystemLoader.load(file, builtins()));
     }
 
     /**
@@ -186,173 +168,55 @@ public final class UomSystemOfUnits implements SystemOfUnits {
      * @throws UncheckedIOException when {@code reader} fails, or a reader from {@code resolver} can not be read
      */
     public static UomSystemOfUnits load(String name, Reader reader, DefinitionParser.Resolver resolver) {
-        Objects.requireNonNull(name, "name");
-        Objects.requireNonNull(reader, "reader");
-        return load(name, name, reader, resolver == null ? null : fully(resolver), new HashMap<>());
+        return wrap(UnitSystemLoader.load(name, reader, resolver, builtins()));
     }
 
-    /** Reads each file fully when it is opened, so a failing reader is not mistaken for a missing include. */
-    private static DefinitionParser.Resolver fully(DefinitionParser.Resolver resolver) {
-        return name -> {
-            try (Reader r = resolver.open(name)) {
-                if (r == null) {
-                    return null;
-                }
-                StringWriter w = new StringWriter();
-                try {
-                    r.transferTo(w);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(
-                            "cannot read '" + name + "': the resolver returned a failing, closed or reused reader",
-                            e);
-                }
-                return new StringReader(w.toString());
-            }
-        };
-    }
-
-    private static String withoutExtension(String file) {
-        int dot = file.lastIndexOf('.');
-        return dot > 0 ? file.substring(0, dot) : file;
-    }
-
-    private static UomSystemOfUnits load(
-            String source,
-            String defaultName,
-            Reader reader,
-            DefinitionParser.Resolver resolver,
-            Map<String, UomSystemOfUnits> loaded
-    ) {
-        UomUnitFormat builtIn = UomUnitFormat.standard();
-        Definitions d = DefinitionParser
-                .parse(source, reader, resolver, s -> builtIn.resolve(s).map(UomUnit::engine).orElse(null));
-        return build(new Parsed(d), source, defaultName, loaded);
-    }
-
-    /** One parse indexed for building its systems: definitions by symbol, by-file lists, prefixed lines by unit. */
-    private static final class Parsed {
-        final Definitions definitions;
-        final Map<String, Definition> bySymbol = new HashMap<>();
-        final Map<String, List<Definition>> bySource = new HashMap<>();
-        final Map<String, List<Prefixed>> prefixedByUnit = new HashMap<>();
-
-        Parsed(Definitions d) {
-            definitions = d;
-            for (Definition def : d.definitions()) {
-                bySymbol.putIfAbsent(def.symbol(), def);
-                bySource.computeIfAbsent(def.source(), k -> new ArrayList<>()).add(def);
-            }
-            for (Prefixed p : d.prefixed()) {
-                prefixedByUnit.computeIfAbsent(p.unitSymbol(), k -> new ArrayList<>()).add(p);
-            }
-        }
-    }
-
-    /** The system of {@code source}, a file of the parse; its parents are built from the same parse, once each. */
+    /** The built-in symbols of {@link UomUnitFormat#standard()}, the standard types and SI's preferred units. */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static UomSystemOfUnits build(
-            Parsed parsed,
-            String source,
-            String defaultName,
-            Map<String, UomSystemOfUnits> loaded
-    ) {
-        Definitions d = parsed.definitions;
-        FileDirectives file = d.files().get(source);
-        String name = file.system() != null ? file.system() : defaultName;
-        Map<String, UomUnit<?>> units = new LinkedHashMap<>();
-        for (Definition def : parsed.bySource.getOrDefault(source, List.of())) {
-            units.put(def.symbol(), UomUnit.of(def.unit()));
+    private static UnitSystemLoader.Builtins builtins() {
+        UomUnitFormat builtIn = UomUnitFormat.standard();
+        Map<String, org.tinygears.uom.engine.Unit> types = new HashMap<>();
+        for (Class<?> type : QuantityTypes.types()) {
+            types.put(
+                    type.getSimpleName(),
+                    ((UomUnit<?>) QuantityTypes.factory((Class) type).getSystemUnit()).engine());
         }
-        Set<String> prefixable = new LinkedHashSet<>();
-        Set<String> binaryPrefixable = new LinkedHashSet<>();
-        for (Prefixed p : d.prefixed()) {
-            if (p.source().equals(source)) {
-                addPrefixable(p, prefixable, binaryPrefixable);
-            }
-        }
-        List<UomSystemOfUnits> parents = new ArrayList<>();
-        for (Extends x : file.extended()) {
-            UomSystemOfUnits system = loaded.get(x.file());
-            if (system == null) {
-                system = build(parsed, x.file(), withoutExtension(x.file()), loaded);
-                loaded.put(x.file(), system);
-            }
-            parents.add(system);
-            for (String symbol : system.symbols()) {
-                units.putIfAbsent(symbol, system.bySymbol.get(symbol));
-                if (system.isPrefixable(symbol)) {
-                    prefixable.add(symbol);
-                }
-                if (system.isBinaryPrefixable(symbol)) {
-                    binaryPrefixable.add(symbol);
-                }
-            }
-        }
-        for (Member m : file.members()) {
-            Definition def = parsed.bySymbol.get(m.symbol());
-            units.putIfAbsent(m.symbol(), UomUnit.of(def.unit()));
-            for (Prefixed p : parsed.prefixedByUnit.getOrDefault(m.symbol(), List.of())) {
-                if (p.source().equals(def.source())) {
-                    addPrefixable(p, prefixable, binaryPrefixable);
-                }
-            }
-        }
-        prefixable.retainAll(units.keySet());
-        binaryPrefixable.retainAll(units.keySet());
+        return new UnitSystemLoader.Builtins(
+                s -> builtIn.resolve(s).map(UomUnit::engine).orElse(null),
+                types,
+                SI.SYSTEM.engine().preferred());
+    }
 
+    /**
+     * The system over an engine system loaded from a file; a unit that is a unit of the catalogs (SI's preferred
+     * units) stays that instance, and one engine unit gets one wrapper.
+     */
+    private static UomSystemOfUnits wrap(UnitSystem system) {
+        Map<org.tinygears.uom.engine.Unit, UomUnit<?>> wrappers = new IdentityHashMap<>();
+        for (UomSystemOfUnits catalog : UnitSystems.all()) {
+            catalog.bySymbol.values().forEach(u -> wrappers.putIfAbsent(u.engine(), u));
+            catalog.preferred.values().forEach(u -> wrappers.putIfAbsent(u.engine(), u));
+        }
+        Function<org.tinygears.uom.engine.Unit, UomUnit<?>> wrap = e -> wrappers.computeIfAbsent(e, UomUnit::of);
+        List<UomUnit<?>> units = new ArrayList<>();
+        for (String symbol : system.symbols()) {
+            units.add(wrap.apply(system.lookup(symbol)));
+        }
         Map<String, Class<?>> types = new HashMap<>();
         QuantityTypes.types().forEach(t -> types.put(t.getSimpleName(), t));
         Map<Class<?>, UomUnit<?>> preferred = new HashMap<>();
-        for (Preferred p : d.preferred()) {
-            if (!p.source().equals(source)) {
-                continue;
+        system.preferred().forEach((type, unit) -> preferred.put(types.get(type), wrap.apply(unit)));
+        Set<String> prefixable = new LinkedHashSet<>();
+        Set<String> binaryPrefixable = new LinkedHashSet<>();
+        for (String symbol : system.symbols()) {
+            if (system.isPrefixable(symbol)) {
+                prefixable.add(symbol);
             }
-            Class<?> type = types.get(p.quantityType());
-            if (type == null) {
-                throw new DefinitionException(
-                        p.source(),
-                        p.line(),
-                        "unknown quantity type '" + p.quantityType() + "'",
-                        null);
-            }
-            UomUnit<?> unit = units.get(p.symbol());
-            if (unit == null) {
-                throw new DefinitionException(
-                        p.source(),
-                        p.line(),
-                        "unit '" + p.symbol() + "' is not a unit of " + name,
-                        null);
-            }
-            if (!QuantityTypes.factory((Class) type).getSystemUnit().equals(unit.getSystemUnit())) {
-                throw new DefinitionException(
-                        p.source(),
-                        p.line(),
-                        "unit '" + p.symbol() + "' is not a unit of " + p.quantityType(),
-                        null);
-            }
-            if (preferred.putIfAbsent(type, unit) != null) {
-                throw new DefinitionException(
-                        p.source(),
-                        p.line(),
-                        "duplicate preferred unit for '" + p.quantityType() + "'",
-                        null);
+            if (system.isBinaryPrefixable(symbol)) {
+                binaryPrefixable.add(symbol);
             }
         }
-        Map<Class<?>, UomUnit<?>> fallback = parents.isEmpty() ? SI.PREFERRED : parents.get(0).preferred;
-        for (Class<?> type : QuantityTypes.types()) {
-            preferred.computeIfAbsent(type, fallback::get);
-        }
-        return new UomSystemOfUnits(name, List.copyOf(units.values()), preferred, prefixable, binaryPrefixable);
-    }
-
-    /** A line with a metric prefix makes its unit metric-prefixable, one with a binary prefix binary-prefixable. */
-    private static void addPrefixable(Prefixed p, Set<String> prefixable, Set<String> binaryPrefixable) {
-        if (p.metric()) {
-            prefixable.add(p.unitSymbol());
-        }
-        if (p.binary()) {
-            binaryPrefixable.add(p.unitSymbol());
-        }
+        return new UomSystemOfUnits(system.name(), units, preferred, prefixable, binaryPrefixable);
     }
 
     /** Every symbol, in list order, aliases included. */

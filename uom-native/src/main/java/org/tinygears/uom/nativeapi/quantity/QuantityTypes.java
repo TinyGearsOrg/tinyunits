@@ -12,12 +12,14 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.nativeapi.AbstractQuantity;
 import org.tinygears.uom.nativeapi.Quantity;
+import org.tinygears.uom.nativeapi.Unit;
 
 /** The quantity types of the native API: their dimensions and factories. */
 public final class QuantityTypes {
@@ -94,6 +96,72 @@ public final class QuantityTypes {
      */
     public static Set<Class<?>> types() {
         return DIMENSIONS.keySet();
+    }
+
+    /**
+     * The quantity type whose system unit is the system unit of {@code unit}: atoms included, so
+     * {@code 1/s} is a {@code Frequency} and {@code Bq} a {@code Radioactivity}.
+     *
+     * @param unit the unit
+     * @return the type, or null if no type has its system unit
+     */
+    public static Class<?> typeOf(Unit<?> unit) {
+        return SystemUnits.TYPES.get(unit.systemUnit());
+    }
+
+    /**
+     * The system unit of {@code type}.
+     *
+     * @param type the quantity type
+     * @return the system unit, or null if {@code type} is not a quantity type
+     */
+    public static Unit<?> systemUnit(Class<?> type) {
+        return SystemUnits.UNITS.get(type);
+    }
+
+    // Apart from DIMENSIONS too: the system units are only complete once every type is initialised.
+    private static final class SystemUnits {
+        static final Map<Unit<?>, Class<?>> TYPES = Map.ofEntries(
+                Map.entry(Acceleration.SYSTEM_UNIT, Acceleration.class),
+                Map.entry(AmountOfSubstance.SYSTEM_UNIT, AmountOfSubstance.class),
+                Map.entry(Angle.SYSTEM_UNIT, Angle.class),
+                Map.entry(Area.SYSTEM_UNIT, Area.class),
+                Map.entry(CatalyticActivity.SYSTEM_UNIT, CatalyticActivity.class),
+                Map.entry(Dimensionless.SYSTEM_UNIT, Dimensionless.class),
+                Map.entry(ElectricCapacitance.SYSTEM_UNIT, ElectricCapacitance.class),
+                Map.entry(ElectricCharge.SYSTEM_UNIT, ElectricCharge.class),
+                Map.entry(ElectricConductance.SYSTEM_UNIT, ElectricConductance.class),
+                Map.entry(ElectricCurrent.SYSTEM_UNIT, ElectricCurrent.class),
+                Map.entry(ElectricInductance.SYSTEM_UNIT, ElectricInductance.class),
+                Map.entry(ElectricPotential.SYSTEM_UNIT, ElectricPotential.class),
+                Map.entry(ElectricResistance.SYSTEM_UNIT, ElectricResistance.class),
+                Map.entry(Energy.SYSTEM_UNIT, Energy.class),
+                Map.entry(Force.SYSTEM_UNIT, Force.class),
+                Map.entry(Frequency.SYSTEM_UNIT, Frequency.class),
+                Map.entry(Illuminance.SYSTEM_UNIT, Illuminance.class),
+                Map.entry(Length.SYSTEM_UNIT, Length.class),
+                Map.entry(LuminousFlux.SYSTEM_UNIT, LuminousFlux.class),
+                Map.entry(LuminousIntensity.SYSTEM_UNIT, LuminousIntensity.class),
+                Map.entry(MagneticFlux.SYSTEM_UNIT, MagneticFlux.class),
+                Map.entry(MagneticFluxDensity.SYSTEM_UNIT, MagneticFluxDensity.class),
+                Map.entry(Mass.SYSTEM_UNIT, Mass.class),
+                Map.entry(Power.SYSTEM_UNIT, Power.class),
+                Map.entry(Pressure.SYSTEM_UNIT, Pressure.class),
+                Map.entry(RadiationDoseAbsorbed.SYSTEM_UNIT, RadiationDoseAbsorbed.class),
+                Map.entry(RadiationDoseEffective.SYSTEM_UNIT, RadiationDoseEffective.class),
+                Map.entry(Radioactivity.SYSTEM_UNIT, Radioactivity.class),
+                Map.entry(SolidAngle.SYSTEM_UNIT, SolidAngle.class),
+                Map.entry(Speed.SYSTEM_UNIT, Speed.class),
+                Map.entry(Temperature.SYSTEM_UNIT, Temperature.class),
+                Map.entry(Time.SYSTEM_UNIT, Time.class),
+                Map.entry(Volume.SYSTEM_UNIT, Volume.class));
+        static final Map<Class<?>, Unit<?>> UNITS = units();
+
+        private static Map<Class<?>, Unit<?>> units() {
+            Map<Class<?>, Unit<?>> m = new HashMap<>();
+            TYPES.forEach((unit, type) -> m.put(type, unit));
+            return Map.copyOf(m);
+        }
     }
 
     // Apart from DIMENSIONS, which Unit.of reads while the system units initialise.

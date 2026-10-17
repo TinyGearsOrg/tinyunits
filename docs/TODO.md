@@ -122,9 +122,9 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 **Status:** decided (DESIGN DR-21), in progress on branch `native-prototype`: complete the split, the native API as
 `uom` and the JSR-385 implementation as `uom-jsr`. Done: the engine with the shared arithmetic, the 33 generated native
-types with typed products, the native catalogs, offset units, the bridge. Open: stage 4, native formats and systems
-(their parser and printer moved into the engine), `toSystem`, run-time `.units` files, serialization; stage 5, the
-renames, docs, examples and the TCK on `uom-jsr` ([NATIVE-API.md](NATIVE-API.md), "Progress").
+types with typed products, the native catalogs, offset units, the bridge, and the formats, systems, `toSystem`,
+run-time `.units` files and serialization on the engine's shared format code. Open: stage 5, the renames (`uom-core`
+merged into `uom-jsr`), docs, examples and the TCK on `uom-jsr` ([NATIVE-API.md](NATIVE-API.md), "Progress").
 
 **Needed by:** before 1.0 (module boundaries and the public API).
 

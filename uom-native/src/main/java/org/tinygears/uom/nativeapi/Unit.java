@@ -10,6 +10,10 @@
 
 package org.tinygears.uom.nativeapi;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
 import org.tinygears.uom.engine.Converter;
@@ -22,12 +26,17 @@ import org.tinygears.uom.nativeapi.quantity.QuantityTypes;
  * A unit of the quantity type {@code Q} over an engine unit; the type is checked against the unit's dimension, and
  * {@link Untyped} takes any. Unlike JSR-385's {@code Unit<Q>}, {@code Q} is this library's typed interface:
  * {@code Unit<Length>}. Two units are equal if their engine units are (the same atoms and converter), whatever their
- * type and labels. Immutable.
+ * type and labels. Immutable; serializable as its type name and engine unit, checked again when read.
  *
  * @param <Q> the quantity type
  */
-public final class Unit<Q extends Quantity<Q>> {
+public final class Unit<Q extends Quantity<Q>> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /** The quantity type. */
     private final Class<Q> type;
+    /** The engine unit. */
     private final org.tinygears.uom.engine.Unit engine;
 
     private Unit(Class<Q> type, org.tinygears.uom.engine.Unit engine) {
@@ -224,6 +233,27 @@ public final class Unit<Q extends Quantity<Q>> {
     @SuppressWarnings("unchecked") // the type is Class<T>, so the unit is one of T
     public <T extends Quantity<T>> Unit<T> asType(Class<T> type) {
         return this.type == type ? (Unit<T>) this : of(type, engine);
+    }
+
+    /**
+     * The serialization proxy.
+     *
+     * @return the proxy
+     */
+    @Serial
+    private Object writeReplace() {
+        return new SerialProxy.OfUnit(this);
+    }
+
+    /**
+     * Rejects a stream without the proxy.
+     *
+     * @param in the stream
+     * @throws InvalidObjectException always
+     */
+    @Serial
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
     }
 
     @Override

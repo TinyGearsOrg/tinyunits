@@ -14,10 +14,12 @@ package org.tinygears.uom.nativeapi.systems;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.nativeapi.BaseUnits;
+import org.tinygears.uom.nativeapi.SystemOfUnits;
 import org.tinygears.uom.nativeapi.Unit;
 import org.tinygears.uom.nativeapi.quantity.Acceleration;
 import org.tinygears.uom.nativeapi.quantity.AmountOfSubstance;
@@ -128,6 +130,12 @@ public final class ESU {
             SI.GRAM,
             SI.SECOND);
 
+    /** The symbols that take a metric prefix in this system. */
+    public static final Set<String> PREFIXABLE = Set.of("Gal", "P", "St", "g", "s");
+
+    /** The symbols that take a binary prefix in this system. */
+    public static final Set<String> BINARY_PREFIXABLE = Set.of();
+
     /** The preferred unit of each quantity type. */
     public static final Map<Class<?>, Unit<?>> PREFERRED = Map.<Class<?>, Unit<?>>ofEntries(
             Map.entry(Acceleration.class, CGS.GALILEO),
@@ -163,4 +171,12 @@ public final class ESU {
             Map.entry(Temperature.class, Temperature.SYSTEM_UNIT),
             Map.entry(Time.class, Time.SYSTEM_UNIT),
             Map.entry(Volume.class, CGS.CUBIC_CENTIMETRE));
+
+    /** This system of units. */
+    public static final SystemOfUnits SYSTEM = new SystemOfUnits(
+            "ESU",
+            UNITS,
+            PREFERRED,
+            PREFIXABLE,
+            BINARY_PREFIXABLE);
 }

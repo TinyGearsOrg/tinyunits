@@ -75,6 +75,15 @@ public interface Quantity<Q extends Quantity<Q>> extends Comparable<Q> {
     Q to(Unit<Q> unit);
 
     /**
+     * The same amount in the unit {@code system} prefers for this quantity's type, as {@link #to(Unit)}.
+     *
+     * @param system the system of units
+     * @return the converted quantity
+     * @throws UnsupportedOperationException if the system has no unit for the type (an {@link Untyped} quantity)
+     */
+    Q toSystem(SystemOfUnits system);
+
+    /**
      * The sum, in this unit.
      *
      * @param other the other quantity

@@ -12,6 +12,7 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -20,6 +21,9 @@ import org.tinygears.uom.nativeapi.Scale;
 import org.tinygears.uom.nativeapi.Unit;
 
 final class AngleValue extends AbstractQuantity<Angle> implements Angle {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     AngleValue(double value, BigDecimal decimal, MathContext mc, Unit<Angle> unit, Scale scale) {
         super(value, decimal, mc, unit, scale);

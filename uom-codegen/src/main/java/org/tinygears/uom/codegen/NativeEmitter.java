@@ -162,6 +162,9 @@ public final class NativeEmitter {
     private static final String CLASS = """
             final class $TValue extends org.tinygears.uom.nativeapi.AbstractQuantity<$T> implements $T {
 
+                @java.io.Serial
+                private static final long serialVersionUID = 1L;
+
                 $TValue(double value, java.math.BigDecimal decimal, java.math.MathContext mc,
                         org.tinygears.uom.nativeapi.Unit<$T> unit, org.tinygears.uom.nativeapi.Scale scale) {
                     super(value, decimal, mc, unit, scale);
@@ -230,6 +233,40 @@ public final class NativeEmitter {
                     return DIMENSIONS.keySet();
                 }
 
+                /**
+                 * The quantity type whose system unit is the system unit of {@code unit}: atoms included, so
+                 * {@code 1/s} is a {@code Frequency} and {@code Bq} a {@code Radioactivity}.
+                 *
+                 * @param unit the unit
+                 * @return the type, or null if no type has its system unit
+                 */
+                public static Class<?> typeOf(org.tinygears.uom.nativeapi.Unit<?> unit) {
+                    return SystemUnits.TYPES.get(unit.systemUnit());
+                }
+
+                /**
+                 * The system unit of {@code type}.
+                 *
+                 * @param type the quantity type
+                 * @return the system unit, or null if {@code type} is not a quantity type
+                 */
+                public static org.tinygears.uom.nativeapi.Unit<?> systemUnit(Class<?> type) {
+                    return SystemUnits.UNITS.get(type);
+                }
+
+                // Apart from DIMENSIONS too: the system units are only complete once every type is initialised.
+                private static final class SystemUnits {
+                    static final java.util.Map<org.tinygears.uom.nativeapi.Unit<?>, Class<?>> TYPES =
+                            java.util.Map.ofEntries($S);
+                    static final java.util.Map<Class<?>, org.tinygears.uom.nativeapi.Unit<?>> UNITS = units();
+
+                    private static java.util.Map<Class<?>, org.tinygears.uom.nativeapi.Unit<?>> units() {
+                        java.util.Map<Class<?>, org.tinygears.uom.nativeapi.Unit<?>> m = new java.util.HashMap<>();
+                        TYPES.forEach((unit, type) -> m.put(type, unit));
+                        return java.util.Map.copyOf(m);
+                    }
+                }
+
                 // Apart from DIMENSIONS, which Unit.of reads while the system units initialise.
                 private static final class Factories {
                     static final java.util.Map<Class<?>, org.tinygears.uom.nativeapi.AbstractQuantity.Factory<?>> ALL =
@@ -292,8 +329,11 @@ public final class NativeEmitter {
                                 + ".class, (org.tinygears.uom.nativeapi.AbstractQuantity.Factory<" + s.name() + ">) "
                                 + s.name() + "Value::new)")
                 .collect(Collectors.joining(",\n" + INDENT, "\n" + INDENT, ""));
+        String units = specs.stream()
+                .map(s -> "java.util.Map.entry(" + s.name() + ".SYSTEM_UNIT, " + s.name() + ".class)")
+                .collect(Collectors.joining(",\n" + INDENT, "\n" + INDENT, ""));
         Imports imports = quantityImports(specs);
-        String body = imports.resolve(REGISTRY.replace("$D", dims).replace("$F", factories));
+        String body = imports.resolve(REGISTRY.replace("$D", dims).replace("$F", factories).replace("$S", units));
         return header("data/quantity-types.txt", QUANTITY) + imports.block() + body;
     }
 
@@ -352,6 +392,15 @@ public final class NativeEmitter {
                                 catalog.units().values().stream().map(r -> local(nativeRef(r), className, imports))
                                         .toList()))
                 .append(";\n");
+        String set = imports.name("java.util.Set");
+        out.append("\n    /** The symbols that take a metric prefix in this system. */\n    public static final ")
+                .append(set).append("<String> PREFIXABLE =\n            ").append(set).append(".of(")
+                .append(args(catalog.prefixable().stream().sorted().map(UnitExpressionEmitter::literal).toList()))
+                .append(";\n");
+        out.append("\n    /** The symbols that take a binary prefix in this system. */\n    public static final ")
+                .append(set).append("<String> BINARY_PREFIXABLE =\n            ").append(set).append(".of(")
+                .append(args(catalog.binaryPrefixable().stream().sorted().map(UnitExpressionEmitter::literal).toList()))
+                .append(";\n");
         String map = imports.name("java.util.Map");
         List<String> pairs = new ArrayList<>();
         catalog.preferred().forEach(
@@ -361,6 +410,11 @@ public final class NativeEmitter {
         out.append("\n    /** The preferred unit of each quantity type. */\n    public static final ").append(map)
                 .append("<Class<?>, ").append(unitClass).append("<?>> PREFERRED =\n            ").append(map)
                 .append(".<Class<?>, ").append(unitClass).append("<?>>ofEntries(").append(args(pairs)).append(";\n");
+        String system = imports.name(BASE + ".SystemOfUnits");
+        out.append("\n    /** This system of units. */\n    public static final ").append(system)
+                .append(" SYSTEM =\n            new ").append(system).append('(')
+                .append(UnitExpressionEmitter.literal(className))
+                .append(", UNITS, PREFERRED, PREFIXABLE, BINARY_PREFIXABLE);\n");
         return header(join(files.stream().map(f -> "data/" + f).toList()), SYSTEMS) + imports.block()
                 + out.append("}\n");
     }
@@ -480,7 +534,7 @@ public final class NativeEmitter {
     }
 
     private static Imports quantityImports(List<QuantityTypeSpec> specs) {
-        List<String> taken = new ArrayList<>(List.of("QuantityTypes", "Factories"));
+        List<String> taken = new ArrayList<>(List.of("QuantityTypes", "Factories", "SystemUnits"));
         for (QuantityTypeSpec s : specs) {
             taken.addAll(List.of(s.name(), s.name() + "Value"));
         }
@@ -488,7 +542,8 @@ public final class NativeEmitter {
     }
 
     private static Set<String> taken(CatalogBuilder.Catalog catalog, List<QuantityTypeSpec> extras) {
-        Set<String> taken = new TreeSet<>(List.of(catalog.className(), "UNITS", "PREFERRED"));
+        Set<String> taken = new TreeSet<>(
+                List.of(catalog.className(), "UNITS", "PREFERRED", "PREFIXABLE", "BINARY_PREFIXABLE", "SYSTEM"));
         catalog.entries().forEach(e -> taken.add(e.constantName()));
         extras.forEach(t -> taken.add(CatalogEmitter.constantName(t)));
         catalog.units().values().stream().map(NativeEmitter::nativeRef)

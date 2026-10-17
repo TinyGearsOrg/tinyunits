@@ -12,6 +12,7 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -21,6 +22,9 @@ import org.tinygears.uom.nativeapi.Unit;
 
 final class RadiationDoseEffectiveValue extends AbstractQuantity<RadiationDoseEffective>
         implements RadiationDoseEffective {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     RadiationDoseEffectiveValue(
             double value,

@@ -10,6 +10,11 @@
 
 package org.tinygears.uom.nativeapi;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
@@ -23,16 +28,24 @@ import org.tinygears.uom.nativeapi.quantity.QuantityTypes;
 /**
  * Base class of the quantities: a {@code double}, or a decimal with its context, a unit and a scale; the arithmetic
  * is the engine's (see {@link Quantity} for the rules). The generated classes extend it; not meant to be extended
- * outside this library.
+ * outside this library. Serializable through a proxy: type name, unit, scale and the exact value, rebuilt through
+ * the type's factory when read.
  *
  * @param <Q> the quantity type
  */
-public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantity<Q> {
+public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantity<Q>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /** The double value; 0 for a decimal quantity. */
     private final double value;
-    // null for a double quantity
+    /** The decimal value; null for a double quantity. */
     private final BigDecimal decimal;
+    /** The context of a decimal quantity; null for a double one. */
     private final MathContext mathContext;
+    /** The unit. */
     private final Unit<Q> unit;
+    /** The scale. */
     private final Scale scale;
 
     /**
@@ -114,6 +127,17 @@ public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantit
             return create(DoubleArithmetic.convert(value, c, relative()), null, null, target, scale);
         }
         return create(0, DecimalArithmetic.convert(decimal, c, relative(), mathContext), mathContext, target, scale);
+    }
+
+    @Override
+    public Q toSystem(SystemOfUnits system) {
+        Objects.requireNonNull(system, "system");
+        Unit<Q> target = system.unit(unit.type());
+        if (target == null) {
+            throw new UnsupportedOperationException(
+                    "system " + system.name() + " has no unit for type " + unit.type().getSimpleName());
+        }
+        return to(target);
     }
 
     @Override
@@ -426,6 +450,38 @@ public abstract class AbstractQuantity<Q extends Quantity<Q>> implements Quantit
             return mathContext != null ? mathContext : o;
         }
         return Precision.lower(mathContext, o);
+    }
+
+    /**
+     * The serialization proxy.
+     *
+     * @return the proxy
+     * @throws ObjectStreamException if the decimal value is too large to write
+     */
+    @Serial
+    protected final Object writeReplace() throws ObjectStreamException {
+        return new SerialProxy.OfQuantity(this);
+    }
+
+    /**
+     * Rejects a stream without the proxy.
+     *
+     * @param in the stream
+     * @throws InvalidObjectException always
+     */
+    @Serial
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
+    }
+
+    /**
+     * Called instead of readObject when a stream names a subclass without this class.
+     *
+     * @throws InvalidObjectException always
+     */
+    @Serial
+    private void readObjectNoData() throws InvalidObjectException {
+        throw new InvalidObjectException("proxy required");
     }
 
     /**

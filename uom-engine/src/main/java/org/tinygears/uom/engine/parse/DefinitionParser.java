@@ -30,6 +30,7 @@ import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Unit;
 import org.tinygears.uom.engine.UnitAtom;
 import org.tinygears.uom.engine.UnitException;
+import org.tinygears.uom.engine.format.Prefix;
 
 /** Parses {@code .units} definition files: one {@code symbol[:name] body [Type] [# comment]} per line. */
 public final class DefinitionParser {
@@ -325,7 +326,7 @@ public final class DefinitionParser {
         }
         List<String> symbols = List.of(w).subList(2, w.length);
         for (String p : symbols) {
-            Prefixed.Prefix prefix = Prefixed.PREFIXES.get(p);
+            Prefix prefix = Prefix.BY_SYMBOL.get(p);
             if (prefix == null) {
                 throw new DefinitionException(src, ln, "unknown prefix '" + p + "'", null);
             }

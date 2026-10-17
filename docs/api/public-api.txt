@@ -118,12 +118,19 @@ org.tinygears.uom.engine UnitException member public org.tinygears.uom.engine.Un
 org.tinygears.uom.engine UnitException type public class org.tinygears.uom.engine.UnitException extends java.lang.RuntimeException
 org.tinygears.uom.engine module exports org.tinygears.uom.engine
 org.tinygears.uom.engine module exports org.tinygears.uom.engine.arithmetic to [org.tinygears.uom.core, org.tinygears.uom.nativeapi]
-org.tinygears.uom.engine module exports org.tinygears.uom.engine.internal to [org.tinygears.uom, org.tinygears.uom.core]
+org.tinygears.uom.engine module exports org.tinygears.uom.engine.format to [org.tinygears.uom, org.tinygears.uom.nativeapi]
+org.tinygears.uom.engine module exports org.tinygears.uom.engine.internal to [org.tinygears.uom, org.tinygears.uom.core, org.tinygears.uom.nativeapi]
 org.tinygears.uom.engine module exports org.tinygears.uom.engine.parse
 org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.DecimalArithmetic
 org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.Deltas
 org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.DoubleArithmetic
 org.tinygears.uom.engine.arithmetic hidden org.tinygears.uom.engine.arithmetic.Precision
+org.tinygears.uom.engine.format hidden org.tinygears.uom.engine.format.NumberText
+org.tinygears.uom.engine.format hidden org.tinygears.uom.engine.format.Prefix
+org.tinygears.uom.engine.format hidden org.tinygears.uom.engine.format.TextParseException
+org.tinygears.uom.engine.format hidden org.tinygears.uom.engine.format.UnitFormatter
+org.tinygears.uom.engine.format hidden org.tinygears.uom.engine.format.UnitSystem
+org.tinygears.uom.engine.format hidden org.tinygears.uom.engine.format.UnitSystemLoader
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.AlternateUnits
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.Atoms
 org.tinygears.uom.engine.internal hidden org.tinygears.uom.engine.internal.BoundedCache

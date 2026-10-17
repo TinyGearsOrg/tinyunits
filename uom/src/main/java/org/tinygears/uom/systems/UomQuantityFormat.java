@@ -32,6 +32,8 @@ import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.core.quantity.UntypedDecimalQuantity;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
 import org.tinygears.uom.core.quantity.UomQuantity;
+import org.tinygears.uom.engine.format.NumberText;
+import org.tinygears.uom.engine.format.TextParseException;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /**
@@ -72,16 +74,9 @@ import org.tinygears.uom.quantity.QuantityTypes;
  * an equal unit ({@link UomUnitFormat#format}).
  */
 public final class UomQuantityFormat implements QuantityFormat {
-    private static final DecimalFormatSymbols ROOT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ROOT);
-
     private final UomUnitFormat unitFormat;
-    private final Locale locale;
+    private final NumberText numbers;
     private final boolean grouping;
-    private final char zero;
-    private final char decimal;
-    private final char group;
-    private final char minus;
-    private final String exponent;
     private final MathContext decimals;
 
     /**
@@ -90,26 +85,14 @@ public final class UomQuantityFormat implements QuantityFormat {
      * @param unitFormat the format of the units
      */
     public UomQuantityFormat(UomUnitFormat unitFormat) {
-        this(Objects.requireNonNull(unitFormat, "unitFormat"), Locale.ROOT, ROOT_SYMBOLS, false, null);
+        this(Objects.requireNonNull(unitFormat, "unitFormat"), NumberText.ROOT, false, null);
     }
 
-    private UomQuantityFormat(
-            UomUnitFormat unitFormat,
-            Locale locale,
-            DecimalFormatSymbols symbols,
-            boolean grouping,
-            MathContext decimals
-    ) {
+    private UomQuantityFormat(UomUnitFormat unitFormat, NumberText numbers, boolean grouping, MathContext decimals) {
         this.unitFormat = unitFormat;
-        this.locale = locale;
+        this.numbers = numbers;
         this.grouping = grouping;
         this.decimals = decimals;
-        this.zero = symbols.getZeroDigit();
-        this.decimal = symbols.getDecimalSeparator();
-        this.group = symbols.getGroupingSeparator();
-        this.minus = symbols.getMinusSign();
-        this.exponent = symbols.getExponentSeparator();
-        check();
     }
 
     /**
@@ -124,7 +107,7 @@ public final class UomQuantityFormat implements QuantityFormat {
     }
 
     UomQuantityFormat withSymbols(Locale locale, DecimalFormatSymbols symbols) {
-        return new UomQuantityFormat(unitFormat, locale, symbols, grouping, decimals);
+        return new UomQuantityFormat(unitFormat, new NumberText(locale, symbols), grouping, decimals);
     }
 
     /**
@@ -134,7 +117,7 @@ public final class UomQuantityFormat implements QuantityFormat {
      * @return the new format
      */
     public UomQuantityFormat withGrouping(boolean grouping) {
-        return new UomQuantityFormat(this, grouping, decimals);
+        return new UomQuantityFormat(unitFormat, numbers, grouping, decimals);
     }
 
     /**
@@ -155,19 +138,7 @@ public final class UomQuantityFormat implements QuantityFormat {
         if (mc != null && mc.getPrecision() > AbstractDecimalQuantity.MAX_PRECISION) {
             throw new ArithmeticException("precision out of range: " + mc.getPrecision());
         }
-        return new UomQuantityFormat(this, grouping, mc);
-    }
-
-    private UomQuantityFormat(UomQuantityFormat base, boolean grouping, MathContext decimals) {
-        this.unitFormat = base.unitFormat;
-        this.locale = base.locale;
-        this.grouping = grouping;
-        this.decimals = decimals;
-        this.zero = base.zero;
-        this.decimal = base.decimal;
-        this.group = base.group;
-        this.minus = base.minus;
-        this.exponent = base.exponent;
+        return new UomQuantityFormat(unitFormat, numbers, grouping, mc);
     }
 
     /**
@@ -176,7 +147,7 @@ public final class UomQuantityFormat implements QuantityFormat {
      * @return the locale
      */
     public Locale getLocale() {
-        return locale;
+        return numbers.locale();
     }
 
     /**
@@ -191,25 +162,24 @@ public final class UomQuantityFormat implements QuantityFormat {
     /** True unless the locale is ROOT. */
     @Override
     public boolean isLocaleSensitive() {
-        return !Locale.ROOT.equals(locale);
+        return !Locale.ROOT.equals(numbers.locale());
     }
 
     /** Equal formats have the same locale symbols, grouping and decimal context and the same unit format instance. */
     @Override
     public boolean equals(Object o) {
-        return o instanceof UomQuantityFormat f && f.unitFormat == unitFormat && f.locale.equals(locale)
-                && f.grouping == grouping && f.zero == zero && f.decimal == decimal && f.group == group
-                && f.minus == minus && f.exponent.equals(exponent) && Objects.equals(f.decimals, decimals);
+        return o instanceof UomQuantityFormat f && f.unitFormat == unitFormat && f.numbers.equals(numbers)
+                && f.grouping == grouping && Objects.equals(f.decimals, decimals);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(System.identityHashCode(unitFormat), locale, grouping, decimals);
+        return Objects.hash(System.identityHashCode(unitFormat), numbers.locale(), grouping, decimals);
     }
 
     @Override
     public String toString() {
-        return "UomQuantityFormat[locale=" + locale.toLanguageTag() + ", grouping=" + grouping + ", decimals="
+        return "UomQuantityFormat[locale=" + numbers.locale().toLanguageTag() + ", grouping=" + grouping + ", decimals="
                 + (decimals == null
                         ? "off"
                         : decimals.equals(MathContext.UNLIMITED)
@@ -218,70 +188,15 @@ public final class UomQuantityFormat implements QuantityFormat {
                 + "]";
     }
 
-    private void check() {
-        for (int i = 0; i < 10; i++) {
-            if (Character.digit(zero + i, 10) != i) {
-                throw unsafe("zero digit '" + zero + "' does not start a digit run");
-            }
-        }
-        if (decimal == group) {
-            throw unsafe("decimal separator '" + decimal + "' equals grouping separator");
-        }
-        checkSymbol("decimal separator", decimal);
-        checkSymbol("grouping separator", group);
-        checkSymbol("minus sign", minus);
-        if (minus == decimal || minus == group || decimal == '-' || group == '-') {
-            throw unsafe("minus sign '" + minus + "' collides with a separator");
-        }
-        if (exponent.isEmpty() || exponent.codePoints().anyMatch(Character::isWhitespace)) {
-            throw unsafe("exponent separator '" + exponent + "' is empty or has a space");
-        }
-        char first = exponent.charAt(0);
-        if (isDigit(first) || first == decimal || first == group || first == minus || first == '-' || first == '+') {
-            throw unsafe("exponent separator '" + exponent + "' starts with a digit, sign or separator");
-        }
-    }
-
-    private void checkSymbol(String what, char c) {
-        if (Character.isLetterOrDigit(c) || Character.isWhitespace(c) || isFormatMark(c) || c == '+') {
-            throw unsafe(what + " '" + c + "' is a letter, digit, space, format mark or plus");
-        }
-    }
-
-    private IllegalArgumentException unsafe(String reason) {
-        return new IllegalArgumentException(
-                "locale " + locale.toLanguageTag() + " cannot round trip numbers: " + reason);
-    }
-
     @Override
     public String format(Quantity<?> quantity) {
         String value = String.valueOf(quantity.getValue());
-        if (isLocaleSensitive() && !value.endsWith("NaN") && !value.endsWith("Infinity")) {
-            value = localize(value);
+        if (isLocaleSensitive()) {
+            value = numbers.write(value);
         }
         String unit = unitFormat.format(quantity.getUnit());
         // A number alone is dimensionless when parsed (parse).
         return unit.equals("1") ? value : value + " " + unit;
-    }
-
-    /** Maps the ASCII number text character by character; the digits are never rounded. */
-    private String localize(String value) {
-        StringBuilder sb = new StringBuilder(value.length() + 8);
-        for (int i = 0; i < value.length(); i++) {
-            char c = value.charAt(i);
-            if (c >= '0' && c <= '9') {
-                sb.append((char) (zero + c - '0'));
-            } else if (c == '.') {
-                sb.append(decimal);
-            } else if (c == '-') {
-                sb.append(minus);
-            } else if (c == 'E') {
-                sb.append(exponent);
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 
     @Override
@@ -324,171 +239,21 @@ public final class UomQuantityFormat implements QuantityFormat {
             to++;
         }
         String token = s.substring(from, to);
-        double value = 0;
-        BigDecimal decimal = null;
+        Number number;
         try {
-            String text = normalize(csq, from, to);
-            if (decimals == null) {
-                value = Double.parseDouble(text);
-            } else {
-                String unsigned = text.startsWith("+") || text.startsWith("-") ? text.substring(1) : text;
-                if (unsigned.equals("NaN") || unsigned.equals("Infinity")) {
-                    throw new MeasurementParseException(
-                            "decimal quantities have no NaN or infinity: '" + token + "'",
-                            csq,
-                            from);
-                }
-                long scale = scaleOf(text);
-                if (scale > AbstractDecimalQuantity.MAX_SCALE || scale < -AbstractDecimalQuantity.MAX_SCALE) {
-                    throw new MeasurementParseException(
-                            "invalid number '" + token + "': scale out of range"
-                                    + (scale == Long.MAX_VALUE || scale == Long.MIN_VALUE ? "" : ": " + scale),
-                            csq,
-                            from);
-                }
-                decimal = new BigDecimal(text);
-            }
-        } catch (NumberFormatException e) {
-            throw new MeasurementParseException(
-                    token.isEmpty() ? "missing number" : "invalid number '" + token + "'",
-                    csq,
-                    from);
+            number = numbers.read(s, from, to, grouping, decimals != null, AbstractDecimalQuantity.MAX_SCALE);
+        } catch (TextParseException e) {
+            throw new MeasurementParseException(e.getMessage(), csq, e.position());
         }
         UomUnit<?> unit = s.substring(to).isBlank() ? BaseUnits.ONE : unitFormat.parseFrom(csq, to);
         if (decimals == null) {
-            return create(value, unit);
+            return create(number.doubleValue(), unit);
         }
         try {
-            return create(decimal, unit, decimals);
+            return create((BigDecimal) number, unit, decimals);
         } catch (ArithmeticException e) {
             throw new MeasurementParseException("invalid number '" + token + "': " + e.getMessage(), csq, from);
         }
-    }
-
-    /**
-     * The scale {@code new BigDecimal(text)} would have, in linear time, so a huge text fails before the quadratic
-     * parse; 0 if {@code text} is malformed (BigDecimal rejects it) and {@link Long#MAX_VALUE} or
-     * {@link Long#MIN_VALUE} for an exponent of 10^15 or more.
-     */
-    private static long scaleOf(String text) {
-        int i = text.startsWith("+") || text.startsWith("-") ? 1 : 0;
-        int digits = 0;
-        long fraction = 0;
-        boolean point = false;
-        for (; i < text.length() && text.charAt(i) != 'E'; i++) {
-            char c = text.charAt(i);
-            if (c == '.' && !point) {
-                point = true;
-            } else if (c >= '0' && c <= '9') {
-                digits++;
-                fraction += point ? 1 : 0;
-            } else {
-                return 0;
-            }
-        }
-        if (digits == 0) {
-            return 0;
-        }
-        if (i == text.length()) {
-            return fraction;
-        }
-        boolean negative = i + 1 < text.length() && text.charAt(i + 1) == '-';
-        int start = i + 1 < text.length() && (negative || text.charAt(i + 1) == '+') ? i + 2 : i + 1;
-        if (start == text.length()) {
-            return 0;
-        }
-        long e = 0;
-        for (int j = start; j < text.length(); j++) {
-            char c = text.charAt(j);
-            if (c < '0' || c > '9') {
-                return 0;
-            }
-            // saturates: an exponent of 10^15 or more is out of range whatever the fraction
-            e = e >= 1_000_000_000_000_000L ? e : e * 10 + c - '0';
-        }
-        if (e >= 1_000_000_000_000_000L) {
-            return negative ? Long.MAX_VALUE : Long.MIN_VALUE;
-        }
-        return fraction - (negative ? -e : e);
-    }
-
-    /**
-     * The number in {@code csq[from, to)} as ASCII text for {@link Double#parseDouble} or {@code new BigDecimal};
-     * throws {@link NumberFormatException} for a character outside the locale's number symbols.
-     */
-    private String normalize(CharSequence csq, int from, int to) {
-        String s = csq.toString();
-        // Format marks (Cf) before or after the number and after a leading sign, as DecimalFormat writes them.
-        while (from < to && isFormatMark(s.charAt(from))) {
-            from++;
-        }
-        while (to > from && isFormatMark(s.charAt(to - 1))) {
-            to--;
-        }
-        int i = from;
-        StringBuilder sb = new StringBuilder(to - from);
-        if (i < to && isSign(s.charAt(i))) {
-            sb.append(s.charAt(i) == '+' ? '+' : '-');
-            i++;
-            while (i < to && isFormatMark(s.charAt(i))) {
-                i++;
-            }
-        }
-        String rest = s.substring(i, to);
-        if (rest.equals("NaN") || rest.equals("Infinity")) {
-            return sb + rest;
-        }
-        boolean fraction = false;
-        boolean exponentPart = false;
-        while (i < to) {
-            char c = s.charAt(i);
-            if (isDigit(c)) {
-                sb.append((char) ('0' + (c >= '0' && c <= '9' ? c - '0' : c - zero)));
-            } else if (c == decimal) {
-                sb.append('.');
-                fraction = true;
-            } else if (c == group) {
-                if (!grouping) {
-                    throw new MeasurementParseException("grouping separator not allowed: '" + c + "'", csq, i);
-                }
-                if (exponentPart || fraction) {
-                    throw new MeasurementParseException(
-                            "grouping separator not allowed "
-                                    + (exponentPart ? "in the exponent" : "after the decimal separator"),
-                            csq,
-                            i);
-                }
-                if (i == from || !isDigit(s.charAt(i - 1)) || i + 1 >= to || !isDigit(s.charAt(i + 1))) {
-                    throw new MeasurementParseException("grouping separator not between digits", csq, i);
-                }
-            } else if (isSign(c)) {
-                sb.append(c == '+' ? '+' : '-');
-            } else if (s.startsWith(exponent, i)) {
-                sb.append('E');
-                exponentPart = true;
-                i += exponent.length();
-                continue;
-            } else if (c == 'E' || c == 'e') {
-                sb.append('E');
-                exponentPart = true;
-            } else {
-                throw new NumberFormatException();
-            }
-            i++;
-        }
-        return sb.toString();
-    }
-
-    private static boolean isFormatMark(char c) {
-        return Character.getType(c) == Character.FORMAT;
-    }
-
-    private boolean isDigit(char c) {
-        return c >= '0' && c <= '9' || c >= zero && c < zero + 10;
-    }
-
-    private boolean isSign(char c) {
-        return c == minus || c == '-' || c == '+';
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

@@ -12,6 +12,7 @@
 
 package org.tinygears.uom.nativeapi.quantity;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -20,6 +21,9 @@ import org.tinygears.uom.nativeapi.Scale;
 import org.tinygears.uom.nativeapi.Unit;
 
 final class ElectricConductanceValue extends AbstractQuantity<ElectricConductance> implements ElectricConductance {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     ElectricConductanceValue(
             double value,

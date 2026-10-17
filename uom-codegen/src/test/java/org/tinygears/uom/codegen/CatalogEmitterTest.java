@@ -460,6 +460,15 @@ class CatalogEmitterTest {
                     }
                 }
                 """);
+        // UomSystemOfUnits.load keeps the catalogs' instances; none here.
+        sources.put("org.tinygears.uom.systems.UnitSystems", """
+                package org.tinygears.uom.systems;
+                final class UnitSystems {
+                    static java.util.List<UomSystemOfUnits> all() {
+                        return java.util.List.of();
+                    }
+                }
+                """);
         catalogs.forEach(
                 (file, c) -> sources.put(
                         "org.tinygears.uom.systems." + c.className(),
