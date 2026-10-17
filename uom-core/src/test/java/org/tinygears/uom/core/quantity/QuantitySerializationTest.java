@@ -768,8 +768,12 @@ class QuantitySerializationTest {
         }
     }
 
+    /** The typed interface of {@link OtherLength}. */
+    interface OtherLengthType extends Length, UomQuantity<Length, OtherLengthType> {
+    }
+
     /** Another implementation of Length, created only by {@link OtherProvider}. */
-    static final class OtherLength extends AbstractDoubleQuantity<Length, Length> implements Length {
+    static final class OtherLength extends AbstractDoubleQuantity<Length, OtherLengthType> implements OtherLengthType {
         @Serial
         private static final long serialVersionUID = 1L;
 
@@ -778,12 +782,17 @@ class QuantitySerializationTest {
         }
 
         @Override
-        protected Length create(double value, UomUnit<Length> unit, Quantity.Scale scale) {
+        protected OtherLengthType create(double value, UomUnit<Length> unit, Quantity.Scale scale) {
             return new OtherLength(value, unit, scale);
         }
 
         @Override
-        protected Length createDecimal(BigDecimal value, UomUnit<Length> unit, Quantity.Scale scale, MathContext mc) {
+        protected OtherLengthType createDecimal(
+                BigDecimal value,
+                UomUnit<Length> unit,
+                Quantity.Scale scale,
+                MathContext mc
+        ) {
             throw new UnsupportedOperationException();
         }
 
@@ -888,7 +897,7 @@ class QuantitySerializationTest {
     }
 
     /** A user quantity type, outside the allow-list. */
-    interface Custom extends Quantity<Custom> {
+    interface Custom extends UomQuantity<Custom, Custom> {
     }
 
     static final class CustomQuantity extends AbstractDoubleQuantity<Custom, Custom> implements Custom {

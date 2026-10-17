@@ -82,6 +82,31 @@ public record Interval(BigDecimal lo, BigDecimal hi) {
     }
 
     /**
+     * The absolute values.
+     *
+     * @return {@code |this|}
+     */
+    public Interval abs() {
+        if (lo.signum() >= 0) {
+            return this;
+        }
+        if (hi.signum() <= 0) {
+            return negate();
+        }
+        return new Interval(BigDecimal.ZERO, lo.negate().max(hi));
+    }
+
+    /**
+     * The larger of two values, one from each interval.
+     *
+     * @param other the other interval
+     * @return {@code max(this, other)}
+     */
+    public Interval max(Interval other) {
+        return new Interval(lo.max(other.lo), hi.max(other.hi));
+    }
+
+    /**
      * The product with a value.
      *
      * @param x the value

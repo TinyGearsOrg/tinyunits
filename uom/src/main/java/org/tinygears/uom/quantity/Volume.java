@@ -16,57 +16,14 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.Volume} of this implementation. */
-public interface Volume extends javax.measure.quantity.Volume, Comparable<Quantity<javax.measure.quantity.Volume>> {
+import org.tinygears.uom.core.quantity.UomQuantity;
 
-    @Override
-    Volume add(Quantity<javax.measure.quantity.Volume> addend);
-
-    @Override
-    Volume subtract(Quantity<javax.measure.quantity.Volume> subtrahend);
-
-    @Override
-    Volume to(Unit<javax.measure.quantity.Volume> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    Volume toSystem(SystemOfUnits system);
-
-    @Override
-    Volume negate();
-
-    @Override
-    Volume multiply(Number multiplicand);
-
-    @Override
-    Volume divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    Volume toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    Volume toDecimal(MathContext mc);
+/**
+ * A {@link javax.measure.quantity.Volume} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
+public interface Volume extends javax.measure.quantity.Volume, UomQuantity<javax.measure.quantity.Volume, Volume> {
 
     /**
      * An absolute double quantity.

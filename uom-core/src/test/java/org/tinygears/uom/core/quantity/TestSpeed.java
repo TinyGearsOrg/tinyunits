@@ -13,5 +13,5 @@ package org.tinygears.uom.core.quantity;
 import javax.measure.quantity.Speed;
 
 /** Typed stand-in for a generated speed interface. */
-interface TestSpeed extends Speed {
+interface TestSpeed extends Speed, UomQuantity<Speed, TestSpeed> {
 }

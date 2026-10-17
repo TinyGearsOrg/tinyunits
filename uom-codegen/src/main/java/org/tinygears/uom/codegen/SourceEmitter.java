@@ -29,56 +29,12 @@ public final class SourceEmitter {
             """;
 
     private static final String INTERFACE = """
-            /** A {@link javax.measure.quantity.$T} of this implementation. */
+            /**
+             * A {@link javax.measure.quantity.$T} of this implementation: the JSR-385 quantity with this interface as the
+             * return type of its operations, and the additions of {@link org.tinygears.uom.core.quantity.UomQuantity}.
+             */
             public interface $T extends javax.measure.quantity.$T,
-                    Comparable<javax.measure.Quantity<javax.measure.quantity.$T>> {
-
-                @Override
-                $T add(javax.measure.Quantity<javax.measure.quantity.$T> addend);
-
-                @Override
-                $T subtract(javax.measure.Quantity<javax.measure.quantity.$T> subtrahend);
-
-                @Override
-                $T to(javax.measure.Unit<javax.measure.quantity.$T> unit);
-
-                /**
-                 * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-                 *
-                 * @param system the system of units
-                 * @return the converted quantity
-                 * @throws NullPointerException if {@code system} is null
-                 * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-                 *     systems of this library have one for every standard type)
-                 * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-                 *     implementation
-                 */
-                $T toSystem(javax.measure.spi.SystemOfUnits system);
-
-                @Override
-                $T negate();
-
-                @Override
-                $T multiply(Number multiplicand);
-
-                @Override
-                $T divide(Number divisor);
-
-                /**
-                 * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-                 *
-                 * @return the double quantity
-                 */
-                $T toDouble();
-
-                /**
-                 * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-                 * 100000 throws ArithmeticException.
-                 *
-                 * @param mc the math context of the result
-                 * @return the decimal quantity
-                 */
-                $T toDecimal(java.math.MathContext mc);
+                    org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.$T, $T> {
 
                 /**
                  * An absolute double quantity.

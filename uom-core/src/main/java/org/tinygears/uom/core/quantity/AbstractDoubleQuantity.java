@@ -47,8 +47,8 @@ import org.tinygears.uom.core.spi.Providers;
  * @param <Q> the quantity type
  * @param <R> the typed interface returned by conversions
  */
-public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
-        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
+public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends UomQuantity<Q, R>>
+        implements UomQuantity<Q, R>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -209,6 +209,61 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
     }
 
     /**
+     * {@inheritDoc} Against a decimal {@code that} the comparison is decimal, as in {@link #compareTo}, unless this
+     * value is NaN or infinite.
+     */
+    @Override
+    public boolean isCloseTo(Quantity<Q> that, double relativeTolerance) {
+        Precision.checkRelativeTolerance(relativeTolerance);
+        Objects.requireNonNull(that, "that");
+        UomUnit<Q> thatUnit = compatible(that.getUnit());
+        if (promotes(that) && Double.isFinite(value)) {
+            return promoted(that).isCloseTo(that, relativeTolerance);
+        }
+        boolean deltas = Deltas.both(scale, that.getScale());
+        double a = systemValue(value, unit, deltas);
+        double b = systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas);
+        if (a == b) {
+            return true;
+        }
+        return Double.isFinite(a) && Double.isFinite(b)
+                && Math.abs(a - b) <= relativeTolerance * Math.max(Math.abs(a), Math.abs(b));
+    }
+
+    /**
+     * {@inheritDoc} Against a decimal {@code that} the comparison is decimal, as in {@link #compareTo}, unless this
+     * value is NaN or infinite.
+     */
+    @Override
+    public boolean isCloseTo(Quantity<Q> that, Quantity<Q> absoluteTolerance) {
+        Objects.requireNonNull(that, "that");
+        Objects.requireNonNull(absoluteTolerance, "absoluteTolerance");
+        UomUnit<Q> toleranceUnit = compatible(absoluteTolerance.getUnit());
+        Precision.checkAbsoluteTolerance(absoluteTolerance.getValue());
+        UomUnit<Q> thatUnit = compatible(that.getUnit());
+        if (promotes(that) && Double.isFinite(value)) {
+            return promoted(that).isCloseTo(that, absoluteTolerance);
+        }
+        boolean deltas = Deltas.both(scale, that.getScale());
+        double a = systemValue(value, unit, deltas);
+        double b = systemValue(Precision.toDouble(that.getValue()), thatUnit, deltas);
+        if (a == b) {
+            return true;
+        }
+        double t = Math.abs(systemValue(Precision.toDouble(absoluteTolerance.getValue()), toleranceUnit, true));
+        return Double.isFinite(a) && Double.isFinite(b) && Math.abs(a - b) <= t;
+    }
+
+    /** {@code u} if it has this dimension; throws as {@link #compareTo} does otherwise. */
+    private UomUnit<Q> compatible(Unit<Q> u) {
+        UomUnit<Q> other = uomUnit(u);
+        if (!unit.getDimension().equals(other.getDimension())) {
+            throw new UnconvertibleException("incompatible dimensions: " + unit + " and " + other);
+        }
+        return other;
+    }
+
+    /**
      * Compares the system-unit values with {@link Double#compare}, or, if both are {@code RELATIVE}, the system-unit
      * differences (factor only); not consistent with equals. {@code Double.compare} puts {@code -0.0} below
      * {@code 0.0}, so {@code 0 m} is greater than {@code -0 m}, while {@code 0 °C} and {@code -0 °C} compare equal:
@@ -302,7 +357,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * @throws NullPointerException if {@code multiplicand} is null
      */
     @Override
-    public Quantity<?> multiply(Quantity<?> multiplicand) {
+    public UomQuantity<?, ?> multiply(Quantity<?> multiplicand) {
         Objects.requireNonNull(multiplicand, "multiplicand");
         UomUnit<?> u = uomUnit(multiplicand.getUnit());
         if (promotes(multiplicand)) {
@@ -319,7 +374,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
      * @throws NullPointerException if {@code divisor} is null
      */
     @Override
-    public Quantity<?> divide(Quantity<?> divisor) {
+    public UomQuantity<?, ?> divide(Quantity<?> divisor) {
         Objects.requireNonNull(divisor, "divisor");
         UomUnit<?> u = uomUnit(divisor.getUnit());
         if (promotes(divisor)) {
@@ -332,7 +387,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
 
     /** Returns {@code 1 / systemValue} in the inverse system unit, as an {@link Untyped} quantity. */
     @Override
-    public Quantity<?> inverse() {
+    public UomQuantity<?, ?> inverse() {
         return untyped(1 / systemValue(value, unit, scale == Quantity.Scale.RELATIVE), unit.getSystemUnit().inverse());
     }
 
@@ -410,7 +465,7 @@ public abstract class AbstractDoubleQuantity<Q extends Quantity<Q>, R extends Q>
         return createDecimal(Precision.toDecimal(value), unit, scale, mc);
     }
 
-    private static Quantity<?> untyped(double value, UomUnit<?> unit) {
+    private static UomQuantity<?, ?> untyped(double value, UomUnit<?> unit) {
         return new UntypedDoubleQuantity(value, UomUnit.unchecked(unit.getSystemUnit()), Quantity.Scale.ABSOLUTE);
     }
 

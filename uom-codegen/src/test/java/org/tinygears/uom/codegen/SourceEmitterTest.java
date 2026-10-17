@@ -142,9 +142,8 @@ class SourceEmitterTest {
         assertTrue(SourceEmitter.doubleImplementation(LENGTH).contains(hook));
         String iface = SourceEmitter.typedInterface(LENGTH);
         for (String declaration : List.of(
-                "Length toDouble();",
-                "Length toSystem(SystemOfUnits system);",
-                "Length toDecimal(MathContext mc);",
+                "public interface Length extends javax.measure.quantity.Length,\n"
+                        + "        UomQuantity<javax.measure.quantity.Length, Length> {",
                 "static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit) {",
                 "static Length of(BigDecimal value, Unit<javax.measure.quantity.Length> unit,\n"
                         + "            Quantity.Scale scale) {",
@@ -253,7 +252,12 @@ class SourceEmitterTest {
                         ? BaseUnits.METRE.multiply(1000)
                         : null);
         java.lang.reflect.Method toSystem = iface.getMethod("toSystem", SystemOfUnits.class);
-        assertEquals(iface, toSystem.getReturnType());
+        // inherited from UomQuantity<Length, R> with R the typed interface
+        assertEquals("R", toSystem.getGenericReturnType().getTypeName());
+        assertTrue(
+                iface.getGenericInterfaces()[1].getTypeName()
+                        .endsWith("UomQuantity<javax.measure.quantity.Length, " + iface.getName() + ">"),
+                iface.getGenericInterfaces()[1].getTypeName());
         Object inKm = toSystem.invoke(r, km);
         assertEquals(new BigDecimal("0.002"), ((Quantity<?>) inKm).getValue());
         assertEquals(Quantity.Scale.RELATIVE, ((Quantity<?>) inKm).getScale());

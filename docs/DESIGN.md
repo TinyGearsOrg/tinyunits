@@ -164,6 +164,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
   `UomQuantityFormat.parse`, and it does not help what comes back through standard APIs. Typed products
   (`Length.divide(Time)` returns `Speed`): needs a table of relations, out of scope.
 - *Revisit if.* Fluent chaining is wanted: add an instance method on a new `UomQuantity` additively; `from` blocks nothing.
+  Done in DR-19 (`as(Class)`); `from` stays for quantities typed as the standard `Quantity<?>`.
   Typed products, if relations between types are declared. Code: `SourceEmitter` (interface template and registry).
 - *See.* README, "Typed quantities and unit declarations"; `FromTest`.
 
@@ -328,6 +329,26 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Revisit if.* Users compare values rounded on their way (a converted `57.29577951308232087679815481410517°` is not
   `1 rad`): an explicit tolerance method, such as `isEquivalentTo(that, relativeTolerance)`, would serve them.
 - *See.* `AbstractDecimalQuantityArithmeticTest.decimalEquivalenceIsExactWhateverTheContext`; REQUIREMENTS F20.
+
+**DR-19 `UomQuantity`: one interface for what JSR-385 lacks.**
+- *Decision.* `org.tinygears.uom.core.quantity.UomQuantity<Q, R>` extends `Quantity<Q>` and `Comparable<Quantity<Q>>`,
+  narrows the return types of the JSR operations to `R`, and adds `as(Class)`, `isCloseTo(that, relativeTolerance)`,
+  `isCloseTo(that, absoluteTolerance)`, `toSystem`, `toDouble` and `toDecimal`. Both base classes implement it, each
+  generated typed interface is `X extends javax.measure.quantity.X, UomQuantity<javax.measure.quantity.X, X>` (it no
+  longer redeclares the operations), `Untyped` is `UomQuantity<Untyped, Untyped>`, and `multiply(Quantity)`,
+  `divide(Quantity)`, `inverse()` and `UomQuantityFormat.parse` return `UomQuantity<?, ?>`. Each addition's Javadoc
+  says why it exists and how it differs from the JSR method nearest to it.
+- *Why.* The additions lived in 33 generated interfaces and the base classes, with nothing to type a product or a parse
+  result by. A tolerance comparison is asked for once `isEquivalentTo` is exact (DR-18), and `as` removes the casts of
+  `asType`. The narrowed return types keep the JSR signatures: covariant returns, so code written against JSR-385 is
+  unaffected.
+- *Rejected.* Overloading `asType` for our interfaces: `<T extends UomQuantity<?, T>> T asType(Class<T>)` has the
+  erasure of the JSR method and does not compile. `isEquivalentTo(that, tolerance)`: the JSR name promises an
+  equivalence relation, a tolerance is not transitive. A static helper class: no chaining, and nothing to type results.
+- *Revisit if.* More additions are wanted; the interface is not meant to be implemented elsewhere, so methods can be
+  added. The erased return type of an inherited operation is `UomQuantity` (reflection sees `R`, Java callers see the
+  typed interface); redeclare the operations in the typed interfaces if a JVM language or tool needs the erasure.
+- *See.* `UomQuantity` Javadoc; `UomQuantityTest`, `AbstractDecimalQuantityArithmeticTest`, `AbstractDoubleQuantityTest`.
 
 ## 2. Modules and data flow
 

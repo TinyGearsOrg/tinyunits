@@ -16,58 +16,15 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.Dimensionless} of this implementation. */
+import org.tinygears.uom.core.quantity.UomQuantity;
+
+/**
+ * A {@link javax.measure.quantity.Dimensionless} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
 public interface Dimensionless
-        extends javax.measure.quantity.Dimensionless, Comparable<Quantity<javax.measure.quantity.Dimensionless>> {
-
-    @Override
-    Dimensionless add(Quantity<javax.measure.quantity.Dimensionless> addend);
-
-    @Override
-    Dimensionless subtract(Quantity<javax.measure.quantity.Dimensionless> subtrahend);
-
-    @Override
-    Dimensionless to(Unit<javax.measure.quantity.Dimensionless> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    Dimensionless toSystem(SystemOfUnits system);
-
-    @Override
-    Dimensionless negate();
-
-    @Override
-    Dimensionless multiply(Number multiplicand);
-
-    @Override
-    Dimensionless divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    Dimensionless toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    Dimensionless toDecimal(MathContext mc);
+        extends javax.measure.quantity.Dimensionless, UomQuantity<javax.measure.quantity.Dimensionless, Dimensionless> {
 
     /**
      * An absolute double quantity.

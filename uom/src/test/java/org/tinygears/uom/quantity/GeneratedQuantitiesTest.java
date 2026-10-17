@@ -28,6 +28,7 @@ import javax.measure.spi.ServiceProvider;
 import org.junit.jupiter.api.Test;
 
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.quantity.UomQuantity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -73,19 +74,27 @@ class GeneratedQuantitiesTest {
         assertEquals(METRE, m.getUnit());
     }
 
-    // The parameter Quantity<javax Length> rejects other quantity types at compile time.
+    // add takes a Quantity<Q> and returns R of UomQuantity<Q, R>, bound to the standard and the typed interface, so
+    // other quantity types are rejected at compile time.
     @Test
     void typesDoNotMix() throws Exception {
         assertAddTakes(Length.class, javax.measure.quantity.Length.class);
         assertAddTakes(Mass.class, javax.measure.quantity.Mass.class);
     }
 
+    static void assertBinds(Class<?> typed, Class<?> javaxType) {
+        var uom = assertInstanceOf(java.lang.reflect.ParameterizedType.class, typed.getGenericInterfaces()[1]);
+        assertEquals(UomQuantity.class, uom.getRawType());
+        assertArrayEquals(new Object[] { javaxType, typed }, uom.getActualTypeArguments());
+    }
+
     private static void assertAddTakes(Class<?> typed, Class<?> javaxType) throws Exception {
+        assertBinds(typed, javaxType);
         var add = typed.getMethod("add", Quantity.class);
-        assertEquals(typed, add.getReturnType());
+        assertEquals("R", add.getGenericReturnType().getTypeName());
         var param = assertInstanceOf(java.lang.reflect.ParameterizedType.class, add.getGenericParameterTypes()[0]);
         assertEquals(Quantity.class, param.getRawType());
-        assertArrayEquals(new Object[] { javaxType }, param.getActualTypeArguments());
+        assertEquals("Q", param.getActualTypeArguments()[0].getTypeName());
     }
 
     @Test

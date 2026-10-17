@@ -351,6 +351,89 @@ class AbstractDecimalQuantityArithmeticTest {
     }
 
     @Test
+    void closeWithinARelativeTolerance() {
+        // |a - b| <= tolerance * max(|a|, |b|), inclusive and exact
+        assertTrue(q("100", METRE).isCloseTo(q("101", METRE), 0.01));
+        assertFalse(q("100", METRE).isCloseTo(q("101.02", METRE), 0.01));
+        assertTrue(q("101", METRE).isCloseTo(q("100", METRE), 0.01));
+        // b - 1 <= 1e-9 * b exactly when b <= 1 / (1 - 1e-9) = 1.000000001000000001000...
+        assertTrue(q("1", METRE).isCloseTo(q("1.000000001000000001", METRE), 1e-9));
+        assertFalse(q("1", METRE).isCloseTo(q("1.000000001000000002", METRE), 1e-9));
+        // in the system unit, offsets included: 20 °C is 293.15 K
+        assertTrue(q("1", KILOMETRE).isCloseTo(q("1000.5", METRE), 5e-4));
+        assertFalse(q("1", KILOMETRE).isCloseTo(q("1000.5", METRE), 4e-4));
+        assertTrue(q("20", CELSIUS).isCloseTo(q("293.2", KELVIN), 2e-4));
+        assertFalse(q("20", CELSIUS).isCloseTo(q("293.2", KELVIN), 1.7e-4));
+        // two RELATIVE quantities are differences: 2 °C and 2 K
+        TestLengthDecimalImpl twoCelsius = new TestLengthDecimalImpl(
+                new BigDecimal("2"),
+                CELSIUS,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL128);
+        TestLengthDecimalImpl twoKelvin = new TestLengthDecimalImpl(
+                new BigDecimal("2"),
+                KELVIN,
+                Quantity.Scale.RELATIVE,
+                MathContext.DECIMAL128);
+        assertTrue(twoCelsius.isCloseTo(twoKelvin, 0));
+        // zero is close only to zero
+        assertTrue(q("0", METRE).isCloseTo(q("0.000", METRE), 0));
+        assertFalse(q("0", METRE).isCloseTo(q("1e-30", METRE), 0.5));
+        // the context does not matter, nor does a precision of 1
+        assertFalse(q("1", METRE, new MathContext(1)).isCloseTo(q("1.9", METRE, new MathContext(1)), 0.4));
+        assertTrue(q("1", METRE, new MathContext(1)).isCloseTo(q("1.9", METRE, new MathContext(1)), 0.5));
+        // exact through pi: pi34 - pi is -1.158e-34, relative 3.69e-35
+        String pi34 = "3.141592653589793238462643383279503";
+        assertTrue(q(pi34, METRE).isCloseTo(q("1", PI_M), 3.7e-35));
+        assertFalse(q(pi34, METRE).isCloseTo(q("1", PI_M), 3.6e-35));
+        // a double operand is read as its shortest decimal
+        assertTrue(q("0.1", METRE).isCloseTo(d(0.1, METRE), 0));
+    }
+
+    @Test
+    void closeWithinAnAbsoluteTolerance() {
+        TestLengthDecimalImpl mm = q("1", METRE.divide(1000));
+        assertTrue(q("1", METRE).isCloseTo(q("1.001", METRE), mm));
+        assertFalse(q("1", METRE).isCloseTo(q("1.0010000000000000000001", METRE), mm));
+        assertTrue(q("1", KILOMETRE).isCloseTo(q("1000.001", METRE), mm));
+        // works near zero, where a relative tolerance accepts nothing
+        assertTrue(q("0", METRE).isCloseTo(q("1e-30", METRE), q("1e-20", METRE)));
+        // the tolerance is a difference: 1 °C of tolerance is 1 K, not 274.15 K
+        assertTrue(q("20", CELSIUS).isCloseTo(q("294.15", KELVIN), q("1", CELSIUS)));
+        assertFalse(q("20", CELSIUS).isCloseTo(q("294.16", KELVIN), q("1", CELSIUS)));
+        // a negative factor turns the tolerance around; its magnitude counts
+        assertTrue(q("0", METRE).isCloseTo(q("2.5", METRE), q("1", MINUS_2_5_M)));
+        String pi34 = "3.141592653589793238462643383279503";
+        assertTrue(q(pi34, METRE).isCloseTo(q("1", PI_M), q("1.16e-34", METRE)));
+        assertFalse(q(pi34, METRE).isCloseTo(q("1", PI_M), q("1.15e-34", METRE)));
+    }
+
+    @Test
+    void closenessRejectsBadTolerancesAndOtherDimensions() {
+        assertEquals(
+                "relative tolerance must be finite and not negative: -1.0",
+                assertThrows(IllegalArgumentException.class, () -> q("1", METRE).isCloseTo(q("1", METRE), -1))
+                        .getMessage());
+        assertThrows(IllegalArgumentException.class, () -> q("1", METRE).isCloseTo(q("1", METRE), Double.NaN));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> q("1", METRE).isCloseTo(q("1", METRE), Double.POSITIVE_INFINITY));
+        assertEquals(
+                "absolute tolerance must be finite and not negative: -0.1",
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> q("1", METRE).isCloseTo(q("1", METRE), q("-0.1", METRE))).getMessage());
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> q("1", METRE).isCloseTo(q("1", METRE), d(Double.NaN, METRE)));
+        assertThrows(UnconvertibleException.class, () -> q("1", METRE).isCloseTo(q("1", KELVIN), 0.1));
+        assertThrows(NullPointerException.class, () -> q("1", METRE).isCloseTo(null, 0.1));
+        assertThrows(NullPointerException.class, () -> q("1", METRE).isCloseTo(q("1", METRE), null));
+        assertFalse(q("1", METRE).isCloseTo(d(Double.NaN, METRE), 1));
+        assertFalse(q("1", METRE).isCloseTo(d(Double.POSITIVE_INFINITY, METRE), 1));
+    }
+
+    @Test
     void equivalenceAgainstDoubleUsesTheDoubleTolerance() {
         assertTrue(q("1", METRE).isEquivalentTo(d(1 + 1e-13, METRE)));
         assertFalse(q("1", METRE).isEquivalentTo(d(1 + 1e-11, METRE)));

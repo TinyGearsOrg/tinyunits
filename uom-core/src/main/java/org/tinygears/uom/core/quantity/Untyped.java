@@ -12,6 +12,6 @@ package org.tinygears.uom.core.quantity;
 
 import javax.measure.Quantity;
 
-/** Phantom quantity type of products, quotients and inverses; narrow with {@link Quantity#asType}. */
-public interface Untyped extends Quantity<Untyped> {
+/** Phantom quantity type of products, quotients and inverses; narrow with {@link UomQuantity#as} or {@link Quantity#asType}. */
+public interface Untyped extends UomQuantity<Untyped, Untyped> {
 }

@@ -55,8 +55,8 @@ import org.tinygears.uom.core.spi.Providers;
  * @param <Q> the quantity type
  * @param <R> the typed interface returned by conversions
  */
-public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q>
-        implements Quantity<Q>, Comparable<Quantity<Q>>, Serializable {
+public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends UomQuantity<Q, R>>
+        implements UomQuantity<Q, R>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -354,6 +354,69 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return compareTo(that) == 0;
     }
 
+    /** {@inheritDoc} Exact: decided on enclosures of the system values, through pi and roots too. */
+    @Override
+    public boolean isCloseTo(Quantity<Q> that, double relativeTolerance) {
+        Precision.checkRelativeTolerance(relativeTolerance);
+        return closeTo(that, BigDecimal.valueOf(relativeTolerance), null);
+    }
+
+    /** {@inheritDoc} Exact: decided on enclosures of the system values, through pi and roots too. */
+    @Override
+    public boolean isCloseTo(Quantity<Q> that, Quantity<Q> absoluteTolerance) {
+        Objects.requireNonNull(that, "that");
+        Objects.requireNonNull(absoluteTolerance, "absoluteTolerance");
+        requireCompatible(uomUnit(absoluteTolerance.getUnit()));
+        Precision.checkAbsoluteTolerance(absoluteTolerance.getValue());
+        return closeTo(that, null, absoluteTolerance);
+    }
+
+    /**
+     * Whether {@code |a - b| <= relative * max(|a|, |b|)}, or {@code <= |t|} for the absolute tolerance {@code t},
+     * on the system values; enclosures of irrational factors narrow until the comparison is decided.
+     */
+    private boolean closeTo(Quantity<Q> that, BigDecimal relative, Quantity<Q> absolute) {
+        Objects.requireNonNull(that, "that");
+        UomUnit<Q> thatUnit = uomUnit(that.getUnit());
+        requireCompatible(thatUnit);
+        Number n = that.getValue();
+        if (Precision.kind(n) == Precision.Kind.DOUBLE && !Double.isFinite(n.doubleValue())) {
+            return false;
+        }
+        BigDecimal b = Precision.toDecimal(n);
+        BigDecimal t = absolute == null ? null : Precision.toDecimal(absolute.getValue());
+        UomUnit<Q> toleranceUnit = absolute == null ? null : uomUnit(absolute.getUnit());
+        boolean deltas = Deltas.both(scale, that.getScale());
+        MathContext mc = Precision.calculation(contextWith(that));
+        long cap = maxDigits(mc, b) + (t == null ? 0 : 2L * t.precision());
+        for (int digits = mc.getPrecision() + Irrationals.GUARD;; digits *= 2) {
+            Ratio sa = system(value, unit, digits, deltas);
+            Ratio sb = system(b, thatUnit, digits, deltas);
+            // a = x / D and b = y / D, with D = sa.den * sb.den > 0
+            Interval x = sa.num.multiply(sb.den);
+            Interval y = sb.num.multiply(sa.den);
+            Interval diff = x.add(y.negate()).abs();
+            Interval bound;
+            if (relative != null) {
+                bound = x.abs().max(y.abs()).multiply(relative);
+            } else {
+                Ratio st = system(t, toleranceUnit, digits, true);
+                diff = diff.multiply(st.den);
+                bound = st.num.abs().multiply(sa.den.multiply(sb.den));
+            }
+            if (diff.hi().compareTo(bound.lo()) <= 0) {
+                return true;
+            }
+            if (diff.lo().compareTo(bound.hi()) > 0) {
+                return false;
+            }
+            if (digits > cap) {
+                // still overlapping: irrational terms that cancel exactly, on the boundary
+                return true;
+            }
+        }
+    }
+
     /**
      * Multiplies the system-unit values (operands are taken to the system unit, so offsets count, except for a
      * {@code RELATIVE} operand, which is a difference and counts by its factor only), evaluated exactly
@@ -364,7 +427,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * @throws NullPointerException if {@code multiplicand} is null
      */
     @Override
-    public Quantity<?> multiply(Quantity<?> multiplicand) {
+    public UomQuantity<?, ?> multiply(Quantity<?> multiplicand) {
         Objects.requireNonNull(multiplicand, "multiplicand");
         return untyped(multiplicand, false);
     }
@@ -376,7 +439,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * @throws NullPointerException if {@code divisor} is null
      */
     @Override
-    public Quantity<?> divide(Quantity<?> divisor) {
+    public UomQuantity<?, ?> divide(Quantity<?> divisor) {
         Objects.requireNonNull(divisor, "divisor");
         return untyped(divisor, true);
     }
@@ -386,7 +449,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * context ({@code DECIMAL128} if unlimited and non-terminating). Zero throws {@link ArithmeticException}.
      */
     @Override
-    public Quantity<?> inverse() {
+    public UomQuantity<?, ?> inverse() {
         BigDecimal r = evaluate(mathContext, maxDigits(mathContext, BigDecimal.ONE), digits -> {
             Ratio a = system(value, unit, digits, scale == Quantity.Scale.RELATIVE);
             return new Quotient(Interval.of(a.den), a.num, a.exact);
@@ -461,7 +524,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     }
 
     /** {@code sys(a)·sys(b)} or {@code sys(a)/sys(b)} as one exact quotient, rounded once. */
-    private Quantity<?> untyped(Quantity<?> that, boolean divide) {
+    private UomQuantity<?, ?> untyped(Quantity<?> that, boolean divide) {
         UomUnit<?> thatUnit = uomUnit(that.getUnit());
         Number n = that.getValue();
         MathContext mc = contextWith(that);

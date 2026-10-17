@@ -31,6 +31,7 @@ import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.core.quantity.UntypedDecimalQuantity;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
+import org.tinygears.uom.core.quantity.UomQuantity;
 import org.tinygears.uom.quantity.QuantityTypes;
 
 /**
@@ -288,16 +289,19 @@ public final class UomQuantityFormat implements QuantityFormat {
         return destination.append(format(quantity));
     }
 
-    /** A number alone is dimensionless; the quantity has the standard type of its unit, if any. */
+    /**
+     * A number alone is dimensionless; the quantity has the standard type of its unit, if any. The result is a
+     * {@link UomQuantity}, so {@code parse("90 km/h").as(Speed.class)} narrows it without a cast.
+     */
     @Override
-    public Quantity<?> parse(CharSequence csq) throws MeasurementParseException {
+    public UomQuantity<?, ?> parse(CharSequence csq) throws MeasurementParseException {
         return parseFrom(csq, 0);
     }
 
     @Override
-    public Quantity<?> parse(CharSequence csq, ParsePosition pos) throws MeasurementParseException {
+    public UomQuantity<?, ?> parse(CharSequence csq, ParsePosition pos) throws MeasurementParseException {
         try {
-            Quantity<?> quantity = parseFrom(csq, pos.getIndex());
+            UomQuantity<?, ?> quantity = parseFrom(csq, pos.getIndex());
             pos.setIndex(csq.length());
             return quantity;
         } catch (MeasurementParseException e) {
@@ -306,7 +310,7 @@ public final class UomQuantityFormat implements QuantityFormat {
         }
     }
 
-    private Quantity<?> parseFrom(CharSequence csq, int start) {
+    private UomQuantity<?, ?> parseFrom(CharSequence csq, int start) {
         String s = csq.toString();
         if (start < 0 || start > s.length()) {
             throw new MeasurementParseException("index out of range: " + start, csq, start < 0 ? 0 : s.length());
@@ -488,17 +492,20 @@ public final class UomQuantityFormat implements QuantityFormat {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static Quantity<?> create(double value, UomUnit<?> unit) {
+    private static UomQuantity<?, ?> create(double value, UomUnit<?> unit) {
         QuantityFactory factory = Factories.BY_SYSTEM_UNIT.get(unit.getSystemUnit());
-        return factory != null ? factory.create(value, unit) : UntypedDoubleQuantity.of(value, unit);
+        // the factories of this library create its quantities
+        return factory != null
+                ? (UomQuantity<?, ?>) factory.create(value, unit)
+                : UntypedDoubleQuantity.of(value, unit);
     }
 
     /** Keeps every digit of {@code value}: the factory's decimal quantity then takes {@code mc} without rounding. */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static Quantity<?> create(BigDecimal value, UomUnit<?> unit, MathContext mc) {
+    private static UomQuantity<?, ?> create(BigDecimal value, UomUnit<?> unit, MathContext mc) {
         QuantityFactory factory = Factories.BY_SYSTEM_UNIT.get(unit.getSystemUnit());
         return factory != null
-                ? ((AbstractDecimalQuantity<?, ?>) factory.create(value, unit)).withMathContext(mc)
+                ? (UomQuantity<?, ?>) ((AbstractDecimalQuantity<?, ?>) factory.create(value, unit)).withMathContext(mc)
                 : UntypedDecimalQuantity.of(value, unit, mc);
     }
 

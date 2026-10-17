@@ -16,58 +16,15 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.Frequency} of this implementation. */
+import org.tinygears.uom.core.quantity.UomQuantity;
+
+/**
+ * A {@link javax.measure.quantity.Frequency} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
 public interface Frequency
-        extends javax.measure.quantity.Frequency, Comparable<Quantity<javax.measure.quantity.Frequency>> {
-
-    @Override
-    Frequency add(Quantity<javax.measure.quantity.Frequency> addend);
-
-    @Override
-    Frequency subtract(Quantity<javax.measure.quantity.Frequency> subtrahend);
-
-    @Override
-    Frequency to(Unit<javax.measure.quantity.Frequency> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    Frequency toSystem(SystemOfUnits system);
-
-    @Override
-    Frequency negate();
-
-    @Override
-    Frequency multiply(Number multiplicand);
-
-    @Override
-    Frequency divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    Frequency toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    Frequency toDecimal(MathContext mc);
+        extends javax.measure.quantity.Frequency, UomQuantity<javax.measure.quantity.Frequency, Frequency> {
 
     /**
      * An absolute double quantity.

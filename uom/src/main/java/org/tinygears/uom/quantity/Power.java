@@ -16,57 +16,14 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.Power} of this implementation. */
-public interface Power extends javax.measure.quantity.Power, Comparable<Quantity<javax.measure.quantity.Power>> {
+import org.tinygears.uom.core.quantity.UomQuantity;
 
-    @Override
-    Power add(Quantity<javax.measure.quantity.Power> addend);
-
-    @Override
-    Power subtract(Quantity<javax.measure.quantity.Power> subtrahend);
-
-    @Override
-    Power to(Unit<javax.measure.quantity.Power> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    Power toSystem(SystemOfUnits system);
-
-    @Override
-    Power negate();
-
-    @Override
-    Power multiply(Number multiplicand);
-
-    @Override
-    Power divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    Power toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    Power toDecimal(MathContext mc);
+/**
+ * A {@link javax.measure.quantity.Power} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
+public interface Power extends javax.measure.quantity.Power, UomQuantity<javax.measure.quantity.Power, Power> {
 
     /**
      * An absolute double quantity.

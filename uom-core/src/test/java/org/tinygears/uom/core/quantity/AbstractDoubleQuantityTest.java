@@ -65,6 +65,37 @@ class AbstractDoubleQuantityTest {
     }
 
     @Test
+    void closeWithinATolerance() {
+        // relative: |a - b| <= tolerance * max(|a|, |b|) in the system unit, computed in double
+        assertTrue(q(100, METRE).isCloseTo(q(101, METRE), 0.01));
+        assertFalse(q(100, METRE).isCloseTo(q(101.02, METRE), 0.01));
+        assertTrue(q(1, KILOMETRE).isCloseTo(q(1000.5, METRE), 5e-4));
+        assertFalse(q(1, KILOMETRE).isCloseTo(q(1000.5, METRE), 4e-4));
+        assertTrue(q(20, CELSIUS).isCloseTo(q(293.2, KELVIN), 2e-4));
+        assertFalse(q(20, CELSIUS).isCloseTo(q(293.2, KELVIN), 1.7e-4));
+        assertTrue(q(1.0, METRE).isCloseTo(q(1.0 + 1e-10, METRE), 1e-9));
+        assertFalse(q(1.0, METRE).isCloseTo(q(1.0 + 1e-8, METRE), 1e-9));
+        assertFalse(q(0, METRE).isCloseTo(q(1e-30, METRE), 0.5));
+        // absolute: the tolerance converts by its factor only
+        assertTrue(q(0, METRE).isCloseTo(q(1e-30, METRE), q(1e-20, METRE)));
+        assertTrue(q(20, CELSIUS).isCloseTo(q(294, KELVIN), q(1, CELSIUS)));
+        assertFalse(q(20, CELSIUS).isCloseTo(q(294.2, KELVIN), q(1, CELSIUS)));
+        assertTrue(q(1, KILOMETRE).isCloseTo(q(999.5, METRE), q(0.0005, KILOMETRE)));
+        // infinities are close only to themselves, NaN to nothing
+        double inf = Double.POSITIVE_INFINITY;
+        assertTrue(q(inf, METRE).isCloseTo(q(inf, KILOMETRE), 0));
+        assertFalse(q(inf, METRE).isCloseTo(q(Double.MAX_VALUE, METRE), 1));
+        assertFalse(q(Double.NaN, METRE).isCloseTo(q(Double.NaN, METRE), 1));
+        assertFalse(q(1, METRE).isCloseTo(q(Double.NaN, METRE), q(1, METRE)));
+        // a decimal operand makes the comparison decimal: 0.1 is exactly 0.1 there
+        assertTrue(q(0.1, METRE).isCloseTo(new TestLengthDecimalImpl(new java.math.BigDecimal("0.1"), METRE), 0));
+        assertThrows(IllegalArgumentException.class, () -> q(1, METRE).isCloseTo(q(1, METRE), -1));
+        assertThrows(IllegalArgumentException.class, () -> q(1, METRE).isCloseTo(q(1, METRE), q(inf, METRE)));
+        assertThrows(UnconvertibleException.class, () -> q(1, METRE).isCloseTo(q(1, KELVIN), 1));
+        assertThrows(UnconvertibleException.class, () -> q(1, METRE).isCloseTo(q(1, METRE), q(1, KELVIN)));
+    }
+
+    @Test
     void convertsToAnotherUnit() {
         TestLength r = q(1.5, KILOMETRE).to(METRE);
         assertEquals(1500.0, r.getValue());

@@ -16,57 +16,14 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.Speed} of this implementation. */
-public interface Speed extends javax.measure.quantity.Speed, Comparable<Quantity<javax.measure.quantity.Speed>> {
+import org.tinygears.uom.core.quantity.UomQuantity;
 
-    @Override
-    Speed add(Quantity<javax.measure.quantity.Speed> addend);
-
-    @Override
-    Speed subtract(Quantity<javax.measure.quantity.Speed> subtrahend);
-
-    @Override
-    Speed to(Unit<javax.measure.quantity.Speed> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    Speed toSystem(SystemOfUnits system);
-
-    @Override
-    Speed negate();
-
-    @Override
-    Speed multiply(Number multiplicand);
-
-    @Override
-    Speed divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    Speed toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    Speed toDecimal(MathContext mc);
+/**
+ * A {@link javax.measure.quantity.Speed} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
+public interface Speed extends javax.measure.quantity.Speed, UomQuantity<javax.measure.quantity.Speed, Speed> {
 
     /**
      * An absolute double quantity.

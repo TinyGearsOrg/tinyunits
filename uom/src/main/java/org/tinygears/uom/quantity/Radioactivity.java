@@ -16,58 +16,15 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.Radioactivity} of this implementation. */
+import org.tinygears.uom.core.quantity.UomQuantity;
+
+/**
+ * A {@link javax.measure.quantity.Radioactivity} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
 public interface Radioactivity
-        extends javax.measure.quantity.Radioactivity, Comparable<Quantity<javax.measure.quantity.Radioactivity>> {
-
-    @Override
-    Radioactivity add(Quantity<javax.measure.quantity.Radioactivity> addend);
-
-    @Override
-    Radioactivity subtract(Quantity<javax.measure.quantity.Radioactivity> subtrahend);
-
-    @Override
-    Radioactivity to(Unit<javax.measure.quantity.Radioactivity> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    Radioactivity toSystem(SystemOfUnits system);
-
-    @Override
-    Radioactivity negate();
-
-    @Override
-    Radioactivity multiply(Number multiplicand);
-
-    @Override
-    Radioactivity divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    Radioactivity toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    Radioactivity toDecimal(MathContext mc);
+        extends javax.measure.quantity.Radioactivity, UomQuantity<javax.measure.quantity.Radioactivity, Radioactivity> {
 
     /**
      * An absolute double quantity.

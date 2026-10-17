@@ -16,57 +16,14 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.Time} of this implementation. */
-public interface Time extends javax.measure.quantity.Time, Comparable<Quantity<javax.measure.quantity.Time>> {
+import org.tinygears.uom.core.quantity.UomQuantity;
 
-    @Override
-    Time add(Quantity<javax.measure.quantity.Time> addend);
-
-    @Override
-    Time subtract(Quantity<javax.measure.quantity.Time> subtrahend);
-
-    @Override
-    Time to(Unit<javax.measure.quantity.Time> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    Time toSystem(SystemOfUnits system);
-
-    @Override
-    Time negate();
-
-    @Override
-    Time multiply(Number multiplicand);
-
-    @Override
-    Time divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    Time toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    Time toDecimal(MathContext mc);
+/**
+ * A {@link javax.measure.quantity.Time} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
+public interface Time extends javax.measure.quantity.Time, UomQuantity<javax.measure.quantity.Time, Time> {
 
     /**
      * An absolute double quantity.

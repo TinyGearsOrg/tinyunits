@@ -83,6 +83,23 @@ final class Precision {
         }
     }
 
+    /** Rejects a relative tolerance that is negative, NaN or infinite. */
+    static void checkRelativeTolerance(double tolerance) {
+        if (!(tolerance >= 0) || Double.isInfinite(tolerance)) {
+            throw new IllegalArgumentException("relative tolerance must be finite and not negative: " + tolerance);
+        }
+    }
+
+    /** Rejects the value of an absolute tolerance that is negative, NaN or infinite. */
+    static void checkAbsoluteTolerance(Number value) {
+        boolean valid = kind(value) == Kind.DOUBLE
+                ? value.doubleValue() >= 0 && !Double.isInfinite(value.doubleValue())
+                : toDecimal(value).signum() >= 0;
+        if (!valid) {
+            throw new IllegalArgumentException("absolute tolerance must be finite and not negative: " + value);
+        }
+    }
+
     static BigDecimal checked(BigDecimal v) {
         if (Math.abs((long) v.scale()) > MAX_SCALE) {
             throw new ArithmeticException("scale out of range: " + v.scale());

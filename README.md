@@ -2,21 +2,21 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1261 tests (core 563, codegen 179, uom 404, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1270 tests (core 567, codegen 179, uom 409, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
 ```java
 Length marathon = Length.of(42.195, SI.KILOMETRE);
 System.out.println(marathon.to(USCustomary.MILE));                 // prints: 26.218757456454306 mi
-Speed pace = Speed.from(marathon.divide(Time.of(3, SI.HOUR)));
+Speed pace = marathon.divide(Time.of(3, SI.HOUR)).as(Speed.class);
 System.out.println(pace.to(USCustomary.MILE_PER_HOUR));             // prints: 8.739585818818103 mph
 Temperature boiling = Temperature.of(100, SI.DEGREE_CELSIUS);
 System.out.println(boiling.toSystem(USCustomary.SYSTEM));                 // prints: 212.0 °F
 Length exact = Length.of(new BigDecimal("0.1"), SI.METRE).add(Length.of(new BigDecimal("0.2"), SI.METRE));
 System.out.println(exact);                                          // prints: 0.3 m
 UomQuantityFormat format = new UomQuantityFormat(UomUnitFormat.standard());
-System.out.println(Length.from(format.parse("20 km")).to(SI.METRE));
+System.out.println(format.parse("20 km").as(Length.class).to(SI.METRE));
 // prints: 20000.0 m
 ```
 
@@ -105,10 +105,26 @@ var km = SI.KILOMETRE;                       // UomUnit<javax.measure.quantity.L
 Length run = Length.of(10, km);
 ```
 
-A quantity that comes back as `Quantity<?>`, such as the product of two quantities or the result of a parse, is narrowed to
-our typed interface with `X.from`: `Speed.from(length.divide(time))`. It narrows as `asType` does (by dimension), returns a
-quantity of this implementation as it is, and refuses one of another implementation with a `ClassCastException`. `asType`
-itself cannot take our interface as its type (`Speed` is not a `Quantity<Speed>`), so it needs the standard class and a cast.
+Every quantity of this library is a `UomQuantity`: the JSR-385 `Quantity` with our typed interface as the return type
+of its operations, plus what the standard has no method for. Products, quotients and `UomQuantityFormat.parse` return a
+`UomQuantity`, so:
+
+- `as(Speed.class)` narrows to our typed interface, by dimension as `asType` does: `length.divide(time).as(Speed.class)`.
+  `asType` cannot take our interface (`Speed` is not a `Quantity<Speed>`), so it needs the standard class and a cast.
+- `isCloseTo(that, 1e-9)` (relative) and `isCloseTo(that, Length.of(1, SI.MILLIMETRE))` (absolute) compare within a
+  tolerance you choose. The standard `isEquivalentTo` is exact for decimal quantities and uses a fixed `1e-12` for
+  `double` quantities.
+- `toSystem(system)`, `toDouble()` and `toDecimal(mc)` convert to a system's preferred unit and between number types.
+
+```java
+Angle degrees = Angle.of(BigDecimal.ONE, SI.RADIAN).to(SI.DEGREE);   // rounded to 34 digits
+System.out.println(degrees.isEquivalentTo(Angle.of(BigDecimal.ONE, SI.RADIAN))); // prints: false
+System.out.println(degrees.isCloseTo(Angle.of(BigDecimal.ONE, SI.RADIAN), 1e-30)); // prints: true
+```
+
+A quantity whose static type is the standard `Quantity<?>`, such as one from code written against JSR-385 only, is
+narrowed with `X.from`: `Speed.from(quantity)` narrows the same way, returns a quantity of this implementation as it is,
+and refuses one of another implementation with a `ClassCastException`.
 
 ## Formats
 

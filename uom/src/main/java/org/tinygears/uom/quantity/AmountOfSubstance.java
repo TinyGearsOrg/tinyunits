@@ -16,58 +16,15 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.spi.SystemOfUnits;
 
-/** A {@link javax.measure.quantity.AmountOfSubstance} of this implementation. */
+import org.tinygears.uom.core.quantity.UomQuantity;
+
+/**
+ * A {@link javax.measure.quantity.AmountOfSubstance} of this implementation: the JSR-385 quantity with this interface as the
+ * return type of its operations, and the additions of {@link UomQuantity}.
+ */
 public interface AmountOfSubstance extends javax.measure.quantity.AmountOfSubstance,
-        Comparable<Quantity<javax.measure.quantity.AmountOfSubstance>> {
-
-    @Override
-    AmountOfSubstance add(Quantity<javax.measure.quantity.AmountOfSubstance> addend);
-
-    @Override
-    AmountOfSubstance subtract(Quantity<javax.measure.quantity.AmountOfSubstance> subtrahend);
-
-    @Override
-    AmountOfSubstance to(Unit<javax.measure.quantity.AmountOfSubstance> unit);
-
-    /**
-     * Converts to the unit {@code system} gives for this quantity type, keeping scale and context.
-     *
-     * @param system the system of units
-     * @return the converted quantity
-     * @throws NullPointerException if {@code system} is null
-     * @throws UnsupportedOperationException if {@code system} has no unit for this quantity type (the
-     *     systems of this library have one for every standard type)
-     * @throws javax.measure.UnconvertibleException if the unit of {@code system} is of another
-     *     implementation
-     */
-    AmountOfSubstance toSystem(SystemOfUnits system);
-
-    @Override
-    AmountOfSubstance negate();
-
-    @Override
-    AmountOfSubstance multiply(Number multiplicand);
-
-    @Override
-    AmountOfSubstance divide(Number divisor);
-
-    /**
-     * The same quantity as a {@code double}; a value outside the double range throws ArithmeticException.
-     *
-     * @return the double quantity
-     */
-    AmountOfSubstance toDouble();
-
-    /**
-     * The same quantity as a decimal rounded to {@code mc}, which becomes its context; a precision over
-     * 100000 throws ArithmeticException.
-     *
-     * @param mc the math context of the result
-     * @return the decimal quantity
-     */
-    AmountOfSubstance toDecimal(MathContext mc);
+        UomQuantity<javax.measure.quantity.AmountOfSubstance, AmountOfSubstance> {
 
     /**
      * An absolute double quantity.

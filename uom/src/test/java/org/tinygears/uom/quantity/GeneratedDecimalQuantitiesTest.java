@@ -226,7 +226,8 @@ class GeneratedDecimalQuantitiesTest {
         forAllTypes((type, f, u, typed) -> {
             SystemOfUnits sys = system(type, u);
             Method to = typed.getMethod("toSystem", SystemOfUnits.class);
-            assertEquals(typed, to.getReturnType());
+            GeneratedQuantitiesTest.assertBinds(typed, type);
+            assertEquals("R", to.getGenericReturnType().getTypeName());
             Quantity<?> dbl = create(f, 1.0, u);
             assertEquals(dbl, to.invoke(dbl, sys));
             Quantity<?> dec = ofDecimal(f, BigDecimal.ONE, u);

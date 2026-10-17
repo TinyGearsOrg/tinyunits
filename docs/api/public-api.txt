@@ -227,6 +227,8 @@ org.tinygears.uom.core.quantity AbstractDecimalQuantity member public R toDouble
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public R toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public R withMathContext(java.math.MathContext)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public boolean equals(java.lang.Object)
+org.tinygears.uom.core.quantity AbstractDecimalQuantity member public boolean isCloseTo(javax.measure.Quantity<Q>,double)
+org.tinygears.uom.core.quantity AbstractDecimalQuantity member public boolean isCloseTo(javax.measure.Quantity<Q>,javax.measure.Quantity<Q>)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public boolean isEquivalentTo(javax.measure.Quantity<Q>)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public final java.math.BigDecimal getValue()
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public final java.math.MathContext mathContext()
@@ -235,12 +237,12 @@ org.tinygears.uom.core.quantity AbstractDecimalQuantity member public final org.
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public int compareTo(javax.measure.Quantity<Q>)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public int hashCode()
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public java.lang.String toString()
-org.tinygears.uom.core.quantity AbstractDecimalQuantity member public javax.measure.Quantity<?> divide(javax.measure.Quantity<?>)
-org.tinygears.uom.core.quantity AbstractDecimalQuantity member public javax.measure.Quantity<?> inverse()
-org.tinygears.uom.core.quantity AbstractDecimalQuantity member public javax.measure.Quantity<?> multiply(javax.measure.Quantity<?>)
+org.tinygears.uom.core.quantity AbstractDecimalQuantity member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> divide(javax.measure.Quantity<?>)
+org.tinygears.uom.core.quantity AbstractDecimalQuantity member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> inverse()
+org.tinygears.uom.core.quantity AbstractDecimalQuantity member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> multiply(javax.measure.Quantity<?>)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public static final int MAX_PRECISION
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public static final int MAX_SCALE
-org.tinygears.uom.core.quantity AbstractDecimalQuantity type public abstract class org.tinygears.uom.core.quantity.AbstractDecimalQuantity<Q extends javax.measure.Quantity<Q>,R extends Q> implements javax.measure.Quantity<Q>, java.lang.Comparable<javax.measure.Quantity<Q>>, java.io.Serializable
+org.tinygears.uom.core.quantity AbstractDecimalQuantity type public abstract class org.tinygears.uom.core.quantity.AbstractDecimalQuantity<Q extends javax.measure.Quantity<Q>,R extends org.tinygears.uom.core.quantity.UomQuantity<Q, R>> implements org.tinygears.uom.core.quantity.UomQuantity<Q, R>, java.io.Serializable
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member protected abstract R create(double,org.tinygears.uom.core.UomUnit<Q>,javax.measure.Quantity$Scale)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member protected abstract R createDecimal(java.math.BigDecimal,org.tinygears.uom.core.UomUnit<Q>,javax.measure.Quantity$Scale,java.math.MathContext)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member protected abstract java.lang.Class<Q> quantityType()
@@ -257,6 +259,8 @@ org.tinygears.uom.core.quantity AbstractDoubleQuantity member public R toDecimal
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public R toDouble()
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public R toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public boolean equals(java.lang.Object)
+org.tinygears.uom.core.quantity AbstractDoubleQuantity member public boolean isCloseTo(javax.measure.Quantity<Q>,double)
+org.tinygears.uom.core.quantity AbstractDoubleQuantity member public boolean isCloseTo(javax.measure.Quantity<Q>,javax.measure.Quantity<Q>)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public boolean isEquivalentTo(javax.measure.Quantity<Q>)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public final java.lang.Double getValue()
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public final javax.measure.Quantity$Scale getScale()
@@ -264,12 +268,12 @@ org.tinygears.uom.core.quantity AbstractDoubleQuantity member public final org.t
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public int compareTo(javax.measure.Quantity<Q>)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public int hashCode()
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public java.lang.String toString()
-org.tinygears.uom.core.quantity AbstractDoubleQuantity member public javax.measure.Quantity<?> divide(javax.measure.Quantity<?>)
-org.tinygears.uom.core.quantity AbstractDoubleQuantity member public javax.measure.Quantity<?> inverse()
-org.tinygears.uom.core.quantity AbstractDoubleQuantity member public javax.measure.Quantity<?> multiply(javax.measure.Quantity<?>)
+org.tinygears.uom.core.quantity AbstractDoubleQuantity member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> divide(javax.measure.Quantity<?>)
+org.tinygears.uom.core.quantity AbstractDoubleQuantity member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> inverse()
+org.tinygears.uom.core.quantity AbstractDoubleQuantity member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> multiply(javax.measure.Quantity<?>)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member public static final double EQUIVALENCE_TOLERANCE
-org.tinygears.uom.core.quantity AbstractDoubleQuantity type public abstract class org.tinygears.uom.core.quantity.AbstractDoubleQuantity<Q extends javax.measure.Quantity<Q>,R extends Q> implements javax.measure.Quantity<Q>, java.lang.Comparable<javax.measure.Quantity<Q>>, java.io.Serializable
-org.tinygears.uom.core.quantity Untyped type public abstract interface org.tinygears.uom.core.quantity.Untyped extends javax.measure.Quantity<org.tinygears.uom.core.quantity.Untyped>
+org.tinygears.uom.core.quantity AbstractDoubleQuantity type public abstract class org.tinygears.uom.core.quantity.AbstractDoubleQuantity<Q extends javax.measure.Quantity<Q>,R extends org.tinygears.uom.core.quantity.UomQuantity<Q, R>> implements org.tinygears.uom.core.quantity.UomQuantity<Q, R>, java.io.Serializable
+org.tinygears.uom.core.quantity Untyped type public abstract interface org.tinygears.uom.core.quantity.Untyped extends org.tinygears.uom.core.quantity.UomQuantity<org.tinygears.uom.core.quantity.Untyped, org.tinygears.uom.core.quantity.Untyped>
 org.tinygears.uom.core.quantity UntypedDecimalQuantity member protected java.lang.Class<org.tinygears.uom.core.quantity.Untyped> quantityType()
 org.tinygears.uom.core.quantity UntypedDecimalQuantity member protected org.tinygears.uom.core.quantity.Untyped create(java.math.BigDecimal,org.tinygears.uom.core.UomUnit<org.tinygears.uom.core.quantity.Untyped>,javax.measure.Quantity$Scale,java.math.MathContext)
 org.tinygears.uom.core.quantity UntypedDecimalQuantity member protected org.tinygears.uom.core.quantity.Untyped createDouble(double,org.tinygears.uom.core.UomUnit<org.tinygears.uom.core.quantity.Untyped>,javax.measure.Quantity$Scale)
@@ -280,6 +284,23 @@ org.tinygears.uom.core.quantity UntypedDoubleQuantity member protected org.tinyg
 org.tinygears.uom.core.quantity UntypedDoubleQuantity member protected org.tinygears.uom.core.quantity.Untyped createDecimal(java.math.BigDecimal,org.tinygears.uom.core.UomUnit<org.tinygears.uom.core.quantity.Untyped>,javax.measure.Quantity$Scale,java.math.MathContext)
 org.tinygears.uom.core.quantity UntypedDoubleQuantity member public static org.tinygears.uom.core.quantity.UntypedDoubleQuantity of(double,org.tinygears.uom.core.UomUnit<?>)
 org.tinygears.uom.core.quantity UntypedDoubleQuantity type public final class org.tinygears.uom.core.quantity.UntypedDoubleQuantity extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<org.tinygears.uom.core.quantity.Untyped, org.tinygears.uom.core.quantity.Untyped> implements org.tinygears.uom.core.quantity.Untyped
+org.tinygears.uom.core.quantity UomQuantity member public abstract R add(javax.measure.Quantity<Q>)
+org.tinygears.uom.core.quantity UomQuantity member public abstract R divide(java.lang.Number)
+org.tinygears.uom.core.quantity UomQuantity member public abstract R multiply(java.lang.Number)
+org.tinygears.uom.core.quantity UomQuantity member public abstract R negate()
+org.tinygears.uom.core.quantity UomQuantity member public abstract R subtract(javax.measure.Quantity<Q>)
+org.tinygears.uom.core.quantity UomQuantity member public abstract R to(javax.measure.Unit<Q>)
+org.tinygears.uom.core.quantity UomQuantity member public abstract R toDecimal(java.math.MathContext)
+org.tinygears.uom.core.quantity UomQuantity member public abstract R toDouble()
+org.tinygears.uom.core.quantity UomQuantity member public abstract R toSystem(javax.measure.spi.SystemOfUnits)
+org.tinygears.uom.core.quantity UomQuantity member public abstract boolean isCloseTo(javax.measure.Quantity<Q>,double)
+org.tinygears.uom.core.quantity UomQuantity member public abstract boolean isCloseTo(javax.measure.Quantity<Q>,javax.measure.Quantity<Q>)
+org.tinygears.uom.core.quantity UomQuantity member public abstract org.tinygears.uom.core.UomUnit<Q> getUnit()
+org.tinygears.uom.core.quantity UomQuantity member public abstract org.tinygears.uom.core.quantity.UomQuantity<?, ?> divide(javax.measure.Quantity<?>)
+org.tinygears.uom.core.quantity UomQuantity member public abstract org.tinygears.uom.core.quantity.UomQuantity<?, ?> inverse()
+org.tinygears.uom.core.quantity UomQuantity member public abstract org.tinygears.uom.core.quantity.UomQuantity<?, ?> multiply(javax.measure.Quantity<?>)
+org.tinygears.uom.core.quantity UomQuantity member public default <T extends org.tinygears.uom.core.quantity.UomQuantity<?, T>> T as(java.lang.Class<T>)
+org.tinygears.uom.core.quantity UomQuantity type public abstract interface org.tinygears.uom.core.quantity.UomQuantity<Q extends javax.measure.Quantity<Q>,R extends org.tinygears.uom.core.quantity.UomQuantity<Q, R>> extends javax.measure.Quantity<Q>, java.lang.Comparable<javax.measure.Quantity<Q>>
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.Providers
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.QuantityFactories
 org.tinygears.uom.core.spi hidden org.tinygears.uom.core.spi.UnitCatalogs
@@ -288,22 +309,13 @@ org.tinygears.uom module exports org.tinygears.uom.quantity
 org.tinygears.uom module exports org.tinygears.uom.systems
 org.tinygears.uom module provides javax.measure.spi.ServiceProvider with [org.tinygears.uom.systems.UomServiceProvider]
 org.tinygears.uom module requires transitive org.tinygears.uom.core
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration add(javax.measure.Quantity<javax.measure.quantity.Acceleration>)
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration divide(java.lang.Number)
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration multiply(java.lang.Number)
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration negate()
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration subtract(javax.measure.Quantity<javax.measure.quantity.Acceleration>)
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration to(javax.measure.Unit<javax.measure.quantity.Acceleration>)
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration toDouble()
-org.tinygears.uom.quantity Acceleration member public abstract org.tinygears.uom.quantity.Acceleration toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Acceleration member public static org.tinygears.uom.quantity.Acceleration from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Acceleration member public static org.tinygears.uom.quantity.Acceleration of(double,javax.measure.Unit<javax.measure.quantity.Acceleration>)
 org.tinygears.uom.quantity Acceleration member public static org.tinygears.uom.quantity.Acceleration of(double,javax.measure.Unit<javax.measure.quantity.Acceleration>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Acceleration member public static org.tinygears.uom.quantity.Acceleration of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Acceleration>)
 org.tinygears.uom.quantity Acceleration member public static org.tinygears.uom.quantity.Acceleration of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Acceleration>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Acceleration member public static org.tinygears.uom.quantity.Acceleration of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Acceleration>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Acceleration type public abstract interface org.tinygears.uom.quantity.Acceleration extends javax.measure.quantity.Acceleration, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Acceleration>>
+org.tinygears.uom.quantity Acceleration type public abstract interface org.tinygears.uom.quantity.Acceleration extends javax.measure.quantity.Acceleration, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Acceleration, org.tinygears.uom.quantity.Acceleration>
 org.tinygears.uom.quantity AccelerationFactory member public javax.measure.Unit<javax.measure.quantity.Acceleration> getSystemUnit()
 org.tinygears.uom.quantity AccelerationFactory member public org.tinygears.uom.quantity.Acceleration create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Acceleration>)
 org.tinygears.uom.quantity AccelerationFactory member public org.tinygears.uom.quantity.Acceleration create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Acceleration>,javax.measure.Quantity$Scale)
@@ -315,22 +327,13 @@ org.tinygears.uom.quantity AccelerationFactory member public org.tinygears.uom.q
 org.tinygears.uom.quantity AccelerationFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Acceleration> SYSTEM_UNIT
 org.tinygears.uom.quantity AccelerationFactory member public static final org.tinygears.uom.quantity.AccelerationFactory INSTANCE
 org.tinygears.uom.quantity AccelerationFactory type public final class org.tinygears.uom.quantity.AccelerationFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Acceleration>
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance add(javax.measure.Quantity<javax.measure.quantity.AmountOfSubstance>)
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance divide(java.lang.Number)
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance multiply(java.lang.Number)
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance negate()
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance subtract(javax.measure.Quantity<javax.measure.quantity.AmountOfSubstance>)
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance to(javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>)
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance toDouble()
-org.tinygears.uom.quantity AmountOfSubstance member public abstract org.tinygears.uom.quantity.AmountOfSubstance toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity AmountOfSubstance member public static org.tinygears.uom.quantity.AmountOfSubstance from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity AmountOfSubstance member public static org.tinygears.uom.quantity.AmountOfSubstance of(double,javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>)
 org.tinygears.uom.quantity AmountOfSubstance member public static org.tinygears.uom.quantity.AmountOfSubstance of(double,javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity AmountOfSubstance member public static org.tinygears.uom.quantity.AmountOfSubstance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>)
 org.tinygears.uom.quantity AmountOfSubstance member public static org.tinygears.uom.quantity.AmountOfSubstance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity AmountOfSubstance member public static org.tinygears.uom.quantity.AmountOfSubstance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity AmountOfSubstance type public abstract interface org.tinygears.uom.quantity.AmountOfSubstance extends javax.measure.quantity.AmountOfSubstance, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.AmountOfSubstance>>
+org.tinygears.uom.quantity AmountOfSubstance type public abstract interface org.tinygears.uom.quantity.AmountOfSubstance extends javax.measure.quantity.AmountOfSubstance, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.AmountOfSubstance, org.tinygears.uom.quantity.AmountOfSubstance>
 org.tinygears.uom.quantity AmountOfSubstanceFactory member public javax.measure.Unit<javax.measure.quantity.AmountOfSubstance> getSystemUnit()
 org.tinygears.uom.quantity AmountOfSubstanceFactory member public org.tinygears.uom.quantity.AmountOfSubstance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>)
 org.tinygears.uom.quantity AmountOfSubstanceFactory member public org.tinygears.uom.quantity.AmountOfSubstance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.AmountOfSubstance>,javax.measure.Quantity$Scale)
@@ -342,22 +345,13 @@ org.tinygears.uom.quantity AmountOfSubstanceFactory member public org.tinygears.
 org.tinygears.uom.quantity AmountOfSubstanceFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.AmountOfSubstance> SYSTEM_UNIT
 org.tinygears.uom.quantity AmountOfSubstanceFactory member public static final org.tinygears.uom.quantity.AmountOfSubstanceFactory INSTANCE
 org.tinygears.uom.quantity AmountOfSubstanceFactory type public final class org.tinygears.uom.quantity.AmountOfSubstanceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.AmountOfSubstance>
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle add(javax.measure.Quantity<javax.measure.quantity.Angle>)
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle divide(java.lang.Number)
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle multiply(java.lang.Number)
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle negate()
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle subtract(javax.measure.Quantity<javax.measure.quantity.Angle>)
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle to(javax.measure.Unit<javax.measure.quantity.Angle>)
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle toDouble()
-org.tinygears.uom.quantity Angle member public abstract org.tinygears.uom.quantity.Angle toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Angle member public static org.tinygears.uom.quantity.Angle from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Angle member public static org.tinygears.uom.quantity.Angle of(double,javax.measure.Unit<javax.measure.quantity.Angle>)
 org.tinygears.uom.quantity Angle member public static org.tinygears.uom.quantity.Angle of(double,javax.measure.Unit<javax.measure.quantity.Angle>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Angle member public static org.tinygears.uom.quantity.Angle of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Angle>)
 org.tinygears.uom.quantity Angle member public static org.tinygears.uom.quantity.Angle of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Angle>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Angle member public static org.tinygears.uom.quantity.Angle of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Angle>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Angle type public abstract interface org.tinygears.uom.quantity.Angle extends javax.measure.quantity.Angle, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Angle>>
+org.tinygears.uom.quantity Angle type public abstract interface org.tinygears.uom.quantity.Angle extends javax.measure.quantity.Angle, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Angle, org.tinygears.uom.quantity.Angle>
 org.tinygears.uom.quantity AngleFactory member public javax.measure.Unit<javax.measure.quantity.Angle> getSystemUnit()
 org.tinygears.uom.quantity AngleFactory member public org.tinygears.uom.quantity.Angle create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Angle>)
 org.tinygears.uom.quantity AngleFactory member public org.tinygears.uom.quantity.Angle create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Angle>,javax.measure.Quantity$Scale)
@@ -369,22 +363,13 @@ org.tinygears.uom.quantity AngleFactory member public org.tinygears.uom.quantity
 org.tinygears.uom.quantity AngleFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Angle> SYSTEM_UNIT
 org.tinygears.uom.quantity AngleFactory member public static final org.tinygears.uom.quantity.AngleFactory INSTANCE
 org.tinygears.uom.quantity AngleFactory type public final class org.tinygears.uom.quantity.AngleFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Angle>
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area add(javax.measure.Quantity<javax.measure.quantity.Area>)
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area divide(java.lang.Number)
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area multiply(java.lang.Number)
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area negate()
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area subtract(javax.measure.Quantity<javax.measure.quantity.Area>)
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area to(javax.measure.Unit<javax.measure.quantity.Area>)
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area toDouble()
-org.tinygears.uom.quantity Area member public abstract org.tinygears.uom.quantity.Area toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Area member public static org.tinygears.uom.quantity.Area from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Area member public static org.tinygears.uom.quantity.Area of(double,javax.measure.Unit<javax.measure.quantity.Area>)
 org.tinygears.uom.quantity Area member public static org.tinygears.uom.quantity.Area of(double,javax.measure.Unit<javax.measure.quantity.Area>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Area member public static org.tinygears.uom.quantity.Area of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Area>)
 org.tinygears.uom.quantity Area member public static org.tinygears.uom.quantity.Area of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Area>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Area member public static org.tinygears.uom.quantity.Area of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Area>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Area type public abstract interface org.tinygears.uom.quantity.Area extends javax.measure.quantity.Area, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Area>>
+org.tinygears.uom.quantity Area type public abstract interface org.tinygears.uom.quantity.Area extends javax.measure.quantity.Area, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Area, org.tinygears.uom.quantity.Area>
 org.tinygears.uom.quantity AreaFactory member public javax.measure.Unit<javax.measure.quantity.Area> getSystemUnit()
 org.tinygears.uom.quantity AreaFactory member public org.tinygears.uom.quantity.Area create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Area>)
 org.tinygears.uom.quantity AreaFactory member public org.tinygears.uom.quantity.Area create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Area>,javax.measure.Quantity$Scale)
@@ -396,22 +381,13 @@ org.tinygears.uom.quantity AreaFactory member public org.tinygears.uom.quantity.
 org.tinygears.uom.quantity AreaFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Area> SYSTEM_UNIT
 org.tinygears.uom.quantity AreaFactory member public static final org.tinygears.uom.quantity.AreaFactory INSTANCE
 org.tinygears.uom.quantity AreaFactory type public final class org.tinygears.uom.quantity.AreaFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Area>
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity add(javax.measure.Quantity<javax.measure.quantity.CatalyticActivity>)
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity divide(java.lang.Number)
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity multiply(java.lang.Number)
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity negate()
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity subtract(javax.measure.Quantity<javax.measure.quantity.CatalyticActivity>)
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity to(javax.measure.Unit<javax.measure.quantity.CatalyticActivity>)
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity toDouble()
-org.tinygears.uom.quantity CatalyticActivity member public abstract org.tinygears.uom.quantity.CatalyticActivity toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity CatalyticActivity member public static org.tinygears.uom.quantity.CatalyticActivity from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity CatalyticActivity member public static org.tinygears.uom.quantity.CatalyticActivity of(double,javax.measure.Unit<javax.measure.quantity.CatalyticActivity>)
 org.tinygears.uom.quantity CatalyticActivity member public static org.tinygears.uom.quantity.CatalyticActivity of(double,javax.measure.Unit<javax.measure.quantity.CatalyticActivity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity CatalyticActivity member public static org.tinygears.uom.quantity.CatalyticActivity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.CatalyticActivity>)
 org.tinygears.uom.quantity CatalyticActivity member public static org.tinygears.uom.quantity.CatalyticActivity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.CatalyticActivity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity CatalyticActivity member public static org.tinygears.uom.quantity.CatalyticActivity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.CatalyticActivity>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity CatalyticActivity type public abstract interface org.tinygears.uom.quantity.CatalyticActivity extends javax.measure.quantity.CatalyticActivity, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.CatalyticActivity>>
+org.tinygears.uom.quantity CatalyticActivity type public abstract interface org.tinygears.uom.quantity.CatalyticActivity extends javax.measure.quantity.CatalyticActivity, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.CatalyticActivity, org.tinygears.uom.quantity.CatalyticActivity>
 org.tinygears.uom.quantity CatalyticActivityFactory member public javax.measure.Unit<javax.measure.quantity.CatalyticActivity> getSystemUnit()
 org.tinygears.uom.quantity CatalyticActivityFactory member public org.tinygears.uom.quantity.CatalyticActivity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.CatalyticActivity>)
 org.tinygears.uom.quantity CatalyticActivityFactory member public org.tinygears.uom.quantity.CatalyticActivity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.CatalyticActivity>,javax.measure.Quantity$Scale)
@@ -423,22 +399,13 @@ org.tinygears.uom.quantity CatalyticActivityFactory member public org.tinygears.
 org.tinygears.uom.quantity CatalyticActivityFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.CatalyticActivity> SYSTEM_UNIT
 org.tinygears.uom.quantity CatalyticActivityFactory member public static final org.tinygears.uom.quantity.CatalyticActivityFactory INSTANCE
 org.tinygears.uom.quantity CatalyticActivityFactory type public final class org.tinygears.uom.quantity.CatalyticActivityFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.CatalyticActivity>
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless add(javax.measure.Quantity<javax.measure.quantity.Dimensionless>)
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless divide(java.lang.Number)
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless multiply(java.lang.Number)
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless negate()
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless subtract(javax.measure.Quantity<javax.measure.quantity.Dimensionless>)
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless to(javax.measure.Unit<javax.measure.quantity.Dimensionless>)
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless toDouble()
-org.tinygears.uom.quantity Dimensionless member public abstract org.tinygears.uom.quantity.Dimensionless toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Dimensionless member public static org.tinygears.uom.quantity.Dimensionless from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Dimensionless member public static org.tinygears.uom.quantity.Dimensionless of(double,javax.measure.Unit<javax.measure.quantity.Dimensionless>)
 org.tinygears.uom.quantity Dimensionless member public static org.tinygears.uom.quantity.Dimensionless of(double,javax.measure.Unit<javax.measure.quantity.Dimensionless>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Dimensionless member public static org.tinygears.uom.quantity.Dimensionless of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Dimensionless>)
 org.tinygears.uom.quantity Dimensionless member public static org.tinygears.uom.quantity.Dimensionless of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Dimensionless>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Dimensionless member public static org.tinygears.uom.quantity.Dimensionless of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Dimensionless>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Dimensionless type public abstract interface org.tinygears.uom.quantity.Dimensionless extends javax.measure.quantity.Dimensionless, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Dimensionless>>
+org.tinygears.uom.quantity Dimensionless type public abstract interface org.tinygears.uom.quantity.Dimensionless extends javax.measure.quantity.Dimensionless, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Dimensionless, org.tinygears.uom.quantity.Dimensionless>
 org.tinygears.uom.quantity DimensionlessFactory member public javax.measure.Unit<javax.measure.quantity.Dimensionless> getSystemUnit()
 org.tinygears.uom.quantity DimensionlessFactory member public org.tinygears.uom.quantity.Dimensionless create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Dimensionless>)
 org.tinygears.uom.quantity DimensionlessFactory member public org.tinygears.uom.quantity.Dimensionless create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Dimensionless>,javax.measure.Quantity$Scale)
@@ -450,22 +417,13 @@ org.tinygears.uom.quantity DimensionlessFactory member public org.tinygears.uom.
 org.tinygears.uom.quantity DimensionlessFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Dimensionless> SYSTEM_UNIT
 org.tinygears.uom.quantity DimensionlessFactory member public static final org.tinygears.uom.quantity.DimensionlessFactory INSTANCE
 org.tinygears.uom.quantity DimensionlessFactory type public final class org.tinygears.uom.quantity.DimensionlessFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Dimensionless>
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance add(javax.measure.Quantity<javax.measure.quantity.ElectricCapacitance>)
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance divide(java.lang.Number)
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance multiply(java.lang.Number)
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance negate()
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance subtract(javax.measure.Quantity<javax.measure.quantity.ElectricCapacitance>)
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance to(javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>)
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance toDouble()
-org.tinygears.uom.quantity ElectricCapacitance member public abstract org.tinygears.uom.quantity.ElectricCapacitance toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity ElectricCapacitance member public static org.tinygears.uom.quantity.ElectricCapacitance from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity ElectricCapacitance member public static org.tinygears.uom.quantity.ElectricCapacitance of(double,javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>)
 org.tinygears.uom.quantity ElectricCapacitance member public static org.tinygears.uom.quantity.ElectricCapacitance of(double,javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricCapacitance member public static org.tinygears.uom.quantity.ElectricCapacitance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>)
 org.tinygears.uom.quantity ElectricCapacitance member public static org.tinygears.uom.quantity.ElectricCapacitance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricCapacitance member public static org.tinygears.uom.quantity.ElectricCapacitance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity ElectricCapacitance type public abstract interface org.tinygears.uom.quantity.ElectricCapacitance extends javax.measure.quantity.ElectricCapacitance, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricCapacitance>>
+org.tinygears.uom.quantity ElectricCapacitance type public abstract interface org.tinygears.uom.quantity.ElectricCapacitance extends javax.measure.quantity.ElectricCapacitance, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.ElectricCapacitance, org.tinygears.uom.quantity.ElectricCapacitance>
 org.tinygears.uom.quantity ElectricCapacitanceFactory member public javax.measure.Unit<javax.measure.quantity.ElectricCapacitance> getSystemUnit()
 org.tinygears.uom.quantity ElectricCapacitanceFactory member public org.tinygears.uom.quantity.ElectricCapacitance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>)
 org.tinygears.uom.quantity ElectricCapacitanceFactory member public org.tinygears.uom.quantity.ElectricCapacitance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricCapacitance>,javax.measure.Quantity$Scale)
@@ -477,22 +435,13 @@ org.tinygears.uom.quantity ElectricCapacitanceFactory member public org.tinygear
 org.tinygears.uom.quantity ElectricCapacitanceFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCapacitance> SYSTEM_UNIT
 org.tinygears.uom.quantity ElectricCapacitanceFactory member public static final org.tinygears.uom.quantity.ElectricCapacitanceFactory INSTANCE
 org.tinygears.uom.quantity ElectricCapacitanceFactory type public final class org.tinygears.uom.quantity.ElectricCapacitanceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricCapacitance>
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge add(javax.measure.Quantity<javax.measure.quantity.ElectricCharge>)
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge divide(java.lang.Number)
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge multiply(java.lang.Number)
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge negate()
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge subtract(javax.measure.Quantity<javax.measure.quantity.ElectricCharge>)
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge to(javax.measure.Unit<javax.measure.quantity.ElectricCharge>)
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge toDouble()
-org.tinygears.uom.quantity ElectricCharge member public abstract org.tinygears.uom.quantity.ElectricCharge toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity ElectricCharge member public static org.tinygears.uom.quantity.ElectricCharge from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity ElectricCharge member public static org.tinygears.uom.quantity.ElectricCharge of(double,javax.measure.Unit<javax.measure.quantity.ElectricCharge>)
 org.tinygears.uom.quantity ElectricCharge member public static org.tinygears.uom.quantity.ElectricCharge of(double,javax.measure.Unit<javax.measure.quantity.ElectricCharge>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricCharge member public static org.tinygears.uom.quantity.ElectricCharge of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCharge>)
 org.tinygears.uom.quantity ElectricCharge member public static org.tinygears.uom.quantity.ElectricCharge of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCharge>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricCharge member public static org.tinygears.uom.quantity.ElectricCharge of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCharge>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity ElectricCharge type public abstract interface org.tinygears.uom.quantity.ElectricCharge extends javax.measure.quantity.ElectricCharge, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricCharge>>
+org.tinygears.uom.quantity ElectricCharge type public abstract interface org.tinygears.uom.quantity.ElectricCharge extends javax.measure.quantity.ElectricCharge, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.ElectricCharge, org.tinygears.uom.quantity.ElectricCharge>
 org.tinygears.uom.quantity ElectricChargeFactory member public javax.measure.Unit<javax.measure.quantity.ElectricCharge> getSystemUnit()
 org.tinygears.uom.quantity ElectricChargeFactory member public org.tinygears.uom.quantity.ElectricCharge create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricCharge>)
 org.tinygears.uom.quantity ElectricChargeFactory member public org.tinygears.uom.quantity.ElectricCharge create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricCharge>,javax.measure.Quantity$Scale)
@@ -504,22 +453,13 @@ org.tinygears.uom.quantity ElectricChargeFactory member public org.tinygears.uom
 org.tinygears.uom.quantity ElectricChargeFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCharge> SYSTEM_UNIT
 org.tinygears.uom.quantity ElectricChargeFactory member public static final org.tinygears.uom.quantity.ElectricChargeFactory INSTANCE
 org.tinygears.uom.quantity ElectricChargeFactory type public final class org.tinygears.uom.quantity.ElectricChargeFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricCharge>
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance add(javax.measure.Quantity<javax.measure.quantity.ElectricConductance>)
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance divide(java.lang.Number)
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance multiply(java.lang.Number)
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance negate()
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance subtract(javax.measure.Quantity<javax.measure.quantity.ElectricConductance>)
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance to(javax.measure.Unit<javax.measure.quantity.ElectricConductance>)
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance toDouble()
-org.tinygears.uom.quantity ElectricConductance member public abstract org.tinygears.uom.quantity.ElectricConductance toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity ElectricConductance member public static org.tinygears.uom.quantity.ElectricConductance from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity ElectricConductance member public static org.tinygears.uom.quantity.ElectricConductance of(double,javax.measure.Unit<javax.measure.quantity.ElectricConductance>)
 org.tinygears.uom.quantity ElectricConductance member public static org.tinygears.uom.quantity.ElectricConductance of(double,javax.measure.Unit<javax.measure.quantity.ElectricConductance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricConductance member public static org.tinygears.uom.quantity.ElectricConductance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricConductance>)
 org.tinygears.uom.quantity ElectricConductance member public static org.tinygears.uom.quantity.ElectricConductance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricConductance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricConductance member public static org.tinygears.uom.quantity.ElectricConductance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricConductance>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity ElectricConductance type public abstract interface org.tinygears.uom.quantity.ElectricConductance extends javax.measure.quantity.ElectricConductance, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricConductance>>
+org.tinygears.uom.quantity ElectricConductance type public abstract interface org.tinygears.uom.quantity.ElectricConductance extends javax.measure.quantity.ElectricConductance, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.ElectricConductance, org.tinygears.uom.quantity.ElectricConductance>
 org.tinygears.uom.quantity ElectricConductanceFactory member public javax.measure.Unit<javax.measure.quantity.ElectricConductance> getSystemUnit()
 org.tinygears.uom.quantity ElectricConductanceFactory member public org.tinygears.uom.quantity.ElectricConductance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricConductance>)
 org.tinygears.uom.quantity ElectricConductanceFactory member public org.tinygears.uom.quantity.ElectricConductance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricConductance>,javax.measure.Quantity$Scale)
@@ -531,22 +471,13 @@ org.tinygears.uom.quantity ElectricConductanceFactory member public org.tinygear
 org.tinygears.uom.quantity ElectricConductanceFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricConductance> SYSTEM_UNIT
 org.tinygears.uom.quantity ElectricConductanceFactory member public static final org.tinygears.uom.quantity.ElectricConductanceFactory INSTANCE
 org.tinygears.uom.quantity ElectricConductanceFactory type public final class org.tinygears.uom.quantity.ElectricConductanceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricConductance>
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent add(javax.measure.Quantity<javax.measure.quantity.ElectricCurrent>)
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent divide(java.lang.Number)
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent multiply(java.lang.Number)
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent negate()
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent subtract(javax.measure.Quantity<javax.measure.quantity.ElectricCurrent>)
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent to(javax.measure.Unit<javax.measure.quantity.ElectricCurrent>)
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent toDouble()
-org.tinygears.uom.quantity ElectricCurrent member public abstract org.tinygears.uom.quantity.ElectricCurrent toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity ElectricCurrent member public static org.tinygears.uom.quantity.ElectricCurrent from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity ElectricCurrent member public static org.tinygears.uom.quantity.ElectricCurrent of(double,javax.measure.Unit<javax.measure.quantity.ElectricCurrent>)
 org.tinygears.uom.quantity ElectricCurrent member public static org.tinygears.uom.quantity.ElectricCurrent of(double,javax.measure.Unit<javax.measure.quantity.ElectricCurrent>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricCurrent member public static org.tinygears.uom.quantity.ElectricCurrent of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCurrent>)
 org.tinygears.uom.quantity ElectricCurrent member public static org.tinygears.uom.quantity.ElectricCurrent of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCurrent>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricCurrent member public static org.tinygears.uom.quantity.ElectricCurrent of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricCurrent>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity ElectricCurrent type public abstract interface org.tinygears.uom.quantity.ElectricCurrent extends javax.measure.quantity.ElectricCurrent, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricCurrent>>
+org.tinygears.uom.quantity ElectricCurrent type public abstract interface org.tinygears.uom.quantity.ElectricCurrent extends javax.measure.quantity.ElectricCurrent, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.ElectricCurrent, org.tinygears.uom.quantity.ElectricCurrent>
 org.tinygears.uom.quantity ElectricCurrentFactory member public javax.measure.Unit<javax.measure.quantity.ElectricCurrent> getSystemUnit()
 org.tinygears.uom.quantity ElectricCurrentFactory member public org.tinygears.uom.quantity.ElectricCurrent create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricCurrent>)
 org.tinygears.uom.quantity ElectricCurrentFactory member public org.tinygears.uom.quantity.ElectricCurrent create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricCurrent>,javax.measure.Quantity$Scale)
@@ -558,22 +489,13 @@ org.tinygears.uom.quantity ElectricCurrentFactory member public org.tinygears.uo
 org.tinygears.uom.quantity ElectricCurrentFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricCurrent> SYSTEM_UNIT
 org.tinygears.uom.quantity ElectricCurrentFactory member public static final org.tinygears.uom.quantity.ElectricCurrentFactory INSTANCE
 org.tinygears.uom.quantity ElectricCurrentFactory type public final class org.tinygears.uom.quantity.ElectricCurrentFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricCurrent>
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance add(javax.measure.Quantity<javax.measure.quantity.ElectricInductance>)
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance divide(java.lang.Number)
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance multiply(java.lang.Number)
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance negate()
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance subtract(javax.measure.Quantity<javax.measure.quantity.ElectricInductance>)
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance to(javax.measure.Unit<javax.measure.quantity.ElectricInductance>)
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance toDouble()
-org.tinygears.uom.quantity ElectricInductance member public abstract org.tinygears.uom.quantity.ElectricInductance toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity ElectricInductance member public static org.tinygears.uom.quantity.ElectricInductance from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity ElectricInductance member public static org.tinygears.uom.quantity.ElectricInductance of(double,javax.measure.Unit<javax.measure.quantity.ElectricInductance>)
 org.tinygears.uom.quantity ElectricInductance member public static org.tinygears.uom.quantity.ElectricInductance of(double,javax.measure.Unit<javax.measure.quantity.ElectricInductance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricInductance member public static org.tinygears.uom.quantity.ElectricInductance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricInductance>)
 org.tinygears.uom.quantity ElectricInductance member public static org.tinygears.uom.quantity.ElectricInductance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricInductance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricInductance member public static org.tinygears.uom.quantity.ElectricInductance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricInductance>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity ElectricInductance type public abstract interface org.tinygears.uom.quantity.ElectricInductance extends javax.measure.quantity.ElectricInductance, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricInductance>>
+org.tinygears.uom.quantity ElectricInductance type public abstract interface org.tinygears.uom.quantity.ElectricInductance extends javax.measure.quantity.ElectricInductance, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.ElectricInductance, org.tinygears.uom.quantity.ElectricInductance>
 org.tinygears.uom.quantity ElectricInductanceFactory member public javax.measure.Unit<javax.measure.quantity.ElectricInductance> getSystemUnit()
 org.tinygears.uom.quantity ElectricInductanceFactory member public org.tinygears.uom.quantity.ElectricInductance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricInductance>)
 org.tinygears.uom.quantity ElectricInductanceFactory member public org.tinygears.uom.quantity.ElectricInductance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricInductance>,javax.measure.Quantity$Scale)
@@ -585,22 +507,13 @@ org.tinygears.uom.quantity ElectricInductanceFactory member public org.tinygears
 org.tinygears.uom.quantity ElectricInductanceFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricInductance> SYSTEM_UNIT
 org.tinygears.uom.quantity ElectricInductanceFactory member public static final org.tinygears.uom.quantity.ElectricInductanceFactory INSTANCE
 org.tinygears.uom.quantity ElectricInductanceFactory type public final class org.tinygears.uom.quantity.ElectricInductanceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricInductance>
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential add(javax.measure.Quantity<javax.measure.quantity.ElectricPotential>)
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential divide(java.lang.Number)
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential multiply(java.lang.Number)
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential negate()
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential subtract(javax.measure.Quantity<javax.measure.quantity.ElectricPotential>)
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential to(javax.measure.Unit<javax.measure.quantity.ElectricPotential>)
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential toDouble()
-org.tinygears.uom.quantity ElectricPotential member public abstract org.tinygears.uom.quantity.ElectricPotential toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity ElectricPotential member public static org.tinygears.uom.quantity.ElectricPotential from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity ElectricPotential member public static org.tinygears.uom.quantity.ElectricPotential of(double,javax.measure.Unit<javax.measure.quantity.ElectricPotential>)
 org.tinygears.uom.quantity ElectricPotential member public static org.tinygears.uom.quantity.ElectricPotential of(double,javax.measure.Unit<javax.measure.quantity.ElectricPotential>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricPotential member public static org.tinygears.uom.quantity.ElectricPotential of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricPotential>)
 org.tinygears.uom.quantity ElectricPotential member public static org.tinygears.uom.quantity.ElectricPotential of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricPotential>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricPotential member public static org.tinygears.uom.quantity.ElectricPotential of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricPotential>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity ElectricPotential type public abstract interface org.tinygears.uom.quantity.ElectricPotential extends javax.measure.quantity.ElectricPotential, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricPotential>>
+org.tinygears.uom.quantity ElectricPotential type public abstract interface org.tinygears.uom.quantity.ElectricPotential extends javax.measure.quantity.ElectricPotential, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.ElectricPotential, org.tinygears.uom.quantity.ElectricPotential>
 org.tinygears.uom.quantity ElectricPotentialFactory member public javax.measure.Unit<javax.measure.quantity.ElectricPotential> getSystemUnit()
 org.tinygears.uom.quantity ElectricPotentialFactory member public org.tinygears.uom.quantity.ElectricPotential create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricPotential>)
 org.tinygears.uom.quantity ElectricPotentialFactory member public org.tinygears.uom.quantity.ElectricPotential create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricPotential>,javax.measure.Quantity$Scale)
@@ -612,22 +525,13 @@ org.tinygears.uom.quantity ElectricPotentialFactory member public org.tinygears.
 org.tinygears.uom.quantity ElectricPotentialFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricPotential> SYSTEM_UNIT
 org.tinygears.uom.quantity ElectricPotentialFactory member public static final org.tinygears.uom.quantity.ElectricPotentialFactory INSTANCE
 org.tinygears.uom.quantity ElectricPotentialFactory type public final class org.tinygears.uom.quantity.ElectricPotentialFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricPotential>
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance add(javax.measure.Quantity<javax.measure.quantity.ElectricResistance>)
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance divide(java.lang.Number)
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance multiply(java.lang.Number)
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance negate()
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance subtract(javax.measure.Quantity<javax.measure.quantity.ElectricResistance>)
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance to(javax.measure.Unit<javax.measure.quantity.ElectricResistance>)
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance toDouble()
-org.tinygears.uom.quantity ElectricResistance member public abstract org.tinygears.uom.quantity.ElectricResistance toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity ElectricResistance member public static org.tinygears.uom.quantity.ElectricResistance from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity ElectricResistance member public static org.tinygears.uom.quantity.ElectricResistance of(double,javax.measure.Unit<javax.measure.quantity.ElectricResistance>)
 org.tinygears.uom.quantity ElectricResistance member public static org.tinygears.uom.quantity.ElectricResistance of(double,javax.measure.Unit<javax.measure.quantity.ElectricResistance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricResistance member public static org.tinygears.uom.quantity.ElectricResistance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricResistance>)
 org.tinygears.uom.quantity ElectricResistance member public static org.tinygears.uom.quantity.ElectricResistance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricResistance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity ElectricResistance member public static org.tinygears.uom.quantity.ElectricResistance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.ElectricResistance>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity ElectricResistance type public abstract interface org.tinygears.uom.quantity.ElectricResistance extends javax.measure.quantity.ElectricResistance, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.ElectricResistance>>
+org.tinygears.uom.quantity ElectricResistance type public abstract interface org.tinygears.uom.quantity.ElectricResistance extends javax.measure.quantity.ElectricResistance, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.ElectricResistance, org.tinygears.uom.quantity.ElectricResistance>
 org.tinygears.uom.quantity ElectricResistanceFactory member public javax.measure.Unit<javax.measure.quantity.ElectricResistance> getSystemUnit()
 org.tinygears.uom.quantity ElectricResistanceFactory member public org.tinygears.uom.quantity.ElectricResistance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricResistance>)
 org.tinygears.uom.quantity ElectricResistanceFactory member public org.tinygears.uom.quantity.ElectricResistance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.ElectricResistance>,javax.measure.Quantity$Scale)
@@ -639,22 +543,13 @@ org.tinygears.uom.quantity ElectricResistanceFactory member public org.tinygears
 org.tinygears.uom.quantity ElectricResistanceFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.ElectricResistance> SYSTEM_UNIT
 org.tinygears.uom.quantity ElectricResistanceFactory member public static final org.tinygears.uom.quantity.ElectricResistanceFactory INSTANCE
 org.tinygears.uom.quantity ElectricResistanceFactory type public final class org.tinygears.uom.quantity.ElectricResistanceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.ElectricResistance>
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy add(javax.measure.Quantity<javax.measure.quantity.Energy>)
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy divide(java.lang.Number)
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy multiply(java.lang.Number)
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy negate()
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy subtract(javax.measure.Quantity<javax.measure.quantity.Energy>)
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy to(javax.measure.Unit<javax.measure.quantity.Energy>)
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy toDouble()
-org.tinygears.uom.quantity Energy member public abstract org.tinygears.uom.quantity.Energy toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Energy member public static org.tinygears.uom.quantity.Energy from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Energy member public static org.tinygears.uom.quantity.Energy of(double,javax.measure.Unit<javax.measure.quantity.Energy>)
 org.tinygears.uom.quantity Energy member public static org.tinygears.uom.quantity.Energy of(double,javax.measure.Unit<javax.measure.quantity.Energy>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Energy member public static org.tinygears.uom.quantity.Energy of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Energy>)
 org.tinygears.uom.quantity Energy member public static org.tinygears.uom.quantity.Energy of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Energy>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Energy member public static org.tinygears.uom.quantity.Energy of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Energy>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Energy type public abstract interface org.tinygears.uom.quantity.Energy extends javax.measure.quantity.Energy, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Energy>>
+org.tinygears.uom.quantity Energy type public abstract interface org.tinygears.uom.quantity.Energy extends javax.measure.quantity.Energy, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Energy, org.tinygears.uom.quantity.Energy>
 org.tinygears.uom.quantity EnergyFactory member public javax.measure.Unit<javax.measure.quantity.Energy> getSystemUnit()
 org.tinygears.uom.quantity EnergyFactory member public org.tinygears.uom.quantity.Energy create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Energy>)
 org.tinygears.uom.quantity EnergyFactory member public org.tinygears.uom.quantity.Energy create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Energy>,javax.measure.Quantity$Scale)
@@ -666,22 +561,13 @@ org.tinygears.uom.quantity EnergyFactory member public org.tinygears.uom.quantit
 org.tinygears.uom.quantity EnergyFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Energy> SYSTEM_UNIT
 org.tinygears.uom.quantity EnergyFactory member public static final org.tinygears.uom.quantity.EnergyFactory INSTANCE
 org.tinygears.uom.quantity EnergyFactory type public final class org.tinygears.uom.quantity.EnergyFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Energy>
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force add(javax.measure.Quantity<javax.measure.quantity.Force>)
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force divide(java.lang.Number)
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force multiply(java.lang.Number)
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force negate()
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force subtract(javax.measure.Quantity<javax.measure.quantity.Force>)
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force to(javax.measure.Unit<javax.measure.quantity.Force>)
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force toDouble()
-org.tinygears.uom.quantity Force member public abstract org.tinygears.uom.quantity.Force toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Force member public static org.tinygears.uom.quantity.Force from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Force member public static org.tinygears.uom.quantity.Force of(double,javax.measure.Unit<javax.measure.quantity.Force>)
 org.tinygears.uom.quantity Force member public static org.tinygears.uom.quantity.Force of(double,javax.measure.Unit<javax.measure.quantity.Force>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Force member public static org.tinygears.uom.quantity.Force of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Force>)
 org.tinygears.uom.quantity Force member public static org.tinygears.uom.quantity.Force of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Force>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Force member public static org.tinygears.uom.quantity.Force of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Force>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Force type public abstract interface org.tinygears.uom.quantity.Force extends javax.measure.quantity.Force, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Force>>
+org.tinygears.uom.quantity Force type public abstract interface org.tinygears.uom.quantity.Force extends javax.measure.quantity.Force, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Force, org.tinygears.uom.quantity.Force>
 org.tinygears.uom.quantity ForceFactory member public javax.measure.Unit<javax.measure.quantity.Force> getSystemUnit()
 org.tinygears.uom.quantity ForceFactory member public org.tinygears.uom.quantity.Force create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Force>)
 org.tinygears.uom.quantity ForceFactory member public org.tinygears.uom.quantity.Force create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Force>,javax.measure.Quantity$Scale)
@@ -693,22 +579,13 @@ org.tinygears.uom.quantity ForceFactory member public org.tinygears.uom.quantity
 org.tinygears.uom.quantity ForceFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Force> SYSTEM_UNIT
 org.tinygears.uom.quantity ForceFactory member public static final org.tinygears.uom.quantity.ForceFactory INSTANCE
 org.tinygears.uom.quantity ForceFactory type public final class org.tinygears.uom.quantity.ForceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Force>
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency add(javax.measure.Quantity<javax.measure.quantity.Frequency>)
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency divide(java.lang.Number)
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency multiply(java.lang.Number)
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency negate()
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency subtract(javax.measure.Quantity<javax.measure.quantity.Frequency>)
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency to(javax.measure.Unit<javax.measure.quantity.Frequency>)
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency toDouble()
-org.tinygears.uom.quantity Frequency member public abstract org.tinygears.uom.quantity.Frequency toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Frequency member public static org.tinygears.uom.quantity.Frequency from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Frequency member public static org.tinygears.uom.quantity.Frequency of(double,javax.measure.Unit<javax.measure.quantity.Frequency>)
 org.tinygears.uom.quantity Frequency member public static org.tinygears.uom.quantity.Frequency of(double,javax.measure.Unit<javax.measure.quantity.Frequency>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Frequency member public static org.tinygears.uom.quantity.Frequency of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Frequency>)
 org.tinygears.uom.quantity Frequency member public static org.tinygears.uom.quantity.Frequency of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Frequency>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Frequency member public static org.tinygears.uom.quantity.Frequency of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Frequency>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Frequency type public abstract interface org.tinygears.uom.quantity.Frequency extends javax.measure.quantity.Frequency, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Frequency>>
+org.tinygears.uom.quantity Frequency type public abstract interface org.tinygears.uom.quantity.Frequency extends javax.measure.quantity.Frequency, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Frequency, org.tinygears.uom.quantity.Frequency>
 org.tinygears.uom.quantity FrequencyFactory member public javax.measure.Unit<javax.measure.quantity.Frequency> getSystemUnit()
 org.tinygears.uom.quantity FrequencyFactory member public org.tinygears.uom.quantity.Frequency create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Frequency>)
 org.tinygears.uom.quantity FrequencyFactory member public org.tinygears.uom.quantity.Frequency create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Frequency>,javax.measure.Quantity$Scale)
@@ -720,22 +597,13 @@ org.tinygears.uom.quantity FrequencyFactory member public org.tinygears.uom.quan
 org.tinygears.uom.quantity FrequencyFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Frequency> SYSTEM_UNIT
 org.tinygears.uom.quantity FrequencyFactory member public static final org.tinygears.uom.quantity.FrequencyFactory INSTANCE
 org.tinygears.uom.quantity FrequencyFactory type public final class org.tinygears.uom.quantity.FrequencyFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Frequency>
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance add(javax.measure.Quantity<javax.measure.quantity.Illuminance>)
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance divide(java.lang.Number)
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance multiply(java.lang.Number)
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance negate()
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance subtract(javax.measure.Quantity<javax.measure.quantity.Illuminance>)
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance to(javax.measure.Unit<javax.measure.quantity.Illuminance>)
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance toDouble()
-org.tinygears.uom.quantity Illuminance member public abstract org.tinygears.uom.quantity.Illuminance toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Illuminance member public static org.tinygears.uom.quantity.Illuminance from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Illuminance member public static org.tinygears.uom.quantity.Illuminance of(double,javax.measure.Unit<javax.measure.quantity.Illuminance>)
 org.tinygears.uom.quantity Illuminance member public static org.tinygears.uom.quantity.Illuminance of(double,javax.measure.Unit<javax.measure.quantity.Illuminance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Illuminance member public static org.tinygears.uom.quantity.Illuminance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Illuminance>)
 org.tinygears.uom.quantity Illuminance member public static org.tinygears.uom.quantity.Illuminance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Illuminance>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Illuminance member public static org.tinygears.uom.quantity.Illuminance of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Illuminance>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Illuminance type public abstract interface org.tinygears.uom.quantity.Illuminance extends javax.measure.quantity.Illuminance, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Illuminance>>
+org.tinygears.uom.quantity Illuminance type public abstract interface org.tinygears.uom.quantity.Illuminance extends javax.measure.quantity.Illuminance, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Illuminance, org.tinygears.uom.quantity.Illuminance>
 org.tinygears.uom.quantity IlluminanceFactory member public javax.measure.Unit<javax.measure.quantity.Illuminance> getSystemUnit()
 org.tinygears.uom.quantity IlluminanceFactory member public org.tinygears.uom.quantity.Illuminance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Illuminance>)
 org.tinygears.uom.quantity IlluminanceFactory member public org.tinygears.uom.quantity.Illuminance create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Illuminance>,javax.measure.Quantity$Scale)
@@ -747,22 +615,13 @@ org.tinygears.uom.quantity IlluminanceFactory member public org.tinygears.uom.qu
 org.tinygears.uom.quantity IlluminanceFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Illuminance> SYSTEM_UNIT
 org.tinygears.uom.quantity IlluminanceFactory member public static final org.tinygears.uom.quantity.IlluminanceFactory INSTANCE
 org.tinygears.uom.quantity IlluminanceFactory type public final class org.tinygears.uom.quantity.IlluminanceFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Illuminance>
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length add(javax.measure.Quantity<javax.measure.quantity.Length>)
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length divide(java.lang.Number)
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length multiply(java.lang.Number)
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length negate()
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length subtract(javax.measure.Quantity<javax.measure.quantity.Length>)
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length to(javax.measure.Unit<javax.measure.quantity.Length>)
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length toDouble()
-org.tinygears.uom.quantity Length member public abstract org.tinygears.uom.quantity.Length toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Length member public static org.tinygears.uom.quantity.Length from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Length member public static org.tinygears.uom.quantity.Length of(double,javax.measure.Unit<javax.measure.quantity.Length>)
 org.tinygears.uom.quantity Length member public static org.tinygears.uom.quantity.Length of(double,javax.measure.Unit<javax.measure.quantity.Length>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Length member public static org.tinygears.uom.quantity.Length of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Length>)
 org.tinygears.uom.quantity Length member public static org.tinygears.uom.quantity.Length of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Length>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Length member public static org.tinygears.uom.quantity.Length of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Length>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Length type public abstract interface org.tinygears.uom.quantity.Length extends javax.measure.quantity.Length, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Length>>
+org.tinygears.uom.quantity Length type public abstract interface org.tinygears.uom.quantity.Length extends javax.measure.quantity.Length, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Length, org.tinygears.uom.quantity.Length>
 org.tinygears.uom.quantity LengthFactory member public javax.measure.Unit<javax.measure.quantity.Length> getSystemUnit()
 org.tinygears.uom.quantity LengthFactory member public org.tinygears.uom.quantity.Length create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Length>)
 org.tinygears.uom.quantity LengthFactory member public org.tinygears.uom.quantity.Length create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Length>,javax.measure.Quantity$Scale)
@@ -774,22 +633,13 @@ org.tinygears.uom.quantity LengthFactory member public org.tinygears.uom.quantit
 org.tinygears.uom.quantity LengthFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Length> SYSTEM_UNIT
 org.tinygears.uom.quantity LengthFactory member public static final org.tinygears.uom.quantity.LengthFactory INSTANCE
 org.tinygears.uom.quantity LengthFactory type public final class org.tinygears.uom.quantity.LengthFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Length>
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux add(javax.measure.Quantity<javax.measure.quantity.LuminousFlux>)
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux divide(java.lang.Number)
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux multiply(java.lang.Number)
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux negate()
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux subtract(javax.measure.Quantity<javax.measure.quantity.LuminousFlux>)
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux to(javax.measure.Unit<javax.measure.quantity.LuminousFlux>)
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux toDouble()
-org.tinygears.uom.quantity LuminousFlux member public abstract org.tinygears.uom.quantity.LuminousFlux toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity LuminousFlux member public static org.tinygears.uom.quantity.LuminousFlux from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity LuminousFlux member public static org.tinygears.uom.quantity.LuminousFlux of(double,javax.measure.Unit<javax.measure.quantity.LuminousFlux>)
 org.tinygears.uom.quantity LuminousFlux member public static org.tinygears.uom.quantity.LuminousFlux of(double,javax.measure.Unit<javax.measure.quantity.LuminousFlux>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity LuminousFlux member public static org.tinygears.uom.quantity.LuminousFlux of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.LuminousFlux>)
 org.tinygears.uom.quantity LuminousFlux member public static org.tinygears.uom.quantity.LuminousFlux of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.LuminousFlux>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity LuminousFlux member public static org.tinygears.uom.quantity.LuminousFlux of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.LuminousFlux>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity LuminousFlux type public abstract interface org.tinygears.uom.quantity.LuminousFlux extends javax.measure.quantity.LuminousFlux, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.LuminousFlux>>
+org.tinygears.uom.quantity LuminousFlux type public abstract interface org.tinygears.uom.quantity.LuminousFlux extends javax.measure.quantity.LuminousFlux, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.LuminousFlux, org.tinygears.uom.quantity.LuminousFlux>
 org.tinygears.uom.quantity LuminousFluxFactory member public javax.measure.Unit<javax.measure.quantity.LuminousFlux> getSystemUnit()
 org.tinygears.uom.quantity LuminousFluxFactory member public org.tinygears.uom.quantity.LuminousFlux create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.LuminousFlux>)
 org.tinygears.uom.quantity LuminousFluxFactory member public org.tinygears.uom.quantity.LuminousFlux create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.LuminousFlux>,javax.measure.Quantity$Scale)
@@ -801,22 +651,13 @@ org.tinygears.uom.quantity LuminousFluxFactory member public org.tinygears.uom.q
 org.tinygears.uom.quantity LuminousFluxFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousFlux> SYSTEM_UNIT
 org.tinygears.uom.quantity LuminousFluxFactory member public static final org.tinygears.uom.quantity.LuminousFluxFactory INSTANCE
 org.tinygears.uom.quantity LuminousFluxFactory type public final class org.tinygears.uom.quantity.LuminousFluxFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.LuminousFlux>
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity add(javax.measure.Quantity<javax.measure.quantity.LuminousIntensity>)
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity divide(java.lang.Number)
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity multiply(java.lang.Number)
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity negate()
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity subtract(javax.measure.Quantity<javax.measure.quantity.LuminousIntensity>)
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity to(javax.measure.Unit<javax.measure.quantity.LuminousIntensity>)
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity toDouble()
-org.tinygears.uom.quantity LuminousIntensity member public abstract org.tinygears.uom.quantity.LuminousIntensity toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity LuminousIntensity member public static org.tinygears.uom.quantity.LuminousIntensity from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity LuminousIntensity member public static org.tinygears.uom.quantity.LuminousIntensity of(double,javax.measure.Unit<javax.measure.quantity.LuminousIntensity>)
 org.tinygears.uom.quantity LuminousIntensity member public static org.tinygears.uom.quantity.LuminousIntensity of(double,javax.measure.Unit<javax.measure.quantity.LuminousIntensity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity LuminousIntensity member public static org.tinygears.uom.quantity.LuminousIntensity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.LuminousIntensity>)
 org.tinygears.uom.quantity LuminousIntensity member public static org.tinygears.uom.quantity.LuminousIntensity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.LuminousIntensity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity LuminousIntensity member public static org.tinygears.uom.quantity.LuminousIntensity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.LuminousIntensity>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity LuminousIntensity type public abstract interface org.tinygears.uom.quantity.LuminousIntensity extends javax.measure.quantity.LuminousIntensity, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.LuminousIntensity>>
+org.tinygears.uom.quantity LuminousIntensity type public abstract interface org.tinygears.uom.quantity.LuminousIntensity extends javax.measure.quantity.LuminousIntensity, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.LuminousIntensity, org.tinygears.uom.quantity.LuminousIntensity>
 org.tinygears.uom.quantity LuminousIntensityFactory member public javax.measure.Unit<javax.measure.quantity.LuminousIntensity> getSystemUnit()
 org.tinygears.uom.quantity LuminousIntensityFactory member public org.tinygears.uom.quantity.LuminousIntensity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.LuminousIntensity>)
 org.tinygears.uom.quantity LuminousIntensityFactory member public org.tinygears.uom.quantity.LuminousIntensity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.LuminousIntensity>,javax.measure.Quantity$Scale)
@@ -828,38 +669,20 @@ org.tinygears.uom.quantity LuminousIntensityFactory member public org.tinygears.
 org.tinygears.uom.quantity LuminousIntensityFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.LuminousIntensity> SYSTEM_UNIT
 org.tinygears.uom.quantity LuminousIntensityFactory member public static final org.tinygears.uom.quantity.LuminousIntensityFactory INSTANCE
 org.tinygears.uom.quantity LuminousIntensityFactory type public final class org.tinygears.uom.quantity.LuminousIntensityFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.LuminousIntensity>
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux add(javax.measure.Quantity<javax.measure.quantity.MagneticFlux>)
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux divide(java.lang.Number)
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux multiply(java.lang.Number)
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux negate()
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux subtract(javax.measure.Quantity<javax.measure.quantity.MagneticFlux>)
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux to(javax.measure.Unit<javax.measure.quantity.MagneticFlux>)
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux toDouble()
-org.tinygears.uom.quantity MagneticFlux member public abstract org.tinygears.uom.quantity.MagneticFlux toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity MagneticFlux member public static org.tinygears.uom.quantity.MagneticFlux from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity MagneticFlux member public static org.tinygears.uom.quantity.MagneticFlux of(double,javax.measure.Unit<javax.measure.quantity.MagneticFlux>)
 org.tinygears.uom.quantity MagneticFlux member public static org.tinygears.uom.quantity.MagneticFlux of(double,javax.measure.Unit<javax.measure.quantity.MagneticFlux>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity MagneticFlux member public static org.tinygears.uom.quantity.MagneticFlux of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.MagneticFlux>)
 org.tinygears.uom.quantity MagneticFlux member public static org.tinygears.uom.quantity.MagneticFlux of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.MagneticFlux>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity MagneticFlux member public static org.tinygears.uom.quantity.MagneticFlux of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.MagneticFlux>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity MagneticFlux type public abstract interface org.tinygears.uom.quantity.MagneticFlux extends javax.measure.quantity.MagneticFlux, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.MagneticFlux>>
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity add(javax.measure.Quantity<javax.measure.quantity.MagneticFluxDensity>)
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity divide(java.lang.Number)
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity multiply(java.lang.Number)
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity negate()
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity subtract(javax.measure.Quantity<javax.measure.quantity.MagneticFluxDensity>)
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity to(javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>)
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity toDouble()
-org.tinygears.uom.quantity MagneticFluxDensity member public abstract org.tinygears.uom.quantity.MagneticFluxDensity toSystem(javax.measure.spi.SystemOfUnits)
+org.tinygears.uom.quantity MagneticFlux type public abstract interface org.tinygears.uom.quantity.MagneticFlux extends javax.measure.quantity.MagneticFlux, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.MagneticFlux, org.tinygears.uom.quantity.MagneticFlux>
 org.tinygears.uom.quantity MagneticFluxDensity member public static org.tinygears.uom.quantity.MagneticFluxDensity from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity MagneticFluxDensity member public static org.tinygears.uom.quantity.MagneticFluxDensity of(double,javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>)
 org.tinygears.uom.quantity MagneticFluxDensity member public static org.tinygears.uom.quantity.MagneticFluxDensity of(double,javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity MagneticFluxDensity member public static org.tinygears.uom.quantity.MagneticFluxDensity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>)
 org.tinygears.uom.quantity MagneticFluxDensity member public static org.tinygears.uom.quantity.MagneticFluxDensity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity MagneticFluxDensity member public static org.tinygears.uom.quantity.MagneticFluxDensity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity MagneticFluxDensity type public abstract interface org.tinygears.uom.quantity.MagneticFluxDensity extends javax.measure.quantity.MagneticFluxDensity, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.MagneticFluxDensity>>
+org.tinygears.uom.quantity MagneticFluxDensity type public abstract interface org.tinygears.uom.quantity.MagneticFluxDensity extends javax.measure.quantity.MagneticFluxDensity, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.MagneticFluxDensity, org.tinygears.uom.quantity.MagneticFluxDensity>
 org.tinygears.uom.quantity MagneticFluxDensityFactory member public javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity> getSystemUnit()
 org.tinygears.uom.quantity MagneticFluxDensityFactory member public org.tinygears.uom.quantity.MagneticFluxDensity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>)
 org.tinygears.uom.quantity MagneticFluxDensityFactory member public org.tinygears.uom.quantity.MagneticFluxDensity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.MagneticFluxDensity>,javax.measure.Quantity$Scale)
@@ -882,22 +705,13 @@ org.tinygears.uom.quantity MagneticFluxFactory member public org.tinygears.uom.q
 org.tinygears.uom.quantity MagneticFluxFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.MagneticFlux> SYSTEM_UNIT
 org.tinygears.uom.quantity MagneticFluxFactory member public static final org.tinygears.uom.quantity.MagneticFluxFactory INSTANCE
 org.tinygears.uom.quantity MagneticFluxFactory type public final class org.tinygears.uom.quantity.MagneticFluxFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.MagneticFlux>
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass add(javax.measure.Quantity<javax.measure.quantity.Mass>)
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass divide(java.lang.Number)
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass multiply(java.lang.Number)
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass negate()
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass subtract(javax.measure.Quantity<javax.measure.quantity.Mass>)
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass to(javax.measure.Unit<javax.measure.quantity.Mass>)
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass toDouble()
-org.tinygears.uom.quantity Mass member public abstract org.tinygears.uom.quantity.Mass toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Mass member public static org.tinygears.uom.quantity.Mass from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Mass member public static org.tinygears.uom.quantity.Mass of(double,javax.measure.Unit<javax.measure.quantity.Mass>)
 org.tinygears.uom.quantity Mass member public static org.tinygears.uom.quantity.Mass of(double,javax.measure.Unit<javax.measure.quantity.Mass>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Mass member public static org.tinygears.uom.quantity.Mass of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Mass>)
 org.tinygears.uom.quantity Mass member public static org.tinygears.uom.quantity.Mass of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Mass>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Mass member public static org.tinygears.uom.quantity.Mass of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Mass>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Mass type public abstract interface org.tinygears.uom.quantity.Mass extends javax.measure.quantity.Mass, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Mass>>
+org.tinygears.uom.quantity Mass type public abstract interface org.tinygears.uom.quantity.Mass extends javax.measure.quantity.Mass, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Mass, org.tinygears.uom.quantity.Mass>
 org.tinygears.uom.quantity MassFactory member public javax.measure.Unit<javax.measure.quantity.Mass> getSystemUnit()
 org.tinygears.uom.quantity MassFactory member public org.tinygears.uom.quantity.Mass create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Mass>)
 org.tinygears.uom.quantity MassFactory member public org.tinygears.uom.quantity.Mass create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Mass>,javax.measure.Quantity$Scale)
@@ -909,22 +723,13 @@ org.tinygears.uom.quantity MassFactory member public org.tinygears.uom.quantity.
 org.tinygears.uom.quantity MassFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Mass> SYSTEM_UNIT
 org.tinygears.uom.quantity MassFactory member public static final org.tinygears.uom.quantity.MassFactory INSTANCE
 org.tinygears.uom.quantity MassFactory type public final class org.tinygears.uom.quantity.MassFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Mass>
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power add(javax.measure.Quantity<javax.measure.quantity.Power>)
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power divide(java.lang.Number)
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power multiply(java.lang.Number)
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power negate()
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power subtract(javax.measure.Quantity<javax.measure.quantity.Power>)
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power to(javax.measure.Unit<javax.measure.quantity.Power>)
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power toDouble()
-org.tinygears.uom.quantity Power member public abstract org.tinygears.uom.quantity.Power toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Power member public static org.tinygears.uom.quantity.Power from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Power member public static org.tinygears.uom.quantity.Power of(double,javax.measure.Unit<javax.measure.quantity.Power>)
 org.tinygears.uom.quantity Power member public static org.tinygears.uom.quantity.Power of(double,javax.measure.Unit<javax.measure.quantity.Power>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Power member public static org.tinygears.uom.quantity.Power of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Power>)
 org.tinygears.uom.quantity Power member public static org.tinygears.uom.quantity.Power of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Power>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Power member public static org.tinygears.uom.quantity.Power of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Power>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Power type public abstract interface org.tinygears.uom.quantity.Power extends javax.measure.quantity.Power, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Power>>
+org.tinygears.uom.quantity Power type public abstract interface org.tinygears.uom.quantity.Power extends javax.measure.quantity.Power, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Power, org.tinygears.uom.quantity.Power>
 org.tinygears.uom.quantity PowerFactory member public javax.measure.Unit<javax.measure.quantity.Power> getSystemUnit()
 org.tinygears.uom.quantity PowerFactory member public org.tinygears.uom.quantity.Power create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Power>)
 org.tinygears.uom.quantity PowerFactory member public org.tinygears.uom.quantity.Power create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Power>,javax.measure.Quantity$Scale)
@@ -936,22 +741,13 @@ org.tinygears.uom.quantity PowerFactory member public org.tinygears.uom.quantity
 org.tinygears.uom.quantity PowerFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Power> SYSTEM_UNIT
 org.tinygears.uom.quantity PowerFactory member public static final org.tinygears.uom.quantity.PowerFactory INSTANCE
 org.tinygears.uom.quantity PowerFactory type public final class org.tinygears.uom.quantity.PowerFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Power>
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure add(javax.measure.Quantity<javax.measure.quantity.Pressure>)
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure divide(java.lang.Number)
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure multiply(java.lang.Number)
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure negate()
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure subtract(javax.measure.Quantity<javax.measure.quantity.Pressure>)
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure to(javax.measure.Unit<javax.measure.quantity.Pressure>)
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure toDouble()
-org.tinygears.uom.quantity Pressure member public abstract org.tinygears.uom.quantity.Pressure toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Pressure member public static org.tinygears.uom.quantity.Pressure from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Pressure member public static org.tinygears.uom.quantity.Pressure of(double,javax.measure.Unit<javax.measure.quantity.Pressure>)
 org.tinygears.uom.quantity Pressure member public static org.tinygears.uom.quantity.Pressure of(double,javax.measure.Unit<javax.measure.quantity.Pressure>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Pressure member public static org.tinygears.uom.quantity.Pressure of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Pressure>)
 org.tinygears.uom.quantity Pressure member public static org.tinygears.uom.quantity.Pressure of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Pressure>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Pressure member public static org.tinygears.uom.quantity.Pressure of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Pressure>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Pressure type public abstract interface org.tinygears.uom.quantity.Pressure extends javax.measure.quantity.Pressure, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Pressure>>
+org.tinygears.uom.quantity Pressure type public abstract interface org.tinygears.uom.quantity.Pressure extends javax.measure.quantity.Pressure, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Pressure, org.tinygears.uom.quantity.Pressure>
 org.tinygears.uom.quantity PressureFactory member public javax.measure.Unit<javax.measure.quantity.Pressure> getSystemUnit()
 org.tinygears.uom.quantity PressureFactory member public org.tinygears.uom.quantity.Pressure create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Pressure>)
 org.tinygears.uom.quantity PressureFactory member public org.tinygears.uom.quantity.Pressure create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Pressure>,javax.measure.Quantity$Scale)
@@ -966,22 +762,13 @@ org.tinygears.uom.quantity PressureFactory type public final class org.tinygears
 org.tinygears.uom.quantity QuantityTypes member public static <Q extends javax.measure.Quantity<Q>> javax.measure.spi.QuantityFactory<Q> factory(java.lang.Class<Q>)
 org.tinygears.uom.quantity QuantityTypes member public static java.util.Set<java.lang.Class<?>> types()
 org.tinygears.uom.quantity QuantityTypes type public final class org.tinygears.uom.quantity.QuantityTypes
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed add(javax.measure.Quantity<javax.measure.quantity.RadiationDoseAbsorbed>)
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed divide(java.lang.Number)
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed multiply(java.lang.Number)
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed negate()
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed subtract(javax.measure.Quantity<javax.measure.quantity.RadiationDoseAbsorbed>)
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed to(javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>)
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed toDouble()
-org.tinygears.uom.quantity RadiationDoseAbsorbed member public abstract org.tinygears.uom.quantity.RadiationDoseAbsorbed toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity RadiationDoseAbsorbed member public static org.tinygears.uom.quantity.RadiationDoseAbsorbed from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity RadiationDoseAbsorbed member public static org.tinygears.uom.quantity.RadiationDoseAbsorbed of(double,javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>)
 org.tinygears.uom.quantity RadiationDoseAbsorbed member public static org.tinygears.uom.quantity.RadiationDoseAbsorbed of(double,javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity RadiationDoseAbsorbed member public static org.tinygears.uom.quantity.RadiationDoseAbsorbed of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>)
 org.tinygears.uom.quantity RadiationDoseAbsorbed member public static org.tinygears.uom.quantity.RadiationDoseAbsorbed of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity RadiationDoseAbsorbed member public static org.tinygears.uom.quantity.RadiationDoseAbsorbed of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity RadiationDoseAbsorbed type public abstract interface org.tinygears.uom.quantity.RadiationDoseAbsorbed extends javax.measure.quantity.RadiationDoseAbsorbed, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.RadiationDoseAbsorbed>>
+org.tinygears.uom.quantity RadiationDoseAbsorbed type public abstract interface org.tinygears.uom.quantity.RadiationDoseAbsorbed extends javax.measure.quantity.RadiationDoseAbsorbed, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.RadiationDoseAbsorbed, org.tinygears.uom.quantity.RadiationDoseAbsorbed>
 org.tinygears.uom.quantity RadiationDoseAbsorbedFactory member public javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed> getSystemUnit()
 org.tinygears.uom.quantity RadiationDoseAbsorbedFactory member public org.tinygears.uom.quantity.RadiationDoseAbsorbed create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>)
 org.tinygears.uom.quantity RadiationDoseAbsorbedFactory member public org.tinygears.uom.quantity.RadiationDoseAbsorbed create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.RadiationDoseAbsorbed>,javax.measure.Quantity$Scale)
@@ -993,22 +780,13 @@ org.tinygears.uom.quantity RadiationDoseAbsorbedFactory member public org.tinyge
 org.tinygears.uom.quantity RadiationDoseAbsorbedFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseAbsorbed> SYSTEM_UNIT
 org.tinygears.uom.quantity RadiationDoseAbsorbedFactory member public static final org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory INSTANCE
 org.tinygears.uom.quantity RadiationDoseAbsorbedFactory type public final class org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.RadiationDoseAbsorbed>
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective add(javax.measure.Quantity<javax.measure.quantity.RadiationDoseEffective>)
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective divide(java.lang.Number)
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective multiply(java.lang.Number)
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective negate()
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective subtract(javax.measure.Quantity<javax.measure.quantity.RadiationDoseEffective>)
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective to(javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>)
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective toDouble()
-org.tinygears.uom.quantity RadiationDoseEffective member public abstract org.tinygears.uom.quantity.RadiationDoseEffective toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity RadiationDoseEffective member public static org.tinygears.uom.quantity.RadiationDoseEffective from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity RadiationDoseEffective member public static org.tinygears.uom.quantity.RadiationDoseEffective of(double,javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>)
 org.tinygears.uom.quantity RadiationDoseEffective member public static org.tinygears.uom.quantity.RadiationDoseEffective of(double,javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity RadiationDoseEffective member public static org.tinygears.uom.quantity.RadiationDoseEffective of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>)
 org.tinygears.uom.quantity RadiationDoseEffective member public static org.tinygears.uom.quantity.RadiationDoseEffective of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity RadiationDoseEffective member public static org.tinygears.uom.quantity.RadiationDoseEffective of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity RadiationDoseEffective type public abstract interface org.tinygears.uom.quantity.RadiationDoseEffective extends javax.measure.quantity.RadiationDoseEffective, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.RadiationDoseEffective>>
+org.tinygears.uom.quantity RadiationDoseEffective type public abstract interface org.tinygears.uom.quantity.RadiationDoseEffective extends javax.measure.quantity.RadiationDoseEffective, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.RadiationDoseEffective, org.tinygears.uom.quantity.RadiationDoseEffective>
 org.tinygears.uom.quantity RadiationDoseEffectiveFactory member public javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective> getSystemUnit()
 org.tinygears.uom.quantity RadiationDoseEffectiveFactory member public org.tinygears.uom.quantity.RadiationDoseEffective create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>)
 org.tinygears.uom.quantity RadiationDoseEffectiveFactory member public org.tinygears.uom.quantity.RadiationDoseEffective create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.RadiationDoseEffective>,javax.measure.Quantity$Scale)
@@ -1020,22 +798,13 @@ org.tinygears.uom.quantity RadiationDoseEffectiveFactory member public org.tinyg
 org.tinygears.uom.quantity RadiationDoseEffectiveFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.RadiationDoseEffective> SYSTEM_UNIT
 org.tinygears.uom.quantity RadiationDoseEffectiveFactory member public static final org.tinygears.uom.quantity.RadiationDoseEffectiveFactory INSTANCE
 org.tinygears.uom.quantity RadiationDoseEffectiveFactory type public final class org.tinygears.uom.quantity.RadiationDoseEffectiveFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.RadiationDoseEffective>
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity add(javax.measure.Quantity<javax.measure.quantity.Radioactivity>)
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity divide(java.lang.Number)
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity multiply(java.lang.Number)
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity negate()
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity subtract(javax.measure.Quantity<javax.measure.quantity.Radioactivity>)
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity to(javax.measure.Unit<javax.measure.quantity.Radioactivity>)
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity toDouble()
-org.tinygears.uom.quantity Radioactivity member public abstract org.tinygears.uom.quantity.Radioactivity toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Radioactivity member public static org.tinygears.uom.quantity.Radioactivity from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Radioactivity member public static org.tinygears.uom.quantity.Radioactivity of(double,javax.measure.Unit<javax.measure.quantity.Radioactivity>)
 org.tinygears.uom.quantity Radioactivity member public static org.tinygears.uom.quantity.Radioactivity of(double,javax.measure.Unit<javax.measure.quantity.Radioactivity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Radioactivity member public static org.tinygears.uom.quantity.Radioactivity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Radioactivity>)
 org.tinygears.uom.quantity Radioactivity member public static org.tinygears.uom.quantity.Radioactivity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Radioactivity>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Radioactivity member public static org.tinygears.uom.quantity.Radioactivity of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Radioactivity>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Radioactivity type public abstract interface org.tinygears.uom.quantity.Radioactivity extends javax.measure.quantity.Radioactivity, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Radioactivity>>
+org.tinygears.uom.quantity Radioactivity type public abstract interface org.tinygears.uom.quantity.Radioactivity extends javax.measure.quantity.Radioactivity, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Radioactivity, org.tinygears.uom.quantity.Radioactivity>
 org.tinygears.uom.quantity RadioactivityFactory member public javax.measure.Unit<javax.measure.quantity.Radioactivity> getSystemUnit()
 org.tinygears.uom.quantity RadioactivityFactory member public org.tinygears.uom.quantity.Radioactivity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Radioactivity>)
 org.tinygears.uom.quantity RadioactivityFactory member public org.tinygears.uom.quantity.Radioactivity create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Radioactivity>,javax.measure.Quantity$Scale)
@@ -1047,22 +816,13 @@ org.tinygears.uom.quantity RadioactivityFactory member public org.tinygears.uom.
 org.tinygears.uom.quantity RadioactivityFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Radioactivity> SYSTEM_UNIT
 org.tinygears.uom.quantity RadioactivityFactory member public static final org.tinygears.uom.quantity.RadioactivityFactory INSTANCE
 org.tinygears.uom.quantity RadioactivityFactory type public final class org.tinygears.uom.quantity.RadioactivityFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Radioactivity>
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle add(javax.measure.Quantity<javax.measure.quantity.SolidAngle>)
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle divide(java.lang.Number)
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle multiply(java.lang.Number)
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle negate()
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle subtract(javax.measure.Quantity<javax.measure.quantity.SolidAngle>)
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle to(javax.measure.Unit<javax.measure.quantity.SolidAngle>)
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle toDouble()
-org.tinygears.uom.quantity SolidAngle member public abstract org.tinygears.uom.quantity.SolidAngle toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity SolidAngle member public static org.tinygears.uom.quantity.SolidAngle from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity SolidAngle member public static org.tinygears.uom.quantity.SolidAngle of(double,javax.measure.Unit<javax.measure.quantity.SolidAngle>)
 org.tinygears.uom.quantity SolidAngle member public static org.tinygears.uom.quantity.SolidAngle of(double,javax.measure.Unit<javax.measure.quantity.SolidAngle>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity SolidAngle member public static org.tinygears.uom.quantity.SolidAngle of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.SolidAngle>)
 org.tinygears.uom.quantity SolidAngle member public static org.tinygears.uom.quantity.SolidAngle of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.SolidAngle>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity SolidAngle member public static org.tinygears.uom.quantity.SolidAngle of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.SolidAngle>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity SolidAngle type public abstract interface org.tinygears.uom.quantity.SolidAngle extends javax.measure.quantity.SolidAngle, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.SolidAngle>>
+org.tinygears.uom.quantity SolidAngle type public abstract interface org.tinygears.uom.quantity.SolidAngle extends javax.measure.quantity.SolidAngle, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.SolidAngle, org.tinygears.uom.quantity.SolidAngle>
 org.tinygears.uom.quantity SolidAngleFactory member public javax.measure.Unit<javax.measure.quantity.SolidAngle> getSystemUnit()
 org.tinygears.uom.quantity SolidAngleFactory member public org.tinygears.uom.quantity.SolidAngle create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.SolidAngle>)
 org.tinygears.uom.quantity SolidAngleFactory member public org.tinygears.uom.quantity.SolidAngle create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.SolidAngle>,javax.measure.Quantity$Scale)
@@ -1074,22 +834,13 @@ org.tinygears.uom.quantity SolidAngleFactory member public org.tinygears.uom.qua
 org.tinygears.uom.quantity SolidAngleFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.SolidAngle> SYSTEM_UNIT
 org.tinygears.uom.quantity SolidAngleFactory member public static final org.tinygears.uom.quantity.SolidAngleFactory INSTANCE
 org.tinygears.uom.quantity SolidAngleFactory type public final class org.tinygears.uom.quantity.SolidAngleFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.SolidAngle>
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed add(javax.measure.Quantity<javax.measure.quantity.Speed>)
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed divide(java.lang.Number)
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed multiply(java.lang.Number)
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed negate()
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed subtract(javax.measure.Quantity<javax.measure.quantity.Speed>)
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed to(javax.measure.Unit<javax.measure.quantity.Speed>)
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed toDouble()
-org.tinygears.uom.quantity Speed member public abstract org.tinygears.uom.quantity.Speed toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Speed member public static org.tinygears.uom.quantity.Speed from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Speed member public static org.tinygears.uom.quantity.Speed of(double,javax.measure.Unit<javax.measure.quantity.Speed>)
 org.tinygears.uom.quantity Speed member public static org.tinygears.uom.quantity.Speed of(double,javax.measure.Unit<javax.measure.quantity.Speed>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Speed member public static org.tinygears.uom.quantity.Speed of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Speed>)
 org.tinygears.uom.quantity Speed member public static org.tinygears.uom.quantity.Speed of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Speed>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Speed member public static org.tinygears.uom.quantity.Speed of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Speed>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Speed type public abstract interface org.tinygears.uom.quantity.Speed extends javax.measure.quantity.Speed, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Speed>>
+org.tinygears.uom.quantity Speed type public abstract interface org.tinygears.uom.quantity.Speed extends javax.measure.quantity.Speed, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Speed, org.tinygears.uom.quantity.Speed>
 org.tinygears.uom.quantity SpeedFactory member public javax.measure.Unit<javax.measure.quantity.Speed> getSystemUnit()
 org.tinygears.uom.quantity SpeedFactory member public org.tinygears.uom.quantity.Speed create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Speed>)
 org.tinygears.uom.quantity SpeedFactory member public org.tinygears.uom.quantity.Speed create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Speed>,javax.measure.Quantity$Scale)
@@ -1101,22 +852,13 @@ org.tinygears.uom.quantity SpeedFactory member public org.tinygears.uom.quantity
 org.tinygears.uom.quantity SpeedFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Speed> SYSTEM_UNIT
 org.tinygears.uom.quantity SpeedFactory member public static final org.tinygears.uom.quantity.SpeedFactory INSTANCE
 org.tinygears.uom.quantity SpeedFactory type public final class org.tinygears.uom.quantity.SpeedFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Speed>
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature add(javax.measure.Quantity<javax.measure.quantity.Temperature>)
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature divide(java.lang.Number)
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature multiply(java.lang.Number)
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature negate()
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature subtract(javax.measure.Quantity<javax.measure.quantity.Temperature>)
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature to(javax.measure.Unit<javax.measure.quantity.Temperature>)
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature toDouble()
-org.tinygears.uom.quantity Temperature member public abstract org.tinygears.uom.quantity.Temperature toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Temperature member public static org.tinygears.uom.quantity.Temperature from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Temperature member public static org.tinygears.uom.quantity.Temperature of(double,javax.measure.Unit<javax.measure.quantity.Temperature>)
 org.tinygears.uom.quantity Temperature member public static org.tinygears.uom.quantity.Temperature of(double,javax.measure.Unit<javax.measure.quantity.Temperature>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Temperature member public static org.tinygears.uom.quantity.Temperature of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Temperature>)
 org.tinygears.uom.quantity Temperature member public static org.tinygears.uom.quantity.Temperature of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Temperature>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Temperature member public static org.tinygears.uom.quantity.Temperature of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Temperature>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Temperature type public abstract interface org.tinygears.uom.quantity.Temperature extends javax.measure.quantity.Temperature, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Temperature>>
+org.tinygears.uom.quantity Temperature type public abstract interface org.tinygears.uom.quantity.Temperature extends javax.measure.quantity.Temperature, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Temperature, org.tinygears.uom.quantity.Temperature>
 org.tinygears.uom.quantity TemperatureFactory member public javax.measure.Unit<javax.measure.quantity.Temperature> getSystemUnit()
 org.tinygears.uom.quantity TemperatureFactory member public org.tinygears.uom.quantity.Temperature create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Temperature>)
 org.tinygears.uom.quantity TemperatureFactory member public org.tinygears.uom.quantity.Temperature create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Temperature>,javax.measure.Quantity$Scale)
@@ -1128,22 +870,13 @@ org.tinygears.uom.quantity TemperatureFactory member public org.tinygears.uom.qu
 org.tinygears.uom.quantity TemperatureFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Temperature> SYSTEM_UNIT
 org.tinygears.uom.quantity TemperatureFactory member public static final org.tinygears.uom.quantity.TemperatureFactory INSTANCE
 org.tinygears.uom.quantity TemperatureFactory type public final class org.tinygears.uom.quantity.TemperatureFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Temperature>
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time add(javax.measure.Quantity<javax.measure.quantity.Time>)
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time divide(java.lang.Number)
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time multiply(java.lang.Number)
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time negate()
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time subtract(javax.measure.Quantity<javax.measure.quantity.Time>)
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time to(javax.measure.Unit<javax.measure.quantity.Time>)
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time toDouble()
-org.tinygears.uom.quantity Time member public abstract org.tinygears.uom.quantity.Time toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Time member public static org.tinygears.uom.quantity.Time from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Time member public static org.tinygears.uom.quantity.Time of(double,javax.measure.Unit<javax.measure.quantity.Time>)
 org.tinygears.uom.quantity Time member public static org.tinygears.uom.quantity.Time of(double,javax.measure.Unit<javax.measure.quantity.Time>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Time member public static org.tinygears.uom.quantity.Time of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Time>)
 org.tinygears.uom.quantity Time member public static org.tinygears.uom.quantity.Time of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Time>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Time member public static org.tinygears.uom.quantity.Time of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Time>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Time type public abstract interface org.tinygears.uom.quantity.Time extends javax.measure.quantity.Time, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Time>>
+org.tinygears.uom.quantity Time type public abstract interface org.tinygears.uom.quantity.Time extends javax.measure.quantity.Time, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Time, org.tinygears.uom.quantity.Time>
 org.tinygears.uom.quantity TimeFactory member public javax.measure.Unit<javax.measure.quantity.Time> getSystemUnit()
 org.tinygears.uom.quantity TimeFactory member public org.tinygears.uom.quantity.Time create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Time>)
 org.tinygears.uom.quantity TimeFactory member public org.tinygears.uom.quantity.Time create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Time>,javax.measure.Quantity$Scale)
@@ -1155,22 +888,13 @@ org.tinygears.uom.quantity TimeFactory member public org.tinygears.uom.quantity.
 org.tinygears.uom.quantity TimeFactory member public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.Time> SYSTEM_UNIT
 org.tinygears.uom.quantity TimeFactory member public static final org.tinygears.uom.quantity.TimeFactory INSTANCE
 org.tinygears.uom.quantity TimeFactory type public final class org.tinygears.uom.quantity.TimeFactory implements javax.measure.spi.QuantityFactory<javax.measure.quantity.Time>
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume add(javax.measure.Quantity<javax.measure.quantity.Volume>)
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume divide(java.lang.Number)
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume multiply(java.lang.Number)
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume negate()
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume subtract(javax.measure.Quantity<javax.measure.quantity.Volume>)
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume to(javax.measure.Unit<javax.measure.quantity.Volume>)
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume toDecimal(java.math.MathContext)
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume toDouble()
-org.tinygears.uom.quantity Volume member public abstract org.tinygears.uom.quantity.Volume toSystem(javax.measure.spi.SystemOfUnits)
 org.tinygears.uom.quantity Volume member public static org.tinygears.uom.quantity.Volume from(javax.measure.Quantity<?>)
 org.tinygears.uom.quantity Volume member public static org.tinygears.uom.quantity.Volume of(double,javax.measure.Unit<javax.measure.quantity.Volume>)
 org.tinygears.uom.quantity Volume member public static org.tinygears.uom.quantity.Volume of(double,javax.measure.Unit<javax.measure.quantity.Volume>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Volume member public static org.tinygears.uom.quantity.Volume of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Volume>)
 org.tinygears.uom.quantity Volume member public static org.tinygears.uom.quantity.Volume of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Volume>,javax.measure.Quantity$Scale)
 org.tinygears.uom.quantity Volume member public static org.tinygears.uom.quantity.Volume of(java.math.BigDecimal,javax.measure.Unit<javax.measure.quantity.Volume>,javax.measure.Quantity$Scale,java.math.MathContext)
-org.tinygears.uom.quantity Volume type public abstract interface org.tinygears.uom.quantity.Volume extends javax.measure.quantity.Volume, java.lang.Comparable<javax.measure.Quantity<javax.measure.quantity.Volume>>
+org.tinygears.uom.quantity Volume type public abstract interface org.tinygears.uom.quantity.Volume extends javax.measure.quantity.Volume, org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.Volume, org.tinygears.uom.quantity.Volume>
 org.tinygears.uom.quantity VolumeFactory member public javax.measure.Unit<javax.measure.quantity.Volume> getSystemUnit()
 org.tinygears.uom.quantity VolumeFactory member public org.tinygears.uom.quantity.Volume create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Volume>)
 org.tinygears.uom.quantity VolumeFactory member public org.tinygears.uom.quantity.Volume create(java.lang.Number,javax.measure.Unit<javax.measure.quantity.Volume>,javax.measure.Quantity$Scale)
@@ -1469,8 +1193,8 @@ org.tinygears.uom.systems UomQuantityFormat member public java.lang.String forma
 org.tinygears.uom.systems UomQuantityFormat member public java.lang.String toString()
 org.tinygears.uom.systems UomQuantityFormat member public java.math.MathContext getDecimalContext()
 org.tinygears.uom.systems UomQuantityFormat member public java.util.Locale getLocale()
-org.tinygears.uom.systems UomQuantityFormat member public javax.measure.Quantity<?> parse(java.lang.CharSequence) throws javax.measure.format.MeasurementParseException
-org.tinygears.uom.systems UomQuantityFormat member public javax.measure.Quantity<?> parse(java.lang.CharSequence,java.text.ParsePosition) throws javax.measure.format.MeasurementParseException
+org.tinygears.uom.systems UomQuantityFormat member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> parse(java.lang.CharSequence) throws javax.measure.format.MeasurementParseException
+org.tinygears.uom.systems UomQuantityFormat member public org.tinygears.uom.core.quantity.UomQuantity<?, ?> parse(java.lang.CharSequence,java.text.ParsePosition) throws javax.measure.format.MeasurementParseException
 org.tinygears.uom.systems UomQuantityFormat member public org.tinygears.uom.systems.UomQuantityFormat withDecimals(java.math.MathContext)
 org.tinygears.uom.systems UomQuantityFormat member public org.tinygears.uom.systems.UomQuantityFormat withGrouping(boolean)
 org.tinygears.uom.systems UomQuantityFormat member public org.tinygears.uom.systems.UomQuantityFormat withLocale(java.util.Locale)
