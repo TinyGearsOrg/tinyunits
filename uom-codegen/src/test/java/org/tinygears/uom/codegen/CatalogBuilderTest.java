@@ -163,6 +163,7 @@ class CatalogBuilderTest {
     void errors() {
         fails("y:metre 1000 m\n", "duplicate constant name 'METRE' ('m' and 'y')");
         fails("y:other 2 s [Length]\n", "unit 'y' is not a unit of Length");
+        fails("y:kilobecquerel 1000 Bq [Frequency]\n", "unit 'y' is not a unit of Frequency");
         fails("y:other 2 s [Speed]\n", "unknown quantity type 'Speed'");
         fails("y:2nd 2 s\n", "invalid constant name '2ND' for 'y'");
         fails("y:_ 2 s\n", "invalid constant name '_' for 'y'");
@@ -284,6 +285,9 @@ class CatalogBuilderTest {
         assertEquals(FACTORY.formatted("Length"), catalog("").preferred().get("Length"));
         fails(() -> catalog("@preferred Speed m\n"), 19, "unknown quantity type 'Speed'");
         fails(() -> catalog("@preferred Length s\n"), 19, "unit 's' is not a unit of Length");
+        // structural, not by dimension (DR-20): Bq has the dimension of Frequency but its own atom
+        fails(() -> catalog("@preferred Frequency Bq\n"), 19, "unit 'Bq' is not a unit of Frequency");
+        fails(() -> catalog("@preferred Angle x\n"), 19, "unit 'x' is not a unit of Angle");
         fails(
                 () -> catalog("@preferred Length m\n@preferred Length km\n"),
                 20,

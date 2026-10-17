@@ -298,7 +298,8 @@ step 0.75 m
 
 Sets the unit `quantity.toSystem(system)` converts to for one of the 33 standard quantity types (simple name, such as
 `Length` or `MagneticFlux`). The unit must be defined in the user files before this line, be a unit of the system and
-have the type's system unit, not only its dimension: an alternate unit of another atom is refused. One line per type. A type without a line takes the first parent's preferred unit, else
+have the type's system unit, not only its dimension: an alternate unit of another atom is refused (`Bq` is not a
+preferred unit for `Frequency`, though `asType` views a becquerel quantity as one). One line per type. A type without a line takes the first parent's preferred unit, else
 `SI`'s.
 
 ```units-error

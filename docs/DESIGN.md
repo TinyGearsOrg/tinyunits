@@ -51,8 +51,8 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Rejected.* The structural rule (stricter than the standard); "accept if either side has no alternate atom" (an invented
   rule that still refuses `rad·m`).
 - *Revisit if.* Type safety between `Hz` and `Bq` is wanted: restrict `asType` for alternate atoms, at the price of
-  deviating from the Javadoc and Indriya. The explicit assignments (`@preferred Type unit`, `[Type]`) are still structural
-  (TODO 32). Code: `UomUnit.asType`.
+  deviating from the Javadoc and Indriya. The explicit assignments (`@preferred Type unit`, `[Type]`) stay structural
+  (DR-20). Code: `UomUnit.asType`.
 - *See.* `AsTypeDimensionTest`, `UomUnitAsTypeTest`.
 
 **DR-03 Offset units in products take part by their factor.**
@@ -349,6 +349,18 @@ behaviour for users is in the linked documents. The full discussion and probe re
   added. The erased return type of an inherited operation is `UomQuantity` (reflection sees `R`, Java callers see the
   typed interface); redeclare the operations in the typed interfaces if a JVM language or tool needs the erasure.
 - *See.* `UomQuantity` Javadoc; `UomQuantityTest`, `AbstractDecimalQuantityArithmeticTest`, `AbstractDoubleQuantityTest`.
+
+**DR-20 Explicit type assignments stay structural.**
+- *Decision.* `@preferred Type unit` (user files and data files) and `[Type]` (data files) require the unit's system unit
+  to equal the type's, atoms included: `@preferred Frequency Bq`, `@preferred Angle sr` and `[Frequency]` on a unit of
+  becquerels are errors (`unit 'x' is not a unit of Frequency`). `asType` keeps the dimension rule (DR-02).
+- *Why.* A declaration states what a unit is for a type, and the atoms are what tell `Hz` from `Bq` and `rad` from `sr`;
+  every dimensionless unit has the same dimension. By dimension, `toSystem` of a clock rate could give becquerels, and
+  the generator would type a becquerel unit as `Frequency`. `asType` answers another question, whether a quantity can
+  be viewed as a type, which the JSR-385 Javadoc defines by dimension. Inferring a type stays structural in any case.
+- *Rejected.* Accepting any unit of the type's dimension in the declarations, for symmetry with `asType`.
+- *Revisit if.* A real catalog needs to declare an alternate unit of another atom as the preferred unit of a type.
+- *See.* docs/CUSTOM-UNITS.md, `@preferred`; `UserUnitsTest.preferredErrors`, `CatalogBuilderTest`.
 
 ## 2. Modules and data flow
 

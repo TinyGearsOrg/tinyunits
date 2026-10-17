@@ -153,6 +153,12 @@ class UserUnitsTest {
         fails(base + "@preferred Length nothere\n", "user.units:3: unknown unit 'nothere'");
         fails(base + "@preferred Length m\n", "user.units:3: unknown unit 'm'");
         fails(base + "@preferred Time league\n", "user.units:3: unit 'league' is not a unit of Time");
+        // structural, not by dimension (DR-20): the becquerel is a unit of Radioactivity, not of Frequency
+        fails("bq 1 Bq\n@preferred Frequency bq\n", "user.units:2: unit 'bq' is not a unit of Frequency");
+        assertEquals(
+                SI.BECQUEREL,
+                load("bq 1 Bq\n@preferred Radioactivity bq\n").getUnit(javax.measure.quantity.Radioactivity.class));
+        fails("deg2 1 sr\n@preferred Angle deg2\n", "user.units:2: unit 'deg2' is not a unit of Angle");
         fails(
                 base + "@preferred Length league\n@preferred Length furlong\n",
                 "user.units:4: duplicate preferred unit for 'Length'");

@@ -117,18 +117,6 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 **Needed by:** the CI decisions before the first push of the workflow; the rest nothing.
 
-## 32. Explicit type assignments and the dimension rule
-
-**Status:** open, decision needed. `asType` goes by dimension (DR-02), but the checks that give an explicit type to a unit
-stay structural: `UomSystemOfUnits.load` (the `@preferred Type unit` line of a user file) and the code generator (`[Type]` and
-`@preferred`) require the unit's system unit to equal the type's. So `@preferred Frequency Bq` is an error although
-`asType` would accept it. Inferring a unit's type from its atoms must stay structural (it is how `Hz` and `Bq` are told
-apart); only the explicit assignments could follow the dimension rule.
-
-**Options:** keep the explicit assignments structural and document it; or accept any unit of the dimension.
-
-**Needed by:** decide before 1.0.
-
 ## Release readiness
 
 No version has been released, signed, tagged or uploaded. The release is prepared and is the owner's action
