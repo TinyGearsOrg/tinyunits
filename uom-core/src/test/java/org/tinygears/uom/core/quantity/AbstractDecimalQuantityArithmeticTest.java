@@ -437,6 +437,31 @@ class AbstractDecimalQuantityArithmeticTest {
     }
 
     @Test
+    void irrationalFactorsResolveCancellationBeyondTheOperandDigits() {
+        // sqrt(1 + 10^-200) = 1 + 5e-201 - ...: one metre and one of this unit differ 200 digits beyond their own.
+        UomUnit<Length> nearlyMetre = UomUnit.unchecked(
+                METRE.scaledBy(
+                        Factor.of(BigInteger.TEN.pow(200).add(BigInteger.ONE), BigInteger.TEN.pow(200)).root(2)));
+        assertEquals(-1, q("1", METRE).compareTo(q("1", nearlyMetre)));
+        assertEquals(1, q("1", nearlyMetre).compareTo(q("1", METRE)));
+        assertDecimal("-5.000000000000000000000000000000000E-201", METRE, q("1", METRE).subtract(q("1", nearlyMetre)));
+        assertDecimal(
+                "5.000000000000000000000000000000000E-201",
+                nearlyMetre,
+                q("1", nearlyMetre).subtract(q("1", METRE)));
+    }
+
+    @Test
+    void irrationalFactorsCostDigitsOfTheContextNotOfTheOperand() {
+        // A two-million-digit operand once needed pi to two million digits; the enclosure needs only a few dozen.
+        // 10^2000000 / 3, built without parsing two million digits
+        BigDecimal value = new BigDecimal(BigInteger.TEN.pow(2_000_000).divide(BigInteger.valueOf(3)));
+        TestLengthDecimalImpl big = new TestLengthDecimalImpl(value, METRE, Quantity.Scale.ABSOLUTE, UNLIMITED);
+        int sign = assertTimeoutPreemptively(Duration.ofSeconds(10), () -> big.compareTo(q("1", PI_M)));
+        assertEquals(1, sign);
+    }
+
+    @Test
     void negativeFactorUnits() {
         // 1 (-2.5 m) is -2.5 m.
         assertEquals(-1, q("1", MINUS_2_5_M).compareTo(q("0", METRE)));

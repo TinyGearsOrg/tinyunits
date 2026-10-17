@@ -20,12 +20,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 
+import org.tinygears.uom.core.internal.BoundedCache;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinygears.uom.core.BaseUnits.METRE;
 
-/** The bounded converter cache of a unit; {@link BoundedCacheTest} covers the cache itself. */
+/** The bounded converter cache of a unit; {@code internal.BoundedCacheTest} covers the cache itself. */
 class ConverterCacheTest {
 
     @SuppressWarnings("unchecked")

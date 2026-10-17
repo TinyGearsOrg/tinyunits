@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
+import java.util.function.IntFunction;
 import javax.measure.Quantity;
 import javax.measure.UnconvertibleException;
 import javax.measure.Unit;
@@ -28,6 +29,8 @@ import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomConverter;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.internal.Decimals;
+import org.tinygears.uom.core.internal.Interval;
+import org.tinygears.uom.core.internal.Irrationals;
 import org.tinygears.uom.core.spi.Providers;
 
 /**
@@ -223,7 +226,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * system round trip. If either operand is {@code RELATIVE}, {@code addend} is a difference: it is converted by
      * the factor only and added to this value in this unit. The result is {@code RELATIVE} only if both operands
      * are, otherwise {@code ABSOLUTE} (docs/OFFSET-UNITS.md). Evaluated exactly and rounded once to the lower
-     * context of the two (irrational unit factors with guard digits, best effort); a {@code double} operand is read
+     * context of the two (irrational unit factors through enclosures that narrow until the rounding is decided); a
+     * {@code double} operand is read
      * as its shortest decimal and adopts this context. Throws {@link UnconvertibleException} for a foreign unit or incompatible dimensions.
      *
      * @throws NullPointerException if {@code addend} is null
@@ -274,7 +278,8 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      * Compares the exact system-unit values (a consistent total preorder; two {@code RELATIVE} quantities as
      * differences, by the factor only); a {@code double} operand is read as its shortest decimal, and a NaN or
      * infinite one compares as {@link Double#compare} does. Not consistent with equals. Exact for units with exact
-     * factors; irrational factors are evaluated with guard digits, best effort.
+     * factors; irrational factors are enclosed until the sign is decided. A difference not separated from zero at
+     * 1000 digits plus twice those of the context and both operands (irrational terms that cancel) compares as zero.
      *
      * @throws NullPointerException if {@code that} is null
      */
@@ -292,12 +297,25 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         }
         // sign(sys(a) - sys(b)) = sign(fa) * sign(a - (fb/fa) b - (ob - oa)/fa)
         BigDecimal b = Precision.toDecimal(n);
-        int digits = guardDigits(contextWith(that), b);
-        Ratio g = Ratio.of(tb.factor().divide(ta.factor()), digits);
-        Ratio h = Ratio.of(tb.offset().add(ta.offset().negate()).divide(ta.factor()), digits);
-        BigDecimal d = value.multiply(g.den).multiply(h.den).subtract(b.multiply(g.num).multiply(h.den))
-                .subtract(h.num.multiply(g.den));
-        return ta.factor().signum() * d.signum();
+        Factor gf = tb.factor().divide(ta.factor());
+        Factor hf = tb.offset().add(ta.offset().negate()).divide(ta.factor());
+        // Irrational factors: the enclosure of the difference narrows until it has one sign; past the cap the
+        // difference is within 10^-cap of zero (irrational terms that cancel exactly) and counts as zero.
+        MathContext mc = Precision.calculation(contextWith(that));
+        long cap = maxDigits(mc, b);
+        for (int digits = mc.getPrecision() + Irrationals.GUARD;; digits *= 2) {
+            Ratio g = Ratio.of(gf, digits);
+            Ratio h = Ratio.of(hf, digits);
+            Interval d = Interval.of(value.multiply(g.den).multiply(h.den))
+                    .add(g.num.multiply(b.multiply(h.den)).negate()).add(h.num.multiply(g.den).negate());
+            int sign = d.signum();
+            if (sign != 2) {
+                return ta.factor().signum() * sign;
+            }
+            if (digits > cap) {
+                return 0;
+            }
+        }
     }
 
     /**
@@ -367,11 +385,11 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
      */
     @Override
     public Quantity<?> inverse() {
-        Ratio a = system(value, unit, guardDigits(mathContext, BigDecimal.ONE), scale == Quantity.Scale.RELATIVE);
-        return UntypedDecimalQuantity.of(
-                roundOnce(a.den, a.num, mathContext, a.exact),
-                unit.getSystemUnit().inverse().getSystemUnit(),
-                mathContext);
+        BigDecimal r = evaluate(mathContext, maxDigits(mathContext, BigDecimal.ONE), digits -> {
+            Ratio a = system(value, unit, digits, scale == Quantity.Scale.RELATIVE);
+            return new Quotient(Interval.of(a.den), a.num, a.exact);
+        });
+        return UntypedDecimalQuantity.of(r, unit.getSystemUnit().inverse().getSystemUnit(), mathContext);
     }
 
     /**
@@ -446,15 +464,17 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         Number n = that.getValue();
         MathContext mc = contextWith(that);
         BigDecimal b = Precision.toDecimal(n);
-        int digits = guardDigits(mc, b);
-        Ratio sa = system(value, unit, digits, scale == Quantity.Scale.RELATIVE);
-        Ratio sb = system(b, thatUnit, digits, that.getScale() == Quantity.Scale.RELATIVE);
-        BigDecimal num = divide ? sa.num.multiply(sb.den) : sa.num.multiply(sb.num);
-        BigDecimal den = divide ? sa.den.multiply(sb.num) : sa.den.multiply(sb.den);
+        BigDecimal r = evaluate(mc, maxDigits(mc, b), digits -> {
+            Ratio sa = system(value, unit, digits, scale == Quantity.Scale.RELATIVE);
+            Ratio sb = system(b, thatUnit, digits, that.getScale() == Quantity.Scale.RELATIVE);
+            Interval num = divide ? sa.num.multiply(sb.den) : sa.num.multiply(sb.num);
+            Interval den = divide ? sb.num.multiply(sa.den) : Interval.of(sa.den.multiply(sb.den));
+            return new Quotient(num, den, sa.exact && sb.exact);
+        });
         UomUnit<?> product = divide
                 ? unit.getSystemUnit().divide(thatUnit.getSystemUnit())
                 : unit.getSystemUnit().multiply(thatUnit.getSystemUnit());
-        return UntypedDecimalQuantity.of(roundOnce(num, den, mc, sa.exact && sb.exact), product.getSystemUnit(), mc);
+        return UntypedDecimalQuantity.of(r, product.getSystemUnit(), mc);
     }
 
     /** The system value {@code f·v + o} as numerator over denominator; {@code o} is 0 for a difference. */
@@ -463,7 +483,7 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         Ratio f = Ratio.of(c.factor(), digits);
         Ratio o = Ratio.of(c.offset(), digits);
         return new Ratio(
-                plus(v.multiply(f.num).multiply(o.den), o.num.multiply(f.den)),
+                f.num.multiply(v).multiply(o.den).add(o.num.multiply(f.den)),
                 f.den.multiply(o.den),
                 f.exact && o.exact);
     }
@@ -490,17 +510,16 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
                 ? Deltas.converter(thatUnit.toSystemConverter())
                 : thatUnit.toSystemConverter();
         BigDecimal b = Precision.toDecimal(n);
-        int digits = guardDigits(mc, b);
-        Ratio f = Ratio.of(tb.factor().divide(ta.factor()), digits);
-        Ratio o = Ratio.of(tb.offset().divide(ta.factor()), digits);
-        BigDecimal term = plus(b.multiply(f.num).multiply(o.den), o.num.multiply(f.den));
-        BigDecimal ad = value.multiply(f.den).multiply(o.den);
-        BigDecimal num = plus(ad, subtract ? term.negate() : term);
-        return create(
-                roundOnce(num, f.den.multiply(o.den), mc, f.exact && o.exact),
-                unit,
-                Deltas.scale(scale, that.getScale()),
-                mc);
+        Factor ff = tb.factor().divide(ta.factor());
+        Factor off = tb.offset().divide(ta.factor());
+        BigDecimal r = evaluate(mc, maxDigits(mc, b), digits -> {
+            Ratio f = Ratio.of(ff, digits);
+            Ratio o = Ratio.of(off, digits);
+            Interval term = f.num.multiply(b).multiply(o.den).add(o.num.multiply(f.den));
+            Interval num = Interval.of(value.multiply(f.den).multiply(o.den)).add(subtract ? term.negate() : term);
+            return new Quotient(num, Interval.of(f.den.multiply(o.den)), f.exact && o.exact);
+        });
+        return create(r, unit, Deltas.scale(scale, that.getScale()), mc);
     }
 
     /** {@code r = a·s + q·(s - 1)} with {@code q = oa/fa} (or {@code 1/s} to divide), as one exact quotient. */
@@ -508,19 +527,44 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         UomConverter ta = scale == Quantity.Scale.RELATIVE
                 ? Deltas.converter(unit.toSystemConverter())
                 : unit.toSystemConverter();
-        Ratio q = Ratio.of(ta.offset().divide(ta.factor()), guardDigits(mathContext, s));
-        BigDecimal aq = plus(value.multiply(q.den), q.num);
-        BigDecimal num = divide ? plus(aq, q.num.multiply(s).negate()) : plus(aq.multiply(s), q.num.negate());
-        BigDecimal den = divide ? q.den.multiply(s) : q.den;
-        return create(roundOnce(num, den, mathContext, q.exact), unit, scale, mathContext);
+        Factor qf = ta.offset().divide(ta.factor());
+        BigDecimal r = evaluate(mathContext, maxDigits(mathContext, s), digits -> {
+            Ratio q = Ratio.of(qf, digits);
+            Interval aq = Interval.of(value.multiply(q.den)).add(q.num);
+            Interval num = divide ? aq.add(q.num.multiply(s).negate()) : aq.multiply(s).add(q.num.negate());
+            return new Quotient(num, Interval.of(divide ? q.den.multiply(s) : q.den), q.exact);
+        });
+        return create(r, unit, scale, mathContext);
     }
 
     /**
-     * {@code num / den} rounded once to {@code mc}; an unlimited context rounds a non-terminating or approximated
-     * quotient to {@code DECIMAL128}. A zero {@code den} throws {@link ArithmeticException}.
+     * The quotient {@code at} gives, rounded once to {@code mc}. Exact factors give one exact quotient; irrational ones
+     * are enclosed with doubling digits until both ends round alike, or, past {@code cap} digits (irrational terms
+     * that cancel exactly), the lower end rounds.
      */
-    private static BigDecimal roundOnce(BigDecimal num, BigDecimal den, MathContext mc, boolean exact) {
-        if (mc.getPrecision() == 0 && exact) {
+    private static BigDecimal evaluate(MathContext mc, long cap, IntFunction<Quotient> at) {
+        MathContext calc = Precision.calculation(mc);
+        for (int digits = calc.getPrecision() + Irrationals.GUARD;; digits *= 2) {
+            Quotient q = at.apply(digits);
+            if (q.exact) {
+                return roundOnce(q.num.lo(), q.den.lo(), mc);
+            }
+            BigDecimal r = q.num.divide(q.den, calc);
+            if (r != null) {
+                return r;
+            }
+            if (digits > cap) {
+                return Decimals.divide(q.num.lo(), q.den.lo(), calc);
+            }
+        }
+    }
+
+    /**
+     * {@code num / den} rounded once to {@code mc}; an unlimited context rounds a non-terminating quotient to
+     * {@code DECIMAL128}. A zero {@code den} throws {@link ArithmeticException}.
+     */
+    private static BigDecimal roundOnce(BigDecimal num, BigDecimal den, MathContext mc) {
+        if (mc.getPrecision() == 0) {
             try {
                 return Decimals.divide(num, den, MathContext.UNLIMITED);
             } catch (ArithmeticException nonTerminating) {
@@ -530,25 +574,23 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
         return Decimals.divide(num, den, Precision.calculation(mc));
     }
 
-    /** {@code a + b}, skipping a zero {@code b} so far-apart scales are not aligned. */
-    private static BigDecimal plus(BigDecimal a, BigDecimal b) {
-        return b.signum() == 0 ? a : a.add(b);
+    /** Digits after which irrational terms count as cancelling: twice the context's and both operands', plus 1000. */
+    private long maxDigits(MathContext mc, BigDecimal other) {
+        return 2L * (Precision.calculation(mc).getPrecision() + value.precision() + other.precision()) + 1000;
     }
 
-    /** Digits for approximating an irrational factor: the context's plus both operands', so cancellation shows. */
-    private int guardDigits(MathContext mc, BigDecimal other) {
-        return Precision.calculation(mc).getPrecision() + value.precision() + other.precision() + 25;
-    }
-
-    /** An exact factor as numerator over a positive denominator; an irrational one (pi, roots) approximated over 1. */
-    private record Ratio(BigDecimal num, BigDecimal den, boolean exact) {
+    /** A factor as an enclosure of its numerator over an exact positive denominator; a point if the factor is exact. */
+    private record Ratio(Interval num, BigDecimal den, boolean exact) {
 
         static Ratio of(Factor f, int digits) {
             return f.isExact()
-                    ? new Ratio(new BigDecimal(f.numerator()), new BigDecimal(f.denominator()), true)
-                    : new Ratio(f.decimalValue(new MathContext(digits)), BigDecimal.ONE, false);
+                    ? new Ratio(Interval.of(new BigDecimal(f.numerator())), new BigDecimal(f.denominator()), true)
+                    : new Ratio(Irrationals.enclose(f, digits), BigDecimal.ONE, false);
         }
     }
+
+    /** A quotient of enclosures; exact if no irrational factor took part. */
+    private record Quotient(Interval num, Interval den, boolean exact) {}
 
     private void requireCompatible(UomUnit<Q> thatUnit) {
         if (!unit.getDimension().equals(thatUnit.getDimension())) {

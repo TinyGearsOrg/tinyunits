@@ -25,6 +25,8 @@ import java.util.Objects;
 import javax.measure.UnitConverter;
 
 import org.tinygears.uom.core.internal.Decimals;
+import org.tinygears.uom.core.internal.Interval;
+import org.tinygears.uom.core.internal.Irrationals;
 import org.tinygears.uom.core.internal.SerialForm;
 
 /**
@@ -160,11 +162,17 @@ final class AffineConverter implements UomConverter, Serializable {
                             ? BigDecimal.ZERO
                             : q.setScale(Math.min(0, q.scale() + mc.getPrecision() - q.precision()));
         }
-        // Best effort for irrational coefficients: the product's relative error is independent of the
-        // value's magnitude, so guard digits only cover cancellation against the offset.
-        int guard = mc.getPrecision() + 10 + Math.max(0, Math.getExponent(offsetD) * 3 / 10 + 1);
-        MathContext work = new MathContext(guard);
-        return value.multiply(factor.decimalValue(work), work).add(offset.decimalValue(work), work).round(mc);
+        // Irrational coefficients: enclosures narrow until both ends round alike. Only two irrational coefficients
+        // that cancel exactly keep them apart; past the cap the lower end rounds.
+        long cap = 2L * (mc.getPrecision() + value.precision()) + 1000;
+        for (int digits = mc.getPrecision() + Irrationals.GUARD;; digits *= 2) {
+            Interval x = Irrationals.enclose(factor, digits).multiply(value)
+                    .add(Irrationals.enclose(offset, digits), digits);
+            BigDecimal r = x.lo().round(mc);
+            if (r.compareTo(x.hi().round(mc)) == 0 || digits > cap) {
+                return r;
+            }
+        }
     }
 
     private static boolean terminates(Factor f) {

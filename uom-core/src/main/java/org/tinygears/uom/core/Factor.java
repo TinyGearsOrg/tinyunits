@@ -22,6 +22,7 @@ import java.math.MathContext;
 import java.util.Objects;
 
 import org.tinygears.uom.core.internal.Decimals;
+import org.tinygears.uom.core.internal.Irrationals;
 import org.tinygears.uom.core.internal.SerialForm;
 
 /**
@@ -39,8 +40,6 @@ public final class Factor implements Serializable {
 
     private static final int MAX_EXPONENT = 1000;
     private static final int MAX_BITS = 65_536;
-    static final int PI_CACHE_SIZE = 16;
-    private static final BoundedCache<Integer, BigDecimal> PI_CACHE = new BoundedCache<>(PI_CACHE_SIZE);
 
     /** Zero. */
     public static final Factor ZERO = new Factor(BigInteger.ZERO, BigInteger.ONE, 0, 1);
@@ -439,19 +438,12 @@ public final class Factor implements Serializable {
                     .doubleValue();
             return signum() < 0 ? -d : d;
         }
-        // An irrational value is never a midpoint: widen until a +-2 ulp bracket rounds to one double.
-        for (int p = 25;; p *= 2) {
-            BigDecimal x = decimalValue(new MathContext(p));
-            BigDecimal err = x.ulp().multiply(BigDecimal.valueOf(2));
-            double lo = x.subtract(err).doubleValue();
-            if (lo == x.add(err).doubleValue()) {
-                return lo;
-            }
-        }
+        return Irrationals.doubleValue(this);
     }
 
     /**
-     * The value rounded to {@code mc}; an irrational value with precision 0, or a non-terminating rational one, throws ArithmeticException.
+     * The value correctly rounded to {@code mc}; an irrational value with precision 0 or under
+     * {@code RoundingMode.UNNECESSARY}, or a non-terminating rational one with precision 0, throws ArithmeticException.
      *
      * @param mc the rounding
      * @return the decimal value
@@ -463,88 +455,7 @@ public final class Factor implements Serializable {
         if (mc.getPrecision() == 0) {
             throw new ArithmeticException("irrational value needs a finite precision");
         }
-        MathContext work = new MathContext(mc.getPrecision() + 5);
-        BigDecimal x = Decimals.divide(new BigDecimal(num.abs()), new BigDecimal(den), work);
-        if (piExp != 0) {
-            x = x.multiply(pi(mc.getPrecision() + 10).pow(piExp, work), work);
-        }
-        BigDecimal result = nthRoot(x, index, work);
-        return (signum() < 0 ? result.negate() : result).round(mc);
-    }
-
-    /** Pi to at least {@code digits} digits; precisions round up to multiples of 64 and the cache holds 16 of them. */
-    private static BigDecimal pi(int digits) {
-        return PI_CACHE.get((digits + 63) / 64 * 64, p -> {
-            // Chudnovsky: pi = 426880 sqrt(10005) Q / T, about 14.18 digits per term; binary splitting keeps it fast.
-            MathContext mc = new MathContext(p + 10);
-            BigInteger[] pqt = chudnovsky(0, p / 14 + 2);
-            // The truncated root rounded HALF_UP is the correctly rounded root (irrational: never a tie), and
-            // BigInteger.sqrt is twice as fast as BigDecimal.sqrt on JDK 21.
-            BigDecimal root = new BigDecimal(
-                    BigInteger.valueOf(10_005).multiply(BigInteger.TEN.pow(2 * (p + 10))).sqrt(),
-                    p + 10).round(mc);
-            BigDecimal pi = new BigDecimal(pqt[1].multiply(BigInteger.valueOf(426_880))).multiply(root, mc)
-                    .divide(new BigDecimal(pqt[2]), mc);
-            return pi.round(new MathContext(p));
-        });
-    }
-
-    static int piCacheSize() {
-        return PI_CACHE.size();
-    }
-
-    static boolean piCacheHolds(int bucket) {
-        return PI_CACHE.contains(bucket);
-    }
-
-    static void clearPiCache() {
-        PI_CACHE.clear();
-    }
-
-    private static final BigInteger CHUDNOVSKY_C3_24 = BigInteger.valueOf(640_320).pow(3)
-            .divide(BigInteger.valueOf(24));
-
-    /** P, Q and T of the Chudnovsky series over terms {@code [a, b)}. */
-    private static BigInteger[] chudnovsky(long a, long b) {
-        if (b - a == 1) {
-            if (a == 0) {
-                return new BigInteger[] { BigInteger.ONE, BigInteger.ONE, BigInteger.valueOf(13_591_409) };
-            }
-            BigInteger p = BigInteger.valueOf(6 * a - 5).multiply(BigInteger.valueOf(2 * a - 1))
-                    .multiply(BigInteger.valueOf(6 * a - 1));
-            BigInteger q = BigInteger.valueOf(a).pow(3).multiply(CHUDNOVSKY_C3_24);
-            BigInteger t = p.multiply(BigInteger.valueOf(13_591_409 + 545_140_134 * a));
-            return new BigInteger[] { p, q, a % 2 == 0 ? t : t.negate() };
-        }
-        long m = (a + b) / 2;
-        BigInteger[] l = chudnovsky(a, m);
-        BigInteger[] r = chudnovsky(m, b);
-        return new BigInteger[] {
-            l[0].multiply(r[0]),
-            l[1].multiply(r[1]),
-            l[2].multiply(r[1]).add(l[0].multiply(r[2])) };
-    }
-
-    /** r-th root of a > 0 by Newton iteration from a double-precision guess. */
-    private static BigDecimal nthRoot(BigDecimal a, int r, MathContext mc) {
-        if (r == 1) {
-            return a;
-        }
-        int e = a.precision() - a.scale();
-        double lg = (e + Math.log10(a.scaleByPowerOfTen(-e).doubleValue())) / r;
-        int ie = (int) Math.floor(lg);
-        BigDecimal y = BigDecimal.valueOf(Math.pow(10, lg - ie)).scaleByPowerOfTen(ie);
-        BigDecimal rm1 = BigDecimal.valueOf(r - 1);
-        BigDecimal br = BigDecimal.valueOf(r);
-        for (int i = 0; i < 100; i++) {
-            BigDecimal next = y.multiply(rm1).add(a.divide(y.pow(r - 1, mc), mc)).divide(br, mc);
-            boolean done = next.subtract(y).abs().compareTo(next.ulp()) <= 0;
-            y = next;
-            if (done) {
-                break;
-            }
-        }
-        return y;
+        return Irrationals.round(this, mc);
     }
 
     /**

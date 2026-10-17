@@ -121,7 +121,10 @@ org.tinygears.uom.core module exports org.tinygears.uom.core.parse
 org.tinygears.uom.core module exports org.tinygears.uom.core.quantity
 org.tinygears.uom.core module exports org.tinygears.uom.core.spi to [org.tinygears.uom]
 org.tinygears.uom.core module requires transitive java.measure
+org.tinygears.uom.core.internal hidden org.tinygears.uom.core.internal.BoundedCache
 org.tinygears.uom.core.internal hidden org.tinygears.uom.core.internal.Decimals
+org.tinygears.uom.core.internal hidden org.tinygears.uom.core.internal.Interval
+org.tinygears.uom.core.internal hidden org.tinygears.uom.core.internal.Irrationals
 org.tinygears.uom.core.internal hidden org.tinygears.uom.core.internal.SerialForm
 org.tinygears.uom.core.parse Definition member public final boolean equals(java.lang.Object)
 org.tinygears.uom.core.parse Definition member public final int hashCode()

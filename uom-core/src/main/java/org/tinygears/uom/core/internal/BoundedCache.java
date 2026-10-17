@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core;
+package org.tinygears.uom.core.internal;
 
 import java.util.Map;
 import java.util.Objects;
@@ -25,7 +25,7 @@ import java.util.function.Function;
  * @param <K> the key type
  * @param <V> the value type
  */
-final class BoundedCache<K, V> {
+public final class BoundedCache<K, V> {
     private static final class Entry<V> {
         final V value;
         volatile boolean used;
@@ -38,15 +38,26 @@ final class BoundedCache<K, V> {
     private final int capacity;
     private final Map<K, Entry<V>> map = new ConcurrentHashMap<>();
 
-    BoundedCache(int capacity) {
+    /**
+     * A cache of at most {@code capacity} entries.
+     *
+     * @param capacity the capacity, positive
+     */
+    public BoundedCache(int capacity) {
         if (capacity < 1) {
             throw new IllegalArgumentException("capacity " + capacity);
         }
         this.capacity = capacity;
     }
 
-    /** The cached value for {@code key}, else {@code compute}'s, which then is cached. */
-    V get(K key, Function<? super K, ? extends V> compute) {
+    /**
+     * The cached value for {@code key}, else {@code compute}'s, which then is cached.
+     *
+     * @param key the key
+     * @param compute computes the value of a missing key
+     * @return the value
+     */
+    public V get(K key, Function<? super K, ? extends V> compute) {
         Entry<V> entry = map.get(key);
         if (entry != null) {
             // Read first: a hot entry is written once per sweep, not on every hit.
@@ -84,15 +95,27 @@ final class BoundedCache<K, V> {
         map.remove(map.keySet().iterator().next());
     }
 
-    int size() {
+    /**
+     * The number of entries.
+     *
+     * @return the size
+     */
+    public int size() {
         return map.size();
     }
 
-    boolean contains(K key) {
+    /**
+     * Whether {@code key} is cached.
+     *
+     * @param key the key
+     * @return true if cached
+     */
+    public boolean contains(K key) {
         return map.containsKey(key);
     }
 
-    synchronized void clear() {
+    /** Removes every entry. */
+    public synchronized void clear() {
         map.clear();
     }
 }

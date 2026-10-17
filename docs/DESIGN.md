@@ -13,6 +13,7 @@ N1 to N8 refer to it). Target API: `javax.measure:unit-api` 2.2. Java 17 (DR-11)
 | Catalogs | Text data files are the single source of truth (F15). They generate typed catalogs; the same parser loads user files at run time (F17, section 5). |
 | User extension | Users load their own `.units` files at run time (`UomSystemOfUnits.load`) and get `Unit<?>` back (F18). User-defined quantity types are out of scope. |
 | Precision | Mixing `double` and `BigDecimal` gives `BigDecimal`, the `double` read as its shortest decimal; symmetric (F23, DR-14). |
+| Irrational factors | Pi and roots are enclosed by directed rounding; decimal results are rounded correctly (DR-15). |
 | Equality | Strict `equals` and `hashCode`; standard `isEquivalentTo`; `Comparable` by system-unit value, not consistent with `equals` (F20 to F22). |
 | Java baseline | Java 17; releases built with JDK 21 (DR-11). |
 | Information units | An `Information` catalog with bit and byte as untyped alternate atoms, metric and binary prefixes (DR-12). |
@@ -268,6 +269,21 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *See.* REQUIREMENTS F23; `AbstractDoubleQuantityMixedTest`, `AbstractDecimalQuantityArithmeticTest`; the
   `mixedPrecision` example.
 
+**DR-15 Irrational factors are evaluated by enclosure and rounded correctly.**
+- *Decision.* A factor with pi or a root is enclosed in an interval by directed rounding; a decimal result rounds both
+  ends of the enclosure of the whole expression and doubles the digits until they agree (Ziv's strategy), starting at
+  the context's digits plus 10. A cap of 1000 digits plus twice the digits of the context and the operands stops
+  irrational terms that cancel exactly: then the lower end rounds and `compareTo` returns 0.
+- *Why.* The former fixed guard digits rounded wrongly at near-ties (pi to 761 digits, sqrt(2) to 2706 under
+  `HALF_UP`), lost cancellations deeper than about 25 digits beyond the operands, and grew with the operands' digits
+  (comparing a two-million-digit value with one pi-metre computed two million digits of pi). An enclosure proves the
+  rounding and needs only the digits the decision needs.
+- *Rejected.* More fixed guard digits: cheaper to write, never proven, and still sized by the operands. Exact algebraic
+  arithmetic over pi and roots: a different number system for a rare case.
+- *Revisit if.* A unit's factor and offset are both irrational in practice, so the cap is reached.
+- *See.* Section 4, "Irrational factors"; `IrrationalsTest`, `AbstractDecimalQuantityArithmeticTest`,
+  `ConvertersDecimalTest`.
+
 ## 2. Modules and data flow
 
 ```
@@ -459,8 +475,15 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
   - **Factories (D11) and formats (D12).** As in section 4 item 1 and 4; `UomQuantityFormat.format` prints
     `BigDecimal.toString()`; `parse` returns `double` quantities unless the format has `withDecimals` (section 5). `withMathContext(mc)` (public on `AbstractDecimalQuantity`, not on the typed interfaces) changes the
     context without rounding the value; the decimal parse uses it.
-  - Irrational factors (a pi or root in the converter) are best effort for decimal arithmetic; see
-    `docs/TODO.md` (item 22).
+  - **Irrational factors.** A factor with pi or a root is enclosed in an interval by directed rounding
+    (`internal.Irrationals`: pi within one unit in the last place, roots checked by raising them back to the power);
+    sums and products of enclosures are exact (`internal.Interval`). A result is evaluated with the digits of its
+    context plus 10 (25 for a `double`) and rounded at both ends of the enclosure; if they differ, the digits double (Ziv's strategy). An
+    irrational value is never on a rounding boundary, so `Factor.decimalValue` and `Factor.doubleValue` are correctly
+    rounded, and `UNNECESSARY` throws. Conversions and quantity arithmetic are correctly rounded too, unless irrational
+    terms cancel exactly (an irrational factor and offset): past 1000 digits plus twice those of the context and the
+    operands the lower end rounds, and `compareTo` returns 0. The cost follows the digits the decision needs, not
+    the operands' digits.
 - **Equality (F20).** `equals`: same implementation class, same unit, same scale, same value. `double`: `Double.compare`.
   Decimal (D4): `compareTo == 0`, so `1.0 m` equals `1.00 m`; the `MathContext` is not part of equality; `hashCode` uses
   `stripTrailingZeros()`. `LengthDouble` never equals `LengthDecimal`. `isEquivalentTo`: same value after conversion to the

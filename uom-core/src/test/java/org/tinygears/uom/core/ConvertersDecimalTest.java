@@ -64,6 +64,20 @@ class ConvertersDecimalTest {
     }
 
     @Test
+    void irrationalConversionsRoundOnceCorrectly() {
+        // Values whose degrees in radians lie 1e-30 below and above the midpoint 1.23455: rounded to 15 digits first,
+        // both were the midpoint.
+        UomConverter toRadians = affine(Factor.PI.divide(Factor.ofLong(180)), Factor.ZERO);
+        BigDecimal perRadian = Factor.ofLong(180).divide(Factor.PI).decimalValue(new MathContext(90));
+        MathContext mc = new MathContext(70);
+        BigDecimal below = new BigDecimal("1.23455").subtract(new BigDecimal("1e-30")).multiply(perRadian, mc);
+        BigDecimal above = new BigDecimal("1.23455").add(new BigDecimal("1e-30")).multiply(perRadian, mc);
+        MathContext p5 = new MathContext(5, RoundingMode.HALF_UP);
+        assertEquals(new BigDecimal("1.2345"), toRadians.convert(below, p5));
+        assertEquals(new BigDecimal("1.2346"), toRadians.convert(above, p5));
+    }
+
+    @Test
     void droppedTermBreaksTiesInItsDirection() {
         // x + 1 with x = +-2.5e100, and 5/2 + x with x = +-1e-200: exact ties at one digit plus a far term.
         UomConverter plusOne = affine(Factor.ONE, Factor.ONE);

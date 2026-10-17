@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.tinygears.uom.core;
+package org.tinygears.uom.core.internal;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

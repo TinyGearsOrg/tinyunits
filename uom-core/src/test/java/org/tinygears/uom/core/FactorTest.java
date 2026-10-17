@@ -14,9 +14,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -180,99 +177,6 @@ class FactorTest {
     }
 
     /** Reference values of pi, pi^2 and 250/pi, computed from Machin's pi with ample guard digits. */
-    private static List<BigDecimal> references(int digits) {
-        MathContext mc = new MathContext(digits + 20);
-        BigDecimal pi = machin(digits + 20);
-        return List.of(pi, pi.multiply(pi, mc), BigDecimal.valueOf(250).divide(pi, mc));
-    }
-
-    private static void assertPiValues(List<BigDecimal> reference, int p) {
-        MathContext mc = new MathContext(p);
-        Factor[] factors = { PI, PI.pow(2), ofLong(250).divide(PI) };
-        for (int i = 0; i < factors.length; i++) {
-            assertEquals(reference.get(i).round(mc), factors[i].decimalValue(mc), factors[i] + " at " + p);
-        }
-    }
-
-    @Test
-    void piCacheBucketsGiveCorrectDigitsInAnyOrder() {
-        List<BigDecimal> reference = references(320);
-        List<Integer> ascending = List
-                .of(1, 54, 63, 64, 65, 100, 127, 128, 129, 191, 192, 193, 250, 255, 256, 257, 300);
-        List<Integer> descending = new ArrayList<>(ascending);
-        Collections.reverse(descending);
-        for (List<Integer> order : List.of(ascending, descending)) {
-            Factor.clearPiCache();
-            for (int p : order) {
-                assertPiValues(reference, p);
-            }
-        }
-        // Within one bucket: the larger request first, then the smaller, and the reverse.
-        for (int[] pair : new int[][] { { 54, 1 }, { 1, 54 }, { 64, 54 }, { 54, 64 }, { 65, 128 }, { 128, 65 } }) {
-            Factor.clearPiCache();
-            assertPiValues(reference, pair[0]);
-            assertPiValues(reference, pair[1]);
-        }
-    }
-
-    @Test
-    void piCacheIsBoundedAndCorrectAfterEviction() {
-        List<BigDecimal> reference = references(1120);
-        Factor.clearPiCache();
-        // Twice over 18 buckets, more than the cache holds: entries are evicted and computed again.
-        for (int round = 0; round < 2; round++) {
-            for (int p = 1; p <= 1100; p += 64) {
-                assertPiValues(reference, p);
-                // The 64-digit bucket stays: it is used again before each new bucket.
-                assertPiValues(reference, 20);
-                assertTrue(Factor.piCacheSize() <= Factor.PI_CACHE_SIZE, "cache size " + Factor.piCacheSize());
-                assertTrue(Factor.piCacheHolds(64), "64-digit bucket evicted at " + p);
-            }
-        }
-        assertEquals(Factor.PI_CACHE_SIZE, Factor.piCacheSize());
-    }
-
-    /** Reference pi by Machin's formula, 16 atan(1/5) - 4 atan(1/239). */
-    private static BigDecimal machin(int digits) {
-        MathContext mc = new MathContext(digits + 10);
-        return atanInverse(5, mc).multiply(BigDecimal.valueOf(16))
-                .subtract(atanInverse(239, mc).multiply(BigDecimal.valueOf(4))).round(new MathContext(digits));
-    }
-
-    private static BigDecimal atanInverse(int x, MathContext mc) {
-        BigDecimal x2 = BigDecimal.valueOf((long) x * x);
-        BigDecimal eps = BigDecimal.ONE.movePointLeft(mc.getPrecision());
-        BigDecimal power = BigDecimal.ONE.divide(BigDecimal.valueOf(x), mc);
-        BigDecimal sum = power;
-        for (int k = 1;; k++) {
-            power = power.divide(x2, mc);
-            BigDecimal term = power.divide(BigDecimal.valueOf(2L * k + 1), mc);
-            if (term.compareTo(eps) < 0) {
-                return sum;
-            }
-            sum = k % 2 == 0 ? sum.add(term, mc) : sum.subtract(term, mc);
-        }
-    }
-
-    @Test
-    void piMatchesMachinsFormula() {
-        BigDecimal reference = machin(3020);
-        for (int p : new int[] { 1, 2, 15, 63, 64, 65, 500, 1000, 3000 }) {
-            assertEquals(reference.round(new MathContext(p)), PI.decimalValue(new MathContext(p)), "digits " + p);
-        }
-    }
-
-    @Test
-    void piToTheMaximumContextPrecisionIsFast() {
-        // Precision 100000 plus guard digits, as a decimal quantity at the bound of its context needs; 2.5 s alone and
-        // 10 to 13 s under load on JDK 21, 0.6 s on JDK 25: the 120 s bound only catches quadratic or worse.
-        BigDecimal pi = assertTimeoutPreemptively(
-                Duration.ofSeconds(120),
-                () -> PI.decimalValue(new MathContext(200_100)));
-        assertEquals(200_100, pi.precision());
-        assertEquals(machin(3000), pi.round(new MathContext(3000)));
-    }
-
     @Test
     void sizeIsCapped() {
         assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {

@@ -78,17 +78,11 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 ## 22. Decimal arithmetic residuals
 
 **Status:** open.
-- `Factor.decimalValue` is not correctly rounded at near-ties: 5 fixed guard digits under `HALF_UP`, never extended
-  (pi at p=761 with `HALF_UP`, the degree factor at 762 to 763, sqrt(2) at p=2706); with `UNNECESSARY` it returns a value
-  instead of throwing. Fix by Ziv-style evaluation: retry with more guard digits until the rounding decision is
-  unambiguous.
 - The `isEquivalentTo` tolerance `10^(1-p)` is 1 at precision 1, so any two same-sign values within a factor of two are
   equivalent: document it or require a minimum precision.
-- Cost: guard digits grow with the operand's precision (multiplying a 3,000,000-digit value takes 28 s) and a huge
-  integer parses with a full superlinear `BigDecimal` parse (no digit bound at parse time). Only the scale and quantity
-  contexts are bounded. At precision 100000 inexact results below 1 throw `ArithmeticException("scale out of range")`.
-- Irrational-factor arithmetic (pi or a root in the factor) is best effort: about 25 guard digits beyond the context, correct
-  in practice but not proven.
+- Cost: a huge integer parses with a full superlinear `BigDecimal` parse (no digit bound at parse time; two million
+  digits take tens of seconds). Only the scale and quantity contexts are bounded. At precision 100000 inexact results below
+  1 throw `ArithmeticException("scale out of range")`.
 
 **Needed by:** decide before 1.0.
 

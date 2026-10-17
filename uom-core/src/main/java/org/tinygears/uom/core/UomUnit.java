@@ -35,6 +35,7 @@ import javax.measure.Unit;
 import javax.measure.UnitConverter;
 import javax.measure.spi.QuantityFactory;
 
+import org.tinygears.uom.core.internal.BoundedCache;
 import org.tinygears.uom.core.internal.SerialForm;
 import org.tinygears.uom.core.spi.Providers;
 
