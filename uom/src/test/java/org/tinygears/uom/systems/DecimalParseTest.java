@@ -166,7 +166,6 @@ class DecimalParseTest {
         assertNull(ROOT.getDecimalContext());
         assertEquals(1e10, ROOT.withLocale(Locale.GERMANY).parse("1,0E10 km").getValue());
         assertEquals(Double.NaN, ROOT.parse("NaN m").getValue());
-        assertEquals(8.0, ROOT.parse("0x1p3 m").getValue());
     }
 
     @Test
@@ -335,7 +334,6 @@ class DecimalParseTest {
 
     @Test
     void contextIsCheckedAtWithDecimals() {
-        assertThrows(NullPointerException.class, () -> ROOT.withDecimals(null));
         ArithmeticException e = assertThrows(
                 ArithmeticException.class,
                 () -> ROOT.withDecimals(new MathContext(100_001)));

@@ -83,8 +83,8 @@ describe_expected() { # <artifact> <version>
   case $1 in
     uom-core) printf '%s\n' "org.tinygears.uom.core@$2" 'exports org.tinygears.uom.core' \
       'exports org.tinygears.uom.core.parse' 'exports org.tinygears.uom.core.quantity' 'requires java.base mandated' \
-      'requires java.measure transitive' 'qualified exports org.tinygears.uom.core.spi to org.tinygears.uom' \
-      'contains org.tinygears.uom.core.internal' ;;
+      'requires java.measure transitive' 'qualified exports org.tinygears.uom.core.internal to org.tinygears.uom' \
+      'qualified exports org.tinygears.uom.core.spi to org.tinygears.uom' ;;
     uom) printf '%s\n' "org.tinygears.uom@$2" 'exports org.tinygears.uom.quantity' \
       'exports org.tinygears.uom.systems' 'requires java.base mandated' \
       'requires org.tinygears.uom.core transitive' \

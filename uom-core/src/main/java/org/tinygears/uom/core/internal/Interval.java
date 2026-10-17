@@ -16,7 +16,7 @@ import java.math.RoundingMode;
 
 /**
  * A closed interval {@code [lo, hi]} of decimals enclosing a value. Its sums and products are exact, so the result of
- * arithmetic on enclosures encloses the result of the same arithmetic on the values. Not exported, not API.
+ * arithmetic on enclosures encloses the result of the same arithmetic on the values. Exported to {@code org.tinygears.uom} only; not API.
  *
  * @param lo the lower end
  * @param hi the upper end, not below {@code lo}

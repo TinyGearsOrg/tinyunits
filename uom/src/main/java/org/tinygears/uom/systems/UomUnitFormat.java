@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -37,6 +36,7 @@ import javax.measure.format.UnitFormat;
 import org.tinygears.uom.core.Converters;
 import org.tinygears.uom.core.Factor;
 import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.core.internal.BoundedCache;
 import org.tinygears.uom.core.parse.FormulaEvaluator;
 import org.tinygears.uom.core.parse.FormulaException;
 
@@ -45,6 +45,11 @@ import org.tinygears.uom.core.parse.FormulaException;
  * Symbols resolve as labels, then exact symbols, then a metric or binary prefix on a prefixable unit ({@code km},
  * {@code MiB}). A unit that takes binary prefixes takes only the metric prefixes from kilo up ({@code kB}, not
  * {@code dB}). Thread-safe.
+ *
+ * <p>Labels ({@link #label}) belong to the format instance: {@link #standard()} returns a new format each time, and
+ * {@link #with} and {@link #withSuperscripts} copy the labels the format has then. The unit format of the format
+ * service is one shared instance, so its labels apply to every user of the service. Labels never change
+ * {@code toString} of units and quantities, which print the same whatever any format was told.
  */
 public final class UomUnitFormat implements UnitFormat {
     private static final String EXCLUDED = "*/()^|=#[]!~@,·+-";
@@ -59,8 +64,16 @@ public final class UomUnitFormat implements UnitFormat {
 
     private final List<UomSystemOfUnits> systems;
     private final boolean superscripts;
-    private final Map<String, UomUnit<?>> aliases = new ConcurrentHashMap<>();
-    private final Map<UomUnit<?>, String> labels = new ConcurrentHashMap<>();
+    private static final int TEXT_CACHE_SIZE = 256;
+
+    /** What each label parses to and the label each unit formats as; replaced whole, so a reader sees one state. */
+    private record Labels(Map<String, UomUnit<?>> aliases, Map<UomUnit<?>, String> names) {
+        static final Labels NONE = new Labels(Map.of(), Map.of());
+    }
+
+    private volatile Labels labels = Labels.NONE;
+    // The text of units without a symbol or label in the systems, whose search parses several candidates.
+    private final BoundedCache<UomUnit<?>, String> texts = new BoundedCache<>(TEXT_CACHE_SIZE);
     // The units that take a metric or binary prefix, and all units, of the systems by unit, built when first needed.
     private volatile Map<UomUnit<?>, String> prefixable;
     private volatile Map<UomUnit<?>, String> symbols;
@@ -90,10 +103,7 @@ public final class UomUnitFormat implements UnitFormat {
      */
     public UomUnitFormat withSuperscripts(boolean superscripts) {
         UomUnitFormat result = new UomUnitFormat(systems, superscripts);
-        synchronized (this) {
-            result.aliases.putAll(aliases);
-            result.labels.putAll(labels);
-        }
+        result.labels = labels;
         return result;
     }
 
@@ -122,33 +132,30 @@ public final class UomUnitFormat implements UnitFormat {
             throw new IllegalArgumentException("no systems");
         }
         List<UomSystemOfUnits> all = new ArrayList<>(this.systems);
-        UomUnitFormat result;
-        synchronized (this) {
-            for (UomSystemOfUnits system : systems) {
-                Objects.requireNonNull(system, "system");
-                if (all.stream().anyMatch(s -> s == system)) {
-                    continue;
-                }
-                for (String symbol : system.symbols()) {
-                    UomUnit<?> unit = system.lookup(symbol).orElseThrow();
-                    UomUnit<?> label = aliases.get(symbol);
-                    if (label != null && !label.equals(unit)) {
-                        throw new IllegalArgumentException(
-                                "symbol '" + symbol + "' of " + system.getName() + " is the label of " + label);
-                    }
-                    Found other = resolve(all, symbol);
-                    if (other != null && !other.unit().equals(unit)) {
-                        throw new IllegalArgumentException(
-                                "symbol '" + symbol + "' of " + system.getName() + " is a different unit in "
-                                        + other.system().getName());
-                    }
-                }
-                all.add(system);
+        Labels current = labels;
+        for (UomSystemOfUnits system : systems) {
+            Objects.requireNonNull(system, "system");
+            if (all.stream().anyMatch(s -> s == system)) {
+                continue;
             }
-            result = new UomUnitFormat(all, superscripts);
-            result.aliases.putAll(aliases);
-            result.labels.putAll(labels);
+            for (String symbol : system.symbols()) {
+                UomUnit<?> unit = system.lookup(symbol).orElseThrow();
+                UomUnit<?> label = current.aliases().get(symbol);
+                if (label != null && !label.equals(unit)) {
+                    throw new IllegalArgumentException(
+                            "symbol '" + symbol + "' of " + system.getName() + " is the label of " + label);
+                }
+                Found other = resolve(all, symbol);
+                if (other != null && !other.unit().equals(unit)) {
+                    throw new IllegalArgumentException(
+                            "symbol '" + symbol + "' of " + system.getName() + " is a different unit in "
+                                    + other.system().getName());
+                }
+            }
+            all.add(system);
         }
+        UomUnitFormat result = new UomUnitFormat(all, superscripts);
+        result.labels = current;
         return result;
     }
 
@@ -208,23 +215,30 @@ public final class UomUnitFormat implements UnitFormat {
     }
 
     private String formatAscii(Unit<?> unit) {
-        String label = labels.get(unit);
-        if (label != null && parsesTo(label, unit)) {
+        if (!(unit instanceof UomUnit<?> u)) {
+            throw new IllegalArgumentException(
+                    "foreign unit implementation " + unit.getClass().getName() + " can not be formatted: " + unit);
+        }
+        String label = labels.names().get(u);
+        if (label != null && parsesTo(label, u)) {
             return label;
         }
-        if (unit.getSymbol() != null && parsesTo(unit.getSymbol(), unit)) {
-            return unit.getSymbol();
+        if (u.getSymbol() != null && parsesTo(u.getSymbol(), u)) {
+            return u.getSymbol();
         }
         for (UomSystemOfUnits system : systems) {
             for (Unit<?> known : system.getUnits()) {
-                if (known.equals(unit) && parsesTo(known.getSymbol(), unit)) {
+                if (known.equals(u) && parsesTo(known.getSymbol(), u)) {
                     return known.getSymbol();
                 }
             }
         }
-        if (!(unit instanceof UomUnit<?> u)) {
-            throw new IllegalArgumentException("unit can not be formatted: " + unit);
-        }
+        // Equal units share this text: it depends on the factor, offset and atoms, never on a symbol.
+        return texts.get(u, this::derived);
+    }
+
+    /** A prefixed symbol, a multiple or a formula of {@code u}, the first that parses back. */
+    private String derived(UomUnit<?> u) {
         String prefixed = prefixed(u);
         if (prefixed != null) {
             return prefixed;
@@ -239,7 +253,7 @@ public final class UomUnitFormat implements UnitFormat {
         if (f.signum() > 0 && f.rootIndex() == 1 && shift != null && shift.rootIndex() == 1
                 && shift.piExponent() == 0) {
             String formula = formula(f, u.getSystemUnit().getSymbol()) + shift(shift);
-            if (parsesTo(formula, unit)) {
+            if (parsesTo(formula, u)) {
                 return formula;
             }
         }
@@ -410,7 +424,7 @@ public final class UomUnitFormat implements UnitFormat {
     }
 
     UomUnit<?> lookup(String symbol) {
-        UomUnit<?> alias = aliases.get(symbol);
+        UomUnit<?> alias = labels.aliases().get(symbol);
         return alias != null ? alias : resolve(symbol).orElse(null);
     }
 
@@ -464,6 +478,7 @@ public final class UomUnitFormat implements UnitFormat {
     /**
      * Adds {@code label} as an alias that parses to {@code unit} and formats it; a previous holder of the
      * same label loses it. Rejects labels that would not parse back or that name a different unit of the systems, exactly or as a prefix on a prefixable unit.
+     * The label applies to this format only, not to other instances or to {@code toString} (see the class comment).
      */
     @Override
     public synchronized void label(Unit<?> unit, String label) {
@@ -481,11 +496,15 @@ public final class UomUnitFormat implements UnitFormat {
         if (existing != null && !existing.unit().equals(u)) {
             throw new IllegalArgumentException("label '" + label + "' is the symbol of " + existing.unit().getName());
         }
+        Map<String, UomUnit<?>> aliases = new HashMap<>(labels.aliases());
+        Map<UomUnit<?>, String> names = new HashMap<>(labels.names());
         UomUnit<?> previous = aliases.put(label, u);
         if (previous != null && !previous.equals(u)) {
-            labels.remove(previous, label);
+            names.remove(previous, label);
         }
-        labels.put(u, label);
+        names.put(u, label);
+        labels = new Labels(Map.copyOf(aliases), Map.copyOf(names));
+        texts.clear();
     }
 
     @Override

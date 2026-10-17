@@ -61,6 +61,12 @@ public abstract class AbstractDecimalQuantity<Q extends Quantity<Q>, R extends Q
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /** The largest absolute scale of a value or {@link BigDecimal} operand: 100000. */
+    public static final int MAX_SCALE = 100_000;
+
+    /** The largest precision of a context: 100000. */
+    public static final int MAX_PRECISION = 100_000;
+
     /** The value. */
     private final BigDecimal value;
     /** The unit. */

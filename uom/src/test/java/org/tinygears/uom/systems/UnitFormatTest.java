@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParsePosition;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -26,6 +27,7 @@ import javax.measure.Unit;
 import javax.measure.format.MeasurementParseException;
 
 import org.junit.jupiter.api.Test;
+import tech.units.indriya.unit.Units;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.Factor;
@@ -36,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UnitFormatTest {
@@ -492,5 +495,53 @@ class UnitFormatTest {
         } finally {
             pool.shutdownNow();
         }
+    }
+
+    @Test
+    void unitsOfAnotherImplementationAreRefused() {
+        assertEquals(
+                "foreign unit implementation tech.units.indriya.unit.TransformedUnit can not be formatted: m*1000",
+                assertThrows(IllegalArgumentException.class, () -> format.format(Units.METRE.multiply(1000)))
+                        .getMessage());
+    }
+
+    @Test
+    void labelsBelongToTheirFormatAndNeverChangeToString() {
+        Unit<?> kmh = SI.METRE.multiply(1000).divide(SI.SECOND.multiply(3600));
+        UomUnitFormat labelled = UomUnitFormat.standard();
+        UomUnitFormat before = labelled.withSuperscripts(false);
+        labelled.label(kmh, "kmh");
+        UomUnitFormat after = labelled.withSuperscripts(false);
+        assertEquals("kmh", labelled.format(kmh));
+        assertEquals(kmh, labelled.parse("kmh"));
+        assertEquals("kmh", after.format(kmh));
+        // copies taken before, other instances and toString do not see it
+        assertEquals("5|18·m/s", before.format(kmh));
+        assertEquals("5|18·m/s", format.format(kmh));
+        assertEquals("5|18·m/s", UomUnitFormat.standard().format(kmh));
+        assertEquals("5|18·m/s", kmh.toString());
+        // the service's format is shared, still not toString
+        javax.measure.format.UnitFormat service = new UomServiceProvider().getFormatService().getUnitFormat();
+        assertSame(service, new UomServiceProvider().getFormatService().getUnitFormat());
+        UomUnit<?> furlongPerFortnight = SI.METRE.multiply(201.168).divide(SI.SECOND.multiply(1_209_600));
+        service.label(furlongPerFortnight, "fpf");
+        assertEquals("fpf", new UomServiceProvider().getFormatService().getUnitFormat().format(furlongPerFortnight));
+        assertFalse(furlongPerFortnight.toString().contains("fpf"));
+    }
+
+    @Test
+    void derivedUnitTextsAreCached() {
+        // a unit without a symbol or a short form was formatted by a search of about 100 µs each time
+        Unit<?> kmh = SI.METRE.multiply(1000).divide(SI.SECOND.multiply(3600));
+        UomUnitFormat f = UomUnitFormat.standard();
+        assertEquals("5|18·m/s", f.format(kmh));
+        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
+            for (int i = 0; i < 50_000; i++) {
+                assertEquals("5|18·m/s", f.format(kmh));
+            }
+        });
+        // a label still wins over the cached text
+        f.label(kmh, "kmh");
+        assertEquals("kmh", f.format(kmh));
     }
 }

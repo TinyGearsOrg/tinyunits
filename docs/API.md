@@ -25,8 +25,8 @@ Within them, these are stable:
 
 ## What is not API
 
-- `org.tinygears.uom.core.internal`: it is not exported; its public classes are public only for the other packages
-  of `uom-core` and may change in any release.
+- `org.tinygears.uom.core.internal`: it is exported to the module `org.tinygears.uom` only; its public classes are
+  public only for the other packages of `uom-core` and for `uom`, and may change in any release.
 - `org.tinygears.uom.core.spi`: it is exported to the module `org.tinygears.uom` only; it is the hook that the
   provider implements, and may change in any release.
 - the generator internals (`uom-codegen`), and the unpublished modules `uom-tck` and `uom-examples`;
@@ -43,9 +43,10 @@ least one minor release, and is removed only in the next major release.
 
 `docs/api/public-api.txt` lists the API: one sorted line per module directive, public type and public or protected
 member of the exported packages, with full generic signatures, plus `hidden` lines for the public types of the
-non-exported packages. `ApiSurfaceTest` (in `uom`) reads the module descriptors and the class files of both modules
-and fails when the API differs from the file, listing the added and removed lines; it also checks that
-`org.tinygears.uom.core.internal` is not exported and is the only package with public types outside the exports.
+packages exported to `org.tinygears.uom` only. `ApiSurfaceTest` (in `uom`) reads the module descriptors and the class
+files of both modules and fails when the API differs from the file, listing the added and removed lines; it also checks
+that `org.tinygears.uom.core.internal` and `org.tinygears.uom.core.spi` are exported to `org.tinygears.uom` only and
+are the only packages with public types outside the exports.
 
 To change the API deliberately, change the code, rewrite the file and review its diff with the change:
 

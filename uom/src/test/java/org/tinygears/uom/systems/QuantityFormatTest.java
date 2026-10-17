@@ -12,24 +12,35 @@ package org.tinygears.uom.systems;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.ResourceBundle;
+import java.util.Set;
 import javax.measure.Quantity;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Frequency;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
+import javax.measure.spi.QuantityFactory;
 
 import org.junit.jupiter.api.Test;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
 
 import org.tinygears.uom.core.BaseUnits;
 import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.core.quantity.UntypedDoubleQuantity;
+import org.tinygears.uom.quantity.QuantityTypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -161,5 +172,83 @@ class QuantityFormatTest {
         Quantity<?> parsed = format.parse("1.50 km");
         assertEquals(1.5, parsed.getValue());
         assertEquals(SI.KILOMETRE, parsed.getUnit());
+    }
+
+    @Test
+    void numbersAreDecimalOnly() {
+        for (String text : List.of("1f m", "1d m", "1.5F m", "0x1p3 m", "1e m", "1,5 m")) {
+            MeasurementParseException e = assertThrows(MeasurementParseException.class, () -> format.parse(text), text);
+            String number = text.substring(0, text.indexOf(' '));
+            assertEquals(
+                    number.contains(",") ? "grouping separator not allowed: ','" : "invalid number '" + number + "'",
+                    e.getMessage());
+            assertEquals(number.contains(",") ? 1 : 0, e.getPosition(), text);
+        }
+        assertEquals(1000.0, format.parse("+1e3 m").getValue());
+        assertEquals(0.5, format.parse(".5 m").getValue());
+        assertEquals(5.0, format.parse("5. m").getValue());
+        assertEquals(Double.NaN, format.parse("NaN m").getValue());
+        assertEquals(Double.NEGATIVE_INFINITY, format.parse("-Infinity m").getValue());
+    }
+
+    @Test
+    void decimalsSwitchOffAndCheckThePrecision() {
+        UomQuantityFormat decimals = format.withDecimals(MathContext.DECIMAL64);
+        assertEquals(new BigDecimal("1.50"), decimals.parse("1.50 m").getValue());
+        UomQuantityFormat doubles = decimals.withDecimals(null);
+        assertNull(doubles.getDecimalContext());
+        assertEquals(1.5, doubles.parse("1.50 m").getValue());
+        assertEquals(format, doubles);
+        assertEquals(
+                "precision out of range: 100001",
+                assertThrows(ArithmeticException.class, () -> format.withDecimals(new MathContext(100_001)))
+                        .getMessage());
+        assertEquals(100_000, format.withDecimals(new MathContext(100_000)).getDecimalContext().getPrecision());
+    }
+
+    @Test
+    void quantitiesOfAnotherImplementationAreRefused() {
+        Quantity<?> foreign = Quantities.getQuantity(5, Units.METRE);
+        assertEquals(
+                "foreign unit implementation tech.units.indriya.unit.BaseUnit can not be formatted: m",
+                assertThrows(IllegalArgumentException.class, () -> format.format(foreign)).getMessage());
+    }
+
+    @Test
+    void aFailingFactoryIsLoggedAndItsTypeParsesUntyped() {
+        List<String> logged = new ArrayList<>();
+        System.Logger logger = new System.Logger() {
+            @Override
+            public String getName() {
+                return "test";
+            }
+
+            @Override
+            public boolean isLoggable(Level level) {
+                return true;
+            }
+
+            @Override
+            public void log(Level level, ResourceBundle bundle, String msg, Throwable thrown) {
+                logged.add(level + " " + msg + " (" + thrown.getMessage() + ")");
+            }
+
+            @Override
+            public void log(Level level, ResourceBundle bundle, String format, Object... params) {
+                logged.add(level + " " + format);
+            }
+        };
+        Map<UomUnit<?>, QuantityFactory<?>> factories = UomQuantityFormat.Factories
+                .build(List.of(javax.measure.quantity.Length.class, javax.measure.quantity.Time.class), type -> {
+                    if (type == javax.measure.quantity.Time.class) {
+                        throw new IllegalStateException("broken");
+                    }
+                    return QuantityTypes.factory(javax.measure.quantity.Length.class);
+                }, logger);
+        assertEquals(Set.of(SI.METRE), factories.keySet());
+        assertEquals(
+                List.of(
+                        "WARNING no quantity factory for javax.measure.quantity.Time; its quantities parse as untyped (broken)"),
+                logged);
     }
 }

@@ -299,6 +299,21 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Revisit if.* Users need shared definitions without an `@include` in each file.
 - *See.* docs/CUSTOM-UNITS.md, "Definition lines" and "Directives"; `DefinitionParserTest`, `UserUnitsTest`.
 
+**DR-17 Labels belong to a format instance and never change `toString`.**
+- *Decision.* `UomUnitFormat.label` changes that format only; `with` and `withSuperscripts` copy the labels the format
+  has then, and `standard()` returns a new format. The format service hands out one shared `UomUnitFormat`, so a label
+  set there applies to every user of the service. `toString` of units and quantities ignores all labels. The labels of a
+  format are one immutable snapshot, replaced under a lock, so a reader never sees half an update.
+- *Why.* The unit-api Javadoc calls a label system-wide but defines that as every use of the same format instance,
+  assuming a singleton; the service's shared format is that instance. Labels in a JVM-wide registry would be global
+  mutable state, as the alternate-unit registry is (TODO item 23): one library's label would change how another parses.
+  Keeping `toString` independent keeps log output and test assertions stable whoever labels what.
+- *Rejected.* JVM-wide labels; `toString` through the service's labelled format, as Indriya prints through
+  `SimpleUnitFormat.getInstance()` (probed with 2.2: after `label(kmh, "kmh")` every `toString` of that unit is `kmh`,
+  and the last label wins).
+- *Revisit if.* Users need one label to apply to every format they create.
+- *See.* `UomUnitFormat` class Javadoc; `UnitFormatTest.labelsBelongToTheirFormatAndNeverChangeToString`.
+
 ## 2. Modules and data flow
 
 ```
@@ -483,7 +498,7 @@ The generator writes all 33 types of `data/quantity-types.txt`: 133 files (four 
     from the scale bound, which it does not imply (a value near 1e60000 with 150000 digits has a scale under 100000).
     At precision 100000 rational conversions and arithmetic take milliseconds; the first use of pi at that precision computes
     it (about 0.6 s on JDK 25, 2.5 s on JDK 21). Exact quotients avoid JDK 21's quadratic trailing-zero stripping in
-    `BigDecimal.divide` (`Decimals.divide`, a non-exported package).
+    `BigDecimal.divide` (`Decimals.divide`, package `internal`, not API).
   - **Explicit conversions (D10).** `toDouble()` throws `ArithmeticException` for a value outside the `double` range;
     `toDecimal(mc)` rounds to `mc`, on both implementations. `asType` keeps the receiver's `MathContext` and never changes
     the value.
@@ -662,21 +677,27 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   unit with factor `f > 0` (no root) and offset `o` in system unit `S` as `<f-formula>·S + o/f` with spaces around the
   sign (`K + 5`, `5|9·K + 459.67`, `2·K + 136.575`). The shift is a plain decimal when it terminates and is not longer
   than the fraction `a|b` (ties: decimal), else the fraction (`K + 1|1024`). Every text is verified by parsing it back.
+  The text of a unit without a label or symbol in the systems costs a search (about 100 µs for `5|18·m/s`), so each
+  format caches it by unit (256 entries, approximate LRU); `label` clears the cache. A unit of another implementation
+  is refused (`foreign unit implementation <class> can not be formatted`): no text parses back to an equal unit.
   Four categories have no faithful form and throw `IllegalArgumentException`: a negative factor, a root factor, an
   irrational shift `o/f` (a power of pi or a root), a formula over 10,000 characters. A brute force over every catalog
   unit and 20,000 random units finds no mismatch.
 - **Quantity format (D3, D4).** `UomQuantityFormat` is immutable: `withLocale`, `withGrouping`,
   `withDecimals`, `getLocale`, `getDecimalContext`, `isLocaleSensitive`, value `equals`. The default is `Locale.ROOT`,
-  no grouping, `double` parse. In another locale the value text is the same
+  no grouping, `double` parse. Every mode reads a decimal number (sign, digits, decimal separator, exponent), plus
+  `NaN` and `Infinity` for `double`s; hexadecimal floats and a `d` or `f` suffix are errors. In another locale the value text is the same
   `Double.toString`/`BigDecimal.toString` with ASCII digits, `.`, `-` and `E` mapped through `DecimalFormatSymbols`; unit
   symbols are not localized; no grouping or bidi marks are written. Parsing accepts locale and ASCII digits, the
   locale's decimal separator, minus sign (or `-`, `+`) and exponent separator (or `E`, `e`), skips bidi marks around
   the number, and rejects a grouping separator unless `withGrouping(true)` (then only between digits of the integer
   part). A locale whose symbols collide is refused by `withLocale`; every available locale of JDK 21 and 25 round
   trips. `withDecimals(mc)` parses to typed decimal quantities through the standard factories plus `withMathContext`
-  (else `UntypedDecimalQuantity`), keeping every digit and the scale (`1.50 km` has scale 2), scale `ABSOLUTE`; NaN,
-  infinity, hex and `d`/`f` suffixes are errors, ROOT accepts ASCII digits only, and a value scale beyond ±100000 is a
-  `MeasurementParseException` checked in linear time before the unit. `UomFormatService` keeps the ROOT format.
+  (else `UntypedDecimalQuantity`), keeping every digit and the scale (`1.50 km` has scale 2), scale `ABSOLUTE`; NaN
+  and infinity are errors, ROOT accepts ASCII digits only, and a value scale beyond ±100000
+  (`AbstractDecimalQuantity.MAX_SCALE`) is a `MeasurementParseException` checked in linear time before the unit;
+  `withDecimals(null)` parses `double`s again. A standard type whose factory fails to initialise parses as untyped and
+  is logged (`System.Logger`, `WARNING`). `UomFormatService` keeps the ROOT format.
 - **Consistency test.** `SiCatalogTest` checks every definition of `si.units` against the
   catalog; `UnitFormatTest` formats and parses every `SI.UNITS` entry back to an equal unit.
 

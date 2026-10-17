@@ -22,4 +22,6 @@ module org.tinygears.uom.core {
     exports org.tinygears.uom.core.quantity;
     // The hook the provider of org.tinygears.uom implements; not API.
     exports org.tinygears.uom.core.spi to org.tinygears.uom;
+    // Helpers the formats of org.tinygears.uom share; not API.
+    exports org.tinygears.uom.core.internal to org.tinygears.uom;
 }

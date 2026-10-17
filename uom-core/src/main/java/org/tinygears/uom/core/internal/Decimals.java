@@ -16,7 +16,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Decimal helpers shared by the core packages; not exported, not API. */
+/** Decimal helpers shared by the core packages; exported to {@code org.tinygears.uom} only, not API. */
 public final class Decimals {
     private static final BigInteger FIVE = BigInteger.valueOf(5);
 

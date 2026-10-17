@@ -19,7 +19,7 @@ import org.tinygears.uom.core.Factor;
 
 /**
  * Enclosures of factors with pi or a root, in directed rounding, and correct rounding by widening them until both
- * ends round alike (Ziv's strategy). Not exported, not API.
+ * ends round alike (Ziv's strategy). Exported to {@code org.tinygears.uom} only; not API.
  */
 public final class Irrationals {
     static final int PI_CACHE_SIZE = 16;

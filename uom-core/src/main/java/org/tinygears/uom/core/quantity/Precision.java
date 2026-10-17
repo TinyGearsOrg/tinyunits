@@ -21,10 +21,10 @@ import java.util.concurrent.atomic.AtomicLong;
 final class Precision {
 
     /** Largest absolute scale accepted for a {@link BigDecimal} quantity value. */
-    static final int MAX_SCALE = 100_000;
+    static final int MAX_SCALE = AbstractDecimalQuantity.MAX_SCALE;
 
     /** Largest context precision: it caps the digits, so the work, of every rounded result. */
-    static final int MAX_PRECISION = 100_000;
+    static final int MAX_PRECISION = AbstractDecimalQuantity.MAX_PRECISION;
 
     private static final BigDecimal DOUBLE_TOLERANCE = BigDecimal.valueOf(AbstractDoubleQuantity.EQUIVALENCE_TOLERANCE);
 

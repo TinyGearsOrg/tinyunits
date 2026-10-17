@@ -117,6 +117,7 @@ org.tinygears.uom.core UomUnit member public static <Q extends javax.measure.Qua
 org.tinygears.uom.core UomUnit member public static <Q extends javax.measure.Quantity<Q>> org.tinygears.uom.core.UomUnit<Q> unchecked(org.tinygears.uom.core.UomUnit<?>)
 org.tinygears.uom.core UomUnit type public final class org.tinygears.uom.core.UomUnit<Q extends javax.measure.Quantity<Q>> implements javax.measure.Unit<Q>, java.io.Serializable
 org.tinygears.uom.core module exports org.tinygears.uom.core
+org.tinygears.uom.core module exports org.tinygears.uom.core.internal to [org.tinygears.uom]
 org.tinygears.uom.core module exports org.tinygears.uom.core.parse
 org.tinygears.uom.core module exports org.tinygears.uom.core.quantity
 org.tinygears.uom.core module exports org.tinygears.uom.core.spi to [org.tinygears.uom]
@@ -237,6 +238,8 @@ org.tinygears.uom.core.quantity AbstractDecimalQuantity member public java.lang.
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public javax.measure.Quantity<?> divide(javax.measure.Quantity<?>)
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public javax.measure.Quantity<?> inverse()
 org.tinygears.uom.core.quantity AbstractDecimalQuantity member public javax.measure.Quantity<?> multiply(javax.measure.Quantity<?>)
+org.tinygears.uom.core.quantity AbstractDecimalQuantity member public static final int MAX_PRECISION
+org.tinygears.uom.core.quantity AbstractDecimalQuantity member public static final int MAX_SCALE
 org.tinygears.uom.core.quantity AbstractDecimalQuantity type public abstract class org.tinygears.uom.core.quantity.AbstractDecimalQuantity<Q extends javax.measure.Quantity<Q>,R extends Q> implements javax.measure.Quantity<Q>, java.lang.Comparable<javax.measure.Quantity<Q>>, java.io.Serializable
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member protected abstract R create(double,org.tinygears.uom.core.UomUnit<Q>,javax.measure.Quantity$Scale)
 org.tinygears.uom.core.quantity AbstractDoubleQuantity member protected abstract R createDecimal(java.math.BigDecimal,org.tinygears.uom.core.UomUnit<Q>,javax.measure.Quantity$Scale,java.math.MathContext)

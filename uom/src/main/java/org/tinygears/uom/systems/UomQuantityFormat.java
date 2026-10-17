@@ -15,10 +15,12 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import javax.measure.Quantity;
 import javax.measure.format.MeasurementParseException;
 import javax.measure.format.QuantityFormat;
@@ -40,8 +42,11 @@ import org.tinygears.uom.quantity.QuantityTypes;
  * factor with a root, an irrational shift or a formula too long to parse.
  *
  * <p>The default locale is {@link Locale#ROOT}: the value text is exactly {@code Double.toString} or
- * {@code BigDecimal.toString} and parsing uses {@link Double#parseDouble} (with decimals: {@code new BigDecimal},
- * ASCII digits only). With {@link #withLocale} only the
+ * {@code BigDecimal.toString}, and parsing reads a decimal number: an optional sign, ASCII digits with an optional
+ * decimal point, an optional exponent {@code E} or {@code e} with an optional sign, or {@code NaN},
+ * {@code Infinity} with an optional sign; hexadecimal floats and a {@code d} or {@code f} suffix are invalid. The
+ * number becomes a {@code double} ({@link Double#parseDouble}), or with decimals a {@code new BigDecimal}. With
+ * {@link #withLocale} only the
  * number is localized, never the unit: the same text is written with each ASCII digit, {@code .}, {@code -} and
  * {@code E} replaced by the locale's digit, decimal separator, minus sign and exponent separator of
  * {@link DecimalFormatSymbols} ({@code -1,5E10 km} in {@code de-DE}, {@code \u22121,5×10^10 km} in {@code sv-SE});
@@ -59,14 +64,14 @@ import org.tinygears.uom.quantity.QuantityTypes;
  * an error after the decimal separator or in the exponent. The number ends at the first whitespace
  * ({@link Character#isWhitespace}, which excludes no-break spaces): {@code 1 234 km} with ASCII spaces is 1 of
  * the unit {@code 234 km} (the unit grammar's product), so space-grouping locales need a no-break grouping
- * character. {@code withGrouping(true)} on ROOT groups with {@code ,} and no longer accepts the extra forms of
- * {@code Double.parseDouble} (hexadecimal floats, a {@code d} or {@code f} suffix). A locale whose symbols would
- * make numbers ambiguous is refused by {@code withLocale}.
+ * character. {@code withGrouping(true)} on ROOT groups with {@code ,}. A locale whose symbols would make numbers
+ * ambiguous is refused by {@code withLocale}.
+ *
+ * <p>A quantity of another JSR-385 implementation can not be formatted: its unit has no text that parses back to
+ * an equal unit ({@link UomUnitFormat#format}).
  */
 public final class UomQuantityFormat implements QuantityFormat {
     private static final DecimalFormatSymbols ROOT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ROOT);
-    /** The value-scale bound of the decimal quantities, checked before parsing so huge texts fail fast. */
-    private static final int MAX_SCALE = 100_000;
 
     private final UomUnitFormat unitFormat;
     private final Locale locale;
@@ -132,21 +137,23 @@ public final class UomQuantityFormat implements QuantityFormat {
     }
 
     /**
-     * This format parsing to decimal quantities with context {@code mc}; formatting is unchanged. The number text,
+     * This format parsing to decimal quantities with context {@code mc}, or to {@code double} quantities again if
+     * {@code mc} is null; formatting is unchanged. The number text,
      * read with the same locale and grouping rules (in ROOT too, so only ASCII digits there), becomes
      * {@code new BigDecimal(text)} with every digit and its scale kept, never rounded to {@code mc} ({@code 1.50 km}
      * has scale 2). The quantity has scale {@code ABSOLUTE} and the standard type of its unit, else it is an
-     * {@link UntypedDecimalQuantity}. NaN, infinity, the forms only {@link Double#parseDouble} accepts (hexadecimal,
-     * a {@code d} or {@code f} suffix) and a value scale beyond ±100000 are {@link MeasurementParseException}s,
-     * reported before any unit error. Throws {@link ArithmeticException}, as the quantities do, if the precision of
-     * {@code mc} exceeds 100000.
+     * {@link UntypedDecimalQuantity}. NaN, infinity and a value scale beyond ±100000
+     * ({@link AbstractDecimalQuantity#MAX_SCALE}) are {@link MeasurementParseException}s, reported before any unit
+     * error. Throws {@link ArithmeticException}, as the quantities do, if the precision of {@code mc} exceeds 100000
+     * ({@link AbstractDecimalQuantity#MAX_PRECISION}).
      *
-     * @param mc the context of parsed quantities
+     * @param mc the context of parsed quantities, or null for {@code double} quantities
      * @return the new format
      */
     public UomQuantityFormat withDecimals(MathContext mc) {
-        // the quantities' own precision check
-        UntypedDecimalQuantity.of(BigDecimal.ZERO, BaseUnits.ONE, Objects.requireNonNull(mc, "mc"));
+        if (mc != null && mc.getPrecision() > AbstractDecimalQuantity.MAX_PRECISION) {
+            throw new ArithmeticException("precision out of range: " + mc.getPrecision());
+        }
         return new UomQuantityFormat(this, grouping, mc);
     }
 
@@ -316,8 +323,7 @@ public final class UomQuantityFormat implements QuantityFormat {
         double value = 0;
         BigDecimal decimal = null;
         try {
-            // plain ROOT doubles keep Double.parseDouble's grammar; decimals accept ASCII or the locale's digits only
-            String text = isLocaleSensitive() || grouping || decimals != null ? normalize(csq, from, to) : token;
+            String text = normalize(csq, from, to);
             if (decimals == null) {
                 value = Double.parseDouble(text);
             } else {
@@ -329,7 +335,7 @@ public final class UomQuantityFormat implements QuantityFormat {
                             from);
                 }
                 long scale = scaleOf(text);
-                if (scale > MAX_SCALE || scale < -MAX_SCALE) {
+                if (scale > AbstractDecimalQuantity.MAX_SCALE || scale < -AbstractDecimalQuantity.MAX_SCALE) {
                     throw new MeasurementParseException(
                             "invalid number '" + token + "': scale out of range"
                                     + (scale == Long.MAX_VALUE || scale == Long.MIN_VALUE ? "" : ": " + scale),
@@ -498,20 +504,35 @@ public final class UomQuantityFormat implements QuantityFormat {
 
     /** The factory of each standard type by its system unit, built on first use. */
     static final class Factories {
-        static final Map<UomUnit<?>, QuantityFactory<?>> BY_SYSTEM_UNIT = build();
+        static final Map<UomUnit<?>, QuantityFactory<?>> BY_SYSTEM_UNIT = build(
+                QuantityTypes.types(),
+                Factories::factory,
+                System.getLogger(UomQuantityFormat.class.getName()));
 
         private Factories() {
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        private static Map<UomUnit<?>, QuantityFactory<?>> build() {
+        private static QuantityFactory<?> factory(Class<?> type) {
+            return QuantityTypes.factory((Class) type);
+        }
+
+        /** The factories of {@code types}; one that fails to initialise is logged and its type parses as untyped (D8). */
+        static Map<UomUnit<?>, QuantityFactory<?>> build(
+                Collection<Class<?>> types,
+                Function<Class<?>, QuantityFactory<?>> factories,
+                System.Logger logger
+        ) {
             Map<UomUnit<?>, QuantityFactory<?>> map = new HashMap<>();
-            for (Class<?> type : QuantityTypes.types()) {
+            for (Class<?> type : types) {
                 QuantityFactory<?> factory;
                 try {
-                    factory = QuantityTypes.factory((Class) type);
+                    factory = factories.apply(type);
                 } catch (RuntimeException | LinkageError e) {
-                    // A type whose factory fails to initialise parses as untyped (D8).
+                    logger.log(
+                            System.Logger.Level.WARNING,
+                            "no quantity factory for " + type.getName() + "; its quantities parse as untyped",
+                            e);
                     continue;
                 }
                 UomUnit<?> systemUnit = (UomUnit<?>) factory.getSystemUnit();

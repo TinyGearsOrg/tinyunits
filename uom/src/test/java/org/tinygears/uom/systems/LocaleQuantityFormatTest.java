@@ -324,8 +324,8 @@ class LocaleQuantityFormatTest {
         assertEquals("-1.5 km", in("he-IL").format(km(-1.5)));
         assertFails(in("he-IL"), "1\u200E5 km", "invalid number '1\u200E5'", 0);
         assertFails(in("he-IL"), "1\u200E.5 km", "invalid number '1\u200E.5'", 0);
-        // ROOT keeps Double.parseDouble, which rejects the marks
-        assertThrows(MeasurementParseException.class, () -> root.parse("\u200E-1.5 km"));
+        // ROOT reads numbers by the same rules
+        assertParses(root, "\u200E-1.5 km", -1.5, SI.KILOMETRE);
         for (String tag : new String[] { "he-IL", "ar-EG", "ar-SA", "fa", "ps-AF", "ur-IN", "ckb", "lrc", "mzn" }) {
             Locale locale = Locale.forLanguageTag(tag);
             String jdk = java.text.NumberFormat.getInstance(locale).format(-1.5);
@@ -456,7 +456,7 @@ class LocaleQuantityFormatTest {
 
     @Test
     void rootWithGroupingUsesComma() {
-        assertFails(root, "1,234.5 m", "invalid number '1,234.5'", 0);
+        assertFails(root, "1,234.5 m", "grouping separator not allowed: ','", 1);
         UomQuantityFormat grouped = root.withGrouping(true);
         assertFalse(grouped.isLocaleSensitive());
         assertParses(grouped, "1,234.5 m", 1234.5, SI.METRE);

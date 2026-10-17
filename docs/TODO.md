@@ -57,24 +57,6 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 
 **Needed by:** nothing.
 
-## 21. Formats and parsing
-
-**Status:** open.
-- The number grammar of `UomQuantityFormat.parse` is loose: `1f m`, `1d m` and hex floats are accepted (`1f m` parses as
-  `1.0 m`). Restrict to a decimal pattern and keep `NaN` and `Infinity`.
-- Labels are per `UomUnitFormat` instance, while the `UnitFormat.label` Javadoc says system-wide: document or make static.
-  The label and alias maps are updated non-atomically.
-- `UomUnitFormat.format` refuses units of other JSR-385 implementations, so `UomQuantityFormat.format` throws for foreign
-  quantities. Decide whether a best-effort symbol is wanted; the refusal message gives no reason and no test covers it.
-- `UomQuantityFormat` swallows a failing factory initialisation and parses the quantity as untyped: log it through
-  `System.Logger`.
-- `format` does not memoise the verification parse (about 5 µs per call); `withDecimals` cannot be switched off and builds
-  a throwaway quantity to check the precision; `UomQuantityFormat.MAX_SCALE` is a private copy of `Precision.MAX_SCALE`.
-- `LegacyFormulaEvaluator` (a frozen copy of the old evaluator in `uom` test sources) is the regression baseline of
-  `ShiftGrammarRegressionTest`: delete it or replace it by a golden file of outcomes.
-
-**Needed by:** nothing; decide before 1.0 where it changes behaviour.
-
 ## 22. Decimal arithmetic residuals
 
 **Status:** open.

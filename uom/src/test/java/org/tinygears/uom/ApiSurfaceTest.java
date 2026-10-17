@@ -74,20 +74,21 @@ class ApiSurfaceTest {
     }
 
     @Test
-    void internalPackageIsNotExported() throws Exception {
+    void internalAndSpiPackagesAreExportedToUomOnly() throws Exception {
         ModuleReference core = module(UomUnit.class);
         Set<String> exported = core.descriptor().exports().stream().filter(e -> !e.isQualified())
                 .map(ModuleDescriptor.Exports::source).collect(Collectors.toSet());
         assertEquals(
                 Set.of("org.tinygears.uom.core", "org.tinygears.uom.core.parse", "org.tinygears.uom.core.quantity"),
                 exported);
-        // The spi package is exported to uom only: its provider implements QuantityFactories.
-        assertEquals(
-                Set.of("org.tinygears.uom"),
-                core.descriptor().exports().stream().filter(e -> e.source().equals("org.tinygears.uom.core.spi"))
-                        .findFirst().orElseThrow().targets());
-        assertTrue(core.descriptor().exports().stream().noneMatch(e -> e.source().endsWith(".internal")));
-        assertTrue(core.descriptor().packages().contains("org.tinygears.uom.core.internal"));
+        // spi is the hook the provider implements, internal the helpers the formats share: both for uom only.
+        for (String hidden : List.of("org.tinygears.uom.core.spi", "org.tinygears.uom.core.internal")) {
+            assertEquals(
+                    Set.of("org.tinygears.uom"),
+                    core.descriptor().exports().stream().filter(e -> e.source().equals(hidden)).findFirst()
+                            .orElseThrow().targets(),
+                    hidden);
+        }
         assertTrue(core.descriptor().opens().isEmpty());
         ModuleReference uom = module(UomServiceProvider.class);
         assertEquals(
