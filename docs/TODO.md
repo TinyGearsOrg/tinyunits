@@ -111,7 +111,7 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 - `verify-release.sh`: no self-test mutation for the consumer's resolved dependency set or the `jlink` stage;
   `xargs -n1 basename` splits on whitespace (a repository path with spaces breaks it); it builds twice and downloads the
   dependencies twice on a runner without `~/.m2`; `scripts/consumer/expected-output.txt` duplicates what `ExamplesTest` pins.
-- `mvn test -pl uom` without `-am` reads `uom-core` from `~/.m2`, so `ApiSurfaceTest` can compare a stale jar (same for
+- `mvn test -pl uom` without `-am` reads `uom-jsr` from `~/.m2`, so `ApiSurfaceTest` can compare a stale jar (same for
   `-pl uom-codegen`): say so in `CONTRIBUTING.md`. The API pin strings were generated on JDK 25 and pass on Temurin 21.
 - `maven-javadoc-plugin` 3.12.0 misses the warning count when `-Xmaxwarns` is raised, so only `check-javadoc.sh` raises it;
   it counts only `file:line: warning:` lines.
@@ -123,8 +123,9 @@ Document the setup in `CONTRIBUTING.md` and `AGENTS.md`.
 **Status:** decided (DESIGN DR-21), in progress on branch `native-prototype`: complete the split, the native API as
 `uom` and the JSR-385 implementation as `uom-jsr`. Done: the engine with the shared arithmetic, the 33 generated native
 types with typed products, the native catalogs, offset units, the bridge, and the formats, systems, `toSystem`,
-run-time `.units` files and serialization on the engine's shared format code. Open: stage 5, the renames (`uom-core`
-merged into `uom-jsr`), docs, examples and the TCK on `uom-jsr` ([NATIVE-API.md](NATIVE-API.md), "Progress").
+run-time `.units` files and serialization on the engine's shared format code, and the renames: `uom` is the native API,
+`uom-jsr` the JSR-385 implementation with the bridge, the TCK runs on `uom-jsr`. Open: stage 5b, the user documents and
+the examples to present `uom` first ([NATIVE-API.md](NATIVE-API.md), "Progress").
 
 **Needed by:** before 1.0 (module boundaries and the public API).
 

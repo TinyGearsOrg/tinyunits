@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** The native sources: committed ones match the generator, and the generator's command line. */
 class NativeGenerationTest {
     private static final Path DATA = Path.of("../data");
-    private static final Path ROOT = Path.of("../uom-native/src/main/java/org/tinygears/uom/nativeapi");
+    private static final Path ROOT = Path.of("../uom/src/main/java/org/tinygears/uom");
     private static final Path QUANTITIES = ROOT.resolve("quantity");
     private static final Path SYSTEMS = ROOT.resolve("systems");
 
@@ -73,6 +73,12 @@ class NativeGenerationTest {
                         "\n    public Speed divide(Time time) {\n        return product(time, true, Speed.SYSTEM_UNIT,"
                                 + " SpeedValue::new);\n    }\n"));
         assertFalse(out.quantities().get("Dimensionless.java").contains("multiply("));
+        // the native sources never name the JSR-385 side: its factory system units map to the native types
+        out.quantities().forEach((name, text) -> assertFalse(text.contains("org.tinygears.uom.jsr"), name));
+        out.systems().forEach((name, text) -> assertFalse(text.contains("org.tinygears.uom.jsr"), name));
+        assertTrue(
+                out.systems().get("SI.java")
+                        .contains("\n    public static final Unit<Speed> METRE_PER_SECOND = Speed.SYSTEM_UNIT;\n"));
         String energy = out.quantities().get("Energy.java");
         assertTrue(
                 energy.contains("Unit.of(\n            Energy.class,\n            BaseUnits.KILOGRAM.multiply("),

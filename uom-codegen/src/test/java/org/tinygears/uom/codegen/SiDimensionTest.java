@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.UomDimension;
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.DefinitionParser;
 import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.jsr.UomDimension;
+import org.tinygears.uom.jsr.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -127,7 +127,7 @@ class SiDimensionTest {
     void systemUnitsOfTheTypes() {
         assertEquals(TYPES.keySet(), specs.stream().map(QuantityTypeSpec::name).collect(Collectors.toSet()));
         for (QuantityTypeSpec s : specs) {
-            assertEquals(dimension(TYPES.get(s.name())), s.systemUnit().getDimension(), s.name());
+            assertEquals(dimension(TYPES.get(s.name())), UomUnit.of(s.systemUnit()).getDimension(), s.name());
         }
     }
 

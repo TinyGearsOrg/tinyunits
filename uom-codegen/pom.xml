@@ -22,8 +22,20 @@
   <dependencies>
     <dependency>
       <groupId>org.tinygears</groupId>
-      <artifactId>uom-core</artifactId>
+      <artifactId>uom-engine</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.measure</groupId>
+      <artifactId>unit-api</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <!-- Test only: the tests compile and run generated JSR-385 sources against the hand-written ones. -->
+    <dependency>
+      <groupId>org.tinygears</groupId>
+      <artifactId>uom-jsr</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <!-- The Eclipse formatter that formats the generated sources (JavaFormatter): the jars it needs from the lockfile
          of the Spotless Eclipse step (spotless-lib-extra, eclipse_jdt_formatter/v4.40.lockfile), without their own
@@ -184,8 +196,8 @@
                   <mainClass>org.tinygears.uom.codegen.Generate</mainClass>
                   <arguments>
                     <argument>${maven.multiModuleProjectDirectory}/data</argument>
-                    <argument>${maven.multiModuleProjectDirectory}/uom/src/main/java/org/tinygears/uom/quantity</argument>
-                    <argument>${maven.multiModuleProjectDirectory}/uom/src/main/java/org/tinygears/uom/systems</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom-jsr/src/main/java/org/tinygears/uom/jsr/quantity</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom-jsr/src/main/java/org/tinygears/uom/jsr/systems</argument>
                     <argument>${maven.multiModuleProjectDirectory}/docs</argument>
                   </arguments>
                 </configuration>
@@ -200,8 +212,8 @@
                   <mainClass>org.tinygears.uom.codegen.GenerateNative</mainClass>
                   <arguments>
                     <argument>${maven.multiModuleProjectDirectory}/data</argument>
-                    <argument>${maven.multiModuleProjectDirectory}/uom-native/src/main/java/org/tinygears/uom/nativeapi/quantity</argument>
-                    <argument>${maven.multiModuleProjectDirectory}/uom-native/src/main/java/org/tinygears/uom/nativeapi/systems</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom/src/main/java/org/tinygears/uom/quantity</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/uom/src/main/java/org/tinygears/uom/systems</argument>
                   </arguments>
                 </configuration>
               </execution>

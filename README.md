@@ -2,7 +2,7 @@
 
 A Java library for typed quantities and units of measurement, implementing JSR-385 (`javax.measure`, unit-api 2.2). It is in development.
 
-Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1317 tests (engine 64, core 510, codegen 188, uom 409, tck 113, examples 2, native 18, native-jsr 13). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
+Status: milestone 6 done (units core, typed `double` and `BigDecimal` quantities for all 33 quantity types, eight catalogs with metric and binary prefixes, `quantity.toSystem(system)`, unit and quantity formats with locale-aware numbers, a decimal-preserving parse and a faithful form for offset units, Java serialization of units and quantities, user `.units` files loaded at run time, the JSR-385 service provider). The systems are `SI` (128 distinct units), `USCustomary` (35), `Imperial` (42), `CGS` (16), `ESU` (22), `EMU` (29), `Gaussian` (26, listed as 27 symbols in [docs/UNITS.md](docs/UNITS.md) because `Fr` and `statC` are the same unit) and `Information` (22: bit and byte with decimal and binary prefixes); `quantity.toSystem(system)` converts to the system's preferred unit for the quantity type. The JSR-385 TCK (`unit-tck` 2.2) passes: 113 of 113 tests; `mvn -q -B clean verify` runs 1318 tests (engine 64, uom 18, uom-jsr 933, codegen 188, tck 113, examples 2). Milestone 7 prepared the release (POM metadata, an inactive `release` profile, the public API pin, the generated unit table, the documentation set, `scripts/verify-release.sh` and a CI workflow on JDK 17, 21 and 25); nothing has been published. Not released.
 
 ## Five minutes
 
@@ -48,15 +48,16 @@ Java 17 or later. Not published yet; after `mvn -q -B install -DskipTests` in th
 ```xml
 <dependency>
   <groupId>org.tinygears</groupId>
-  <artifactId>uom</artifactId>
+  <artifactId>uom-jsr</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
-`uom` depends on `uom-core`, which depends on `uom-engine` and the JSR-385 API; the only third-party runtime
-dependency is `javax.measure:unit-api` 2.2. On the module path, `requires org.tinygears.uom;`
-(module `org.tinygears.uom` requires `org.tinygears.uom.core`, `org.tinygears.uom.engine` and `java.measure`
-transitively).
+`uom-jsr`, the JSR-385 implementation, depends on `uom` (the native API) and `uom-engine`, and on the JSR-385 API;
+the only third-party runtime dependency is `javax.measure:unit-api` 2.2. On the module path, `requires
+org.tinygears.uom.jsr;` (module `org.tinygears.uom.jsr` requires `org.tinygears.uom`, `org.tinygears.uom.engine` and
+`java.measure` transitively). The native API alone is the artifact `uom` (module `org.tinygears.uom`, no JSR-385
+types; [docs/NATIVE-API.md](docs/NATIVE-API.md)).
 
 ## Documentation
 
@@ -76,21 +77,26 @@ transitively).
 - [docs/RELEASING.md](docs/RELEASING.md): the release procedure (for the maintainer).
 - [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md), [docs/DESIGN.md](docs/DESIGN.md) and [docs/TODO.md](docs/TODO.md):
   requirements, design and open decisions.
-- [docs/NATIVE-API.md](docs/NATIVE-API.md): proposal for a native API next to the JSR-385 implementation (not decided).
+- [docs/NATIVE-API.md](docs/NATIVE-API.md): the native API next to the JSR-385 implementation (decided, DESIGN DR-21).
 - [LICENSE](LICENSE): Apache License 2.0.
 
 ## Modules
 
 - `uom-engine`: the part without the JSR-385 API: exact factors (`Factor`, with pi and roots), dimensions, unit atoms,
   the alternate-unit registry, converters, the unit algebra, the `.units` parser (`org.tinygears.uom.engine.parse`), the quantity arithmetic in `double` and decimal, and the logic of the unit and quantity formats and the systems (DESIGN section 2; the start of [docs/NATIVE-API.md](docs/NATIVE-API.md)).
-- `uom-core`: the JSR-385 units, dimensions and converters over the engine, the shared `double` and `BigDecimal` quantity base classes, which delegate the arithmetic to the engine.
-- `uom`: the library to depend on (JPMS module `org.tinygears.uom`, requires `uom-core` transitively). Package `org.tinygears.uom.quantity`: generated typed quantity interfaces, `double` and `BigDecimal` implementations and factories (33 types, 133 generated files). Package `org.tinygears.uom.systems`: the generated catalogs (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`), `UomSystemOfUnits`, unit and quantity formats, the `ServiceProvider`.
+- `uom`: the native API (JPMS module `org.tinygears.uom`, on the engine only): `Quantity`, `Unit<Length>` typed with
+  this library's types, `Scale`, `Untyped`, formats and systems; package `org.tinygears.uom.quantity`, the 33 generated
+  types with the typed products of `data/quantity-relations.txt`; package `org.tinygears.uom.systems`, the generated
+  catalogs ([docs/NATIVE-API.md](docs/NATIVE-API.md)).
+- `uom-jsr`: the JSR-385 implementation (JPMS module `org.tinygears.uom.jsr`): the units, dimensions and converters over
+  the engine, the `double` and `BigDecimal` quantity base classes and `Jsr`, the conversion to and from `uom`; package
+  `org.tinygears.uom.jsr.quantity`, the generated typed quantity interfaces, implementations and factories (33 types,
+  133 generated files); package `org.tinygears.uom.jsr.systems`, the generated catalogs (`SI`, `USCustomary`,
+  `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`), `UomSystemOfUnits`, unit and quantity formats, the
+  `ServiceProvider`.
 - `uom-codegen`: the generator (internal, not published).
-- `uom-tck`: runs the JSR-385 TCK against `uom` (test only, not published).
+- `uom-tck`: runs the JSR-385 TCK against `uom-jsr` (test only, not published).
 - `uom-examples`: runnable usage examples (not published); see below.
-- `uom-native` and `uom-native-jsr`: the prototype of a native API on the engine (the 33 types with typed products,
-  the eight catalogs, generated) and its bridge to the JSR-385 quantities (not published;
-  [docs/NATIVE-API.md](docs/NATIVE-API.md)).
 
 Build and test everything: `mvn -q -B clean verify` (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
@@ -105,7 +111,7 @@ mvn -q -B -pl uom-examples exec:java -Dexec.mainClass=org.tinygears.uom.examples
 
 ## Typed quantities and unit declarations
 
-The typed interfaces have the simple names of the standard ones (`org.tinygears.uom.quantity.Length` extends `javax.measure.quantity.Length`), so a file that imports ours cannot also import the standard type. Declare units as `Unit<?>` or with `var` (or name the standard type fully qualified), and quantities with our types:
+The typed interfaces have the simple names of the standard ones (`org.tinygears.uom.jsr.quantity.Length` extends `javax.measure.quantity.Length`), so a file that imports ours cannot also import the standard type. Declare units as `Unit<?>` or with `var` (or name the standard type fully qualified), and quantities with our types:
 
 ```java
 var km = SI.KILOMETRE;                       // UomUnit<javax.measure.quantity.Length>
@@ -178,4 +184,4 @@ d.toSystem(medieval);                                  // 48.0 furlong
 
 ## Generated sources
 
-The quantity sources in `uom/src/main/java/org/tinygears/uom/quantity`, the catalogs in `uom/src/main/java/org/tinygears/uom/systems/` and [docs/UNITS.md](docs/UNITS.md) are generated by `uom-codegen` from `data/` and committed; [CONTRIBUTING.md](CONTRIBUTING.md) has the regeneration command.
+The quantity sources in `uom-jsr/src/main/java/org/tinygears/uom/jsr/quantity`, the catalogs in `uom-jsr/src/main/java/org/tinygears/uom/jsr/systems/` and [docs/UNITS.md](docs/UNITS.md) are generated by `uom-codegen` from `data/` and committed; [CONTRIBUTING.md](CONTRIBUTING.md) has the regeneration command.

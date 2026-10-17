@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2026 TinyGears.org
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+package org.tinygears.uom.jsr.systems;
+
+import java.util.List;
+
+/**
+ * The systems of units this library provides, SI (the default) first. Symbols are unique across systems, so the
+ * order does not affect exact symbol lookup; it decides which symbol a format picks among equal units.
+ */
+public final class UnitSystems {
+
+    private UnitSystems() {
+    }
+
+    /**
+     * The systems: SI, US customary, Imperial, CGS, ESU, EMU, Gaussian and Information.
+     *
+     * @return the systems
+     */
+    public static List<UomSystemOfUnits> all() {
+        return List.of(
+                SI.SYSTEM,
+                USCustomary.SYSTEM,
+                Imperial.SYSTEM,
+                CGS.SYSTEM,
+                ESU.SYSTEM,
+                EMU.SYSTEM,
+                Gaussian.SYSTEM,
+                Information.SYSTEM);
+    }
+}

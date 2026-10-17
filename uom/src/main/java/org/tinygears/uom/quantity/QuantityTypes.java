@@ -12,185 +12,215 @@
 
 package org.tinygears.uom.quantity;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-import javax.measure.Quantity;
-import javax.measure.spi.QuantityFactory;
 
-/** The quantity factories of the generated types; each factory initialises only when its type is requested. */
+import org.tinygears.uom.AbstractQuantity;
+import org.tinygears.uom.Quantity;
+import org.tinygears.uom.Unit;
+import org.tinygears.uom.engine.Dimension;
+
+/** The quantity types of the native API: their dimensions and factories. */
 public final class QuantityTypes {
-    private static final Set<Class<?>> TYPES = Set.of(
-            javax.measure.quantity.Acceleration.class,
-            javax.measure.quantity.AmountOfSubstance.class,
-            javax.measure.quantity.Angle.class,
-            javax.measure.quantity.Area.class,
-            javax.measure.quantity.CatalyticActivity.class,
-            javax.measure.quantity.Dimensionless.class,
-            javax.measure.quantity.ElectricCapacitance.class,
-            javax.measure.quantity.ElectricCharge.class,
-            javax.measure.quantity.ElectricConductance.class,
-            javax.measure.quantity.ElectricCurrent.class,
-            javax.measure.quantity.ElectricInductance.class,
-            javax.measure.quantity.ElectricPotential.class,
-            javax.measure.quantity.ElectricResistance.class,
-            javax.measure.quantity.Energy.class,
-            javax.measure.quantity.Force.class,
-            javax.measure.quantity.Frequency.class,
-            javax.measure.quantity.Illuminance.class,
-            javax.measure.quantity.Length.class,
-            javax.measure.quantity.LuminousFlux.class,
-            javax.measure.quantity.LuminousIntensity.class,
-            javax.measure.quantity.MagneticFlux.class,
-            javax.measure.quantity.MagneticFluxDensity.class,
-            javax.measure.quantity.Mass.class,
-            javax.measure.quantity.Power.class,
-            javax.measure.quantity.Pressure.class,
-            javax.measure.quantity.RadiationDoseAbsorbed.class,
-            javax.measure.quantity.RadiationDoseEffective.class,
-            javax.measure.quantity.Radioactivity.class,
-            javax.measure.quantity.SolidAngle.class,
-            javax.measure.quantity.Speed.class,
-            javax.measure.quantity.Temperature.class,
-            javax.measure.quantity.Time.class,
-            javax.measure.quantity.Volume.class);
+    private static final Map<Class<?>, Dimension> DIMENSIONS = Map.ofEntries(
+            Map.entry(Acceleration.class, new Dimension(1, 0, -2, 0, 0, 0, 0)),
+            Map.entry(AmountOfSubstance.class, new Dimension(0, 0, 0, 0, 0, 1, 0)),
+            Map.entry(Angle.class, new Dimension(0, 0, 0, 0, 0, 0, 0)),
+            Map.entry(Area.class, new Dimension(2, 0, 0, 0, 0, 0, 0)),
+            Map.entry(CatalyticActivity.class, new Dimension(0, 0, -1, 0, 0, 1, 0)),
+            Map.entry(Dimensionless.class, new Dimension(0, 0, 0, 0, 0, 0, 0)),
+            Map.entry(ElectricCapacitance.class, new Dimension(-2, -1, 4, 2, 0, 0, 0)),
+            Map.entry(ElectricCharge.class, new Dimension(0, 0, 1, 1, 0, 0, 0)),
+            Map.entry(ElectricConductance.class, new Dimension(-2, -1, 3, 2, 0, 0, 0)),
+            Map.entry(ElectricCurrent.class, new Dimension(0, 0, 0, 1, 0, 0, 0)),
+            Map.entry(ElectricInductance.class, new Dimension(2, 1, -2, -2, 0, 0, 0)),
+            Map.entry(ElectricPotential.class, new Dimension(2, 1, -3, -1, 0, 0, 0)),
+            Map.entry(ElectricResistance.class, new Dimension(2, 1, -3, -2, 0, 0, 0)),
+            Map.entry(Energy.class, new Dimension(2, 1, -2, 0, 0, 0, 0)),
+            Map.entry(Force.class, new Dimension(1, 1, -2, 0, 0, 0, 0)),
+            Map.entry(Frequency.class, new Dimension(0, 0, -1, 0, 0, 0, 0)),
+            Map.entry(Illuminance.class, new Dimension(-2, 0, 0, 0, 0, 0, 1)),
+            Map.entry(Length.class, new Dimension(1, 0, 0, 0, 0, 0, 0)),
+            Map.entry(LuminousFlux.class, new Dimension(0, 0, 0, 0, 0, 0, 1)),
+            Map.entry(LuminousIntensity.class, new Dimension(0, 0, 0, 0, 0, 0, 1)),
+            Map.entry(MagneticFlux.class, new Dimension(2, 1, -2, -1, 0, 0, 0)),
+            Map.entry(MagneticFluxDensity.class, new Dimension(0, 1, -2, -1, 0, 0, 0)),
+            Map.entry(Mass.class, new Dimension(0, 1, 0, 0, 0, 0, 0)),
+            Map.entry(Power.class, new Dimension(2, 1, -3, 0, 0, 0, 0)),
+            Map.entry(Pressure.class, new Dimension(-1, 1, -2, 0, 0, 0, 0)),
+            Map.entry(RadiationDoseAbsorbed.class, new Dimension(2, 0, -2, 0, 0, 0, 0)),
+            Map.entry(RadiationDoseEffective.class, new Dimension(2, 0, -2, 0, 0, 0, 0)),
+            Map.entry(Radioactivity.class, new Dimension(0, 0, -1, 0, 0, 0, 0)),
+            Map.entry(SolidAngle.class, new Dimension(0, 0, 0, 0, 0, 0, 0)),
+            Map.entry(Speed.class, new Dimension(1, 0, -1, 0, 0, 0, 0)),
+            Map.entry(Temperature.class, new Dimension(0, 0, 0, 0, 1, 0, 0)),
+            Map.entry(Time.class, new Dimension(0, 0, 1, 0, 0, 0, 0)),
+            Map.entry(Volume.class, new Dimension(3, 0, 0, 0, 0, 0, 0)));
 
     private QuantityTypes() {
     }
 
     /**
-     * The factory of {@code type}; a type without one throws IllegalArgumentException.
+     * The dimension of {@code type}.
+     *
+     * @param type the quantity type
+     * @return the dimension, or null if {@code type} is not a quantity type
+     */
+    public static Dimension dimension(Class<?> type) {
+        return DIMENSIONS.get(type);
+    }
+
+    /**
+     * The factory of {@code type}.
      *
      * @param <Q> the quantity type
      * @param type the quantity type
      * @return the factory
+     * @throws IllegalArgumentException if {@code type} is not a quantity type
      */
+    // each entry maps a type to the factory of its own class
     @SuppressWarnings("unchecked")
-    public static <Q extends Quantity<Q>> QuantityFactory<Q> factory(Class<Q> type) {
-        Objects.requireNonNull(type, "type");
-        if (type == javax.measure.quantity.Acceleration.class) {
-            return (QuantityFactory<Q>) AccelerationFactory.INSTANCE;
+    public static <Q extends Quantity<Q>> AbstractQuantity.Factory<Q> factory(Class<Q> type) {
+        AbstractQuantity.Factory<?> f = Factories.ALL.get(type);
+        if (f == null) {
+            throw new IllegalArgumentException("not a quantity type: " + type.getName());
         }
-        if (type == javax.measure.quantity.AmountOfSubstance.class) {
-            return (QuantityFactory<Q>) AmountOfSubstanceFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Angle.class) {
-            return (QuantityFactory<Q>) AngleFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Area.class) {
-            return (QuantityFactory<Q>) AreaFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.CatalyticActivity.class) {
-            return (QuantityFactory<Q>) CatalyticActivityFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Dimensionless.class) {
-            return (QuantityFactory<Q>) DimensionlessFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.ElectricCapacitance.class) {
-            return (QuantityFactory<Q>) ElectricCapacitanceFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.ElectricCharge.class) {
-            return (QuantityFactory<Q>) ElectricChargeFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.ElectricConductance.class) {
-            return (QuantityFactory<Q>) ElectricConductanceFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.ElectricCurrent.class) {
-            return (QuantityFactory<Q>) ElectricCurrentFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.ElectricInductance.class) {
-            return (QuantityFactory<Q>) ElectricInductanceFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.ElectricPotential.class) {
-            return (QuantityFactory<Q>) ElectricPotentialFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.ElectricResistance.class) {
-            return (QuantityFactory<Q>) ElectricResistanceFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Energy.class) {
-            return (QuantityFactory<Q>) EnergyFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Force.class) {
-            return (QuantityFactory<Q>) ForceFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Frequency.class) {
-            return (QuantityFactory<Q>) FrequencyFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Illuminance.class) {
-            return (QuantityFactory<Q>) IlluminanceFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Length.class) {
-            return (QuantityFactory<Q>) LengthFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.LuminousFlux.class) {
-            return (QuantityFactory<Q>) LuminousFluxFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.LuminousIntensity.class) {
-            return (QuantityFactory<Q>) LuminousIntensityFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.MagneticFlux.class) {
-            return (QuantityFactory<Q>) MagneticFluxFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.MagneticFluxDensity.class) {
-            return (QuantityFactory<Q>) MagneticFluxDensityFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Mass.class) {
-            return (QuantityFactory<Q>) MassFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Power.class) {
-            return (QuantityFactory<Q>) PowerFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Pressure.class) {
-            return (QuantityFactory<Q>) PressureFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.RadiationDoseAbsorbed.class) {
-            return (QuantityFactory<Q>) RadiationDoseAbsorbedFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.RadiationDoseEffective.class) {
-            return (QuantityFactory<Q>) RadiationDoseEffectiveFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Radioactivity.class) {
-            return (QuantityFactory<Q>) RadioactivityFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.SolidAngle.class) {
-            return (QuantityFactory<Q>) SolidAngleFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Speed.class) {
-            return (QuantityFactory<Q>) SpeedFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Temperature.class) {
-            return (QuantityFactory<Q>) TemperatureFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Time.class) {
-            return (QuantityFactory<Q>) TimeFactory.INSTANCE;
-        }
-        if (type == javax.measure.quantity.Volume.class) {
-            return (QuantityFactory<Q>) VolumeFactory.INSTANCE;
-        }
-        throw new IllegalArgumentException("no quantity factory for " + type.getName());
-    }
-
-    /** {@code quantity} narrowed by {@code asType} to {@code standard}, as the typed interface {@code ours} of it. */
-    static <S extends Quantity<S>, T extends Quantity<S>> T narrow(
-            Class<T> ours,
-            Class<S> standard,
-            Quantity<?> quantity
-    ) {
-        Objects.requireNonNull(quantity, "quantity");
-        Quantity<S> narrowed = quantity.asType(standard);
-        if (!ours.isInstance(narrowed)) {
-            throw new ClassCastException(
-                    (narrowed == null ? "null" : narrowed.getClass().getName())
-                            + " is not a quantity of this implementation");
-        }
-        return ours.cast(narrowed);
+        return (AbstractQuantity.Factory<Q>) f;
     }
 
     /**
-     * The quantity types with a factory.
+     * The quantity types.
      *
      * @return the types
      */
     public static Set<Class<?>> types() {
-        return TYPES;
+        return DIMENSIONS.keySet();
+    }
+
+    /**
+     * The quantity type whose system unit is the system unit of {@code unit}: atoms included, so
+     * {@code 1/s} is a {@code Frequency} and {@code Bq} a {@code Radioactivity}.
+     *
+     * @param unit the unit
+     * @return the type, or null if no type has its system unit
+     */
+    public static Class<?> typeOf(Unit<?> unit) {
+        return SystemUnits.TYPES.get(unit.systemUnit());
+    }
+
+    /**
+     * The system unit of {@code type}.
+     *
+     * @param type the quantity type
+     * @return the system unit, or null if {@code type} is not a quantity type
+     */
+    public static Unit<?> systemUnit(Class<?> type) {
+        return SystemUnits.UNITS.get(type);
+    }
+
+    // Apart from DIMENSIONS too: the system units are only complete once every type is initialised.
+    private static final class SystemUnits {
+        static final Map<Unit<?>, Class<?>> TYPES = Map.ofEntries(
+                Map.entry(Acceleration.SYSTEM_UNIT, Acceleration.class),
+                Map.entry(AmountOfSubstance.SYSTEM_UNIT, AmountOfSubstance.class),
+                Map.entry(Angle.SYSTEM_UNIT, Angle.class),
+                Map.entry(Area.SYSTEM_UNIT, Area.class),
+                Map.entry(CatalyticActivity.SYSTEM_UNIT, CatalyticActivity.class),
+                Map.entry(Dimensionless.SYSTEM_UNIT, Dimensionless.class),
+                Map.entry(ElectricCapacitance.SYSTEM_UNIT, ElectricCapacitance.class),
+                Map.entry(ElectricCharge.SYSTEM_UNIT, ElectricCharge.class),
+                Map.entry(ElectricConductance.SYSTEM_UNIT, ElectricConductance.class),
+                Map.entry(ElectricCurrent.SYSTEM_UNIT, ElectricCurrent.class),
+                Map.entry(ElectricInductance.SYSTEM_UNIT, ElectricInductance.class),
+                Map.entry(ElectricPotential.SYSTEM_UNIT, ElectricPotential.class),
+                Map.entry(ElectricResistance.SYSTEM_UNIT, ElectricResistance.class),
+                Map.entry(Energy.SYSTEM_UNIT, Energy.class),
+                Map.entry(Force.SYSTEM_UNIT, Force.class),
+                Map.entry(Frequency.SYSTEM_UNIT, Frequency.class),
+                Map.entry(Illuminance.SYSTEM_UNIT, Illuminance.class),
+                Map.entry(Length.SYSTEM_UNIT, Length.class),
+                Map.entry(LuminousFlux.SYSTEM_UNIT, LuminousFlux.class),
+                Map.entry(LuminousIntensity.SYSTEM_UNIT, LuminousIntensity.class),
+                Map.entry(MagneticFlux.SYSTEM_UNIT, MagneticFlux.class),
+                Map.entry(MagneticFluxDensity.SYSTEM_UNIT, MagneticFluxDensity.class),
+                Map.entry(Mass.SYSTEM_UNIT, Mass.class),
+                Map.entry(Power.SYSTEM_UNIT, Power.class),
+                Map.entry(Pressure.SYSTEM_UNIT, Pressure.class),
+                Map.entry(RadiationDoseAbsorbed.SYSTEM_UNIT, RadiationDoseAbsorbed.class),
+                Map.entry(RadiationDoseEffective.SYSTEM_UNIT, RadiationDoseEffective.class),
+                Map.entry(Radioactivity.SYSTEM_UNIT, Radioactivity.class),
+                Map.entry(SolidAngle.SYSTEM_UNIT, SolidAngle.class),
+                Map.entry(Speed.SYSTEM_UNIT, Speed.class),
+                Map.entry(Temperature.SYSTEM_UNIT, Temperature.class),
+                Map.entry(Time.SYSTEM_UNIT, Time.class),
+                Map.entry(Volume.SYSTEM_UNIT, Volume.class));
+        static final Map<Class<?>, Unit<?>> UNITS = units();
+
+        private static Map<Class<?>, Unit<?>> units() {
+            Map<Class<?>, Unit<?>> m = new HashMap<>();
+            TYPES.forEach((unit, type) -> m.put(type, unit));
+            return Map.copyOf(m);
+        }
+    }
+
+    // Apart from DIMENSIONS, which Unit.of reads while the system units initialise.
+    private static final class Factories {
+        static final Map<Class<?>, AbstractQuantity.Factory<?>> ALL = Map.ofEntries(
+                Map.entry(Acceleration.class, (AbstractQuantity.Factory<Acceleration>) AccelerationValue::new),
+                Map.entry(
+                        AmountOfSubstance.class,
+                        (AbstractQuantity.Factory<AmountOfSubstance>) AmountOfSubstanceValue::new),
+                Map.entry(Angle.class, (AbstractQuantity.Factory<Angle>) AngleValue::new),
+                Map.entry(Area.class, (AbstractQuantity.Factory<Area>) AreaValue::new),
+                Map.entry(
+                        CatalyticActivity.class,
+                        (AbstractQuantity.Factory<CatalyticActivity>) CatalyticActivityValue::new),
+                Map.entry(Dimensionless.class, (AbstractQuantity.Factory<Dimensionless>) DimensionlessValue::new),
+                Map.entry(
+                        ElectricCapacitance.class,
+                        (AbstractQuantity.Factory<ElectricCapacitance>) ElectricCapacitanceValue::new),
+                Map.entry(ElectricCharge.class, (AbstractQuantity.Factory<ElectricCharge>) ElectricChargeValue::new),
+                Map.entry(
+                        ElectricConductance.class,
+                        (AbstractQuantity.Factory<ElectricConductance>) ElectricConductanceValue::new),
+                Map.entry(ElectricCurrent.class, (AbstractQuantity.Factory<ElectricCurrent>) ElectricCurrentValue::new),
+                Map.entry(
+                        ElectricInductance.class,
+                        (AbstractQuantity.Factory<ElectricInductance>) ElectricInductanceValue::new),
+                Map.entry(
+                        ElectricPotential.class,
+                        (AbstractQuantity.Factory<ElectricPotential>) ElectricPotentialValue::new),
+                Map.entry(
+                        ElectricResistance.class,
+                        (AbstractQuantity.Factory<ElectricResistance>) ElectricResistanceValue::new),
+                Map.entry(Energy.class, (AbstractQuantity.Factory<Energy>) EnergyValue::new),
+                Map.entry(Force.class, (AbstractQuantity.Factory<Force>) ForceValue::new),
+                Map.entry(Frequency.class, (AbstractQuantity.Factory<Frequency>) FrequencyValue::new),
+                Map.entry(Illuminance.class, (AbstractQuantity.Factory<Illuminance>) IlluminanceValue::new),
+                Map.entry(Length.class, (AbstractQuantity.Factory<Length>) LengthValue::new),
+                Map.entry(LuminousFlux.class, (AbstractQuantity.Factory<LuminousFlux>) LuminousFluxValue::new),
+                Map.entry(
+                        LuminousIntensity.class,
+                        (AbstractQuantity.Factory<LuminousIntensity>) LuminousIntensityValue::new),
+                Map.entry(MagneticFlux.class, (AbstractQuantity.Factory<MagneticFlux>) MagneticFluxValue::new),
+                Map.entry(
+                        MagneticFluxDensity.class,
+                        (AbstractQuantity.Factory<MagneticFluxDensity>) MagneticFluxDensityValue::new),
+                Map.entry(Mass.class, (AbstractQuantity.Factory<Mass>) MassValue::new),
+                Map.entry(Power.class, (AbstractQuantity.Factory<Power>) PowerValue::new),
+                Map.entry(Pressure.class, (AbstractQuantity.Factory<Pressure>) PressureValue::new),
+                Map.entry(
+                        RadiationDoseAbsorbed.class,
+                        (AbstractQuantity.Factory<RadiationDoseAbsorbed>) RadiationDoseAbsorbedValue::new),
+                Map.entry(
+                        RadiationDoseEffective.class,
+                        (AbstractQuantity.Factory<RadiationDoseEffective>) RadiationDoseEffectiveValue::new),
+                Map.entry(Radioactivity.class, (AbstractQuantity.Factory<Radioactivity>) RadioactivityValue::new),
+                Map.entry(SolidAngle.class, (AbstractQuantity.Factory<SolidAngle>) SolidAngleValue::new),
+                Map.entry(Speed.class, (AbstractQuantity.Factory<Speed>) SpeedValue::new),
+                Map.entry(Temperature.class, (AbstractQuantity.Factory<Temperature>) TemperatureValue::new),
+                Map.entry(Time.class, (AbstractQuantity.Factory<Time>) TimeValue::new),
+                Map.entry(Volume.class, (AbstractQuantity.Factory<Volume>) VolumeValue::new));
     }
 }

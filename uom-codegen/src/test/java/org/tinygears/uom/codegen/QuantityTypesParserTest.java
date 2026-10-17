@@ -62,7 +62,7 @@ class QuantityTypesParserTest {
                 l.stream().map(QuantityTypeSpec::name).toList());
         assertEquals(
                 d.definitions().stream().filter(x -> x.symbol().equals("Hz")).findFirst().get().unit(),
-                l.get(2).systemUnit().engine());
+                l.get(2).systemUnit());
         assertEquals("J", l.get(3).systemSymbol());
         assertEquals("joule", l.get(3).systemName());
         assertNull(l.get(1).systemSymbol());

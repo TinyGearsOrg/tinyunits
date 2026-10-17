@@ -29,8 +29,6 @@ import javax.lang.model.SourceVersion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.DefinitionParser;
@@ -38,6 +36,8 @@ import org.tinygears.uom.engine.parse.Definitions;
 import org.tinygears.uom.engine.parse.Extends;
 import org.tinygears.uom.engine.parse.Member;
 import org.tinygears.uom.engine.parse.Preferred;
+import org.tinygears.uom.jsr.BaseUnits;
+import org.tinygears.uom.jsr.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

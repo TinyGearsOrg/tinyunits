@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GeneratedSourcesUpToDateTest {
     private static final Path DATA = Path.of("../data");
-    private static final Path QUANTITIES = Path.of("../uom/src/main/java/org/tinygears/uom/quantity");
-    private static final Path SYSTEMS = Path.of("../uom/src/main/java/org/tinygears/uom/systems");
+    private static final Path QUANTITIES = Path.of("../uom-jsr/src/main/java/org/tinygears/uom/jsr/quantity");
+    private static final Path SYSTEMS = Path.of("../uom-jsr/src/main/java/org/tinygears/uom/jsr/systems");
     private static final Path DOCS = Path.of("../docs");
     private static final String HEADER = Headers.java("data/quantity-types.txt");
     private static final String CATALOG_HEADER = Headers.java("data/si.units and data/quantity-types.txt");

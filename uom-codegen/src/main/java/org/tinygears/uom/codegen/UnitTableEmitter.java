@@ -33,21 +33,22 @@ public final class UnitTableEmitter {
         Map<String, CatalogEntry> byRef = new HashMap<>();
         catalogs.values().forEach(c -> c.entries().forEach(e -> byRef.put(c.className() + "." + e.constantName(), e)));
         Map<String, QuantityTypeSpec> byName = types.stream().collect(Collectors.toMap(QuantityTypeSpec::name, t -> t));
-        StringBuilder out = new StringBuilder(HEADER).append("""
+        StringBuilder out = new StringBuilder(HEADER).append(
+                """
 
 
-                # Catalog units
+                        # Catalog units
 
-                Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section per system. A value \
-                in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a \
-                fraction, `pi` is π). The quantity type `-` means the unit has none. Alternate units (`Hz`, `Bq`, \
-                `rad`, `sr`, `Gy`, `Sv`) are their own system unit, so they show as `1 Gy` rather than `1 J/kg`.
+                        Every unit of the generated catalogs in `org.tinygears.uom.jsr.systems`, one section per system. A value \
+                        in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a \
+                        fraction, `pi` is π). The quantity type `-` means the unit has none. Alternate units (`Hz`, `Bq`, \
+                        `rad`, `sr`, `Gy`, `Sv`) are their own system unit, so they show as `1 Gy` rather than `1 J/kg`.
 
-                ## Systems
+                        ## Systems
 
-                | System | Data file | Symbols |
-                |---|---|---|
-                """);
+                        | System | Data file | Symbols |
+                        |---|---|---|
+                        """);
         catalogs.values().forEach(
                 c -> out.append("| [").append(c.className()).append("](#")
                         .append(c.className().toLowerCase(Locale.ROOT)).append(") | `data/").append(c.file())

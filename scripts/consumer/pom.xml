@@ -20,7 +20,7 @@
   <dependencies>
     <dependency>
       <groupId>org.tinygears</groupId>
-      <artifactId>uom</artifactId>
+      <artifactId>uom-jsr</artifactId>
       <version>${uom.version}</version>
     </dependency>
   </dependencies>

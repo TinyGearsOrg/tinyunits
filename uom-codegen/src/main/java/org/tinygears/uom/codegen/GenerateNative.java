@@ -24,7 +24,7 @@ import java.util.TreeMap;
 import org.tinygears.uom.engine.parse.Definitions;
 
 /**
- * Generates the sources of the native API (uom-native) from {@code data/}: the quantity types with the typed
+ * Generates the sources of the native API (uom) from {@code data/}: the quantity types with the typed
  * products of {@code quantity-relations.txt}, and the catalogs: {@code [--check] <dataDir> <quantitiesOut>
  * <systemsOut>}.
  */

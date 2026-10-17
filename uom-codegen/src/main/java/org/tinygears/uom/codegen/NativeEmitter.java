@@ -28,17 +28,17 @@ import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.Definitions;
 
 /**
- * Writes the sources of the native API (uom-native): per quantity type an interface with its factories, system unit
+ * Writes the sources of the native API (uom): per quantity type an interface with its factories, system unit
  * and typed products, and its class; the type registry; and the catalogs with typed unit constants over engine units.
  * Templates spell classes qualified and {@link Imports#resolve} shortens them.
  */
 public final class NativeEmitter {
-    static final String BASE = "org.tinygears.uom.nativeapi";
+    static final String BASE = "org.tinygears.uom";
     static final String QUANTITY = BASE + ".quantity";
     static final String SYSTEMS = BASE + ".systems";
     private static final String BASE_UNITS = BASE + ".BaseUnits";
     private static final Pattern FACTORY_UNIT = Pattern
-            .compile("org\\.tinygears\\.uom\\.quantity\\.(\\w+)Factory\\.SYSTEM_UNIT");
+            .compile("org\\.tinygears\\.uom\\.jsr\\.quantity\\.(\\w+)Factory\\.SYSTEM_UNIT");
     private static final Map<String, String> BASE_ATOMS = Map.of(
             "m",
             "METRE",
@@ -78,10 +78,10 @@ public final class NativeEmitter {
             /**
              * $A of the native API.$R
              */
-            public interface $T extends org.tinygears.uom.nativeapi.Quantity<$T> {
+            public interface $T extends org.tinygears.uom.Quantity<$T> {
 
                 /** The system unit of {@code $T}, {@code $S}. */
-                org.tinygears.uom.nativeapi.Unit<$T> SYSTEM_UNIT = org.tinygears.uom.nativeapi.Unit.of($T.class, $U);
+                org.tinygears.uom.Unit<$T> SYSTEM_UNIT = org.tinygears.uom.Unit.of($T.class, $U);
 
                 /**
                  * An absolute double quantity.
@@ -90,8 +90,8 @@ public final class NativeEmitter {
                  * @param unit the unit
                  * @return the quantity
                  */
-                static $T of(double value, org.tinygears.uom.nativeapi.Unit<$T> unit) {
-                    return of(value, unit, org.tinygears.uom.nativeapi.Scale.ABSOLUTE);
+                static $T of(double value, org.tinygears.uom.Unit<$T> unit) {
+                    return of(value, unit, org.tinygears.uom.Scale.ABSOLUTE);
                 }
 
                 /**
@@ -102,7 +102,7 @@ public final class NativeEmitter {
                  * @param scale the scale
                  * @return the quantity
                  */
-                static $T of(double value, org.tinygears.uom.nativeapi.Unit<$T> unit, org.tinygears.uom.nativeapi.Scale scale) {
+                static $T of(double value, org.tinygears.uom.Unit<$T> unit, org.tinygears.uom.Scale scale) {
                     return new $TValue(value, null, null, unit, scale);
                 }
 
@@ -113,8 +113,8 @@ public final class NativeEmitter {
                  * @param unit the unit
                  * @return the quantity
                  */
-                static $T of(java.math.BigDecimal value, org.tinygears.uom.nativeapi.Unit<$T> unit) {
-                    return of(value, unit, org.tinygears.uom.nativeapi.Scale.ABSOLUTE, java.math.MathContext.DECIMAL128);
+                static $T of(java.math.BigDecimal value, org.tinygears.uom.Unit<$T> unit) {
+                    return of(value, unit, org.tinygears.uom.Scale.ABSOLUTE, java.math.MathContext.DECIMAL128);
                 }
 
                 /**
@@ -125,8 +125,8 @@ public final class NativeEmitter {
                  * @param scale the scale
                  * @return the quantity
                  */
-                static $T of(java.math.BigDecimal value, org.tinygears.uom.nativeapi.Unit<$T> unit,
-                        org.tinygears.uom.nativeapi.Scale scale) {
+                static $T of(java.math.BigDecimal value, org.tinygears.uom.Unit<$T> unit,
+                        org.tinygears.uom.Scale scale) {
                     return of(value, unit, scale, java.math.MathContext.DECIMAL128);
                 }
 
@@ -140,8 +140,8 @@ public final class NativeEmitter {
                  * @param mc the context that rounds results
                  * @return the quantity
                  */
-                static $T of(java.math.BigDecimal value, org.tinygears.uom.nativeapi.Unit<$T> unit,
-                        org.tinygears.uom.nativeapi.Scale scale, java.math.MathContext mc) {
+                static $T of(java.math.BigDecimal value, org.tinygears.uom.Unit<$T> unit,
+                        org.tinygears.uom.Scale scale, java.math.MathContext mc) {
                     return new $TValue(0, java.util.Objects.requireNonNull(value, "value"), mc, unit, scale);
                 }
             $M}
@@ -160,19 +160,19 @@ public final class NativeEmitter {
             """;
 
     private static final String CLASS = """
-            final class $TValue extends org.tinygears.uom.nativeapi.AbstractQuantity<$T> implements $T {
+            final class $TValue extends org.tinygears.uom.AbstractQuantity<$T> implements $T {
 
                 @java.io.Serial
                 private static final long serialVersionUID = 1L;
 
                 $TValue(double value, java.math.BigDecimal decimal, java.math.MathContext mc,
-                        org.tinygears.uom.nativeapi.Unit<$T> unit, org.tinygears.uom.nativeapi.Scale scale) {
+                        org.tinygears.uom.Unit<$T> unit, org.tinygears.uom.Scale scale) {
                     super(value, decimal, mc, unit, scale);
                 }
 
                 @Override
                 protected $T create(double value, java.math.BigDecimal decimal, java.math.MathContext mc,
-                        org.tinygears.uom.nativeapi.Unit<$T> unit, org.tinygears.uom.nativeapi.Scale scale) {
+                        org.tinygears.uom.Unit<$T> unit, org.tinygears.uom.Scale scale) {
                     return new $TValue(value, decimal, mc, unit, scale);
                 }
             $M}
@@ -215,13 +215,13 @@ public final class NativeEmitter {
                  */
                 // each entry maps a type to the factory of its own class
                 @SuppressWarnings("unchecked")
-                public static <Q extends org.tinygears.uom.nativeapi.Quantity<Q>> org.tinygears.uom.nativeapi.AbstractQuantity.Factory<Q> factory(
+                public static <Q extends org.tinygears.uom.Quantity<Q>> org.tinygears.uom.AbstractQuantity.Factory<Q> factory(
                         Class<Q> type) {
-                    org.tinygears.uom.nativeapi.AbstractQuantity.Factory<?> f = Factories.ALL.get(type);
+                    org.tinygears.uom.AbstractQuantity.Factory<?> f = Factories.ALL.get(type);
                     if (f == null) {
                         throw new IllegalArgumentException("not a quantity type: " + type.getName());
                     }
-                    return (org.tinygears.uom.nativeapi.AbstractQuantity.Factory<Q>) f;
+                    return (org.tinygears.uom.AbstractQuantity.Factory<Q>) f;
                 }
 
                 /**
@@ -240,7 +240,7 @@ public final class NativeEmitter {
                  * @param unit the unit
                  * @return the type, or null if no type has its system unit
                  */
-                public static Class<?> typeOf(org.tinygears.uom.nativeapi.Unit<?> unit) {
+                public static Class<?> typeOf(org.tinygears.uom.Unit<?> unit) {
                     return SystemUnits.TYPES.get(unit.systemUnit());
                 }
 
@@ -250,18 +250,18 @@ public final class NativeEmitter {
                  * @param type the quantity type
                  * @return the system unit, or null if {@code type} is not a quantity type
                  */
-                public static org.tinygears.uom.nativeapi.Unit<?> systemUnit(Class<?> type) {
+                public static org.tinygears.uom.Unit<?> systemUnit(Class<?> type) {
                     return SystemUnits.UNITS.get(type);
                 }
 
                 // Apart from DIMENSIONS too: the system units are only complete once every type is initialised.
                 private static final class SystemUnits {
-                    static final java.util.Map<org.tinygears.uom.nativeapi.Unit<?>, Class<?>> TYPES =
+                    static final java.util.Map<org.tinygears.uom.Unit<?>, Class<?>> TYPES =
                             java.util.Map.ofEntries($S);
-                    static final java.util.Map<Class<?>, org.tinygears.uom.nativeapi.Unit<?>> UNITS = units();
+                    static final java.util.Map<Class<?>, org.tinygears.uom.Unit<?>> UNITS = units();
 
-                    private static java.util.Map<Class<?>, org.tinygears.uom.nativeapi.Unit<?>> units() {
-                        java.util.Map<Class<?>, org.tinygears.uom.nativeapi.Unit<?>> m = new java.util.HashMap<>();
+                    private static java.util.Map<Class<?>, org.tinygears.uom.Unit<?>> units() {
+                        java.util.Map<Class<?>, org.tinygears.uom.Unit<?>> m = new java.util.HashMap<>();
                         TYPES.forEach((unit, type) -> m.put(type, unit));
                         return java.util.Map.copyOf(m);
                     }
@@ -269,7 +269,7 @@ public final class NativeEmitter {
 
                 // Apart from DIMENSIONS, which Unit.of reads while the system units initialise.
                 private static final class Factories {
-                    static final java.util.Map<Class<?>, org.tinygears.uom.nativeapi.AbstractQuantity.Factory<?>> ALL =
+                    static final java.util.Map<Class<?>, org.tinygears.uom.AbstractQuantity.Factory<?>> ALL =
                             java.util.Map.ofEntries($F);
                 }
             }
@@ -291,14 +291,14 @@ public final class NativeEmitter {
         }
         String unit;
         try {
-            unit = systemExpression(spec.systemUnit().engine(), si, imports, 0);
+            unit = systemExpression(spec.systemUnit(), si, imports, 0);
         } catch (GenerationException e) {
             throw new GenerationException(spec.source(), spec.line(), e.getMessage(), e);
         }
         if (spec.systemSymbol() != null) {
             unit = named(unit, spec.systemSymbol(), spec.systemName(), imports);
         }
-        String symbol = spec.systemSymbol() != null ? spec.systemSymbol() : spec.systemUnit().engine().toString();
+        String symbol = spec.systemSymbol() != null ? spec.systemSymbol() : spec.systemUnit().toString();
         String body = INTERFACE.replace("$M", m).replace("$A", capitalized(article(words(spec.name()))))
                 .replace("$R", relationsSentence(spec, methods)).replace("$T", spec.name()).replace("$S", symbol);
         body = imports.resolve(body).replace("$U", unit);
@@ -325,9 +325,8 @@ public final class NativeEmitter {
                 .collect(Collectors.joining(",\n" + INDENT, "\n" + INDENT, ""));
         String factories = specs.stream()
                 .map(
-                        s -> "java.util.Map.entry(" + s.name()
-                                + ".class, (org.tinygears.uom.nativeapi.AbstractQuantity.Factory<" + s.name() + ">) "
-                                + s.name() + "Value::new)")
+                        s -> "java.util.Map.entry(" + s.name() + ".class, (org.tinygears.uom.AbstractQuantity.Factory<"
+                                + s.name() + ">) " + s.name() + "Value::new)")
                 .collect(Collectors.joining(",\n" + INDENT, "\n" + INDENT, ""));
         String units = specs.stream()
                 .map(s -> "java.util.Map.entry(" + s.name() + ".SYSTEM_UNIT, " + s.name() + ".class)")
@@ -528,7 +527,7 @@ public final class NativeEmitter {
     }
 
     private static String dimension(QuantityTypeSpec s) {
-        Dimension d = s.systemUnit().engine().dimension();
+        Dimension d = s.systemUnit().dimension();
         return "new org.tinygears.uom.engine.Dimension(" + d.length() + ", " + d.mass() + ", " + d.time() + ", "
                 + d.current() + ", " + d.temperature() + ", " + d.amount() + ", " + d.luminosity() + ")";
     }

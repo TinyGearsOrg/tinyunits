@@ -23,8 +23,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import javax.measure.Quantity;
 
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Converter;
+import org.tinygears.uom.engine.Unit;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.Definitions;
 import org.tinygears.uom.engine.parse.FormulaEvaluator;
@@ -82,7 +82,7 @@ public final class QuantityTypesParser {
                 if (formula.isEmpty()) {
                     throw new GenerationException(source, ln, "missing system unit");
                 }
-                UomUnit<?> unit;
+                Unit unit;
                 try {
                     unit = evaluate(formula, bySymbol);
                 } catch (FormulaException e) {
@@ -90,7 +90,7 @@ public final class QuantityTypesParser {
                 } catch (RuntimeException e) {
                     throw new GenerationException(source, ln, e.getMessage(), e);
                 }
-                if (!unit.toSystemConverter().equals(Converters.IDENTITY)) {
+                if (!unit.toSystem().equals(Converter.IDENTITY)) {
                     throw new GenerationException(source, ln, "system unit must be an unscaled unit");
                 }
                 Definition def = bySymbol.get(formula);
@@ -133,15 +133,15 @@ public final class QuantityTypesParser {
         return List.copyOf(result);
     }
 
-    private static UomUnit<?> evaluate(String formula, Map<String, Definition> bySymbol) throws FormulaException {
-        return UomUnit.of(FormulaEvaluator.evaluate(formula, s -> {
+    private static Unit evaluate(String formula, Map<String, Definition> bySymbol) throws FormulaException {
+        return FormulaEvaluator.evaluate(formula, s -> {
             Definition d = bySymbol.get(s);
             return d == null ? null : d.unit();
-        }));
+        });
     }
 
     // The symbol must parse back to the unit: formats print it whenever it does.
-    private static boolean evaluatesTo(String symbol, UomUnit<?> unit, Map<String, Definition> bySymbol) {
+    private static boolean evaluatesTo(String symbol, Unit unit, Map<String, Definition> bySymbol) {
         try {
             return unit.equals(evaluate(symbol, bySymbol));
         } catch (FormulaException | RuntimeException e) {

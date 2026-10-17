@@ -14,17 +14,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomConverter;
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Converter;
+import org.tinygears.uom.engine.Unit;
 import org.tinygears.uom.engine.UnitAtom;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.Definitions;
 
 /** Writes Java expressions that evaluate to units equal to given ones. */
 public final class UnitExpressionEmitter {
-    private static final String BASE_UNITS = "org.tinygears.uom.core.BaseUnits";
+    private static final String BASE_UNITS = "org.tinygears.uom.jsr.BaseUnits";
     private static final Map<String, String> BASE_ATOMS = Map.of(
             "m",
             "METRE",
@@ -40,40 +38,41 @@ public final class UnitExpressionEmitter {
             "MOLE",
             "cd",
             "CANDELA");
-    private static final Map<String, UomUnit<?>> BASE_CONSTANTS = Map.of(
+    // The labels of the JSR-385 BaseUnits constants, so that a renaming to the same labels is left out.
+    private static final Map<String, Unit> BASE_CONSTANTS = Map.of(
             "METRE",
-            BaseUnits.METRE,
+            Unit.base(UnitAtom.METRE, "metre"),
             "KILOGRAM",
-            BaseUnits.KILOGRAM,
+            Unit.base(UnitAtom.KILOGRAM, "kilogram"),
             "SECOND",
-            BaseUnits.SECOND,
+            Unit.base(UnitAtom.SECOND, "second"),
             "AMPERE",
-            BaseUnits.AMPERE,
+            Unit.base(UnitAtom.AMPERE, "ampere"),
             "KELVIN",
-            BaseUnits.KELVIN,
+            Unit.base(UnitAtom.KELVIN, "kelvin"),
             "MOLE",
-            BaseUnits.MOLE,
+            Unit.base(UnitAtom.MOLE, "mole"),
             "CANDELA",
-            BaseUnits.CANDELA,
+            Unit.base(UnitAtom.CANDELA, "candela"),
             "ONE",
-            BaseUnits.ONE);
+            Unit.ONE);
     private static final int MAX_DEPTH = 32;
 
     private UnitExpressionEmitter() {
     }
 
     /** {@code imports} gives the names of the classes the expression uses. */
-    public static String emit(UomUnit<?> unit, Definitions definitions, Imports imports) {
+    public static String emit(Unit unit, Definitions definitions, Imports imports) {
         return emit(unit, definitions, imports, 0);
     }
 
     /** Like {@link #emit} but for any unit: its system unit transformed by its exact converter. */
-    public static String emitUnit(UomUnit<?> unit, Definitions definitions, Imports imports) {
-        String system = emit(unit.getSystemUnit(), definitions, imports);
-        UomConverter c = unit.toSystemConverter();
-        return c.equals(Converters.IDENTITY)
+    public static String emitUnit(Unit unit, Definitions definitions, Imports imports) {
+        String system = emit(unit.systemUnit(), definitions, imports);
+        Converter c = unit.toSystem();
+        return c.equals(Converter.IDENTITY)
                 ? system
-                : system + ".transform(" + imports.name("org.tinygears.uom.core.Converters") + ".affine("
+                : system + ".transform(" + imports.name("org.tinygears.uom.jsr.Converters") + ".affine("
                         + FactorEmitter.emit(c.factor(), imports) + ", " + FactorEmitter.emit(c.offset(), imports)
                         + "))";
     }
@@ -81,17 +80,15 @@ public final class UnitExpressionEmitter {
     /** {@code expression} renamed, unless it is a {@code BaseUnits} constant that already has this symbol and name. */
     static String named(String expression, String symbol, String name, Imports imports) {
         String prefix = imports.name(BASE_UNITS) + ".";
-        UomUnit<?> base = expression.startsWith(prefix)
-                ? BASE_CONSTANTS.get(expression.substring(prefix.length()))
-                : null;
-        if (base != null && symbol.equals(base.getSymbol()) && name.equals(base.getName())) {
+        Unit base = expression.startsWith(prefix) ? BASE_CONSTANTS.get(expression.substring(prefix.length())) : null;
+        if (base != null && symbol.equals(base.symbol()) && name.equals(base.name())) {
             return expression;
         }
         return expression + ".named(" + literal(symbol) + ", " + literal(name) + ")";
     }
 
-    private static String emit(UomUnit<?> unit, Definitions definitions, Imports imports, int depth) {
-        if (!unit.toSystemConverter().equals(Converters.IDENTITY)) {
+    private static String emit(Unit unit, Definitions definitions, Imports imports, int depth) {
+        if (!unit.toSystem().equals(Converter.IDENTITY)) {
             throw new GenerationException("unit must be an unscaled system unit");
         }
         List<Map.Entry<UnitAtom, Integer>> atoms = unit.atoms().entrySet().stream()
@@ -130,8 +127,7 @@ public final class UnitExpressionEmitter {
         if (depth >= MAX_DEPTH) {
             throw new GenerationException("alternate unit definitions nest too deeply at '" + symbol + "'");
         }
-        return emit(UomUnit.of(d.alternateOf()), definitions, imports, depth + 1) + ".alternate(" + literal(symbol)
-                + ")";
+        return emit(d.alternateOf(), definitions, imports, depth + 1) + ".alternate(" + literal(symbol) + ")";
     }
 
     /** A Java string literal for {@code s}. */

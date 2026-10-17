@@ -29,15 +29,14 @@ and allows only the needed classes. This filter, also used by `serialization()` 
 [`Examples.java`](uom-examples/src/main/java/org/tinygears/uom/examples/Examples.java), is a starting point:
 
 ```
-maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;org.tinygears.uom.engine.*;org.tinygears.uom.core.**;org.tinygears.uom.quantity.*;javax.measure.**;java.lang.*;java.math.*;!*
+maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;org.tinygears.uom.engine.*;org.tinygears.uom.jsr.**;javax.measure.**;java.lang.*;java.math.*;!*
 ```
 
-The allow-list needs `org.tinygears.uom.quantity` too, because the filter also checks the classes the proxies resolve
-to. Set it for the whole JVM with `-Djdk.serialFilter=<filter>`, or per stream:
+`org.tinygears.uom.jsr.**` also covers the quantity classes the proxies resolve to, which the filter checks too. Set it for the whole JVM with `-Djdk.serialFilter=<filter>`, or per stream:
 
 ```java
 String filter = "maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;"
-        + "org.tinygears.uom.engine.*;org.tinygears.uom.core.**;org.tinygears.uom.quantity.*;javax.measure.**;java.lang.*;java.math.*;!*";
+        + "org.tinygears.uom.engine.*;org.tinygears.uom.jsr.**;javax.measure.**;java.lang.*;java.math.*;!*";
 Length length = Length.of(new BigDecimal("1.50"), SI.KILOMETRE);
 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {

@@ -12,7 +12,7 @@ package org.tinygears.uom.engine.internal;
 
 /**
  * A service ({@link java.util.ServiceLoader}) that has the alternate units of its catalogs registered, so that an atom
- * read from a stream is checked against them; {@code org.tinygears.uom} provides it. Not API.
+ * read from a stream is checked against them; {@code org.tinygears.uom.jsr} provides it. Not API.
  */
 public interface UnitCatalogs {
 

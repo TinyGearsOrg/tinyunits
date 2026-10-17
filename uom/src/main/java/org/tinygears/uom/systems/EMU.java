@@ -16,138 +16,139 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.measure.MetricPrefix;
-import javax.measure.quantity.Acceleration;
-import javax.measure.quantity.AmountOfSubstance;
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Area;
-import javax.measure.quantity.CatalyticActivity;
-import javax.measure.quantity.Dimensionless;
-import javax.measure.quantity.ElectricCapacitance;
-import javax.measure.quantity.ElectricCharge;
-import javax.measure.quantity.ElectricConductance;
-import javax.measure.quantity.ElectricCurrent;
-import javax.measure.quantity.ElectricInductance;
-import javax.measure.quantity.ElectricPotential;
-import javax.measure.quantity.ElectricResistance;
-import javax.measure.quantity.Energy;
-import javax.measure.quantity.Force;
-import javax.measure.quantity.Frequency;
-import javax.measure.quantity.Illuminance;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.LuminousFlux;
-import javax.measure.quantity.LuminousIntensity;
-import javax.measure.quantity.MagneticFlux;
-import javax.measure.quantity.MagneticFluxDensity;
-import javax.measure.quantity.Mass;
-import javax.measure.quantity.Power;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.RadiationDoseAbsorbed;
-import javax.measure.quantity.RadiationDoseEffective;
-import javax.measure.quantity.Radioactivity;
-import javax.measure.quantity.SolidAngle;
-import javax.measure.quantity.Speed;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Time;
-import javax.measure.quantity.Volume;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.BaseUnits;
+import org.tinygears.uom.SystemOfUnits;
+import org.tinygears.uom.Unit;
+import org.tinygears.uom.Untyped;
+import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
-import org.tinygears.uom.quantity.AmountOfSubstanceFactory;
-import org.tinygears.uom.quantity.AngleFactory;
-import org.tinygears.uom.quantity.CatalyticActivityFactory;
-import org.tinygears.uom.quantity.DimensionlessFactory;
-import org.tinygears.uom.quantity.ElectricConductanceFactory;
-import org.tinygears.uom.quantity.FrequencyFactory;
-import org.tinygears.uom.quantity.IlluminanceFactory;
-import org.tinygears.uom.quantity.LuminousFluxFactory;
-import org.tinygears.uom.quantity.LuminousIntensityFactory;
-import org.tinygears.uom.quantity.PowerFactory;
-import org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory;
-import org.tinygears.uom.quantity.RadiationDoseEffectiveFactory;
-import org.tinygears.uom.quantity.RadioactivityFactory;
-import org.tinygears.uom.quantity.SolidAngleFactory;
-import org.tinygears.uom.quantity.SpeedFactory;
-import org.tinygears.uom.quantity.TemperatureFactory;
-import org.tinygears.uom.quantity.TimeFactory;
+import org.tinygears.uom.quantity.Acceleration;
+import org.tinygears.uom.quantity.AmountOfSubstance;
+import org.tinygears.uom.quantity.Angle;
+import org.tinygears.uom.quantity.Area;
+import org.tinygears.uom.quantity.CatalyticActivity;
+import org.tinygears.uom.quantity.Dimensionless;
+import org.tinygears.uom.quantity.ElectricCapacitance;
+import org.tinygears.uom.quantity.ElectricCharge;
+import org.tinygears.uom.quantity.ElectricConductance;
+import org.tinygears.uom.quantity.ElectricCurrent;
+import org.tinygears.uom.quantity.ElectricInductance;
+import org.tinygears.uom.quantity.ElectricPotential;
+import org.tinygears.uom.quantity.ElectricResistance;
+import org.tinygears.uom.quantity.Energy;
+import org.tinygears.uom.quantity.Force;
+import org.tinygears.uom.quantity.Frequency;
+import org.tinygears.uom.quantity.Illuminance;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.LuminousFlux;
+import org.tinygears.uom.quantity.LuminousIntensity;
+import org.tinygears.uom.quantity.MagneticFlux;
+import org.tinygears.uom.quantity.MagneticFluxDensity;
+import org.tinygears.uom.quantity.Mass;
+import org.tinygears.uom.quantity.Power;
+import org.tinygears.uom.quantity.Pressure;
+import org.tinygears.uom.quantity.RadiationDoseAbsorbed;
+import org.tinygears.uom.quantity.RadiationDoseEffective;
+import org.tinygears.uom.quantity.Radioactivity;
+import org.tinygears.uom.quantity.SolidAngle;
+import org.tinygears.uom.quantity.Speed;
+import org.tinygears.uom.quantity.Temperature;
+import org.tinygears.uom.quantity.Time;
+import org.tinygears.uom.quantity.Volume;
 
-/** The EMU units; generated from {@code data/cgs-emu.units}, {@code data/cgs.units}, {@code data/si.units} and {@code data/quantity-types.txt}. */
+/** The EMU units of the native API; generated from {@code data/cgs-emu.units}, {@code data/cgs.units}, {@code data/si.units} and {@code data/quantity-types.txt}. */
 public final class EMU {
 
     private EMU() {
     }
 
     /** The abampere, {@code abA}. */
-    public static final UomUnit<ElectricCurrent> ABAMPERE = UomUnit.unchecked(
-            BaseUnits.AMPERE.transform(Converters.affine(Factor.of(10L, 1L), Factor.ZERO)).named("abA", "abampere"));
+    public static final Unit<ElectricCurrent> ABAMPERE = Unit.of(
+            ElectricCurrent.class,
+            BaseUnits.AMPERE.transform(Converter.affine(Factor.of(10L, 1L), Factor.ZERO)).named("abA", "abampere"));
 
     /** The abcoulomb, {@code abC}. */
-    public static final UomUnit<ElectricCharge> ABCOULOMB = UomUnit.unchecked(
-            BaseUnits.AMPERE.multiply(BaseUnits.SECOND).transform(Converters.affine(Factor.of(10L, 1L), Factor.ZERO))
+    public static final Unit<ElectricCharge> ABCOULOMB = Unit.of(
+            ElectricCharge.class,
+            BaseUnits.AMPERE.multiply(BaseUnits.SECOND).transform(Converter.affine(Factor.of(10L, 1L), Factor.ZERO))
                     .named("abC", "abcoulomb"));
 
     /** The abvolt, {@code abV}. */
-    public static final UomUnit<ElectricPotential> ABVOLT = UomUnit.unchecked(
+    public static final Unit<ElectricPotential> ABVOLT = Unit.of(
+            ElectricPotential.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(3))
-                    .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("abV", "abvolt"));
+                    .transform(Converter.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("abV", "abvolt"));
 
     /** The abohm, {@code abΩ}. */
-    public static final UomUnit<ElectricResistance> ABOHM = UomUnit.unchecked(
+    public static final Unit<ElectricResistance> ABOHM = Unit.of(
+            ElectricResistance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(3))
-                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abΩ", "abohm"));
+                    .transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abΩ", "abohm"));
 
     /** The abfarad, {@code abF}. */
-    public static final UomUnit<ElectricCapacitance> ABFARAD = UomUnit.unchecked(
+    public static final Unit<ElectricCapacitance> ABFARAD = Unit.of(
+            ElectricCapacitance.class,
             BaseUnits.AMPERE.pow(2).multiply(BaseUnits.SECOND.pow(4)).divide(BaseUnits.KILOGRAM)
-                    .divide(BaseUnits.METRE.pow(2))
-                    .transform(Converters.affine(Factor.of(1000000000L, 1L), Factor.ZERO)).named("abF", "abfarad"));
+                    .divide(BaseUnits.METRE.pow(2)).transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
+                    .named("abF", "abfarad"));
 
     /** The abhenry, {@code abH}. */
-    public static final UomUnit<ElectricInductance> ABHENRY = UomUnit.unchecked(
+    public static final Unit<ElectricInductance> ABHENRY = Unit.of(
+            ElectricInductance.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE.pow(2))
                     .divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abH", "abhenry"));
+                    .transform(Converter.affine(Factor.of(1L, 1000000000L), Factor.ZERO)).named("abH", "abhenry"));
 
     /** The gauss, {@code G}. */
-    public static final UomUnit<MagneticFluxDensity> GAUSS = UomUnit.unchecked(
+    public static final Unit<MagneticFluxDensity> GAUSS = Unit.of(
+            MagneticFluxDensity.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 10000L), Factor.ZERO)).named("G", "gauss"));
+                    .transform(Converter.affine(Factor.of(1L, 10000L), Factor.ZERO)).named("G", "gauss"));
 
     /** The maxwell, {@code Mx}. */
-    public static final UomUnit<MagneticFlux> MAXWELL = UomUnit.unchecked(
+    public static final Unit<MagneticFlux> MAXWELL = Unit.of(
+            MagneticFlux.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("Mx", "maxwell"));
+                    .transform(Converter.affine(Factor.of(1L, 100000000L), Factor.ZERO)).named("Mx", "maxwell"));
 
     /** The gilbert, {@code Gb}. */
-    public static final UomUnit<ElectricCurrent> GILBERT = UomUnit.unchecked(
+    public static final Unit<ElectricCurrent> GILBERT = Unit.of(
+            ElectricCurrent.class,
             BaseUnits.AMPERE
                     .transform(
-                            Converters.affine(Factor.of(new BigInteger("5"), new BigInteger("2"), -1, 1), Factor.ZERO))
+                            Converter.affine(Factor.of(new BigInteger("5"), new BigInteger("2"), -1, 1), Factor.ZERO))
                     .named("Gb", "gilbert"));
 
     /** The oersted, {@code Oe}. */
-    public static final UomUnit<?> OERSTED = UomUnit.unchecked(
-            BaseUnits.AMPERE.divide(BaseUnits.METRE).transform(
-                    Converters.affine(Factor.of(new BigInteger("250"), new BigInteger("1"), -1, 1), Factor.ZERO))
+    public static final Unit<Untyped> OERSTED = Unit.of(
+            Untyped.class,
+            BaseUnits.AMPERE.divide(BaseUnits.METRE)
+                    .transform(
+                            Converter.affine(Factor.of(new BigInteger("250"), new BigInteger("1"), -1, 1), Factor.ZERO))
                     .named("Oe", "oersted"));
 
     /** The milligauss, {@code mG}. */
-    public static final UomUnit<MagneticFluxDensity> MILLIGAUSS = UomUnit
-            .unchecked(GAUSS.prefix(MetricPrefix.MILLI).named("mG", "milligauss"));
+    public static final Unit<MagneticFluxDensity> MILLIGAUSS = Unit.of(
+            MagneticFluxDensity.class,
+            BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converter.affine(Factor.of(1L, 10000000L), Factor.ZERO)).named("mG", "milligauss"));
 
     /** The microgauss, {@code µG}. */
-    public static final UomUnit<MagneticFluxDensity> MICROGAUSS = UomUnit
-            .unchecked(GAUSS.prefix(MetricPrefix.MICRO).named("µG", "microgauss"));
+    public static final Unit<MagneticFluxDensity> MICROGAUSS = Unit.of(
+            MagneticFluxDensity.class,
+            BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converter.affine(Factor.of(1L, 10000000000L), Factor.ZERO)).named("µG", "microgauss"));
 
     /** The nanogauss, {@code nG}. */
-    public static final UomUnit<MagneticFluxDensity> NANOGAUSS = UomUnit
-            .unchecked(GAUSS.prefix(MetricPrefix.NANO).named("nG", "nanogauss"));
+    public static final Unit<MagneticFluxDensity> NANOGAUSS = Unit.of(
+            MagneticFluxDensity.class,
+            BaseUnits.KILOGRAM.divide(BaseUnits.AMPERE).divide(BaseUnits.SECOND.pow(2))
+                    .transform(Converter.affine(Factor.of(1L, 10000000000000L), Factor.ZERO)).named("nG", "nanogauss"));
 
     /** The units of this catalog. */
-    public static final List<UomUnit<?>> UNITS = List.<UomUnit<?>>of(
+    public static final List<Unit<?>> UNITS = List.<Unit<?>>of(
             ABAMPERE,
             ABCOULOMB,
             ABVOLT,
@@ -178,45 +179,53 @@ public final class EMU {
             SI.GRAM,
             SI.SECOND);
 
-    /** The symbols that take a prefix in this system. */
+    /** The symbols that take a metric prefix in this system. */
     public static final Set<String> PREFIXABLE = Set.of("G", "Gal", "P", "St", "g", "s");
 
+    /** The symbols that take a binary prefix in this system. */
+    public static final Set<String> BINARY_PREFIXABLE = Set.of();
+
     /** The preferred unit of each quantity type. */
-    public static final Map<Class<?>, UomUnit<?>> PREFERRED = Map.<Class<?>, UomUnit<?>>ofEntries(
+    public static final Map<Class<?>, Unit<?>> PREFERRED = Map.<Class<?>, Unit<?>>ofEntries(
             Map.entry(Acceleration.class, CGS.GALILEO),
-            Map.entry(AmountOfSubstance.class, AmountOfSubstanceFactory.SYSTEM_UNIT),
-            Map.entry(Angle.class, AngleFactory.SYSTEM_UNIT),
+            Map.entry(AmountOfSubstance.class, AmountOfSubstance.SYSTEM_UNIT),
+            Map.entry(Angle.class, Angle.SYSTEM_UNIT),
             Map.entry(Area.class, CGS.SQUARE_CENTIMETRE),
-            Map.entry(CatalyticActivity.class, CatalyticActivityFactory.SYSTEM_UNIT),
-            Map.entry(Dimensionless.class, DimensionlessFactory.SYSTEM_UNIT),
+            Map.entry(CatalyticActivity.class, CatalyticActivity.SYSTEM_UNIT),
+            Map.entry(Dimensionless.class, Dimensionless.SYSTEM_UNIT),
             Map.entry(ElectricCapacitance.class, ABFARAD),
             Map.entry(ElectricCharge.class, ABCOULOMB),
-            Map.entry(ElectricConductance.class, ElectricConductanceFactory.SYSTEM_UNIT),
+            Map.entry(ElectricConductance.class, ElectricConductance.SYSTEM_UNIT),
             Map.entry(ElectricCurrent.class, ABAMPERE),
             Map.entry(ElectricInductance.class, ABHENRY),
             Map.entry(ElectricPotential.class, ABVOLT),
             Map.entry(ElectricResistance.class, ABOHM),
             Map.entry(Energy.class, CGS.ERG),
             Map.entry(Force.class, CGS.DYNE),
-            Map.entry(Frequency.class, FrequencyFactory.SYSTEM_UNIT),
-            Map.entry(Illuminance.class, IlluminanceFactory.SYSTEM_UNIT),
+            Map.entry(Frequency.class, Frequency.SYSTEM_UNIT),
+            Map.entry(Illuminance.class, Illuminance.SYSTEM_UNIT),
             Map.entry(Length.class, SI.CENTIMETRE),
-            Map.entry(LuminousFlux.class, LuminousFluxFactory.SYSTEM_UNIT),
-            Map.entry(LuminousIntensity.class, LuminousIntensityFactory.SYSTEM_UNIT),
+            Map.entry(LuminousFlux.class, LuminousFlux.SYSTEM_UNIT),
+            Map.entry(LuminousIntensity.class, LuminousIntensity.SYSTEM_UNIT),
             Map.entry(MagneticFlux.class, MAXWELL),
             Map.entry(MagneticFluxDensity.class, GAUSS),
             Map.entry(Mass.class, SI.GRAM),
-            Map.entry(Power.class, PowerFactory.SYSTEM_UNIT),
+            Map.entry(Power.class, Power.SYSTEM_UNIT),
             Map.entry(Pressure.class, CGS.BARYE),
-            Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbedFactory.SYSTEM_UNIT),
-            Map.entry(RadiationDoseEffective.class, RadiationDoseEffectiveFactory.SYSTEM_UNIT),
-            Map.entry(Radioactivity.class, RadioactivityFactory.SYSTEM_UNIT),
-            Map.entry(SolidAngle.class, SolidAngleFactory.SYSTEM_UNIT),
-            Map.entry(Speed.class, SpeedFactory.SYSTEM_UNIT),
-            Map.entry(Temperature.class, TemperatureFactory.SYSTEM_UNIT),
-            Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
+            Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbed.SYSTEM_UNIT),
+            Map.entry(RadiationDoseEffective.class, RadiationDoseEffective.SYSTEM_UNIT),
+            Map.entry(Radioactivity.class, Radioactivity.SYSTEM_UNIT),
+            Map.entry(SolidAngle.class, SolidAngle.SYSTEM_UNIT),
+            Map.entry(Speed.class, Speed.SYSTEM_UNIT),
+            Map.entry(Temperature.class, Temperature.SYSTEM_UNIT),
+            Map.entry(Time.class, Time.SYSTEM_UNIT),
             Map.entry(Volume.class, CGS.CUBIC_CENTIMETRE));
 
     /** This system of units. */
-    public static final UomSystemOfUnits SYSTEM = new UomSystemOfUnits("EMU", UNITS, PREFERRED, PREFIXABLE);
+    public static final SystemOfUnits SYSTEM = new SystemOfUnits(
+            "EMU",
+            UNITS,
+            PREFERRED,
+            PREFIXABLE,
+            BINARY_PREFIXABLE);
 }

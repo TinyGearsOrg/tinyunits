@@ -10,7 +10,7 @@ set -euo pipefail
 
 SCRIPT=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
 ROOT=${CHECK_POM_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}
-MODULES=(uom-engine uom-core uom-codegen uom uom-tck uom-examples uom-native uom-native-jsr)
+MODULES=(uom-engine uom uom-jsr uom-codegen uom-tck uom-examples)
 
 fail() { echo "check-pom: FAIL: $*" >&2; exit 1; }
 
@@ -32,14 +32,14 @@ self_test() {
     "enforcer-rule|drop('pom.xml', '<banDuplicatePomDependencyVersions', '/>')|enforcer rule banDuplicatePomDependencyVersions"
     "outputTimestamp|drop('pom.xml', '<project.build.outputTimestamp>', '</project.build.outputTimestamp>')|project.build.outputTimestamp"
     "exclude-artifacts|drop('pom.xml', '<excludeArtifacts>', '</excludeArtifacts>')|central-publishing excludeArtifacts is []"
-    "exclude-tck|sub('pom.xml', '<artifact>uom-tck</artifact>', '')|central-publishing excludeArtifacts is ['uom-codegen', 'uom-examples', 'uom-native', 'uom-native-jsr']"
+    "exclude-tck|sub('pom.xml', '<artifact>uom-tck</artifact>', '')|central-publishing excludeArtifacts is ['uom-codegen', 'uom-examples']"
     "ignore-published|drop('pom.xml', '<ignorePublishedComponents>', '</ignorePublishedComponents>')|central-publishing ignorePublishedComponents is ''"
     "wait-for-publish|drop('pom.xml', '<waitForPublishCompletion>', '</waitForPublishCompletion>')|central-publishing waitForPublishCompletion is ''"
     "fail-on-build-failure|drop('pom.xml', '<failOnBuildFailure>', '</failOnBuildFailure>')|central-publishing failOnBuildFailure is ''"
     "auto-publish|sub('pom.xml', '<autoPublish>false<', '<autoPublish>true<')|central-publishing autoPublish is 'true'"
     "codegen-javadoc-skip|drop('uom-codegen/pom.xml', '<maven.javadoc.skip>', '</maven.javadoc.skip>')|uom-codegen: property maven.javadoc.skip is ''"
     "examples-source-skip|drop('uom-examples/pom.xml', '<maven.source.skip>', '</maven.source.skip>')|uom-examples: property maven.source.skip is ''"
-    "snapshot-dependency|sub('uom-core/pom.xml', '<dependencies>', '<dependencies><dependency><groupId>com.example</groupId><artifactId>x</artifactId><version>1.0-SNAPSHOT</version></dependency>')|uom-core: default: SNAPSHOT dependency com.example:x:1.0-SNAPSHOT"
+    "snapshot-dependency|sub('uom-jsr/pom.xml', '<dependencies>', '<dependencies><dependency><groupId>com.example</groupId><artifactId>x</artifactId><version>1.0-SNAPSHOT</version></dependency>')|uom-jsr: default: SNAPSHOT dependency com.example:x:1.0-SNAPSHOT"
     "unresolved-expression|sub('uom/pom.xml', '<description>', '<description>\${no.such.property} ')|uom: default: unresolved expression '\${no.such.property}"
     "doclint|drop('pom.xml', '<doclint>', '</doclint>')|maven-javadoc-plugin doclint is ''"
     "javadoc-fail-on-warnings|sub('pom.xml', '<javadoc.failOnWarnings>true<', '<javadoc.failOnWarnings>false<')|maven-javadoc-plugin failOnWarnings is 'false'"
@@ -50,7 +50,7 @@ self_test() {
     "release-version-rule|drop('pom.xml', '<requireReleaseVersion>', '</requireReleaseVersion>')|lacks the rule requireReleaseVersion"
     "release-deps-rule|drop('pom.xml', '<requireReleaseDeps>', '</requireReleaseDeps>')|lacks the rule requireReleaseDeps"
     "release-version-order|move_enforcer_last()|must be declared before central-publishing-maven-plugin"
-    "release-version-module-override|sub('uom-core/pom.xml', '</project>', '<profiles><profile><id>release</id><build><plugins><plugin><artifactId>maven-enforcer-plugin</artifactId><executions><execution><id>enforce-release-version</id><phase>none</phase></execution></executions></plugin></plugins></build></profile></profiles></project>')|uom-core: release: maven-enforcer-plugin executions must be bound to validate and deploy"
+    "release-version-module-override|sub('uom-jsr/pom.xml', '</project>', '<profiles><profile><id>release</id><build><plugins><plugin><artifactId>maven-enforcer-plugin</artifactId><executions><execution><id>enforce-release-version</id><phase>none</phase></execution></executions></plugin></plugins></build></profile></profiles></project>')|uom-jsr: release: maven-enforcer-plugin executions must be bound to validate and deploy"
     "manifest-vendor|drop('pom.xml', '<Implementation-Vendor>', '</Implementation-Vendor>')|uom-engine: manifest entry Implementation-Vendor is ''"
     "distribution-management|sub('pom.xml', '<issueManagement>', '<distributionManagement><repository><id>x</id><url>https://example.invalid/repo</url></repository></distributionManagement><issueManagement>')|distributionManagement must not be set"
     "alt-deployment-property|sub('pom.xml', '<surefire.version>', '<altDeploymentRepository>x::https://example.invalid/repo</altDeploymentRepository><surefire.version>')|property altDeploymentRepository must not be set"
@@ -148,8 +148,8 @@ def plugin(p, aid):
     return next((x for (g, a), x in plugins(p).items() if a == aid), None)
 
 REPO = 'https://github.com/TinyGearsOrg/tinyunits'
-PUBLISHED = ['uom-parent', 'uom-engine', 'uom-core', 'uom']
-UNPUBLISHED = ['uom-codegen', 'uom-tck', 'uom-examples', 'uom-native', 'uom-native-jsr']
+PUBLISHED = ['uom-parent', 'uom-engine', 'uom', 'uom-jsr']
+UNPUBLISHED = ['uom-codegen', 'uom-tck', 'uom-examples']
 RELEASE_ONLY = ['maven-source-plugin', 'maven-javadoc-plugin', 'maven-gpg-plugin', 'central-publishing-maven-plugin']
 
 raw = load(sys.argv[1])
@@ -300,7 +300,7 @@ for mode, eff in (('default', default), ('release', rel)):
                 for v in [e.text or ''] + list(e.attrib.values()):
                     if '${' in v:
                         fail("%s: %s: unresolved expression '%s' in <%s>" % (a, mode, v.strip(), e.tag))
-        if a in ('uom-engine', 'uom-core', 'uom') and mode == 'default':
+        if a in ('uom-engine', 'uom', 'uom-jsr') and mode == 'default':
             jar = plugin(p, 'maven-jar-plugin')
             for entry, want in (('Implementation-Title', text(p, 'name')), ('Implementation-Version', text(p, 'version')),
                                 ('Implementation-Vendor', 'TinyGearsOrg')):

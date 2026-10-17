@@ -1,4 +1,4 @@
-# Relations between the quantity types, for the typed products of the native API (uom-native).
+# Relations between the quantity types, for the typed products of the native API (uom).
 # Format: one "Result = Left * Right" or "Result = Left / Right" per line, with type names from quantity-types.txt.
 # Each relation gives the four methods it implies: for C = A * B, A.multiply(B) and B.multiply(A) are a C, and
 # C.divide(A) is a B, C.divide(B) an A; for C = A / B, A.divide(B) is a C, A.divide(C) a B, and B.multiply(C) and

@@ -11,20 +11,20 @@
 /**
  * The engine of uom, free of the JSR-385 API: exact factors with pi and roots, dimensions, unit atoms, the
  * alternate-unit registry, affine converters, the unit algebra and the {@code .units} parser, the decimal and interval
- * arithmetic behind them, and the quantity arithmetic. The JSR-385 implementation ({@code org.tinygears.uom.core})
- * builds on it.
+ * arithmetic behind them, the quantity arithmetic and the logic of the formats and systems. Both APIs build on it:
+ * {@code org.tinygears.uom} and the JSR-385 implementation {@code org.tinygears.uom.jsr}.
  */
 @SuppressWarnings("module") // the qualified export names modules that are compiled later
 module org.tinygears.uom.engine {
     exports org.tinygears.uom.engine;
     exports org.tinygears.uom.engine.parse;
     // Helpers the other modules of uom share; not API.
-    exports org.tinygears.uom.engine.internal to org.tinygears.uom.core, org.tinygears.uom, org.tinygears.uom.nativeapi;
+    exports org.tinygears.uom.engine.internal to org.tinygears.uom.jsr, org.tinygears.uom;
     // The unit format, systems and number text of both APIs; not API.
-    exports org.tinygears.uom.engine.format to org.tinygears.uom, org.tinygears.uom.nativeapi;
+    exports org.tinygears.uom.engine.format to org.tinygears.uom.jsr, org.tinygears.uom;
     // The quantity arithmetic of both APIs; not API.
-    exports org.tinygears.uom.engine.arithmetic to org.tinygears.uom.core, org.tinygears.uom.nativeapi;
+    exports org.tinygears.uom.engine.arithmetic to org.tinygears.uom.jsr, org.tinygears.uom;
 
-    // The catalogs of org.tinygears.uom, loaded before an atom read from a stream counts as unregistered.
+    // The catalogs of org.tinygears.uom.jsr, loaded before an atom read from a stream counts as unregistered.
     uses org.tinygears.uom.engine.internal.UnitCatalogs;
 }

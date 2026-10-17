@@ -172,9 +172,9 @@ class CatalogBuilderTest {
     @Test
     void systemUnitsAreSharedWithTheFactories() {
         Map<String, CatalogEntry> e = bySymbol(build(BASE + "y:metre_alias m\n"));
-        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT", e.get("m").shared());
-        assertEquals("org.tinygears.uom.quantity.ForceFactory.SYSTEM_UNIT", e.get("N").shared());
-        assertEquals("org.tinygears.uom.quantity.RadioactivityFactory.SYSTEM_UNIT", e.get("Bq").shared());
+        assertEquals("org.tinygears.uom.jsr.quantity.LengthFactory.SYSTEM_UNIT", e.get("m").shared());
+        assertEquals("org.tinygears.uom.jsr.quantity.ForceFactory.SYSTEM_UNIT", e.get("N").shared());
+        assertEquals("org.tinygears.uom.jsr.quantity.RadioactivityFactory.SYSTEM_UNIT", e.get("Bq").shared());
         for (String symbol : List.of("km", "min", "°C", "x", "A", "y")) {
             assertNull(e.get(symbol).shared(), symbol);
         }
@@ -212,7 +212,7 @@ class CatalogBuilderTest {
         assertNull(e.get("mps").shared());
         assertEquals("Acceleration", e.get("gee").quantityType());
         assertNull(e.get("gee").shared());
-        assertEquals("org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT", e.get("m").shared());
+        assertEquals("org.tinygears.uom.jsr.quantity.LengthFactory.SYSTEM_UNIT", e.get("m").shared());
     }
 
     @Test
@@ -240,7 +240,7 @@ class CatalogBuilderTest {
         }
         Map<String, CatalogBuilder.Catalog> c = CatalogBuilder.catalogs(parsed, types(parsed.get("a.units")));
         assertEquals(
-                "org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT",
+                "org.tinygears.uom.jsr.quantity.LengthFactory.SYSTEM_UNIT",
                 c.get("a.units").entries().get(0).shared());
         CatalogEntry alias = c.get("b.units").entries().get(0);
         assertEquals("mtr", alias.definition().symbol());
@@ -267,7 +267,7 @@ class CatalogBuilderTest {
                 "ambiguous quantity type for 's': Time, Duration (add a [Type])");
     }
 
-    private static final String FACTORY = "org.tinygears.uom.quantity.%sFactory.SYSTEM_UNIT";
+    private static final String FACTORY = "org.tinygears.uom.jsr.quantity.%sFactory.SYSTEM_UNIT";
 
     // @system goes last so that error lines of the extra text stay at 19.
     private static CatalogBuilder.Catalog catalog(String extra) {

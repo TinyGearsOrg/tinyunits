@@ -7,6 +7,15 @@ the project follows [semantic versioning](https://semver.org/) from 1.0.0 (see [
 
 Nothing is released yet; the development version is `0.1.0-SNAPSHOT`.
 
+### Changed
+
+- The modules are `uom-engine` (no JSR-385 types: units, converters, the `.units` parser, the quantity arithmetic and
+  the logic of formats and systems), `uom` (the native API, module `org.tinygears.uom`: `Unit<Length>` with this
+  library's types, typed products, formats, systems) and `uom-jsr` (the JSR-385 implementation, module
+  `org.tinygears.uom.jsr`, packages `org.tinygears.uom.jsr.*`, with `Jsr`, the conversion to and from `uom`). The
+  former `uom-core` and the JSR-385 `uom` are merged into `uom-jsr`; the entries below name the modules of their time
+  (DESIGN DR-21, docs/NATIVE-API.md).
+
 ### Added
 
 - Units core (`uom-core`): units as exact products of atoms with a rational factor, `pi` and roots; dimensions;

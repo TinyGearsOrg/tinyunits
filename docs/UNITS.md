@@ -2,7 +2,7 @@
 
 # Catalog units
 
-Every unit of the generated catalogs in `org.tinygears.uom.systems`, one section per system. A value in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a fraction, `pi` is π). The quantity type `-` means the unit has none. Alternate units (`Hz`, `Bq`, `rad`, `sr`, `Gy`, `Sv`) are their own system unit, so they show as `1 Gy` rather than `1 J/kg`.
+Every unit of the generated catalogs in `org.tinygears.uom.jsr.systems`, one section per system. A value in a unit is `factor * value + offset` in the system unit; factors and offsets are exact (`a|b` is a fraction, `pi` is π). The quantity type `-` means the unit has none. Alternate units (`Hz`, `Bq`, `rad`, `sr`, `Gy`, `Sv`) are their own system unit, so they show as `1 Gy` rather than `1 J/kg`.
 
 ## Systems
 

@@ -9,17 +9,15 @@
  */
 
 /**
- * uom, a JSR-385 implementation: typed quantities ({@code org.tinygears.uom.quantity}), the unit catalogs of SI,
- * US customary, Imperial and the CGS systems, the unit and quantity formats and the service provider
- * ({@code org.tinygears.uom.systems}).
+ * uom: units and quantities typed with this library's own quantity types ({@code org.tinygears.uom.quantity}), not
+ * bound to the generics of JSR-385, with typed products, the unit catalogs and formats
+ * ({@code org.tinygears.uom.systems}), on the engine ({@code org.tinygears.uom.engine}). The JSR-385
+ * implementation is the module {@code org.tinygears.uom.jsr}.
  */
 module org.tinygears.uom {
-    requires transitive org.tinygears.uom.core;
+    requires transitive org.tinygears.uom.engine;
 
+    exports org.tinygears.uom;
     exports org.tinygears.uom.quantity;
     exports org.tinygears.uom.systems;
-
-    provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider;
-    // Registers the catalogs' alternate units before the engine reads an atom from a stream.
-    provides org.tinygears.uom.engine.internal.UnitCatalogs with org.tinygears.uom.systems.UomServiceProvider;
 }

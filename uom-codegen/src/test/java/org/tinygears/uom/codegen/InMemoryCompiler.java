@@ -25,7 +25,7 @@ import javax.tools.ToolProvider;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Compiles sources held in memory against the test class path. */
+/** Compiles sources held in memory against the test class path and loads them before that class path. */
 final class InMemoryCompiler {
     private InMemoryCompiler() {
     }
@@ -55,8 +55,27 @@ final class InMemoryCompiler {
         boolean ok = compiler.getTask(null, null, diagnostics, options, null, units).call();
         assertEquals(List.of(), diagnostics.getDiagnostics().stream().map(Object::toString).toList());
         assertTrue(ok);
+        // Child first: the test class path holds uom-jsr, whose generated classes have the same names.
         return new URLClassLoader(
                 new java.net.URL[] { outputDir.toUri().toURL() },
-                InMemoryCompiler.class.getClassLoader());
+                InMemoryCompiler.class.getClassLoader()) {
+            @Override
+            protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+                synchronized (getClassLoadingLock(name)) {
+                    Class<?> c = findLoadedClass(name);
+                    if (c == null && java.nio.file.Files
+                            .isRegularFile(outputDir.resolve(name.replace('.', '/') + ".class"))) {
+                        c = findClass(name);
+                    }
+                    if (c == null) {
+                        return super.loadClass(name, resolve);
+                    }
+                    if (resolve) {
+                        resolveClass(c);
+                    }
+                    return c;
+                }
+            }
+        };
     }
 }

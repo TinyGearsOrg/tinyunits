@@ -30,26 +30,26 @@ import javax.measure.format.UnitFormat;
 import javax.measure.spi.FormatService;
 import javax.measure.spi.ServiceProvider;
 
-import org.tinygears.uom.quantity.Angle;
-import org.tinygears.uom.quantity.Dimensionless;
-import org.tinygears.uom.quantity.ElectricCharge;
-import org.tinygears.uom.quantity.Energy;
-import org.tinygears.uom.quantity.Force;
-import org.tinygears.uom.quantity.Length;
-import org.tinygears.uom.quantity.Mass;
-import org.tinygears.uom.quantity.Speed;
-import org.tinygears.uom.quantity.Temperature;
-import org.tinygears.uom.quantity.Time;
-import org.tinygears.uom.quantity.Volume;
-import org.tinygears.uom.systems.CGS;
-import org.tinygears.uom.systems.Gaussian;
-import org.tinygears.uom.systems.Imperial;
-import org.tinygears.uom.systems.Information;
-import org.tinygears.uom.systems.SI;
-import org.tinygears.uom.systems.USCustomary;
-import org.tinygears.uom.systems.UomQuantityFormat;
-import org.tinygears.uom.systems.UomSystemOfUnits;
-import org.tinygears.uom.systems.UomUnitFormat;
+import org.tinygears.uom.jsr.quantity.Angle;
+import org.tinygears.uom.jsr.quantity.Dimensionless;
+import org.tinygears.uom.jsr.quantity.ElectricCharge;
+import org.tinygears.uom.jsr.quantity.Energy;
+import org.tinygears.uom.jsr.quantity.Force;
+import org.tinygears.uom.jsr.quantity.Length;
+import org.tinygears.uom.jsr.quantity.Mass;
+import org.tinygears.uom.jsr.quantity.Speed;
+import org.tinygears.uom.jsr.quantity.Temperature;
+import org.tinygears.uom.jsr.quantity.Time;
+import org.tinygears.uom.jsr.quantity.Volume;
+import org.tinygears.uom.jsr.systems.CGS;
+import org.tinygears.uom.jsr.systems.Gaussian;
+import org.tinygears.uom.jsr.systems.Imperial;
+import org.tinygears.uom.jsr.systems.Information;
+import org.tinygears.uom.jsr.systems.SI;
+import org.tinygears.uom.jsr.systems.USCustomary;
+import org.tinygears.uom.jsr.systems.UomQuantityFormat;
+import org.tinygears.uom.jsr.systems.UomSystemOfUnits;
+import org.tinygears.uom.jsr.systems.UomUnitFormat;
 
 /** Usage examples; each method returns what it prints so that a test can check it. */
 public final class Examples {
@@ -220,7 +220,7 @@ public final class Examples {
 
     /** The filter the README recommends for streams that are not trusted. */
     static final String SERIAL_FILTER = "maxarray=65536;maxbytes=1048576;maxdepth=20;maxrefs=10000;"
-            + "org.tinygears.uom.engine.*;org.tinygears.uom.core.**;org.tinygears.uom.quantity.*;javax.measure.**;java.lang.*;java.math.*;!*";
+            + "org.tinygears.uom.engine.*;org.tinygears.uom.jsr.**;javax.measure.**;java.lang.*;java.math.*;!*";
 
     private static Object roundTrip(Object value) {
         try {

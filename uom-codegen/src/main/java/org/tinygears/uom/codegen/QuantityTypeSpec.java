@@ -10,7 +10,7 @@
 
 package org.tinygears.uom.codegen;
 
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.engine.Unit;
 
 /**
  * One line of the quantity types file; {@code systemSymbol} and {@code systemName} come from an explicit
@@ -19,7 +19,7 @@ import org.tinygears.uom.core.UomUnit;
 public record QuantityTypeSpec(
         String name,
         String formula,
-        UomUnit<?> systemUnit,
+        Unit systemUnit,
         String systemSymbol,
         String systemName,
         String source,

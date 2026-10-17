@@ -34,15 +34,15 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomDimension;
-import org.tinygears.uom.core.UomUnit;
-import org.tinygears.uom.core.quantity.AbstractDecimalQuantity;
 import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.engine.UnitAtom;
 import org.tinygears.uom.engine.parse.DefinitionParser;
 import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.jsr.BaseUnits;
+import org.tinygears.uom.jsr.Converters;
+import org.tinygears.uom.jsr.UomDimension;
+import org.tinygears.uom.jsr.UomUnit;
+import org.tinygears.uom.jsr.quantity.AbstractDecimalQuantity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SourceEmitterTest {
-    private static final String PACKAGE = "org.tinygears.uom.quantity.";
+    private static final String PACKAGE = "org.tinygears.uom.jsr.quantity.";
     private static final List<QuantityTypeSpec> SPECS = QuantityTypesParser.parse(
             "types.txt",
             new StringReader("Length m\nSpeed m / s => m/s:metre_per_second\n"),
@@ -101,7 +101,7 @@ class SourceEmitterTest {
             assertEquals(List.of(), ImportCheck.problems(text, Set.of("Length", "Speed")), name);
             assertTrue(text.startsWith(Headers.java("data/quantity-types.txt") + """
 
-                    package org.tinygears.uom.quantity;
+                    package org.tinygears.uom.jsr.quantity;
                     """), name);
         });
     }
@@ -169,7 +169,15 @@ class SourceEmitterTest {
     @ParameterizedTest
     @ValueSource(strings = { "Unit", "Objects", "BigDecimal", "UomUnit" })
     void clashingTypeNameKeepsTheImportedClassQualified(String name) throws Exception {
-        QuantityTypeSpec spec = new QuantityTypeSpec(name, "m", BaseUnits.METRE, null, null, "types.txt", 1, false);
+        QuantityTypeSpec spec = new QuantityTypeSpec(
+                name,
+                "m",
+                BaseUnits.METRE.engine(),
+                null,
+                null,
+                "types.txt",
+                1,
+                false);
         Map<String, String> byClass = new LinkedHashMap<>();
         byClass.put(PACKAGE + name, SourceEmitter.typedInterface(spec));
         byClass.put(PACKAGE + name + "Double", SourceEmitter.doubleImplementation(spec));
@@ -180,7 +188,7 @@ class SourceEmitterTest {
             case "Unit" -> "javax.measure.Unit";
             case "Objects" -> "java.util.Objects";
             case "BigDecimal" -> "java.math.BigDecimal";
-            default -> "org.tinygears.uom.core.UomUnit";
+            default -> "org.tinygears.uom.jsr.UomUnit";
         };
         byClass.forEach((cls, text) -> {
             assertFalse(text.contains("import " + qualified + ";"), cls);
@@ -197,7 +205,7 @@ class SourceEmitterTest {
     @Test
     void factoryReportsSpecPosition() {
         UomUnit<?> x = UomUnit.of(Map.of(new UnitAtom("x", Dimension.NONE), 1), Converters.IDENTITY, null, null);
-        QuantityTypeSpec bad = new QuantityTypeSpec("Length", "x", x, null, null, "types.txt", 7, false);
+        QuantityTypeSpec bad = new QuantityTypeSpec("Length", "x", x.engine(), null, null, "types.txt", 7, false);
         GenerationException e = assertThrows(
                 GenerationException.class,
                 () -> SourceEmitter.factory(bad, UnitExpressionEmitterTest.DEFS));

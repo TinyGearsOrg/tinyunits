@@ -27,16 +27,16 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomDimension;
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.Dimension;
 import org.tinygears.uom.engine.UnitAtom;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.DefinitionParser;
 import org.tinygears.uom.engine.parse.Definitions;
 import org.tinygears.uom.engine.parse.FormulaEvaluator;
+import org.tinygears.uom.jsr.BaseUnits;
+import org.tinygears.uom.jsr.Converters;
+import org.tinygears.uom.jsr.UomDimension;
+import org.tinygears.uom.jsr.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -100,7 +100,7 @@ class UnitExpressionEmitterTest {
     void roundTrips(String formula) throws Exception {
         UomUnit<?> unit = evaluate(formula);
         Imports imports = imports();
-        UomUnit<?> result = run(UnitExpressionEmitter.emit(unit, DEFS, imports), imports);
+        UomUnit<?> result = run(UnitExpressionEmitter.emit(unit.engine(), DEFS, imports), imports);
         assertEquals(unit, result);
         if (unit.getSymbol() != null) {
             assertEquals(unit.getSymbol(), result.getSymbol());
@@ -111,7 +111,9 @@ class UnitExpressionEmitterTest {
     void namedJoule() throws Exception {
         UomUnit<?> unit = evaluate("J");
         Imports imports = imports();
-        UomUnit<?> result = run(UnitExpressionEmitter.emit(unit, DEFS, imports) + ".named(\"J\", \"joule\")", imports);
+        UomUnit<?> result = run(
+                UnitExpressionEmitter.emit(unit.engine(), DEFS, imports) + ".named(\"J\", \"joule\")",
+                imports);
         assertEquals(unit, result);
         assertEquals("J", result.getSymbol());
         assertEquals("joule", result.getName());
@@ -123,17 +125,19 @@ class UnitExpressionEmitterTest {
         assertEquals("", imports.block());
         assertEquals(
                 "BaseUnits.METRE.divide(BaseUnits.SECOND)",
-                UnitExpressionEmitter.emit(evaluate("m / s"), DEFS, imports));
+                UnitExpressionEmitter.emit(evaluate("m / s").engine(), DEFS, imports));
         assertEquals(
                 "BaseUnits.ONE.divide(BaseUnits.SECOND).alternate(\"Hz\")",
-                UnitExpressionEmitter.emit(evaluate("Hz"), DEFS, imports));
+                UnitExpressionEmitter.emit(evaluate("Hz").engine(), DEFS, imports));
         assertEquals(
                 "BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))",
-                UnitExpressionEmitter.emit(evaluate("J"), DEFS, imports));
-        assertEquals("BaseUnits.ONE", UnitExpressionEmitter.emit(BaseUnits.ONE, DEFS, imports));
-        assertEquals("import org.tinygears.uom.core.BaseUnits;\n\n", imports.block());
+                UnitExpressionEmitter.emit(evaluate("J").engine(), DEFS, imports));
+        assertEquals("BaseUnits.ONE", UnitExpressionEmitter.emit(BaseUnits.ONE.engine(), DEFS, imports));
+        assertEquals("import org.tinygears.uom.jsr.BaseUnits;\n\n", imports.block());
         Imports clash = new Imports("", List.of("E", "BaseUnits"));
-        assertEquals("org.tinygears.uom.core.BaseUnits.ONE", UnitExpressionEmitter.emit(BaseUnits.ONE, DEFS, clash));
+        assertEquals(
+                "org.tinygears.uom.jsr.BaseUnits.ONE",
+                UnitExpressionEmitter.emit(BaseUnits.ONE.engine(), DEFS, clash));
         assertEquals("", clash.block());
     }
 
@@ -142,7 +146,7 @@ class UnitExpressionEmitterTest {
         UomUnit<?> unit = UomUnit.of(Map.of(new UnitAtom("x\"y", Dimension.NONE), 1), Converters.IDENTITY, null, null);
         GenerationException e = assertThrows(
                 GenerationException.class,
-                () -> UnitExpressionEmitter.emit(unit, DEFS, imports()));
+                () -> UnitExpressionEmitter.emit(unit.engine(), DEFS, imports()));
         assertEquals("no definition for alternate unit 'x\"y'", e.getMessage());
     }
 
@@ -150,7 +154,7 @@ class UnitExpressionEmitterTest {
     void scaledUnit() {
         GenerationException e = assertThrows(
                 GenerationException.class,
-                () -> UnitExpressionEmitter.emit(BaseUnits.METRE.multiply(1000), DEFS, imports()));
+                () -> UnitExpressionEmitter.emit(BaseUnits.METRE.multiply(1000).engine(), DEFS, imports()));
         assertEquals("unit must be an unscaled system unit", e.getMessage());
     }
 
@@ -175,7 +179,7 @@ class UnitExpressionEmitterTest {
                 Map.of());
         GenerationException e = assertThrows(
                 GenerationException.class,
-                () -> UnitExpressionEmitter.emit(x, cyclic, imports()));
+                () -> UnitExpressionEmitter.emit(x.engine(), cyclic, imports()));
         assertEquals("alternate unit definitions nest too deeply at 'x'", e.getMessage());
     }
 
@@ -190,7 +194,7 @@ class UnitExpressionEmitterTest {
             default -> si(si, symbol);
         };
         Imports imports = imports();
-        String text = UnitExpressionEmitter.emitUnit(unit, si, imports);
+        String text = UnitExpressionEmitter.emitUnit(unit.engine(), si, imports);
         assertEquals(unit, run(text, imports));
         assertEquals(!unit.toSystemConverter().equals(Converters.IDENTITY), text.contains(".transform("), text);
         String unquoted = text.replaceAll("\"[^\"]*\"", "\"\"");
@@ -202,11 +206,11 @@ class UnitExpressionEmitterTest {
         Definitions si = siDefinitions();
         UomUnit<?> unit = si(si, "min");
         Imports imports = imports();
-        String text = UnitExpressionEmitter.emitUnit(unit, si, imports);
+        String text = UnitExpressionEmitter.emitUnit(unit.engine(), si, imports);
         assertTrue(text.endsWith(".transform(Converters.affine(Factor.of(60L, 1L), Factor.ZERO))"), text);
         assertEquals(
-                "import org.tinygears.uom.core.BaseUnits;\nimport org.tinygears.uom.core.Converters;\n"
-                        + "import org.tinygears.uom.engine.Factor;\n\n",
+                "import org.tinygears.uom.engine.Factor;\nimport org.tinygears.uom.jsr.BaseUnits;\n"
+                        + "import org.tinygears.uom.jsr.Converters;\n\n",
                 imports.block());
         UomUnit<?> result = run(text + ".named(\"min\", \"minute\")", imports);
         assertEquals(unit, result);

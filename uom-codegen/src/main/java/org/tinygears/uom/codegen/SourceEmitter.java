@@ -21,20 +21,20 @@ import org.tinygears.uom.engine.parse.Definitions;
  * spell classes qualified and {@link Imports#resolve} shortens them.
  */
 public final class SourceEmitter {
-    private static final String PACKAGE = "org.tinygears.uom.quantity";
+    private static final String PACKAGE = "org.tinygears.uom.jsr.quantity";
     private static final String HEADER = Headers.java("data/quantity-types.txt") + """
 
-            package org.tinygears.uom.quantity;
+            package org.tinygears.uom.jsr.quantity;
 
             """;
 
     private static final String INTERFACE = """
             /**
              * A {@link javax.measure.quantity.$T} of this implementation: the JSR-385 quantity with this interface as the
-             * return type of its operations, and the additions of {@link org.tinygears.uom.core.quantity.UomQuantity}.
+             * return type of its operations, and the additions of {@link org.tinygears.uom.jsr.quantity.UomQuantity}.
              */
             public interface $T extends javax.measure.quantity.$T,
-                    org.tinygears.uom.core.quantity.UomQuantity<javax.measure.quantity.$T, $T> {
+                    org.tinygears.uom.jsr.quantity.UomQuantity<javax.measure.quantity.$T, $T> {
 
                 /**
                  * An absolute double quantity.
@@ -118,26 +118,26 @@ public final class SourceEmitter {
 
     private static final String IMPLEMENTATION = """
             final class $TDouble
-                    extends org.tinygears.uom.core.quantity.AbstractDoubleQuantity<javax.measure.quantity.$T, $T>
+                    extends org.tinygears.uom.jsr.quantity.AbstractDoubleQuantity<javax.measure.quantity.$T, $T>
                     implements $T {
 
                 @java.io.Serial
                 private static final long serialVersionUID = 1L;
 
-                $TDouble(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
+                $TDouble(double value, org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     super(value, unit, scale);
                 }
 
                 @Override
-                protected $T create(double value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
+                protected $T create(double value, org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
                     return new $TDouble(value, unit, scale);
                 }
 
                 @Override
                 protected $T createDecimal(java.math.BigDecimal value,
-                        org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+                        org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
                     return new $TDecimal(value, unit, scale, mc);
                 }
 
@@ -150,26 +150,26 @@ public final class SourceEmitter {
 
     private static final String DECIMAL = """
             final class $TDecimal
-                    extends org.tinygears.uom.core.quantity.AbstractDecimalQuantity<javax.measure.quantity.$T, $T>
+                    extends org.tinygears.uom.jsr.quantity.AbstractDecimalQuantity<javax.measure.quantity.$T, $T>
                     implements $T {
 
                 @java.io.Serial
                 private static final long serialVersionUID = 1L;
 
-                $TDecimal(java.math.BigDecimal value, org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit,
+                $TDecimal(java.math.BigDecimal value, org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
                     super(value, unit, scale, mc);
                 }
 
                 @Override
                 protected $T create(java.math.BigDecimal value,
-                        org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
+                        org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
                     return new $TDecimal(value, unit, scale, mc);
                 }
 
                 @Override
                 protected $T createDouble(double value,
-                        org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale) {
+                        org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> unit, javax.measure.Quantity.Scale scale) {
                     return new $TDouble(value, unit, scale);
                 }
 
@@ -186,8 +186,8 @@ public final class SourceEmitter {
                     implements javax.measure.spi.QuantityFactory<javax.measure.quantity.$T> {
 
                 /** The system unit of {@link $T}. */
-                public static final org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> SYSTEM_UNIT =
-                        org.tinygears.uom.core.UomUnit.unchecked($U);
+                public static final org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> SYSTEM_UNIT =
+                        org.tinygears.uom.jsr.UomUnit.unchecked($U);
 
                 /** The only instance. */
                 public static final $TFactory INSTANCE = new $TFactory();
@@ -216,7 +216,7 @@ public final class SourceEmitter {
                  */
                 public $T of(double value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale) {
-                    if (java.util.Objects.requireNonNull(unit, "unit") instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> u) {
+                    if (java.util.Objects.requireNonNull(unit, "unit") instanceof org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> u) {
                         return new $TDouble(value, u, scale);
                     }
                     throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);
@@ -259,7 +259,7 @@ public final class SourceEmitter {
                 public $T of(java.math.BigDecimal value, javax.measure.Unit<javax.measure.quantity.$T> unit,
                         javax.measure.Quantity.Scale scale, java.math.MathContext mc) {
                     java.util.Objects.requireNonNull(value, "value");
-                    if (java.util.Objects.requireNonNull(unit, "unit") instanceof org.tinygears.uom.core.UomUnit<javax.measure.quantity.$T> u) {
+                    if (java.util.Objects.requireNonNull(unit, "unit") instanceof org.tinygears.uom.jsr.UomUnit<javax.measure.quantity.$T> u) {
                         return new $TDecimal(value, u, scale, mc);
                     }
                     throw new javax.measure.UnconvertibleException("foreign unit implementation: " + unit);

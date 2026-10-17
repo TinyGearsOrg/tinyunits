@@ -11,8 +11,8 @@ set -euo pipefail
 
 SCRIPT=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-PUBLISHED=(uom-parent uom-engine uom-core uom)
-UNPUBLISHED=(uom-codegen uom-tck uom-examples uom-native uom-native-jsr)
+PUBLISHED=(uom-parent uom-engine uom uom-jsr)
+UNPUBLISHED=(uom-codegen uom-tck uom-examples)
 # Maven 3.9 chained local repository (comma-separated tail): installs go to the temporary head, the tail is only read
 TAIL=${VERIFY_REPO_TAIL:-$HOME/.m2/repository}
 [[ -n ${VERIFY_REPO_TAIL:-} || -d $TAIL ]] || TAIL=
@@ -84,18 +84,19 @@ describe_expected() { # <artifact> <version>
     uom-engine) printf '%s\n' "org.tinygears.uom.engine@$2" 'exports org.tinygears.uom.engine' \
       'exports org.tinygears.uom.engine.parse' \
       'requires java.base mandated' 'uses org.tinygears.uom.engine.internal.UnitCatalogs' \
-      'qualified exports org.tinygears.uom.engine.arithmetic to org.tinygears.uom.core org.tinygears.uom.nativeapi' \
-      'qualified exports org.tinygears.uom.engine.format to org.tinygears.uom org.tinygears.uom.nativeapi' \
-      'qualified exports org.tinygears.uom.engine.internal to org.tinygears.uom org.tinygears.uom.core org.tinygears.uom.nativeapi' ;;
-    uom-core) printf '%s\n' "org.tinygears.uom.core@$2" 'exports org.tinygears.uom.core' \
-      'exports org.tinygears.uom.core.quantity' 'requires java.base mandated' \
-      'requires java.measure transitive' 'requires org.tinygears.uom.engine transitive' \
-      'qualified exports org.tinygears.uom.core.spi to org.tinygears.uom' ;;
-    uom) printf '%s\n' "org.tinygears.uom@$2" 'exports org.tinygears.uom.quantity' \
+      'qualified exports org.tinygears.uom.engine.arithmetic to org.tinygears.uom org.tinygears.uom.jsr' \
+      'qualified exports org.tinygears.uom.engine.format to org.tinygears.uom org.tinygears.uom.jsr' \
+      'qualified exports org.tinygears.uom.engine.internal to org.tinygears.uom org.tinygears.uom.jsr' ;;
+    uom) printf '%s\n' "org.tinygears.uom@$2" 'exports org.tinygears.uom' 'exports org.tinygears.uom.quantity' \
       'exports org.tinygears.uom.systems' 'requires java.base mandated' \
-      'requires org.tinygears.uom.core transitive' \
-      'provides javax.measure.spi.ServiceProvider with org.tinygears.uom.systems.UomServiceProvider' \
-      'provides org.tinygears.uom.engine.internal.UnitCatalogs with org.tinygears.uom.systems.UomServiceProvider' ;;
+      'requires org.tinygears.uom.engine transitive' ;;
+    uom-jsr) printf '%s\n' "org.tinygears.uom.jsr@$2" 'exports org.tinygears.uom.jsr' \
+      'exports org.tinygears.uom.jsr.quantity' 'exports org.tinygears.uom.jsr.systems' 'requires java.base mandated' \
+      'requires java.measure transitive' 'requires org.tinygears.uom transitive' \
+      'requires org.tinygears.uom.engine transitive' \
+      'provides javax.measure.spi.ServiceProvider with org.tinygears.uom.jsr.systems.UomServiceProvider' \
+      'provides org.tinygears.uom.engine.internal.UnitCatalogs with org.tinygears.uom.jsr.systems.UomServiceProvider' \
+      'contains org.tinygears.uom.jsr.spi' ;;
   esac
 }
 
@@ -110,16 +111,19 @@ check() { # <repo>
     got=$(files_of "$repo" "$a" "$v" | sort)
     case $a in
       uom-parent) want="$a-$v.pom" ;;
-      uom-engine|uom-core|uom) want=$(printf '%s\n' "$a-$v-javadoc.jar" "$a-$v-sources.jar" "$a-$v.jar" "$a-$v.pom" | sort) ;;
+      uom-engine|uom-jsr|uom) want=$(printf '%s\n' "$a-$v-javadoc.jar" "$a-$v-sources.jar" "$a-$v.jar" "$a-$v.pom" | sort) ;;
       # installed locally for the reactor, but never deployed: no sources or javadoc jar
       *) want=$(printf '%s\n' "$a-$v.jar" "$a-$v.pom" | sort) ;;
     esac
     [[ $got == "$want" ]] || fail "$a: installed files are [$(echo $got)], expected [$(echo $want)]"
   done
-  for a in uom-engine uom-core uom; do
+  for a in uom-engine uom uom-jsr; do
     jar=$repo/org/tinygears/$a/$v/$a-$v
-    if [[ $a == uom ]]; then pkg='org/tinygears/uom/(quantity|systems)'; meta='|META-INF/services/(javax\.measure\.spi\.ServiceProvider|org\.tinygears\.uom\.engine\.internal\.UnitCatalogs)?'
-    else pkg="org/tinygears/uom/${a#uom-}"; meta=''; fi
+    case $a in
+      uom-jsr) pkg='org/tinygears/uom/jsr'; meta='|META-INF/services/(javax\.measure\.spi\.ServiceProvider|org\.tinygears\.uom\.engine\.internal\.UnitCatalogs)?' ;;
+      uom) pkg='org/tinygears/uom'; meta='' ;;
+      *) pkg="org/tinygears/uom/${a#uom-}"; meta='' ;;
+    esac
     meta="META-INF/(MANIFEST\.MF|LICENSE|maven/(org\.tinygears/($a/(pom\.xml|pom\.properties)?)?)?)?$meta|org/(tinygears/(uom/)?)?"
     check_entries "$jar.jar" "^($meta|module-info\.class|$pkg/([a-z]+/)*([A-Za-z0-9_\$]+\.class|package-info\.class)?)$" \
       module-info.class META-INF/LICENSE META-INF/MANIFEST.MF
@@ -145,7 +149,7 @@ check() { # <repo>
   # the POM checks of scripts/check-pom.sh on the installed POMs, laid out as the source tree
   mkdir -p "$tmp/poms"
   cp "$repo/org/tinygears/uom-parent/$v/uom-parent-$v.pom" "$tmp/poms/pom.xml"
-  for a in uom-engine uom-core uom "${UNPUBLISHED[@]}"; do
+  for a in uom-engine uom uom-jsr "${UNPUBLISHED[@]}"; do
     mkdir -p "$tmp/poms/$a" && cp "$repo/org/tinygears/$a/$v/$a-$v.pom" "$tmp/poms/$a/pom.xml"
   done
   CHECK_POM_ROOT=$tmp/poms bash "$ROOT/scripts/check-pom.sh" > "$tmp/check-pom.log" 2>&1 \
@@ -186,9 +190,9 @@ consumer() { # <repo>
     || { tail -50 "$tmp/consumer.log" >&2; fail "consumer: mvn package failed (log above)"; }
   cp=$(cat "$c/classpath.txt")
   got=$(tr ':' '\n' <<< "$cp" | xargs -n1 basename | sort)
-  [[ $got == "$(printf '%s\n' "uom-$v.jar" "uom-core-$v.jar" "uom-engine-$v.jar" unit-api-2.2.jar | sort)" ]] \
-    || fail "consumer: dependencies are [$(echo $got)], expected uom, uom-core, uom-engine, unit-api 2.2"
-  for a in uom uom-core uom-engine; do
+  [[ $got == "$(printf '%s\n' "uom-$v.jar" "uom-jsr-$v.jar" "uom-engine-$v.jar" unit-api-2.2.jar | sort)" ]] \
+    || fail "consumer: dependencies are [$(echo $got)], expected uom, uom-jsr, uom-engine, unit-api 2.2"
+  for a in uom uom-jsr uom-engine; do
     [[ ":$cp:" == *":$repo/org/tinygears/$a/$v/$a-$v.jar:"* ]] || fail "consumer: $a not resolved from $repo"
   done
   mkdir -p "$c/cp"
@@ -199,12 +203,12 @@ consumer() { # <repo>
   run_examples "module path" java -p "$CONSUMER_PATH" -m "org.tinygears.uom.consumer/$MAIN"
 }
 
-# Stage 5: a jlink image with org.tinygears.uom and the consumer.
+# Stage 5: a jlink image with org.tinygears.uom.jsr and the consumer.
 jlink_image() {
   local img=$tmp/image got
   rm -rf "$img"
   # jdk.localedata: Examples.locales formats for Locale.GERMANY, which the root locale data lacks
-  if ! jlink -p "$CONSUMER_PATH" --add-modules org.tinygears.uom,org.tinygears.uom.consumer,jdk.localedata --output "$img" \
+  if ! jlink -p "$CONSUMER_PATH" --add-modules org.tinygears.uom.jsr,org.tinygears.uom.consumer,jdk.localedata --output "$img" \
        > "$tmp/jlink.log" 2>&1; then
     # a JDK without jmods cannot link if its runtime is not linkable or was modified (distribution packages)
     if grep -q -e 'Module java.base not found' -e 'has been modified' "$tmp/jlink.log"; then
@@ -215,7 +219,7 @@ jlink_image() {
   fi
   got=$("$img/bin/java" --list-modules | sed 's/@.*//' | sort)
   [[ $got == "$(printf '%s\n' java.base java.measure jdk.localedata org.tinygears.uom org.tinygears.uom.consumer \
-      org.tinygears.uom.core org.tinygears.uom.engine)" ]] \
+      org.tinygears.uom.engine org.tinygears.uom.jsr)" ]] \
     || fail "jlink image modules are [$(echo $got)]"
   run_examples "jlink image" "$img/bin/java" -m "org.tinygears.uom.consumer/$MAIN"
   JLINK=ok
@@ -231,21 +235,21 @@ self_test() {
     "baseline|check||"
     "baseline-compare|compare||"
     "baseline-consumer|consumer||"
-    "license|check|drop(j('uom-core') + '.jar', 'META-INF/LICENSE')|uom-core-$v.jar lacks META-INF/LICENSE"
+    "license|check|drop(j('uom-jsr') + '.jar', 'META-INF/LICENSE')|uom-jsr-$v.jar lacks META-INF/LICENSE"
     "module-info|check|drop(j('uom') + '.jar', 'module-info.class')|uom-$v.jar lacks module-info.class"
     "sources-license|check|drop(j('uom') + '-sources.jar', 'META-INF/LICENSE')|uom-$v-sources.jar lacks META-INF/LICENSE"
     "stray-data|check|add(j('uom') + '.jar', 'data/si.units')|uom-$v.jar: stray entry data/si.units"
-    "test-class|check|add(j('uom-core') + '.jar', 'org/tinygears/uom/core/UnitTest.class')|uom-core-$v.jar: test class org/tinygears/uom/core/UnitTest.class"
-    "javadoc-internal|check|add(j('uom-core') + '-javadoc.jar', 'org.tinygears.uom.core/org/tinygears/uom/core/internal/X.html')|uom-core-$v-javadoc.jar documents an internal package"
+    "test-class|check|add(j('uom-jsr') + '.jar', 'org/tinygears/uom/jsr/UnitTest.class')|uom-jsr-$v.jar: test class org/tinygears/uom/jsr/UnitTest.class"
+    "javadoc-internal|check|add(j('uom-jsr') + '-javadoc.jar', 'org.tinygears.uom.jsr/org/tinygears/uom/jsr/internal/X.html')|uom-jsr-$v-javadoc.jar documents an internal package"
     "manifest|check|manifest(j('uom'), 'Implementation-Vendor: TinyGearsOrg', 'Implementation-Vendor: x')|uom-$v.jar: manifest lacks 'Implementation-Vendor: TinyGearsOrg'"
     "license-text|check|replace(j('uom') + '.jar', 'META-INF/LICENSE', b'x')|uom-$v.jar: META-INF/LICENSE differs from LICENSE"
     "no-javadoc|check|rm(j('uom') + '-javadoc.jar')|uom: installed files are [uom-$v-sources.jar uom-$v.jar uom-$v.pom]"
     "tck-sources|check|touch(j('uom-tck') + '-sources.jar')|uom-tck: installed files are [uom-tck-$v-sources.jar uom-tck-$v.jar"
-    "extra-artifact|check|mkdir('org/tinygears/uom-extra')|installed artifacts of org.tinygears are [uom uom-codegen uom-core uom-engine uom-examples uom-extra"
-    "snapshot-dependency|check|sub(j('uom-core') + '.pom', '<dependencies>', '<dependencies><dependency><groupId>com.example</groupId><artifactId>x</artifactId><version>1.0-SNAPSHOT</version></dependency>')|uom-core: default: SNAPSHOT dependency com.example:x:1.0-SNAPSHOT"
-    "not-reproducible|compare|replace(j('uom-core') + '-sources.jar', 'META-INF/LICENSE', b'x')|not reproducible: uom-core-$v-sources.jar differ"
+    "extra-artifact|check|mkdir('org/tinygears/uom-extra')|installed artifacts of org.tinygears are [uom uom-codegen uom-engine uom-examples uom-extra uom-jsr"
+    "snapshot-dependency|check|sub(j('uom-jsr') + '.pom', '<dependencies>', '<dependencies><dependency><groupId>com.example</groupId><artifactId>x</artifactId><version>1.0-SNAPSHOT</version></dependency>')|uom-jsr: default: SNAPSHOT dependency com.example:x:1.0-SNAPSHOT"
+    "not-reproducible|compare|replace(j('uom-jsr') + '-sources.jar', 'META-INF/LICENSE', b'x')|not reproducible: uom-jsr-$v-sources.jar differ"
     "consumer-output|consumer|expected()|consumer (class path): output differs"
-    "module-descriptor|check|swap(j('uom') + '.jar', 'module-info.class', j('uom-core') + '.jar')|uom-$v.jar: jar --describe-module gives [org.tinygears.uom.core@$v"
+    "module-descriptor|check|swap(j('uom') + '.jar', 'module-info.class', j('uom-jsr') + '.jar')|uom-$v.jar: jar --describe-module gives [org.tinygears.uom.jsr@$v"
     "resolved-from-tail|consumer|to_tail('uom')|consumer: uom not resolved from"
   )
   local c mode
@@ -326,7 +330,7 @@ build 2
 compare "$tmp/repo-1" "$tmp/repo-2"
 say "[4/5] consumer on the class path and on the module path"
 consumer "$tmp/repo-1"
-say "[5/5] jlink image with org.tinygears.uom"
+say "[5/5] jlink image with org.tinygears.uom.jsr"
 jlink_image
 [[ $JLINK == ok ]] || say "[5/5] $JLINK"
 if [[ $JDK != 21 ]]; then

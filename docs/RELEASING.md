@@ -4,7 +4,7 @@ Instructions for the maintainer. **Not yet executed:** no version of uom has bee
 uploaded. Everything up to the upload is prepared and tested (`scripts/check-pom.sh`, `scripts/verify-release.sh`);
 the steps below that touch keys, credentials, Maven Central or tags are the maintainer's alone.
 
-Published: `org.tinygears:uom-parent` (pom only), and `org.tinygears:uom-core` and `org.tinygears:uom`, each with a
+Published: `org.tinygears:uom-parent` (pom only), and `org.tinygears:uom-jsr` and `org.tinygears:uom`, each with a
 jar, a sources jar and a javadoc jar. Not published: `uom-codegen`, `uom-tck`, `uom-examples` (deploy skipped, excluded from the Central
 bundle, `skipPublishing` set literally in their POMs).
 
@@ -101,7 +101,7 @@ Example for version `1.0.0`; the next development version is `1.0.1-SNAPSHOT`.
    This builds, tests, signs and uploads one bundle with the three published artifacts to the Central Portal. With
    `autoPublish=false` nothing is public yet.
 6. **Publish in the Portal.** In *Deployments*, wait for the deployment to be *Validated*, check its file list
-   (`uom-parent`, `uom-core`, `uom`: pom, jar, sources and javadoc jars, each with `.asc` and checksums; nothing of
+   (`uom-parent`, `uom-jsr`, `uom`: pom, jar, sources and javadoc jars, each with `.asc` and checksums; nothing of
    `uom-codegen`, `uom-tck`, `uom-examples`), then press *Publish*. If anything is wrong, press *Drop*, fix, and start
    again at step 2; a published version can never be changed or deleted.
 7. **Tag** the release commit and push it:

@@ -22,15 +22,15 @@ import javax.measure.spi.QuantityFactory;
 
 import tech.units.tck.util.ServiceConfiguration;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomDimension;
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.Factor;
-import org.tinygears.uom.quantity.QuantityTypes;
-import org.tinygears.uom.systems.SI;
-import org.tinygears.uom.systems.UomQuantityFormat;
-import org.tinygears.uom.systems.UomUnitFormat;
+import org.tinygears.uom.jsr.BaseUnits;
+import org.tinygears.uom.jsr.Converters;
+import org.tinygears.uom.jsr.UomDimension;
+import org.tinygears.uom.jsr.UomUnit;
+import org.tinygears.uom.jsr.quantity.QuantityTypes;
+import org.tinygears.uom.jsr.systems.SI;
+import org.tinygears.uom.jsr.systems.UomQuantityFormat;
+import org.tinygears.uom.jsr.systems.UomUnitFormat;
 
 /** Tells the JSR-385 TCK which uom classes, units, converters and formats to test. */
 @SuppressWarnings({ "rawtypes", "unchecked" })

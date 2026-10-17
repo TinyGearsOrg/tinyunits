@@ -21,14 +21,13 @@ import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
 import javax.measure.Prefix;
 
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.Definitions;
 import org.tinygears.uom.engine.parse.Prefixed;
 
 /** Writes the catalog class of typed unit constants and its system of units. */
 public final class CatalogEmitter {
-    private static final String PACKAGE = "org.tinygears.uom.systems";
+    private static final String PACKAGE = "org.tinygears.uom.jsr.systems";
     private static final List<Enum<?>> PREFIXES = Stream
             .<Enum<?>>concat(Arrays.stream(MetricPrefix.values()), Arrays.stream(BinaryPrefix.values())).toList();
     private static final String INDENT = "                    ";
@@ -52,7 +51,7 @@ public final class CatalogEmitter {
     ) {
         String className = catalog.className();
         Imports imports = new Imports(PACKAGE, taken(catalog, extras));
-        String unitClass = imports.name("org.tinygears.uom.core.UomUnit");
+        String unitClass = imports.name("org.tinygears.uom.jsr.UomUnit");
         List<String> files = dataFiles(catalog.file(), definitions);
         StringBuilder out = new StringBuilder(
                 """
@@ -74,7 +73,7 @@ public final class CatalogEmitter {
                 unit = prefixed(d, catalog, definitions, emitted, imports);
                 if (unit == null) {
                     try {
-                        unit = UnitExpressionEmitter.emitUnit(UomUnit.of(d.unit()), definitions, imports);
+                        unit = UnitExpressionEmitter.emitUnit(d.unit(), definitions, imports);
                     } catch (GenerationException x) {
                         throw new GenerationException(d.source(), d.line(), x.getMessage(), x);
                     }
@@ -96,7 +95,7 @@ public final class CatalogEmitter {
                     .append("}, the system unit of ").append(t.name()).append(". */\n    public static final ")
                     .append(unitClass).append('<').append(imports.name("javax.measure.quantity." + t.name()))
                     .append("> ").append(constant).append(" =\n            ").append(unitClass).append(".unchecked(")
-                    .append(imports.name("org.tinygears.uom.quantity." + t.name() + "Factory"))
+                    .append(imports.name("org.tinygears.uom.jsr.quantity." + t.name() + "Factory"))
                     .append(".SYSTEM_UNIT);\n");
         }
         String list = imports.name("java.util.List");
@@ -129,14 +128,14 @@ public final class CatalogEmitter {
         out.append("\n    /** The preferred unit of each quantity type. */\n    public static final ").append(map)
                 .append("<Class<?>, ").append(unitClass).append("<?>> PREFERRED =\n            ").append(map)
                 .append(".<Class<?>, ").append(unitClass).append("<?>>ofEntries(").append(args(pairs)).append(";\n");
-        String system = imports.name("org.tinygears.uom.systems.UomSystemOfUnits");
+        String system = imports.name("org.tinygears.uom.jsr.systems.UomSystemOfUnits");
         out.append("\n    /** This system of units. */\n    public static final ").append(system)
                 .append(" SYSTEM =\n            new ").append(system).append('(')
                 .append(UnitExpressionEmitter.literal(className)).append(", UNITS, PREFERRED, PREFIXABLE")
                 .append(binary ? ", BINARY_PREFIXABLE" : "").append(");\n");
         return Headers.java(join(files.stream().map(f -> "data/" + f).toList())) + """
 
-                package org.tinygears.uom.systems;
+                package org.tinygears.uom.jsr.systems;
 
                 """ + imports.block() + out.append("}\n");
     }
@@ -216,7 +215,7 @@ public final class CatalogEmitter {
 
     /**
      * A reference to a constant of {@code className} is written unqualified, one of another catalog as is and one of
-     * a class in another package ({@code org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT}) imported.
+     * a class in another package ({@code org.tinygears.uom.jsr.quantity.LengthFactory.SYSTEM_UNIT}) imported.
      */
     private static String local(String ref, String className, Imports imports) {
         int dot = ref.lastIndexOf('.');

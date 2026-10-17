@@ -32,15 +32,15 @@ class ImportsTest {
 
     @Test
     void samePackageIsNeverImported() {
-        Imports imports = new Imports("org.tinygears.uom.systems", List.of());
-        assertEquals("UomSystemOfUnits", imports.name("org.tinygears.uom.systems.UomSystemOfUnits"));
+        Imports imports = new Imports("org.tinygears.uom.jsr.systems", List.of());
+        assertEquals("UomSystemOfUnits", imports.name("org.tinygears.uom.jsr.systems.UomSystemOfUnits"));
         assertEquals("", imports.block());
         assertEquals("Foo", new Imports("", List.of()).name("Foo"));
     }
 
     @Test
     void takenNameStaysQualified() {
-        Imports imports = new Imports("org.tinygears.uom.quantity", List.of("Length", "Unit"));
+        Imports imports = new Imports("org.tinygears.uom.jsr.quantity", List.of("Length", "Unit"));
         assertEquals("javax.measure.quantity.Length", imports.name("javax.measure.quantity.Length"));
         assertEquals("javax.measure.Unit", imports.name("javax.measure.Unit"));
         assertEquals("Quantity", imports.name("javax.measure.Quantity"));
@@ -72,7 +72,7 @@ class ImportsTest {
 
     @Test
     void resolveShortensQualifiedClassNames() {
-        Imports imports = new Imports("org.tinygears.uom.quantity", List.of("Length"));
+        Imports imports = new Imports("org.tinygears.uom.jsr.quantity", List.of("Length"));
         assertEquals(
                 "Unit<javax.measure.quantity.Length> u = Objects.requireNonNull(x);\n"
                         + "Quantity.Scale s = Quantity.Scale.ABSOLUTE; MathContext m = MathContext.DECIMAL128; Length l;",

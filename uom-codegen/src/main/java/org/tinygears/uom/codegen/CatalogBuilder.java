@@ -23,7 +23,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.lang.model.SourceVersion;
 
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.Definitions;
 import org.tinygears.uom.engine.parse.Extends;
@@ -70,7 +69,7 @@ public final class CatalogBuilder {
     }
 
     private static String type(Definition d, List<QuantityTypeSpec> types, Map<String, QuantityTypeSpec> byName) {
-        UomUnit<?> system = UomUnit.of(d.unit()).getSystemUnit();
+        org.tinygears.uom.engine.Unit system = d.unit().systemUnit();
         if (d.explicitType() != null) {
             QuantityTypeSpec spec = byName.get(d.explicitType());
             if (spec == null) {
@@ -100,7 +99,7 @@ public final class CatalogBuilder {
      */
     private static String shared(Definition d, String type, Map<String, QuantityTypeSpec> byName, Set<String> claimed) {
         QuantityTypeSpec spec = type == null ? null : byName.get(type);
-        if (spec == null || spec.explicit() || !UomUnit.of(d.unit()).equals(spec.systemUnit())) {
+        if (spec == null || spec.explicit() || !d.unit().equals(spec.systemUnit())) {
             return null;
         }
         boolean agrees = d.symbol().equals(spec.systemSymbol()) && d.name().equals(spec.systemName());
@@ -113,7 +112,7 @@ public final class CatalogBuilder {
                     "unit '" + d.symbol() + "' (" + d.name() + ") is the system unit of " + type + ", which "
                             + spec.source() + ":" + spec.line() + " defines as " + expected);
         }
-        return agrees ? "org.tinygears.uom.quantity." + type + "Factory.SYSTEM_UNIT" : null;
+        return agrees ? "org.tinygears.uom.jsr.quantity." + type + "Factory.SYSTEM_UNIT" : null;
     }
 
     /**
@@ -221,7 +220,7 @@ public final class CatalogBuilder {
             if (ref == null) {
                 ref = fallback != null
                         ? fallback.get(t.name())
-                        : "org.tinygears.uom.quantity." + t.name() + "Factory.SYSTEM_UNIT";
+                        : "org.tinygears.uom.jsr.quantity." + t.name() + "Factory.SYSTEM_UNIT";
             }
             preferred.put(t.name(), ref);
         }
@@ -274,7 +273,7 @@ public final class CatalogBuilder {
             if (spec == null) {
                 throw new GenerationException(p.source(), p.line(), "unknown quantity type '" + p.quantityType() + "'");
             }
-            if (!spec.systemUnit().equals(UomUnit.of(def.unit()).getSystemUnit())) {
+            if (!spec.systemUnit().equals(def.unit().systemUnit())) {
                 throw new GenerationException(
                         p.source(),
                         p.line(),

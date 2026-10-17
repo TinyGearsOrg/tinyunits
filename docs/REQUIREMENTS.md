@@ -37,7 +37,7 @@ dynamic proxies in the picture.
 | F10 | Unit algebra per JSR-385: multiply, divide, pow, root, prefixes, shift (offset units such as degree Celsius and Fahrenheit), transform, alternate units, and base-unit decomposition. A unit with an offset takes part in products, powers and roots by its factor only (`°C/m` is `K/m`). |
 | F11 | Compatibility checking: combining incompatible units fails with a clear unchecked exception naming both units. |
 | F12 | Quantities and units are immutable, thread-safe and `Serializable` (done through serialization proxies that re-check every invariant on read). |
-| F13 | A `module-info.java` (JPMS) for every published module. Done: `org.tinygears.uom.core` and `org.tinygears.uom`; serialization works on the module path without `opens` (tested). Also done: module and package documentation, the exported packages pinned by `ApiSurfaceTest` (`org.tinygears.uom.engine.internal` is not exported), `jar --describe-module` and a `jlink` image checked by `scripts/verify-release.sh`. |
+| F13 | A `module-info.java` (JPMS) for every published module. Done: `org.tinygears.uom.engine`, `org.tinygears.uom` and `org.tinygears.uom.jsr`; serialization works on the module path without `opens` (tested). Also done: module and package documentation, the exported packages pinned by `ApiSurfaceTest` (`org.tinygears.uom.engine.internal` is not exported), `jar --describe-module` and a `jlink` image checked by `scripts/verify-release.sh`. |
 | F14 | ~~User-defined quantity types~~ Moved out of scope for 1.0 (see below). |
 | F15 | **Unit definitions live in text data files**, which are the single source of truth for the catalogs (F6). The file syntax is a design decision. The original uom `.units` format (GNU units style: `symbol:name formula`, `@include`, `!` base units, `~` alternate units, `a|b` fractions, affine functions) is a starting point, not a constraint. The syntax must express: symbol and name, a formula over other units, exact rational and decimal factors, offsets and affine functions, base units, alternate units, includes, comments, and (F16) an optional explicit quantity type. |
 | F16 | **Typed catalog constants are generated from the data files** (e.g. `Unit<Length> INCH`, `Unit<Energy> JOULE`). The quantity type of a unit is inferred from its dimension, and may be stated explicitly in the definition where the dimension is ambiguous (e.g. energy and torque; hertz and becquerel; gray and sievert). An ambiguous definition with no explicit type is a build error. |
@@ -59,7 +59,7 @@ dynamic proxies in the picture.
   `asType(Class)`. Declared relations can be added in a later release.
 - Systems with base units or dimensions of their own: expressing a quantity in a system's base units (`g·cm/s` in
   CGS), and modelling ESU/EMU/Gaussian as distinct dimension systems. These belong in a separate library on top of
-  `uom-core` (DESIGN DR-13).
+  `uom-jsr` (DESIGN DR-13).
 - Arbitrary-precision support for transcendental conversions beyond what `BigDecimal` and
   `MathContext` give.
 - Database, JSON and framework integrations.
@@ -91,7 +91,7 @@ dynamic proxies in the picture.
 
 ## 5. Module layout
 
-See `DESIGN.md`: `uom-core` and `uom` are published; `uom-codegen` is an
+See `DESIGN.md`: `uom-jsr` and `uom` are published; `uom-codegen` is an
 internal tool and is not.
 
 ## 6. Risks

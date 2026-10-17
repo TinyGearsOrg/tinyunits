@@ -218,7 +218,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
   feasible without core changes, since the base units of CGS or US customary are exact scalings of SI base units, but
   it is presentation that JSR-385 does not ask for, and it belongs with the model below. Distinct dimension systems for
   ESU, EMU and Gaussian (option C): needs another dimension model, see the follow-up.
-- *Follow-up: a separate library on `uom-core`.* Converting the way GNU units does with `--units gauss` (probed with GNU
+- *Follow-up: a separate library on `uom-jsr`.* Converting the way GNU units does with `--units gauss` (probed with GNU
   Units 2.27): it redefines its primitive units per system (`sqrt_cm` and `sqrt_g` as base units, `m` as `100 sqrt_cm^2`,
   the ampere as `10 c statA` in Gaussian units, with Coulomb's constant 1 and `epsilon0`, `mu0` rescaled) and keeps every
   other definition, so every unit is expressed in the system's base units (`coulomb` is
@@ -231,7 +231,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
   | `statfarad` to `cm` | not conformable | 1 | not conformable | 1 |
   | `coulomb` to `statcoulomb` | 2.9979246e+09 | 2.9979246e+09 | 2.9979246e+09 | 2.9979246e+09 |
 
-  Such a library projects a uom unit into a system with what the pinned `uom-core` API already offers: `UomUnit.atoms()`
+  Such a library projects a uom unit into a system with what the pinned `uom-jsr` API already offers: `UomUnit.atoms()`
   (SI and alternate atoms with exponents), `toSystemConverter().factor()` and `offset()` (an exact `Factor`, with
   rationals, powers of pi and roots), `getDimension()`, and `DefinitionParser` for system files in the same syntax. Per
   system it substitutes each SI base atom by a factor times its own base atoms (`m` is `100 cm`, `A` is `10 c statA` with
@@ -239,11 +239,11 @@ behaviour for users is in the linked documents. The full discussion and probe re
   atoms to keep integer exponents) and a system-scoped conversion that returns untyped quantities, since B and H, say,
   are one quantity in Gaussian units and two JSR-385 types. To keep in mind: the `.units` data files are not in the uom
   jars (the library ships its own or uses the catalog constants); an offset unit projects by its factor only, as in unit
-  products; the `uom-core` methods above become its contract (pinned by `ApiSurfaceTest`, semantic versioning from 1.0).
+  products; the `uom-jsr` methods above become its contract (pinned by `ApiSurfaceTest`, semantic versioning from 1.0).
   The design of the original uom library had the same aim: its parser took a selectable reference system file
   (`si.system`, "for now, only SI is supported").
 - *Revisit if.* Users of uom need system base units for JSR-385 types, or the separate library needs more of
-  `uom-core` than the methods above.
+  `uom-jsr` than the methods above.
 - *See.* README, "Systems of units"; REQUIREMENTS section 2 (out of scope) and section 6.
 
 **DR-14 Mixing precisions: the decimal wins.**
@@ -332,7 +332,7 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *See.* `AbstractDecimalQuantityArithmeticTest.decimalEquivalenceIsExactWhateverTheContext`; REQUIREMENTS F20.
 
 **DR-19 `UomQuantity`: one interface for what JSR-385 lacks.**
-- *Decision.* `org.tinygears.uom.core.quantity.UomQuantity<Q, R>` extends `Quantity<Q>` and `Comparable<Quantity<Q>>`,
+- *Decision.* `org.tinygears.uom.jsr.quantity.UomQuantity<Q, R>` extends `Quantity<Q>` and `Comparable<Quantity<Q>>`,
   narrows the return types of the JSR operations to `R`, and adds `as(Class)`, `isCloseTo(that, relativeTolerance)`,
   `isCloseTo(that, absoluteTolerance)`, `toSystem`, `toDouble` and `toDecimal`. Both base classes implement it, each
   generated typed interface is `X extends javax.measure.quantity.X, UomQuantity<javax.measure.quantity.X, X>` (it no
@@ -363,12 +363,12 @@ behaviour for users is in the linked documents. The full discussion and probe re
 - *Revisit if.* A real catalog needs to declare an alternate unit of another atom as the preferred unit of a type.
 - *See.* docs/CUSTOM-UNITS.md, `@preferred`; `UserUnitsTest.preferredErrors`, `CatalogBuilderTest`.
 
-**DR-21 A native API next to the JSR-385 implementation (in progress).**
+**DR-21 A native API next to the JSR-385 implementation.**
 - *Decision.* Complete the split of docs/NATIVE-API.md: the native API, with its own `Quantity<Q>` and `Unit<Q>` over
   this library's types, becomes the artifact `uom` (packages `org.tinygears.uom.*`), the JSR-385 implementation moves
   to `uom-jsr` (`org.tinygears.uom.jsr.*`); both build on `uom-engine` and its quantity arithmetic. The native API keeps
-  the JSR-385 model of offsets, a `Scale` on the quantity. Until the renames it lives in `uom-native`
-  (`org.tinygears.uom.nativeapi`).
+  the JSR-385 model of offsets, a `Scale` on the quantity. The JSR-385 core and the generated JSR-385 types are one
+  module, `uom-jsr`, which also converts to and from the native API (`Jsr`).
 - *Why.* Inside JSR-385 our types cannot be unit type parameters or type tokens and products cannot be typed (section
   1 of NATIVE-API.md). The prototype showed both are solved by a native API, that the engine carries the algebra,
   parser and arithmetic for both (the arithmetic moved without a change of results or speed), and that a conversion
@@ -384,35 +384,38 @@ behaviour for users is in the linked documents. The full discussion and probe re
 ## 2. Modules and data flow
 
 ```
- data/quantity-types.txt ─┐
- data/*.units ────────────┼─> uom-codegen (internal tool, not published)
-   si, us-customary,      │        │ writes sources, committed to the repo
-   imperial, cgs,         │        v
-   cgs-esu, cgs-emu,      │   uom  .quantity   typed interfaces, LengthDouble, LengthDecimal, ...
-   cgs-gaussian,          │        .systems    generated catalogs: SI, USCustomary, Imperial, CGS,
-   information            │                    ESU, EMU, Gaussian, Information
-                          │
- user *.units ───────────────> UomSystemOfUnits.load at run time (no built-in resources shipped)
+ data/quantity-types.txt ─────┐
+ data/quantity-relations.txt ─┤
+ data/*.units ────────────────┼─> uom-codegen (internal tool, not published)
+   si, us-customary,          │        │ writes sources, committed to the repo
+   imperial, cgs,             │        v
+   cgs-esu, cgs-emu,          │   uom      .quantity       native types: Length, LengthValue, ... (typed products)
+   cgs-gaussian,              │            .systems        native catalogs: SI, USCustomary, ...
+   information                │   uom-jsr  .jsr.quantity   JSR-385 types: Length, LengthDouble, LengthDecimal, ...
+                              │            .jsr.systems    JSR-385 catalogs: SI, USCustomary, ...
+                              │
+ user *.units ───────────────────> SystemOfUnits.load, UomSystemOfUnits.load at run time (no resources shipped)
 ```
 
 | Module | Contents | Published |
 |--------|----------|-----------|
-| `uom-engine` | No JSR-385 types: `Factor` (exact rationals, powers of pi, roots), `Dimension` (the seven exponents), `UnitAtom` with the base atoms, `Converter` (affine, exact), `Unit` (the unit algebra), `UnitException`, the `.units` parser (`parse`: `DefinitionParser`, `FormulaEvaluator`, with its own table of metric and binary prefixes); in a package exported to the other modules only (`internal`), the alternate-unit registry, the catalog service (`UnitCatalogs`, loaded with `ServiceLoader`), products of atoms, and the decimal and interval arithmetic, caches and serial-form helpers; in `format`, exported to `uom` and `uom-native` only, the unit format, the number text of the quantity format, the systems and their loading from `.units` files (`UnitFormatter`, `NumberText`, `UnitSystem`, `UnitSystemLoader`, `Prefix`), which `UomUnitFormat`, `UomQuantityFormat` and `UomSystemOfUnits` wrap; in `arithmetic`, exported to `uom-core` and `uom-native` only, the quantity arithmetic (`DoubleArithmetic`, `DecimalArithmetic`: conversion, sums, scalars, products, comparison and tolerances on engine units and plain values) and the precision rules (`Precision`, `Deltas`). The first steps of docs/NATIVE-API.md; `UomDimension`, `UomUnit` and `UomConverter` are the JSR-385 types over it | yes |
-| `uom-core` | The JSR-385 `Dimension`, `Unit` and converters over the engine, shared quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`) that delegate the arithmetic to the engine | yes |
-| `uom` | Package `org.tinygears.uom.quantity`: generated typed interfaces, `double` and `BigDecimal` implementations, and one factory per quantity type. Package `org.tinygears.uom.systems`: generated catalogs and `SystemOfUnits` objects (`SI`, `USCustomary`, `Imperial`, `CGS`, `ESU`, `EMU`, `Gaussian`, `Information`, `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; no `.units` resources are shipped | yes |
-| `uom-codegen` | The generator program; reuses the parser from `uom-core` | no |
-| `uom-tck` | Runs the JSR-385 TCK against `uom`; test only | no |
+| `uom-engine` | No JSR-385 types: `Factor` (exact rationals, powers of pi, roots), `Dimension` (the seven exponents), `UnitAtom` with the base atoms, `Converter` (affine, exact), `Unit` (the unit algebra), `UnitException`, the `.units` parser (`parse`: `DefinitionParser`, `FormulaEvaluator`, with its own table of metric and binary prefixes); in a package exported to the other modules only (`internal`), the alternate-unit registry, the catalog service (`UnitCatalogs`, loaded with `ServiceLoader`), products of atoms, and the decimal and interval arithmetic, caches and serial-form helpers; in `format`, exported to `uom` and `uom-jsr` only, the unit format, the number text of the quantity format, the systems and their loading from `.units` files (`UnitFormatter`, `NumberText`, `UnitSystem`, `UnitSystemLoader`, `Prefix`), which `UomUnitFormat`, `UomQuantityFormat` and `UomSystemOfUnits` wrap; in `arithmetic`, exported to `uom-jsr` and `uom` only, the quantity arithmetic (`DoubleArithmetic`, `DecimalArithmetic`: conversion, sums, scalars, products, comparison and tolerances on engine units and plain values) and the precision rules (`Precision`, `Deltas`). Both APIs build on it (DR-21) | yes |
+| `uom` | The native API (module `org.tinygears.uom`, docs/NATIVE-API.md): `Quantity`, `Unit<Length>` with this library's types, `Scale`, `Untyped`, `UnitFormat`, `QuantityFormat`, `SystemOfUnits` with run-time `.units` files, serialization; generated, the 33 types with the typed products of `data/quantity-relations.txt` (package `quantity`) and the eight catalogs (package `systems`); `double` and decimal quantities on the engine's arithmetic and format; no JSR-385 types | yes |
+| `uom-jsr` | The JSR-385 implementation (module `org.tinygears.uom.jsr`): `Dimension`, `Unit` and converters over the engine (`UomDimension`, `UomUnit`, `UomConverter`), the quantity base classes (`AbstractDoubleQuantity`, `AbstractDecimalQuantity`) over the engine's arithmetic, `Jsr` (the conversion to and from `uom`); package `jsr.quantity`, the generated typed interfaces, `double` and `BigDecimal` implementations and one factory per type; package `jsr.systems`, the generated catalogs and `SystemOfUnits` objects (`SI`, ..., `UomSystemOfUnits`, `UnitSystems`), the unit and quantity formats over the engine's format, run-time loading of user `.units` files, the JSR-385 `ServiceProvider`; package `jsr.spi`, the provider hooks, not exported; no `.units` resources are shipped | yes |
+| `uom-codegen` | The generator program, on the engine (its parser and units) | no |
+| `uom-tck` | Runs the JSR-385 TCK against `uom-jsr`; test only | no |
 | `uom-examples` | Runnable usage examples (`Examples`) and a test of their output | no |
-| `uom-native` | Prototype of the native API on `uom-engine` (docs/NATIVE-API.md): `Quantity`, `Unit<Length>` with this library's types, `Scale`, `Untyped`; generated, the 33 types with the typed products of `data/quantity-relations.txt` and the eight catalogs; `double` and decimal quantities on the engine's arithmetic; `UnitFormat`, `QuantityFormat`, `SystemOfUnits` with run-time `.units` files, `toSystem`, serialization, on the engine's format; no JSR-385 types | no |
-| `uom-native-jsr` | Prototype bridge between the native and the JSR-385 quantities (`Jsr.toJsr`, `Jsr.fromJsr`), and the parity tests of the two APIs (arithmetic, catalogs, formats, systems) | no |
 
-Dependencies: `uom` -> `uom-core` -> `uom-engine`, and `uom-core` -> `unit-api`. `uom-codegen` -> `uom-core` and the
-Eclipse JDT formatter jars, on the class path (they split packages, so the generator is not a named module). Module
-names: `org.tinygears.uom.engine` (no `java.measure`), `org.tinygears.uom.core` (requires the engine and
-`java.measure` transitively) and `org.tinygears.uom` (requires the core transitively). The quantity types and the catalogs are one module because the typed quantities
-need the provider (`asType`, products, factories through `ServiceProvider`). The provider is declared with `provides` and `META-INF/services`.
+Dependencies: `uom-jsr` -> `uom` -> `uom-engine`, and `uom-jsr` -> `unit-api`. `uom-codegen` -> `uom-engine`,
+`unit-api` and the Eclipse JDT formatter jars, on the class path (they split packages, so the generator is not a named
+module); its tests use `uom-jsr` and load the sources they compile before it. Module names: `org.tinygears.uom.engine`
+(no `java.measure`), `org.tinygears.uom` (requires the engine transitively) and `org.tinygears.uom.jsr` (requires
+`org.tinygears.uom`, the engine and `java.measure` transitively). The JSR-385 base classes, the generated types and
+the catalogs are one module because the typed quantities need the provider (`asType`, products, factories through
+`ServiceProvider`); its tests of the provider mechanism install a test provider for their duration
+(`TestProviderExtension`). The provider is declared with `provides` and `META-INF/services`.
 
-## 3. Units core (`uom-core`)
+## 3. Units core (`uom-jsr`)
 
 - **Dimension.** Immutable record of the seven SI base-dimension exponents as `int` (the
   standard uses `Integer`; `root` throws on a fractional result, so no `Fraction` type is
@@ -444,11 +447,11 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
   `Providers.quantityFactory(type).getSystemUnit()`, as the `Unit` and `Quantity` Javadoc say. Alternate units
   therefore count by dimension: `1/s`, `Hz` and `Bq` are all units of `Frequency` and of `Radioactivity`, `rad·m` is a
   unit of `Length`, and `Hz·s` is a unit of `Dimensionless`. `Unit.equals` stays structural (F21), so `Hz`, `Bq` and
-  `1/s` are still three different units, equivalent to one another. `uom-core` holds no table of quantity types, so it asks a provider: the current one if it
+  `1/s` are still three different units, equivalent to one another. `uom-jsr` holds no table of quantity types, so it asks a provider: the current one if it
   implements `spi.QuantityFactories` (ours does), else ours among `ServiceProvider.available()` (found once and kept),
   else the current provider. A provider of higher priority, or one set with `setCurrent`, therefore does not break
-  `asType`, the quantity `asType` or deserialization (`docs/PROVIDERS.md`). The package `org.tinygears.uom.core.spi`
-  is exported to `org.tinygears.uom` only. Our provider has priority 100 and the name `TinyGears`.
+  `asType`, the quantity `asType` or deserialization (`docs/PROVIDERS.md`). The package `org.tinygears.uom.jsr.spi`
+  is internal to `uom-jsr`. Our provider has priority 100 and the name `TinyGears`.
 - **Prefixes.** `prefix(Prefix)` scales by the prefix value and returns an unnamed unit. Prefixability and symbol
   collisions are known to a system (`@prefixed`, `UomSystemOfUnits.isPrefixable`), so the parser, the generated catalogs
   and `UomUnitFormat.resolve` name the unit with `named(symbol, name)`. `UomUnitFormat.format` also writes a metric
@@ -472,7 +475,7 @@ need the provider (`asType`, products, factories through `ServiceProvider`). The
 ## 4. Quantities and generated code
 
 The hand-written base classes `AbstractDoubleQuantity<Q, R extends Q>` and
-`AbstractDecimalQuantity<Q, R extends Q>` (package `org.tinygears.uom.core.quantity`, `uom-core`)
+`AbstractDecimalQuantity<Q, R extends Q>` (package `org.tinygears.uom.jsr.quantity`, `uom-jsr`)
 hold all quantity logic for `double` and `BigDecimal` values: `to`, `add`, `subtract`, `negate`,
 `multiply`, `divide`, `inverse`, `asType`, `equals`, `hashCode`, `compareTo`, `isEquivalentTo`,
 `toDouble`, `toDecimal`. They read the operands, check units and dimensions, and create the results; the arithmetic
@@ -484,7 +487,7 @@ other types, so they add no safety.
 
 Per quantity type the generator writes four files:
 
-1. **A typed interface** in `org.tinygears.uom.quantity`, e.g. `Length extends
+1. **A typed interface** in `org.tinygears.uom.jsr.quantity`, e.g. `Length extends
    javax.measure.quantity.Length, Comparable<Quantity<Length>>`, with covariant returns for
    `add(Quantity<Length>)`, `subtract`, `to(Unit)`, `negate()`, `multiply(Number)` and
    `divide(Number)` (all return `Length`), `toDouble()` and `toDecimal(MathContext)` (F23, D10), and static factories
@@ -607,8 +610,8 @@ resources: the catalogs are generated only, and users load their own files at ru
 
 **Generator.** `uom-codegen` (not published) reads `data/quantity-types.txt`
 and the eight `.units` files listed in `Generate.CATALOGS` (`si.units` first) and writes the sources of section 4 into
-`uom/src/main/java/org/tinygears/uom/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
-`CGS`, `ESU`, `EMU`, `Gaussian`, `Information`) into `uom/src/main/java/org/tinygears/uom/systems/`; they are committed. A `.units`
+`uom-jsr/src/main/java/org/tinygears/uom/jsr/quantity` and one catalog class per file (`SI`, `USCustomary`, `Imperial`,
+`CGS`, `ESU`, `EMU`, `Gaussian`, `Information`) into `uom-jsr/src/main/java/org/tinygears/uom/jsr/systems/`; they are committed. A `.units`
 file missing from the list is caught by the data-versus-list test, not by the generator. `Generate` takes
 four arguments: `<dataDir> <quantitiesOut> <systemsOut> <docsOut>`. `GenerateNative` writes the native API from the
 same files and `quantity-relations.txt` (`<dataDir> <quantitiesOut> <systemsOut>`): per type an interface with its
@@ -709,7 +712,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
   Layering is by source file; files that are only `@include`d contribute no lines. `SI` itself keeps the factory system unit
   for a type without `@preferred`. Fallback units are not members: `USCustomary.SYSTEM.getUnit(Time.class)` is `s`, but
   `getUnit("s")` is null and `getUnits()` lacks `s` (123 (system, type) pairs; SI itself for `m/s^2`, `1` and `m/s`).
-- **Run time (F17, F18, D5).** The parser ships in `uom-core`. `UomUnitFormat` resolves symbols from the
+- **Run time (F17, F18, D5).** The parser ships in `uom-jsr`. `UomUnitFormat` resolves symbols from the
   generated catalogs and evaluates formulas with `FormulaEvaluator`. User files load at run time, with no global state:
   - `DefinitionParser.parse(source, reader, resolver, known)` looks up symbols the file does not define through
     `known`; a file defining a symbol `known` resolves is an error (`symbol 'm' is already defined`, file and line).
@@ -780,7 +783,7 @@ statC:statcoulomb    1|2997924580 C           # exact fraction
 
 - `unit-tck` 2.2 against our provider (N1): module `uom-tck`, 113 of 113 tests pass, 0 skipped
   (`mvn -q -B clean verify`). Own contract tests from the Javadoc: `QuantityContractTest`
-  (`uom`) and the `contract` package of `uom-core`.
+  (`uom`) and the `contract` package of `uom-jsr`.
 - Parsed units equal generated constants; catalog round trip for every unit (N6).
 - Generator golden tests: sample inputs compile, behave, and report errors with file and line.
 - CI drift check (`.github/workflows/ci.yml`, job `generated`): regenerate and fail on a non-empty `git diff` or an

@@ -12,21 +12,20 @@ package org.tinygears.uom.systems;
 
 import java.util.List;
 
-/**
- * The systems of units this library provides, SI (the default) first. Symbols are unique across systems, so the
- * order does not affect exact symbol lookup; it decides which symbol a format picks among equal units.
- */
+import org.tinygears.uom.SystemOfUnits;
+
+/** The catalogs of this library, in the lookup order of {@link org.tinygears.uom.UnitFormat#standard()}. */
 public final class UnitSystems {
 
     private UnitSystems() {
     }
 
     /**
-     * The systems: SI, US customary, Imperial, CGS, ESU, EMU, Gaussian and Information.
+     * The systems: SI, US customary, imperial, CGS, ESU, EMU, Gaussian and information.
      *
      * @return the systems
      */
-    public static List<UomSystemOfUnits> all() {
+    public static List<SystemOfUnits> all() {
         return List.of(
                 SI.SYSTEM,
                 USCustomary.SYSTEM,

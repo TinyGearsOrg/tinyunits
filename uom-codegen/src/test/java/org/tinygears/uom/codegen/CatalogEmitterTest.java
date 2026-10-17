@@ -30,11 +30,11 @@ import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.DefinitionParser;
 import org.tinygears.uom.engine.parse.Definitions;
+import org.tinygears.uom.jsr.BaseUnits;
+import org.tinygears.uom.jsr.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -60,16 +60,16 @@ class CatalogEmitterTest {
 
     // Stand-in for the real class in uom, which uom-codegen must not depend on.
     private static final String SYSTEM_STAND_IN = """
-            package org.tinygears.uom.systems;
+            package org.tinygears.uom.jsr.systems;
 
             public final class UomSystemOfUnits {
                 public final String name;
-                public final java.util.List<org.tinygears.uom.core.UomUnit<?>> units;
-                public final java.util.Map<Class<?>, org.tinygears.uom.core.UomUnit<?>> preferred;
+                public final java.util.List<org.tinygears.uom.jsr.UomUnit<?>> units;
+                public final java.util.Map<Class<?>, org.tinygears.uom.jsr.UomUnit<?>> preferred;
                 public final java.util.Set<String> prefixable;
 
-                public UomSystemOfUnits(String name, java.util.List<org.tinygears.uom.core.UomUnit<?>> units,
-                        java.util.Map<Class<?>, org.tinygears.uom.core.UomUnit<?>> preferred,
+                public UomSystemOfUnits(String name, java.util.List<org.tinygears.uom.jsr.UomUnit<?>> units,
+                        java.util.Map<Class<?>, org.tinygears.uom.jsr.UomUnit<?>> preferred,
                         java.util.Set<String> prefixable) {
                     this.name = name;
                     this.units = units;
@@ -110,7 +110,7 @@ class CatalogEmitterTest {
         assertEquals(List.of(), ImportCheck.problems(text, Set.of()));
         assertTrue(text.startsWith(Headers.java("data/si.units and data/quantity-types.txt") + """
 
-                package org.tinygears.uom.systems;
+                package org.tinygears.uom.jsr.systems;
                 """));
     }
 
@@ -129,7 +129,7 @@ class CatalogEmitterTest {
         assertTrue(text.contains("Map.entry(Time.class, MINUTE)"), text);
         assertTrue(text.contains("of(\n                    KILOMETRE,\n                    Other.FOOT);"), text);
         assertTrue(text.contains("PREFIXABLE =\n            Set.of();\n"), text);
-        assertFalse(text.contains("import org.tinygears.uom.systems."), text);
+        assertFalse(text.contains("import org.tinygears.uom.jsr.systems."), text);
     }
 
     // A catalog class named Set and a constant named Map: java.util.Set and java.util.Map stay qualified.
@@ -150,7 +150,7 @@ class CatalogEmitterTest {
                 units,
                 Set.of("m"),
                 Set.of(),
-                Map.of("Length", "Set.Map", "Time", "org.tinygears.uom.quantity.TimeFactory.SYSTEM_UNIT"));
+                Map.of("Length", "Set.Map", "Time", "org.tinygears.uom.jsr.quantity.TimeFactory.SYSTEM_UNIT"));
         String text = CatalogEmitter.catalog(c, DEFS);
         assertEquals(List.of(), ImportCheck.problems(text, Set.of()));
         assertFalse(text.contains("import java.util.Set;"), text);
@@ -160,10 +160,10 @@ class CatalogEmitterTest {
         assertTrue(text.contains("java.util.Map.entry(Time.class, TimeFactory.SYSTEM_UNIT)"), text);
 
         Map<String, String> sources = quantitySources();
-        sources.put("org.tinygears.uom.systems.UomSystemOfUnits", SYSTEM_STAND_IN);
-        sources.put("org.tinygears.uom.systems.Set", text);
+        sources.put("org.tinygears.uom.jsr.systems.UomSystemOfUnits", SYSTEM_STAND_IN);
+        sources.put("org.tinygears.uom.jsr.systems.Set", text);
         try (URLClassLoader loader = InMemoryCompiler.compile(sources, tmp)) {
-            Class<?> set = loader.loadClass("org.tinygears.uom.systems.Set");
+            Class<?> set = loader.loadClass("org.tinygears.uom.jsr.systems.Set");
             Map<?, ?> preferred = (Map<?, ?>) set.getField("PREFERRED").get(null);
             assertSame(set.getField("Map").get(null), preferred.get(javax.measure.quantity.Length.class));
             assertEquals(Set.of("m"), set.getField("PREFIXABLE").get(null));
@@ -173,14 +173,14 @@ class CatalogEmitterTest {
     private static Map<String, String> quantitySources() {
         Map<String, String> sources = new LinkedHashMap<>();
         for (QuantityTypeSpec s : TYPES) {
-            String q = "org.tinygears.uom.quantity." + s.name();
+            String q = "org.tinygears.uom.jsr.quantity." + s.name();
             sources.put(q, SourceEmitter.typedInterface(s));
             sources.put(q + "Double", SourceEmitter.doubleImplementation(s));
             sources.put(q + "Decimal", SourceEmitter.decimalImplementation(s));
             sources.put(q + "Factory", SourceEmitter.factory(s, DEFS));
         }
         // The typed interfaces call QuantityTypes.narrow.
-        sources.put("org.tinygears.uom.quantity.QuantityTypes", SourceEmitter.registry(TYPES));
+        sources.put("org.tinygears.uom.jsr.quantity.QuantityTypes", SourceEmitter.registry(TYPES));
         return sources;
     }
 
@@ -197,7 +197,7 @@ class CatalogEmitterTest {
         List<QuantityTypeSpec> types = QuantityTypesParser.parse("types.txt", new StringReader("Force N\n"), d);
         String text = CatalogEmitter.catalog(CatalogBuilder.catalogs(Map.of("si.units", d), types).get("si.units"), d);
         assertTrue(text.contains("NEWTON =\n            UomUnit.unchecked(ForceFactory.SYSTEM_UNIT);\n"), text);
-        assertTrue(text.contains("import org.tinygears.uom.quantity.ForceFactory;\n"), text);
+        assertTrue(text.contains("import org.tinygears.uom.jsr.quantity.ForceFactory;\n"), text);
         assertFalse(text.contains(".named(\"N\""), text);
         assertTrue(text.contains(".named(\"kN\", \"kilonewton\")"), text);
     }
@@ -214,10 +214,10 @@ class CatalogEmitterTest {
         assertFalse(text.contains("Factor.of(1000L, 1L)"), text);
 
         Map<String, String> sources = quantitySources();
-        sources.put("org.tinygears.uom.systems.UomSystemOfUnits", SYSTEM_STAND_IN);
-        sources.put("org.tinygears.uom.systems.SI", text);
+        sources.put("org.tinygears.uom.jsr.systems.UomSystemOfUnits", SYSTEM_STAND_IN);
+        sources.put("org.tinygears.uom.jsr.systems.SI", text);
         try (URLClassLoader loader = InMemoryCompiler.compile(sources, tmp)) {
-            Class<?> si = loader.loadClass("org.tinygears.uom.systems.SI");
+            Class<?> si = loader.loadClass("org.tinygears.uom.jsr.systems.SI");
             UomUnit<?> metre = (UomUnit<?>) si.getField("METRE").get(null);
             UomUnit<?> km = (UomUnit<?>) si.getField("KILOMETRE").get(null);
             assertEquals(metre.prefix(javax.measure.MetricPrefix.KILO).named("km", "kilometre"), km);
@@ -273,7 +273,7 @@ class CatalogEmitterTest {
                         "public static final UomUnit<Speed> METRE_PER_SECOND =\n"
                                 + "            UomUnit.unchecked(SpeedFactory.SYSTEM_UNIT);"),
                 text);
-        assertTrue(text.contains("import org.tinygears.uom.quantity.SpeedFactory;\n"), text);
+        assertTrue(text.contains("import org.tinygears.uom.jsr.quantity.SpeedFactory;\n"), text);
         assertEquals(List.of(), ImportCheck.problems(text, Set.of()));
         // It is a constant of the class only, not one of its units, and only when asked for.
         assertFalse(
@@ -284,7 +284,7 @@ class CatalogEmitterTest {
         QuantityTypeSpec clash = new QuantityTypeSpec(
                 "Speed",
                 "m / s",
-                BaseUnits.METRE.divide(BaseUnits.SECOND),
+                BaseUnits.METRE.divide(BaseUnits.SECOND).engine(),
                 "m/s",
                 "metre",
                 "types.txt",
@@ -352,10 +352,10 @@ class CatalogEmitterTest {
     @Test
     void compilesAndRuns() throws Exception {
         Map<String, String> sources = quantitySources();
-        sources.put("org.tinygears.uom.systems.UomSystemOfUnits", SYSTEM_STAND_IN);
-        sources.put("org.tinygears.uom.systems.SI", catalog());
+        sources.put("org.tinygears.uom.jsr.systems.UomSystemOfUnits", SYSTEM_STAND_IN);
+        sources.put("org.tinygears.uom.jsr.systems.SI", catalog());
         try (URLClassLoader loader = InMemoryCompiler.compile(sources, tmp)) {
-            Class<?> si = loader.loadClass("org.tinygears.uom.systems.SI");
+            Class<?> si = loader.loadClass("org.tinygears.uom.jsr.systems.SI");
             for (CatalogEntry e : ENTRIES) {
                 Definition d = e.definition();
                 Field f = si.getField(e.constantName());
@@ -379,7 +379,7 @@ class CatalogEmitterTest {
             assertEquals(
                     Set.of(javax.measure.quantity.Length.class, javax.measure.quantity.Time.class),
                     preferred.keySet());
-            Object metre = loader.loadClass("org.tinygears.uom.quantity.LengthFactory").getField("SYSTEM_UNIT")
+            Object metre = loader.loadClass("org.tinygears.uom.jsr.quantity.LengthFactory").getField("SYSTEM_UNIT")
                     .get(null);
             assertSame(metre, preferred.get(javax.measure.quantity.Length.class));
             assertSame(metre, si.getField("METRE").get(null));
@@ -438,31 +438,32 @@ class CatalogEmitterTest {
 
         Map<String, String> sources = new LinkedHashMap<>();
         for (QuantityTypeSpec s : types) {
-            String q = "org.tinygears.uom.quantity." + s.name();
+            String q = "org.tinygears.uom.jsr.quantity." + s.name();
             sources.put(q, SourceEmitter.typedInterface(s));
             sources.put(q + "Double", SourceEmitter.doubleImplementation(s));
             sources.put(q + "Decimal", SourceEmitter.decimalImplementation(s));
             sources.put(q + "Factory", SourceEmitter.factory(s, parsed.get("si.units")));
         }
-        sources.put("org.tinygears.uom.quantity.QuantityTypes", SourceEmitter.registry(types));
+        sources.put("org.tinygears.uom.jsr.quantity.QuantityTypes", SourceEmitter.registry(types));
         sources.put(
-                "org.tinygears.uom.systems.UomSystemOfUnits",
-                Files.readString(Path.of("../uom/src/main/java/org/tinygears/uom/systems/UomSystemOfUnits.java")));
+                "org.tinygears.uom.jsr.systems.UomSystemOfUnits",
+                Files.readString(
+                        Path.of("../uom-jsr/src/main/java/org/tinygears/uom/jsr/systems/UomSystemOfUnits.java")));
         // UomSystemOfUnits.load needs these; the hand-written format is not under test here.
-        sources.put("org.tinygears.uom.systems.UomUnitFormat", """
-                package org.tinygears.uom.systems;
+        sources.put("org.tinygears.uom.jsr.systems.UomUnitFormat", """
+                package org.tinygears.uom.jsr.systems;
                 final class UomUnitFormat {
                     static UomUnitFormat standard() {
                         return new UomUnitFormat();
                     }
-                    java.util.Optional<org.tinygears.uom.core.UomUnit<?>> resolve(String symbol) {
+                    java.util.Optional<org.tinygears.uom.jsr.UomUnit<?>> resolve(String symbol) {
                         return java.util.Optional.empty();
                     }
                 }
                 """);
         // UomSystemOfUnits.load keeps the catalogs' instances; none here.
-        sources.put("org.tinygears.uom.systems.UnitSystems", """
-                package org.tinygears.uom.systems;
+        sources.put("org.tinygears.uom.jsr.systems.UnitSystems", """
+                package org.tinygears.uom.jsr.systems;
                 final class UnitSystems {
                     static java.util.List<UomSystemOfUnits> all() {
                         return java.util.List.of();
@@ -471,12 +472,12 @@ class CatalogEmitterTest {
                 """);
         catalogs.forEach(
                 (file, c) -> sources.put(
-                        "org.tinygears.uom.systems." + c.className(),
+                        "org.tinygears.uom.jsr.systems." + c.className(),
                         CatalogEmitter.catalog(c, parsed.get(file))));
         try (URLClassLoader loader = InMemoryCompiler.compile(sources, tmp)) {
-            Class<?> si = loader.loadClass("org.tinygears.uom.systems.SI");
-            Class<?> par = loader.loadClass("org.tinygears.uom.systems.Par");
-            Class<?> k = loader.loadClass("org.tinygears.uom.systems.Kid");
+            Class<?> si = loader.loadClass("org.tinygears.uom.jsr.systems.SI");
+            Class<?> par = loader.loadClass("org.tinygears.uom.jsr.systems.Par");
+            Class<?> k = loader.loadClass("org.tinygears.uom.jsr.systems.Kid");
             List<?> units = (List<?>) k.getField("UNITS").get(null);
             assertEquals(
                     List.of("st", "ft", "kft", "m", "s", "kg", "g", "J"),
@@ -492,7 +493,7 @@ class CatalogEmitterTest {
             assertSame(k.getField("STONE").get(null), getUnit.invoke(system, javax.measure.quantity.Mass.class));
             assertSame(par.getField("FOOT").get(null), getUnit.invoke(system, javax.measure.quantity.Length.class));
             assertSame(
-                    loader.loadClass("org.tinygears.uom.quantity.TimeFactory").getField("SYSTEM_UNIT").get(null),
+                    loader.loadClass("org.tinygears.uom.jsr.quantity.TimeFactory").getField("SYSTEM_UNIT").get(null),
                     getUnit.invoke(system, javax.measure.quantity.Time.class));
             assertEquals(8, ((Set<?>) system.getClass().getMethod("getUnits").invoke(system)).size());
         }

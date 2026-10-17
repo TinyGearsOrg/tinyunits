@@ -35,24 +35,24 @@ is the application's.
 ## How units print
 
 An unnamed unit, such as `SI.HERTZ.prefix(MetricPrefix.MILLI)` or `SI.METRE.multiply(1000)`, prints as the standard format
-of uom writes it: `mHz`, `km`. `uom-core` has no systems, so `UomUnit.toString()` asks the provider of uom for the text in
+of uom writes it: `mHz`, `km`. `uom-jsr` has no systems, so `UomUnit.toString()` asks the provider of uom for the text in
 the same way as `asType` asks for factories. If there is no such provider, or the format has no text for the unit (a
 negative factor, say), it prints the definition instead: `1|1000·Hz`, `-2·m`.
 
-## What `uom-core` depends on
+## What `uom-jsr` depends on
 
-`uom-core` does not depend on **which** provider is current, and it has no compile-time dependency on the module `uom`.
+`uom-jsr` does not depend on **which** provider is current, and it has no compile-time dependency on the module `uom`.
 Units, converters, the formula parser, offset handling and arithmetic never use a provider at all.
 
 It does depend on **a** provider with quantity factories for `asType` and deserialization, because the table of quantity
-types is in the module `uom`, not in `uom-core`:
+types is in the module `uom`, not in `uom-jsr`:
 
 | On the path | `asType` and deserialization | printing an unnamed unit |
 |---|---|---|
 | `uom` (with any other provider, current or not) | use the factories of uom | as the format of uom writes it |
-| `uom-core` and a test or custom provider only | use that provider's factories (the `uom-core` tests do this) | the definition |
-| `uom-core` and only another implementation's provider, such as Indriya | fail: its factory is of the other implementation, so `asType` throws `ClassCastException` | the definition |
-| `uom-core` and no provider | fail with `IllegalStateException` | the definition |
+| `uom-jsr` and a test or custom provider only | use that provider's factories (the `uom-jsr` tests do this) | the definition |
+| `uom-jsr` and only another implementation's provider, such as Indriya | fail: its factory is of the other implementation, so `asType` throws `ClassCastException` | the definition |
+| `uom-jsr` and no provider | fail with `IllegalStateException` | the definition |
 
 Use the module `uom` unless you provide your own factories.
 

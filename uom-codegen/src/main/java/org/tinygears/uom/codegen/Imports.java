@@ -92,7 +92,7 @@ public final class Imports {
 
     /**
      * One {@code import} line per imported class in the groups of the Spotless import order ({@code java} and
-     * {@code javax}, the others, {@code org.tinygears.uom}), each sorted and followed by a blank line; nothing without
+     * {@code javax}, the others, {@code org.tinygears.uom.jsr}), each sorted and followed by a blank line; nothing without
      * imports.
      */
     public String block() {

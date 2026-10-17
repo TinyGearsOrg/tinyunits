@@ -35,13 +35,11 @@
 
   <modules>
     <module>uom-engine</module>
-    <module>uom-core</module>
-    <module>uom-codegen</module>
     <module>uom</module>
+    <module>uom-jsr</module>
+    <module>uom-codegen</module>
     <module>uom-tck</module>
     <module>uom-examples</module>
-    <module>uom-native</module>
-    <module>uom-native-jsr</module>
   </modules>
 
   <scm child.scm.connection.inherit.append.path="false"
@@ -309,7 +307,7 @@
                 <configuration>
                   <doclint>all</doclint>
                   <failOnWarnings>${javadoc.failOnWarnings}</failOnWarnings>
-                  <!-- exported to org.tinygears.uom only, not API -->
+                  <!-- exported to the modules of uom only, not API -->
                   <excludePackageNames>org.tinygears.uom.engine.internal</excludePackageNames>
                   <bottom>Licensed under the Apache License, Version 2.0.</bottom>
                 </configuration>
@@ -348,8 +346,6 @@
                 <artifact>uom-codegen</artifact>
                 <artifact>uom-tck</artifact>
                 <artifact>uom-examples</artifact>
-                <artifact>uom-native</artifact>
-                <artifact>uom-native-jsr</artifact>
               </excludeArtifacts>
             </configuration>
           </plugin>

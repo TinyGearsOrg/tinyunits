@@ -37,7 +37,7 @@ public final class RelationsParser {
     /** The relations of {@code reader}, checked against the dimensions of {@code types}. */
     public static List<QuantityRelation> parse(String source, Reader reader, List<QuantityTypeSpec> types) {
         Map<String, Dimension> dims = new LinkedHashMap<>();
-        types.forEach(t -> dims.put(t.name(), t.systemUnit().engine().dimension()));
+        types.forEach(t -> dims.put(t.name(), t.systemUnit().dimension()));
         List<QuantityRelation> result = new ArrayList<>();
         try (BufferedReader in = new BufferedReader(reader)) {
             String text;

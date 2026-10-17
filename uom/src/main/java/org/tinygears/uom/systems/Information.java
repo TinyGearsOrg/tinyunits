@@ -12,165 +12,192 @@
 
 package org.tinygears.uom.systems;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.measure.BinaryPrefix;
-import javax.measure.MetricPrefix;
-import javax.measure.quantity.Acceleration;
-import javax.measure.quantity.AmountOfSubstance;
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Area;
-import javax.measure.quantity.CatalyticActivity;
-import javax.measure.quantity.Dimensionless;
-import javax.measure.quantity.ElectricCapacitance;
-import javax.measure.quantity.ElectricCharge;
-import javax.measure.quantity.ElectricConductance;
-import javax.measure.quantity.ElectricCurrent;
-import javax.measure.quantity.ElectricInductance;
-import javax.measure.quantity.ElectricPotential;
-import javax.measure.quantity.ElectricResistance;
-import javax.measure.quantity.Energy;
-import javax.measure.quantity.Force;
-import javax.measure.quantity.Frequency;
-import javax.measure.quantity.Illuminance;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.LuminousFlux;
-import javax.measure.quantity.LuminousIntensity;
-import javax.measure.quantity.MagneticFlux;
-import javax.measure.quantity.MagneticFluxDensity;
-import javax.measure.quantity.Mass;
-import javax.measure.quantity.Power;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.RadiationDoseAbsorbed;
-import javax.measure.quantity.RadiationDoseEffective;
-import javax.measure.quantity.Radioactivity;
-import javax.measure.quantity.SolidAngle;
-import javax.measure.quantity.Speed;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Time;
-import javax.measure.quantity.Volume;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.BaseUnits;
+import org.tinygears.uom.SystemOfUnits;
+import org.tinygears.uom.Unit;
+import org.tinygears.uom.Untyped;
+import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
-import org.tinygears.uom.quantity.AccelerationFactory;
-import org.tinygears.uom.quantity.AmountOfSubstanceFactory;
-import org.tinygears.uom.quantity.AngleFactory;
-import org.tinygears.uom.quantity.AreaFactory;
-import org.tinygears.uom.quantity.CatalyticActivityFactory;
-import org.tinygears.uom.quantity.DimensionlessFactory;
-import org.tinygears.uom.quantity.ElectricCapacitanceFactory;
-import org.tinygears.uom.quantity.ElectricChargeFactory;
-import org.tinygears.uom.quantity.ElectricConductanceFactory;
-import org.tinygears.uom.quantity.ElectricCurrentFactory;
-import org.tinygears.uom.quantity.ElectricInductanceFactory;
-import org.tinygears.uom.quantity.ElectricPotentialFactory;
-import org.tinygears.uom.quantity.ElectricResistanceFactory;
-import org.tinygears.uom.quantity.EnergyFactory;
-import org.tinygears.uom.quantity.ForceFactory;
-import org.tinygears.uom.quantity.FrequencyFactory;
-import org.tinygears.uom.quantity.IlluminanceFactory;
-import org.tinygears.uom.quantity.LengthFactory;
-import org.tinygears.uom.quantity.LuminousFluxFactory;
-import org.tinygears.uom.quantity.LuminousIntensityFactory;
-import org.tinygears.uom.quantity.MagneticFluxDensityFactory;
-import org.tinygears.uom.quantity.MagneticFluxFactory;
-import org.tinygears.uom.quantity.MassFactory;
-import org.tinygears.uom.quantity.PowerFactory;
-import org.tinygears.uom.quantity.PressureFactory;
-import org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory;
-import org.tinygears.uom.quantity.RadiationDoseEffectiveFactory;
-import org.tinygears.uom.quantity.RadioactivityFactory;
-import org.tinygears.uom.quantity.SolidAngleFactory;
-import org.tinygears.uom.quantity.SpeedFactory;
-import org.tinygears.uom.quantity.TemperatureFactory;
-import org.tinygears.uom.quantity.TimeFactory;
-import org.tinygears.uom.quantity.VolumeFactory;
+import org.tinygears.uom.quantity.Acceleration;
+import org.tinygears.uom.quantity.AmountOfSubstance;
+import org.tinygears.uom.quantity.Angle;
+import org.tinygears.uom.quantity.Area;
+import org.tinygears.uom.quantity.CatalyticActivity;
+import org.tinygears.uom.quantity.Dimensionless;
+import org.tinygears.uom.quantity.ElectricCapacitance;
+import org.tinygears.uom.quantity.ElectricCharge;
+import org.tinygears.uom.quantity.ElectricConductance;
+import org.tinygears.uom.quantity.ElectricCurrent;
+import org.tinygears.uom.quantity.ElectricInductance;
+import org.tinygears.uom.quantity.ElectricPotential;
+import org.tinygears.uom.quantity.ElectricResistance;
+import org.tinygears.uom.quantity.Energy;
+import org.tinygears.uom.quantity.Force;
+import org.tinygears.uom.quantity.Frequency;
+import org.tinygears.uom.quantity.Illuminance;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.LuminousFlux;
+import org.tinygears.uom.quantity.LuminousIntensity;
+import org.tinygears.uom.quantity.MagneticFlux;
+import org.tinygears.uom.quantity.MagneticFluxDensity;
+import org.tinygears.uom.quantity.Mass;
+import org.tinygears.uom.quantity.Power;
+import org.tinygears.uom.quantity.Pressure;
+import org.tinygears.uom.quantity.RadiationDoseAbsorbed;
+import org.tinygears.uom.quantity.RadiationDoseEffective;
+import org.tinygears.uom.quantity.Radioactivity;
+import org.tinygears.uom.quantity.SolidAngle;
+import org.tinygears.uom.quantity.Speed;
+import org.tinygears.uom.quantity.Temperature;
+import org.tinygears.uom.quantity.Time;
+import org.tinygears.uom.quantity.Volume;
 
-/** The Information units; generated from {@code data/information.units} and {@code data/quantity-types.txt}. */
+/** The Information units of the native API; generated from {@code data/information.units} and {@code data/quantity-types.txt}. */
 public final class Information {
 
     private Information() {
     }
 
     /** The bit, {@code bit}. */
-    public static final UomUnit<?> BIT = UomUnit.unchecked(BaseUnits.ONE.alternate("bit").named("bit", "bit"));
+    public static final Unit<Untyped> BIT = Unit.of(Untyped.class, BaseUnits.ONE.alternate("bit").named("bit", "bit"));
 
     /** The byte, {@code B}. */
-    public static final UomUnit<?> BYTE = UomUnit.unchecked(
-            BaseUnits.ONE.alternate("bit").transform(Converters.affine(Factor.of(8L, 1L), Factor.ZERO))
+    public static final Unit<Untyped> BYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8L, 1L), Factor.ZERO))
                     .named("B", "byte"));
 
     /** The kilobit, {@code kbit}. */
-    public static final UomUnit<?> KILOBIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.KILO).named("kbit", "kilobit"));
+    public static final Unit<Untyped> KILOBIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000L, 1L), Factor.ZERO))
+                    .named("kbit", "kilobit"));
 
     /** The megabit, {@code Mbit}. */
-    public static final UomUnit<?> MEGABIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.MEGA).named("Mbit", "megabit"));
+    public static final Unit<Untyped> MEGABIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000000L, 1L), Factor.ZERO))
+                    .named("Mbit", "megabit"));
 
     /** The gigabit, {@code Gbit}. */
-    public static final UomUnit<?> GIGABIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.GIGA).named("Gbit", "gigabit"));
+    public static final Unit<Untyped> GIGABIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000000000L, 1L), Factor.ZERO))
+                    .named("Gbit", "gigabit"));
 
     /** The terabit, {@code Tbit}. */
-    public static final UomUnit<?> TERABIT = UomUnit.unchecked(BIT.prefix(MetricPrefix.TERA).named("Tbit", "terabit"));
+    public static final Unit<Untyped> TERABIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1000000000000L, 1L), Factor.ZERO))
+                    .named("Tbit", "terabit"));
 
     /** The kibibit, {@code Kibit}. */
-    public static final UomUnit<?> KIBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.KIBI).named("Kibit", "kibibit"));
+    public static final Unit<Untyped> KIBIBIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1024L, 1L), Factor.ZERO))
+                    .named("Kibit", "kibibit"));
 
     /** The mebibit, {@code Mibit}. */
-    public static final UomUnit<?> MEBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.MEBI).named("Mibit", "mebibit"));
+    public static final Unit<Untyped> MEBIBIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1048576L, 1L), Factor.ZERO))
+                    .named("Mibit", "mebibit"));
 
     /** The gibibit, {@code Gibit}. */
-    public static final UomUnit<?> GIBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.GIBI).named("Gibit", "gibibit"));
+    public static final Unit<Untyped> GIBIBIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1073741824L, 1L), Factor.ZERO))
+                    .named("Gibit", "gibibit"));
 
     /** The tebibit, {@code Tibit}. */
-    public static final UomUnit<?> TEBIBIT = UomUnit.unchecked(BIT.prefix(BinaryPrefix.TEBI).named("Tibit", "tebibit"));
+    public static final Unit<Untyped> TEBIBIT = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(1099511627776L, 1L), Factor.ZERO))
+                    .named("Tibit", "tebibit"));
 
     /** The kilobyte, {@code kB}. */
-    public static final UomUnit<?> KILOBYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.KILO).named("kB", "kilobyte"));
+    public static final Unit<Untyped> KILOBYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000L, 1L), Factor.ZERO))
+                    .named("kB", "kilobyte"));
 
     /** The megabyte, {@code MB}. */
-    public static final UomUnit<?> MEGABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.MEGA).named("MB", "megabyte"));
+    public static final Unit<Untyped> MEGABYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000L, 1L), Factor.ZERO))
+                    .named("MB", "megabyte"));
 
     /** The gigabyte, {@code GB}. */
-    public static final UomUnit<?> GIGABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.GIGA).named("GB", "gigabyte"));
+    public static final Unit<Untyped> GIGABYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000L, 1L), Factor.ZERO))
+                    .named("GB", "gigabyte"));
 
     /** The terabyte, {@code TB}. */
-    public static final UomUnit<?> TERABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.TERA).named("TB", "terabyte"));
+    public static final Unit<Untyped> TERABYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000000L, 1L), Factor.ZERO))
+                    .named("TB", "terabyte"));
 
     /** The petabyte, {@code PB}. */
-    public static final UomUnit<?> PETABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.PETA).named("PB", "petabyte"));
+    public static final Unit<Untyped> PETABYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000000000L, 1L), Factor.ZERO))
+                    .named("PB", "petabyte"));
 
     /** The exabyte, {@code EB}. */
-    public static final UomUnit<?> EXABYTE = UomUnit.unchecked(BYTE.prefix(MetricPrefix.EXA).named("EB", "exabyte"));
+    public static final Unit<Untyped> EXABYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8000000000000000000L, 1L), Factor.ZERO))
+                    .named("EB", "exabyte"));
 
     /** The kibibyte, {@code KiB}. */
-    public static final UomUnit<?> KIBIBYTE = UomUnit
-            .unchecked(BYTE.prefix(BinaryPrefix.KIBI).named("KiB", "kibibyte"));
+    public static final Unit<Untyped> KIBIBYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8192L, 1L), Factor.ZERO))
+                    .named("KiB", "kibibyte"));
 
     /** The mebibyte, {@code MiB}. */
-    public static final UomUnit<?> MEBIBYTE = UomUnit
-            .unchecked(BYTE.prefix(BinaryPrefix.MEBI).named("MiB", "mebibyte"));
+    public static final Unit<Untyped> MEBIBYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8388608L, 1L), Factor.ZERO))
+                    .named("MiB", "mebibyte"));
 
     /** The gibibyte, {@code GiB}. */
-    public static final UomUnit<?> GIBIBYTE = UomUnit
-            .unchecked(BYTE.prefix(BinaryPrefix.GIBI).named("GiB", "gibibyte"));
+    public static final Unit<Untyped> GIBIBYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8589934592L, 1L), Factor.ZERO))
+                    .named("GiB", "gibibyte"));
 
     /** The tebibyte, {@code TiB}. */
-    public static final UomUnit<?> TEBIBYTE = UomUnit
-            .unchecked(BYTE.prefix(BinaryPrefix.TEBI).named("TiB", "tebibyte"));
+    public static final Unit<Untyped> TEBIBYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(8796093022208L, 1L), Factor.ZERO))
+                    .named("TiB", "tebibyte"));
 
     /** The pebibyte, {@code PiB}. */
-    public static final UomUnit<?> PEBIBYTE = UomUnit
-            .unchecked(BYTE.prefix(BinaryPrefix.PEBI).named("PiB", "pebibyte"));
+    public static final Unit<Untyped> PEBIBYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit").transform(Converter.affine(Factor.of(9007199254740992L, 1L), Factor.ZERO))
+                    .named("PiB", "pebibyte"));
 
     /** The exbibyte, {@code EiB}. */
-    public static final UomUnit<?> EXBIBYTE = UomUnit
-            .unchecked(BYTE.prefix(BinaryPrefix.EXBI).named("EiB", "exbibyte"));
+    public static final Unit<Untyped> EXBIBYTE = Unit.of(
+            Untyped.class,
+            BaseUnits.ONE.alternate("bit")
+                    .transform(
+                            Converter.affine(
+                                    Factor.of(new BigInteger("9223372036854775808"), new BigInteger("1"), 0, 1),
+                                    Factor.ZERO))
+                    .named("EiB", "exbibyte"));
 
     /** The units of this catalog. */
-    public static final List<UomUnit<?>> UNITS = List.<UomUnit<?>>of(
+    public static final List<Unit<?>> UNITS = List.<Unit<?>>of(
             BIT,
             BYTE,
             KILOBIT,
@@ -194,50 +221,50 @@ public final class Information {
             PEBIBYTE,
             EXBIBYTE);
 
-    /** The symbols that take a prefix in this system. */
+    /** The symbols that take a metric prefix in this system. */
     public static final Set<String> PREFIXABLE = Set.of("B", "bit");
 
     /** The symbols that take a binary prefix in this system. */
     public static final Set<String> BINARY_PREFIXABLE = Set.of("B", "bit");
 
     /** The preferred unit of each quantity type. */
-    public static final Map<Class<?>, UomUnit<?>> PREFERRED = Map.<Class<?>, UomUnit<?>>ofEntries(
-            Map.entry(Acceleration.class, AccelerationFactory.SYSTEM_UNIT),
-            Map.entry(AmountOfSubstance.class, AmountOfSubstanceFactory.SYSTEM_UNIT),
-            Map.entry(Angle.class, AngleFactory.SYSTEM_UNIT),
-            Map.entry(Area.class, AreaFactory.SYSTEM_UNIT),
-            Map.entry(CatalyticActivity.class, CatalyticActivityFactory.SYSTEM_UNIT),
-            Map.entry(Dimensionless.class, DimensionlessFactory.SYSTEM_UNIT),
-            Map.entry(ElectricCapacitance.class, ElectricCapacitanceFactory.SYSTEM_UNIT),
-            Map.entry(ElectricCharge.class, ElectricChargeFactory.SYSTEM_UNIT),
-            Map.entry(ElectricConductance.class, ElectricConductanceFactory.SYSTEM_UNIT),
-            Map.entry(ElectricCurrent.class, ElectricCurrentFactory.SYSTEM_UNIT),
-            Map.entry(ElectricInductance.class, ElectricInductanceFactory.SYSTEM_UNIT),
-            Map.entry(ElectricPotential.class, ElectricPotentialFactory.SYSTEM_UNIT),
-            Map.entry(ElectricResistance.class, ElectricResistanceFactory.SYSTEM_UNIT),
-            Map.entry(Energy.class, EnergyFactory.SYSTEM_UNIT),
-            Map.entry(Force.class, ForceFactory.SYSTEM_UNIT),
-            Map.entry(Frequency.class, FrequencyFactory.SYSTEM_UNIT),
-            Map.entry(Illuminance.class, IlluminanceFactory.SYSTEM_UNIT),
-            Map.entry(Length.class, LengthFactory.SYSTEM_UNIT),
-            Map.entry(LuminousFlux.class, LuminousFluxFactory.SYSTEM_UNIT),
-            Map.entry(LuminousIntensity.class, LuminousIntensityFactory.SYSTEM_UNIT),
-            Map.entry(MagneticFlux.class, MagneticFluxFactory.SYSTEM_UNIT),
-            Map.entry(MagneticFluxDensity.class, MagneticFluxDensityFactory.SYSTEM_UNIT),
-            Map.entry(Mass.class, MassFactory.SYSTEM_UNIT),
-            Map.entry(Power.class, PowerFactory.SYSTEM_UNIT),
-            Map.entry(Pressure.class, PressureFactory.SYSTEM_UNIT),
-            Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbedFactory.SYSTEM_UNIT),
-            Map.entry(RadiationDoseEffective.class, RadiationDoseEffectiveFactory.SYSTEM_UNIT),
-            Map.entry(Radioactivity.class, RadioactivityFactory.SYSTEM_UNIT),
-            Map.entry(SolidAngle.class, SolidAngleFactory.SYSTEM_UNIT),
-            Map.entry(Speed.class, SpeedFactory.SYSTEM_UNIT),
-            Map.entry(Temperature.class, TemperatureFactory.SYSTEM_UNIT),
-            Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
-            Map.entry(Volume.class, VolumeFactory.SYSTEM_UNIT));
+    public static final Map<Class<?>, Unit<?>> PREFERRED = Map.<Class<?>, Unit<?>>ofEntries(
+            Map.entry(Acceleration.class, Acceleration.SYSTEM_UNIT),
+            Map.entry(AmountOfSubstance.class, AmountOfSubstance.SYSTEM_UNIT),
+            Map.entry(Angle.class, Angle.SYSTEM_UNIT),
+            Map.entry(Area.class, Area.SYSTEM_UNIT),
+            Map.entry(CatalyticActivity.class, CatalyticActivity.SYSTEM_UNIT),
+            Map.entry(Dimensionless.class, Dimensionless.SYSTEM_UNIT),
+            Map.entry(ElectricCapacitance.class, ElectricCapacitance.SYSTEM_UNIT),
+            Map.entry(ElectricCharge.class, ElectricCharge.SYSTEM_UNIT),
+            Map.entry(ElectricConductance.class, ElectricConductance.SYSTEM_UNIT),
+            Map.entry(ElectricCurrent.class, ElectricCurrent.SYSTEM_UNIT),
+            Map.entry(ElectricInductance.class, ElectricInductance.SYSTEM_UNIT),
+            Map.entry(ElectricPotential.class, ElectricPotential.SYSTEM_UNIT),
+            Map.entry(ElectricResistance.class, ElectricResistance.SYSTEM_UNIT),
+            Map.entry(Energy.class, Energy.SYSTEM_UNIT),
+            Map.entry(Force.class, Force.SYSTEM_UNIT),
+            Map.entry(Frequency.class, Frequency.SYSTEM_UNIT),
+            Map.entry(Illuminance.class, Illuminance.SYSTEM_UNIT),
+            Map.entry(Length.class, Length.SYSTEM_UNIT),
+            Map.entry(LuminousFlux.class, LuminousFlux.SYSTEM_UNIT),
+            Map.entry(LuminousIntensity.class, LuminousIntensity.SYSTEM_UNIT),
+            Map.entry(MagneticFlux.class, MagneticFlux.SYSTEM_UNIT),
+            Map.entry(MagneticFluxDensity.class, MagneticFluxDensity.SYSTEM_UNIT),
+            Map.entry(Mass.class, Mass.SYSTEM_UNIT),
+            Map.entry(Power.class, Power.SYSTEM_UNIT),
+            Map.entry(Pressure.class, Pressure.SYSTEM_UNIT),
+            Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbed.SYSTEM_UNIT),
+            Map.entry(RadiationDoseEffective.class, RadiationDoseEffective.SYSTEM_UNIT),
+            Map.entry(Radioactivity.class, Radioactivity.SYSTEM_UNIT),
+            Map.entry(SolidAngle.class, SolidAngle.SYSTEM_UNIT),
+            Map.entry(Speed.class, Speed.SYSTEM_UNIT),
+            Map.entry(Temperature.class, Temperature.SYSTEM_UNIT),
+            Map.entry(Time.class, Time.SYSTEM_UNIT),
+            Map.entry(Volume.class, Volume.SYSTEM_UNIT));
 
     /** This system of units. */
-    public static final UomSystemOfUnits SYSTEM = new UomSystemOfUnits(
+    public static final SystemOfUnits SYSTEM = new SystemOfUnits(
             "Information",
             UNITS,
             PREFERRED,

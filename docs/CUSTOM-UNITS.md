@@ -40,7 +40,7 @@ System.out.println(Length.from(format.parse("1 Mleague")).to(SI.KILOMETRE));
 ```
 
 The units are `Unit<?>`: a loaded file cannot add Java types, so `asType` narrows a quantity to one of the 33
-standard quantity types, and the typed interfaces of `org.tinygears.uom.quantity` take it from there.
+standard quantity types, and the typed interfaces of `org.tinygears.uom.jsr.quantity` take it from there.
 
 ## Loading
 

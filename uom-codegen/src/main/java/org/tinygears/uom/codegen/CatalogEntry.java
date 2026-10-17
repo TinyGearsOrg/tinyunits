@@ -14,6 +14,6 @@ import org.tinygears.uom.engine.parse.Definition;
 
 /**
  * A catalog constant; {@code quantityType} is null for an untyped unit, {@code shared} names the factory system unit
- * the constant reuses ({@code org.tinygears.uom.quantity.LengthFactory.SYSTEM_UNIT}) or is null.
+ * the constant reuses ({@code org.tinygears.uom.jsr.quantity.LengthFactory.SYSTEM_UNIT}) or is null.
  */
 public record CatalogEntry(Definition definition, String constantName, String quantityType, String shared) {}

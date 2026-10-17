@@ -17,8 +17,8 @@ Builds a copy of the working tree (uncommitted changes included) with
 plugins are cached), then:
 
 1. **Release build** as above.
-2. **Installed artifacts:** `uom-parent` (pom), `uom-engine`, `uom-core` and `uom` (pom, jar, sources and javadoc jar), exactly;
-   `uom-codegen`, `uom-tck`, `uom-examples`, `uom-native` and `uom-native-jsr` are installed (pom and jar) but have no
+2. **Installed artifacts:** `uom-parent` (pom), `uom-engine`, `uom` and `uom-jsr` (pom, jar, sources and javadoc jar),
+   exactly; `uom-codegen`, `uom-tck` and `uom-examples` are installed (pom and jar) but have no
    sources or javadoc jar (they
    are never deployed, see `check-pom.sh`). The jars contain `module-info.class`, `META-INF/LICENSE` (equal to
    `LICENSE`), the manifest entries (`Implementation-Title`, `-Version`, `-Vendor`, `Build-Jdk-Spec` of the JDK, no
@@ -26,11 +26,11 @@ plugins are cached), then:
    `jar --describe-module` gives the exact module descriptors; `check-pom.sh` passes on the installed POMs.
 3. **Reproducibility:** a second build from another directory into another repository gives byte-identical poms,
    jars, sources and javadoc jars. Builds on different JDKs differ (`Build-Jdk-Spec`); releases use JDK 21.
-4. **Consumer** (`consumer/`): a project that depends only on `org.tinygears:uom` resolves exactly `uom`, `uom-core`,
+4. **Consumer** (`consumer/`): a project that depends only on `org.tinygears:uom-jsr` resolves exactly `uom-jsr`, `uom`,
    `uom-engine` and `unit-api` 2.2, and runs `uom-examples`' `Examples` (copied in) on the class path and on the module path
    (module `org.tinygears.uom.consumer`); the output must equal `consumer/expected-output.txt`, the values that
    `ExamplesTest` pins (update both together).
-5. **jlink:** an image with `org.tinygears.uom`, the consumer and `jdk.localedata` (for the German locale example)
+5. **jlink:** an image with `org.tinygears.uom.jsr`, the consumer and `jdk.localedata` (for the German locale example)
    contains exactly those modules plus `java.base` and `java.measure`, and runs the consumer with the same output.
    Reported as `SKIPPED` (and the run ends with `OK (jlink skipped)`) when the JDK cannot link (no `jmods` and a
    runtime image that is not linkable or was modified by a distribution package); `--require-jlink` fails instead.

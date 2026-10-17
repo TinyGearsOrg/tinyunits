@@ -15,253 +15,264 @@ package org.tinygears.uom.systems;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.measure.quantity.Acceleration;
-import javax.measure.quantity.AmountOfSubstance;
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Area;
-import javax.measure.quantity.CatalyticActivity;
-import javax.measure.quantity.Dimensionless;
-import javax.measure.quantity.ElectricCapacitance;
-import javax.measure.quantity.ElectricCharge;
-import javax.measure.quantity.ElectricConductance;
-import javax.measure.quantity.ElectricCurrent;
-import javax.measure.quantity.ElectricInductance;
-import javax.measure.quantity.ElectricPotential;
-import javax.measure.quantity.ElectricResistance;
-import javax.measure.quantity.Energy;
-import javax.measure.quantity.Force;
-import javax.measure.quantity.Frequency;
-import javax.measure.quantity.Illuminance;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.LuminousFlux;
-import javax.measure.quantity.LuminousIntensity;
-import javax.measure.quantity.MagneticFlux;
-import javax.measure.quantity.MagneticFluxDensity;
-import javax.measure.quantity.Mass;
-import javax.measure.quantity.Power;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.RadiationDoseAbsorbed;
-import javax.measure.quantity.RadiationDoseEffective;
-import javax.measure.quantity.Radioactivity;
-import javax.measure.quantity.SolidAngle;
-import javax.measure.quantity.Speed;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Time;
-import javax.measure.quantity.Volume;
 
-import org.tinygears.uom.core.BaseUnits;
-import org.tinygears.uom.core.Converters;
-import org.tinygears.uom.core.UomUnit;
+import org.tinygears.uom.BaseUnits;
+import org.tinygears.uom.SystemOfUnits;
+import org.tinygears.uom.Unit;
+import org.tinygears.uom.engine.Converter;
 import org.tinygears.uom.engine.Factor;
-import org.tinygears.uom.quantity.AccelerationFactory;
-import org.tinygears.uom.quantity.AmountOfSubstanceFactory;
-import org.tinygears.uom.quantity.AngleFactory;
-import org.tinygears.uom.quantity.CatalyticActivityFactory;
-import org.tinygears.uom.quantity.DimensionlessFactory;
-import org.tinygears.uom.quantity.ElectricCapacitanceFactory;
-import org.tinygears.uom.quantity.ElectricChargeFactory;
-import org.tinygears.uom.quantity.ElectricConductanceFactory;
-import org.tinygears.uom.quantity.ElectricCurrentFactory;
-import org.tinygears.uom.quantity.ElectricInductanceFactory;
-import org.tinygears.uom.quantity.ElectricPotentialFactory;
-import org.tinygears.uom.quantity.ElectricResistanceFactory;
-import org.tinygears.uom.quantity.FrequencyFactory;
-import org.tinygears.uom.quantity.IlluminanceFactory;
-import org.tinygears.uom.quantity.LuminousFluxFactory;
-import org.tinygears.uom.quantity.LuminousIntensityFactory;
-import org.tinygears.uom.quantity.MagneticFluxDensityFactory;
-import org.tinygears.uom.quantity.MagneticFluxFactory;
-import org.tinygears.uom.quantity.RadiationDoseAbsorbedFactory;
-import org.tinygears.uom.quantity.RadiationDoseEffectiveFactory;
-import org.tinygears.uom.quantity.RadioactivityFactory;
-import org.tinygears.uom.quantity.SolidAngleFactory;
-import org.tinygears.uom.quantity.TimeFactory;
+import org.tinygears.uom.quantity.Acceleration;
+import org.tinygears.uom.quantity.AmountOfSubstance;
+import org.tinygears.uom.quantity.Angle;
+import org.tinygears.uom.quantity.Area;
+import org.tinygears.uom.quantity.CatalyticActivity;
+import org.tinygears.uom.quantity.Dimensionless;
+import org.tinygears.uom.quantity.ElectricCapacitance;
+import org.tinygears.uom.quantity.ElectricCharge;
+import org.tinygears.uom.quantity.ElectricConductance;
+import org.tinygears.uom.quantity.ElectricCurrent;
+import org.tinygears.uom.quantity.ElectricInductance;
+import org.tinygears.uom.quantity.ElectricPotential;
+import org.tinygears.uom.quantity.ElectricResistance;
+import org.tinygears.uom.quantity.Energy;
+import org.tinygears.uom.quantity.Force;
+import org.tinygears.uom.quantity.Frequency;
+import org.tinygears.uom.quantity.Illuminance;
+import org.tinygears.uom.quantity.Length;
+import org.tinygears.uom.quantity.LuminousFlux;
+import org.tinygears.uom.quantity.LuminousIntensity;
+import org.tinygears.uom.quantity.MagneticFlux;
+import org.tinygears.uom.quantity.MagneticFluxDensity;
+import org.tinygears.uom.quantity.Mass;
+import org.tinygears.uom.quantity.Power;
+import org.tinygears.uom.quantity.Pressure;
+import org.tinygears.uom.quantity.RadiationDoseAbsorbed;
+import org.tinygears.uom.quantity.RadiationDoseEffective;
+import org.tinygears.uom.quantity.Radioactivity;
+import org.tinygears.uom.quantity.SolidAngle;
+import org.tinygears.uom.quantity.Speed;
+import org.tinygears.uom.quantity.Temperature;
+import org.tinygears.uom.quantity.Time;
+import org.tinygears.uom.quantity.Volume;
 
-/** The USCustomary units; generated from {@code data/us-customary.units}, {@code data/si.units} and {@code data/quantity-types.txt}. */
+/** The USCustomary units of the native API; generated from {@code data/us-customary.units}, {@code data/si.units} and {@code data/quantity-types.txt}. */
 public final class USCustomary {
 
     private USCustomary() {
     }
 
     /** The inch, {@code in}. */
-    public static final UomUnit<Length> INCH = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(127L, 5000L), Factor.ZERO)).named("in", "inch"));
+    public static final Unit<Length> INCH = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(127L, 5000L), Factor.ZERO)).named("in", "inch"));
 
     /** The foot, {@code ft}. */
-    public static final UomUnit<Length> FOOT = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(381L, 1250L), Factor.ZERO)).named("ft", "foot"));
+    public static final Unit<Length> FOOT = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(381L, 1250L), Factor.ZERO)).named("ft", "foot"));
 
     /** The yard, {@code yd}. */
-    public static final UomUnit<Length> YARD = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(1143L, 1250L), Factor.ZERO)).named("yd", "yard"));
+    public static final Unit<Length> YARD = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(1143L, 1250L), Factor.ZERO)).named("yd", "yard"));
 
     /** The mile, {@code mi}. */
-    public static final UomUnit<Length> MILE = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(201168L, 125L), Factor.ZERO)).named("mi", "mile"));
+    public static final Unit<Length> MILE = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(201168L, 125L), Factor.ZERO)).named("mi", "mile"));
 
     /** The nautical mile, {@code nmi}. */
-    public static final UomUnit<Length> NAUTICAL_MILE = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(1852L, 1L), Factor.ZERO))
+    public static final Unit<Length> NAUTICAL_MILE = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(1852L, 1L), Factor.ZERO))
                     .named("nmi", "nautical mile"));
 
     /** The fathom, {@code fathom}. */
-    public static final UomUnit<Length> FATHOM = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(1143L, 625L), Factor.ZERO))
-                    .named("fathom", "fathom"));
+    public static final Unit<Length> FATHOM = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(1143L, 625L), Factor.ZERO)).named("fathom", "fathom"));
 
     /** The foot US, {@code ft_US}. */
-    public static final UomUnit<Length> FOOT_US = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(1200L, 3937L), Factor.ZERO))
+    public static final Unit<Length> FOOT_US = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(1200L, 3937L), Factor.ZERO))
                     .named("ft_US", "foot US"));
 
     /** The mile US, {@code mi_US}. */
-    public static final UomUnit<Length> MILE_US = UomUnit.unchecked(
-            BaseUnits.METRE.transform(Converters.affine(Factor.of(6336000L, 3937L), Factor.ZERO))
+    public static final Unit<Length> MILE_US = Unit.of(
+            Length.class,
+            BaseUnits.METRE.transform(Converter.affine(Factor.of(6336000L, 3937L), Factor.ZERO))
                     .named("mi_US", "mile US"));
 
     /** The square inch, {@code in²}. */
-    public static final UomUnit<Area> SQUARE_INCH = UomUnit.unchecked(
-            BaseUnits.METRE.pow(2).transform(Converters.affine(Factor.of(16129L, 25000000L), Factor.ZERO))
+    public static final Unit<Area> SQUARE_INCH = Unit.of(
+            Area.class,
+            BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(16129L, 25000000L), Factor.ZERO))
                     .named("in²", "square inch"));
 
     /** The square foot, {@code ft²}. */
-    public static final UomUnit<Area> SQUARE_FOOT = UomUnit.unchecked(
-            BaseUnits.METRE.pow(2).transform(Converters.affine(Factor.of(145161L, 1562500L), Factor.ZERO))
+    public static final Unit<Area> SQUARE_FOOT = Unit.of(
+            Area.class,
+            BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(145161L, 1562500L), Factor.ZERO))
                     .named("ft²", "square foot"));
 
     /** The acre, {@code ac}. */
-    public static final UomUnit<Area> ACRE = UomUnit.unchecked(
-            BaseUnits.METRE.pow(2).transform(Converters.affine(Factor.of(316160658L, 78125L), Factor.ZERO))
+    public static final Unit<Area> ACRE = Unit.of(
+            Area.class,
+            BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(316160658L, 78125L), Factor.ZERO))
                     .named("ac", "acre"));
 
     /** The acre US, {@code ac_US}. */
-    public static final UomUnit<Area> ACRE_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(2).transform(Converters.affine(Factor.of(62726400000L, 15499969L), Factor.ZERO))
+    public static final Unit<Area> ACRE_US = Unit.of(
+            Area.class,
+            BaseUnits.METRE.pow(2).transform(Converter.affine(Factor.of(62726400000L, 15499969L), Factor.ZERO))
                     .named("ac_US", "acre US"));
 
     /** The cubic inch, {@code in³}. */
-    public static final UomUnit<Volume> CUBIC_INCH = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(2048383L, 125000000000L), Factor.ZERO))
+    public static final Unit<Volume> CUBIC_INCH = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(2048383L, 125000000000L), Factor.ZERO))
                     .named("in³", "cubic inch"));
 
     /** The cubic foot, {@code ft³}. */
-    public static final UomUnit<Volume> CUBIC_FOOT = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(55306341L, 1953125000L), Factor.ZERO))
+    public static final Unit<Volume> CUBIC_FOOT = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(55306341L, 1953125000L), Factor.ZERO))
                     .named("ft³", "cubic foot"));
 
     /** The gallon US, {@code gal_US}. */
-    public static final UomUnit<Volume> GALLON_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(473176473L, 125000000000L), Factor.ZERO))
+    public static final Unit<Volume> GALLON_US = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 125000000000L), Factor.ZERO))
                     .named("gal_US", "gallon US"));
 
     /** The quart US, {@code qt_US}. */
-    public static final UomUnit<Volume> QUART_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(473176473L, 500000000000L), Factor.ZERO))
+    public static final Unit<Volume> QUART_US = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 500000000000L), Factor.ZERO))
                     .named("qt_US", "quart US"));
 
     /** The pint US, {@code pt_US}. */
-    public static final UomUnit<Volume> PINT_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(473176473L, 1000000000000L), Factor.ZERO))
+    public static final Unit<Volume> PINT_US = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 1000000000000L), Factor.ZERO))
                     .named("pt_US", "pint US"));
 
     /** The cup US, {@code cup_US}. */
-    public static final UomUnit<Volume> CUP_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(473176473L, 2000000000000L), Factor.ZERO))
+    public static final Unit<Volume> CUP_US = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 2000000000000L), Factor.ZERO))
                     .named("cup_US", "cup US"));
 
     /** The fluid ounce US, {@code floz_US}. */
-    public static final UomUnit<Volume> FLUID_OUNCE_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(473176473L, 16000000000000L), Factor.ZERO))
+    public static final Unit<Volume> FLUID_OUNCE_US = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 16000000000000L), Factor.ZERO))
                     .named("floz_US", "fluid ounce US"));
 
     /** The tablespoon US, {@code tbsp_US}. */
-    public static final UomUnit<Volume> TABLESPOON_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(473176473L, 32000000000000L), Factor.ZERO))
+    public static final Unit<Volume> TABLESPOON_US = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(473176473L, 32000000000000L), Factor.ZERO))
                     .named("tbsp_US", "tablespoon US"));
 
     /** The teaspoon US, {@code tsp_US}. */
-    public static final UomUnit<Volume> TEASPOON_US = UomUnit.unchecked(
-            BaseUnits.METRE.pow(3).transform(Converters.affine(Factor.of(157725491L, 32000000000000L), Factor.ZERO))
+    public static final Unit<Volume> TEASPOON_US = Unit.of(
+            Volume.class,
+            BaseUnits.METRE.pow(3).transform(Converter.affine(Factor.of(157725491L, 32000000000000L), Factor.ZERO))
                     .named("tsp_US", "teaspoon US"));
 
     /** The pound, {@code lb}. */
-    public static final UomUnit<Mass> POUND = UomUnit.unchecked(
-            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(45359237L, 100000000L), Factor.ZERO))
+    public static final Unit<Mass> POUND = Unit.of(
+            Mass.class,
+            BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(45359237L, 100000000L), Factor.ZERO))
                     .named("lb", "pound"));
 
     /** The ounce, {@code oz}. */
-    public static final UomUnit<Mass> OUNCE = UomUnit.unchecked(
-            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(45359237L, 1600000000L), Factor.ZERO))
+    public static final Unit<Mass> OUNCE = Unit.of(
+            Mass.class,
+            BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(45359237L, 1600000000L), Factor.ZERO))
                     .named("oz", "ounce"));
 
     /** The grain, {@code gr}. */
-    public static final UomUnit<Mass> GRAIN = UomUnit.unchecked(
-            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(6479891L, 100000000000L), Factor.ZERO))
+    public static final Unit<Mass> GRAIN = Unit.of(
+            Mass.class,
+            BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(6479891L, 100000000000L), Factor.ZERO))
                     .named("gr", "grain"));
 
     /** The ton US, {@code ton_US}. */
-    public static final UomUnit<Mass> TON_US = UomUnit.unchecked(
-            BaseUnits.KILOGRAM.transform(Converters.affine(Factor.of(45359237L, 50000L), Factor.ZERO))
+    public static final Unit<Mass> TON_US = Unit.of(
+            Mass.class,
+            BaseUnits.KILOGRAM.transform(Converter.affine(Factor.of(45359237L, 50000L), Factor.ZERO))
                     .named("ton_US", "ton US"));
 
     /** The pound force, {@code lbf}. */
-    public static final UomUnit<Force> POUND_FORCE = UomUnit.unchecked(
+    public static final Unit<Force> POUND_FORCE = Unit.of(
+            Force.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(8896443230521L, 2000000000000L), Factor.ZERO))
+                    .transform(Converter.affine(Factor.of(8896443230521L, 2000000000000L), Factor.ZERO))
                     .named("lbf", "pound force"));
 
     /** The pound force per square inch, {@code psi}. */
-    public static final UomUnit<Pressure> POUND_FORCE_PER_SQUARE_INCH = UomUnit.unchecked(
+    public static final Unit<Pressure> POUND_FORCE_PER_SQUARE_INCH = Unit.of(
+            Pressure.class,
             BaseUnits.KILOGRAM.divide(BaseUnits.METRE).divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(8896443230521L, 1290320000L), Factor.ZERO))
+                    .transform(Converter.affine(Factor.of(8896443230521L, 1290320000L), Factor.ZERO))
                     .named("psi", "pound force per square inch"));
 
     /** The British thermal unit IT, {@code BTU_IT}. */
-    public static final UomUnit<Energy> BRITISH_THERMAL_UNIT_IT = UomUnit.unchecked(
+    public static final Unit<Energy> BRITISH_THERMAL_UNIT_IT = Unit.of(
+            Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(52752792631L, 50000000L), Factor.ZERO))
+                    .transform(Converter.affine(Factor.of(52752792631L, 50000000L), Factor.ZERO))
                     .named("BTU_IT", "British thermal unit IT"));
 
     /** The British thermal unit th, {@code BTU_th}. */
-    public static final UomUnit<Energy> BRITISH_THERMAL_UNIT_TH = UomUnit.unchecked(
+    public static final Unit<Energy> BRITISH_THERMAL_UNIT_TH = Unit.of(
+            Energy.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(2))
-                    .transform(Converters.affine(Factor.of(23722880951L, 22500000L), Factor.ZERO))
+                    .transform(Converter.affine(Factor.of(23722880951L, 22500000L), Factor.ZERO))
                     .named("BTU_th", "British thermal unit th"));
 
     /** The horsepower, {@code hp}. */
-    public static final UomUnit<Power> HORSEPOWER = UomUnit.unchecked(
+    public static final Unit<Power> HORSEPOWER = Unit.of(
+            Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
-                    .transform(Converters.affine(Factor.of(37284993579113511L, 50000000000000L), Factor.ZERO))
+                    .transform(Converter.affine(Factor.of(37284993579113511L, 50000000000000L), Factor.ZERO))
                     .named("hp", "horsepower"));
 
     /** The metric horsepower, {@code hp_M}. */
-    public static final UomUnit<Power> METRIC_HORSEPOWER = UomUnit.unchecked(
+    public static final Unit<Power> METRIC_HORSEPOWER = Unit.of(
+            Power.class,
             BaseUnits.KILOGRAM.multiply(BaseUnits.METRE.pow(2)).divide(BaseUnits.SECOND.pow(3))
-                    .transform(Converters.affine(Factor.of(588399L, 800L), Factor.ZERO))
+                    .transform(Converter.affine(Factor.of(588399L, 800L), Factor.ZERO))
                     .named("hp_M", "metric horsepower"));
 
     /** The mile per hour, {@code mph}. */
-    public static final UomUnit<Speed> MILE_PER_HOUR = UomUnit.unchecked(
-            BaseUnits.METRE.divide(BaseUnits.SECOND).transform(Converters.affine(Factor.of(1397L, 3125L), Factor.ZERO))
+    public static final Unit<Speed> MILE_PER_HOUR = Unit.of(
+            Speed.class,
+            BaseUnits.METRE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(1397L, 3125L), Factor.ZERO))
                     .named("mph", "mile per hour"));
 
     /** The knot, {@code kn}. */
-    public static final UomUnit<Speed> KNOT = UomUnit.unchecked(
-            BaseUnits.METRE.divide(BaseUnits.SECOND).transform(Converters.affine(Factor.of(463L, 900L), Factor.ZERO))
+    public static final Unit<Speed> KNOT = Unit.of(
+            Speed.class,
+            BaseUnits.METRE.divide(BaseUnits.SECOND).transform(Converter.affine(Factor.of(463L, 900L), Factor.ZERO))
                     .named("kn", "knot"));
 
     /** The degree Fahrenheit, {@code °F}. */
-    public static final UomUnit<Temperature> DEGREE_FAHRENHEIT = UomUnit.unchecked(
-            BaseUnits.KELVIN.transform(Converters.affine(Factor.of(5L, 9L), Factor.of(45967L, 180L)))
+    public static final Unit<Temperature> DEGREE_FAHRENHEIT = Unit.of(
+            Temperature.class,
+            BaseUnits.KELVIN.transform(Converter.affine(Factor.of(5L, 9L), Factor.of(45967L, 180L)))
                     .named("°F", "degree Fahrenheit"));
 
     /** The degree Rankine, {@code °R}. */
-    public static final UomUnit<Temperature> DEGREE_RANKINE = UomUnit.unchecked(
-            BaseUnits.KELVIN.transform(Converters.affine(Factor.of(5L, 9L), Factor.ZERO))
-                    .named("°R", "degree Rankine"));
+    public static final Unit<Temperature> DEGREE_RANKINE = Unit.of(
+            Temperature.class,
+            BaseUnits.KELVIN.transform(Converter.affine(Factor.of(5L, 9L), Factor.ZERO)).named("°R", "degree Rankine"));
 
     /** The units of this catalog. */
-    public static final List<UomUnit<?>> UNITS = List.<UomUnit<?>>of(
+    public static final List<Unit<?>> UNITS = List.<Unit<?>>of(
             INCH,
             FOOT,
             YARD,
@@ -298,45 +309,53 @@ public final class USCustomary {
             DEGREE_FAHRENHEIT,
             DEGREE_RANKINE);
 
-    /** The symbols that take a prefix in this system. */
+    /** The symbols that take a metric prefix in this system. */
     public static final Set<String> PREFIXABLE = Set.of();
 
+    /** The symbols that take a binary prefix in this system. */
+    public static final Set<String> BINARY_PREFIXABLE = Set.of();
+
     /** The preferred unit of each quantity type. */
-    public static final Map<Class<?>, UomUnit<?>> PREFERRED = Map.<Class<?>, UomUnit<?>>ofEntries(
-            Map.entry(Acceleration.class, AccelerationFactory.SYSTEM_UNIT),
-            Map.entry(AmountOfSubstance.class, AmountOfSubstanceFactory.SYSTEM_UNIT),
-            Map.entry(Angle.class, AngleFactory.SYSTEM_UNIT),
+    public static final Map<Class<?>, Unit<?>> PREFERRED = Map.<Class<?>, Unit<?>>ofEntries(
+            Map.entry(Acceleration.class, Acceleration.SYSTEM_UNIT),
+            Map.entry(AmountOfSubstance.class, AmountOfSubstance.SYSTEM_UNIT),
+            Map.entry(Angle.class, Angle.SYSTEM_UNIT),
             Map.entry(Area.class, SQUARE_FOOT),
-            Map.entry(CatalyticActivity.class, CatalyticActivityFactory.SYSTEM_UNIT),
-            Map.entry(Dimensionless.class, DimensionlessFactory.SYSTEM_UNIT),
-            Map.entry(ElectricCapacitance.class, ElectricCapacitanceFactory.SYSTEM_UNIT),
-            Map.entry(ElectricCharge.class, ElectricChargeFactory.SYSTEM_UNIT),
-            Map.entry(ElectricConductance.class, ElectricConductanceFactory.SYSTEM_UNIT),
-            Map.entry(ElectricCurrent.class, ElectricCurrentFactory.SYSTEM_UNIT),
-            Map.entry(ElectricInductance.class, ElectricInductanceFactory.SYSTEM_UNIT),
-            Map.entry(ElectricPotential.class, ElectricPotentialFactory.SYSTEM_UNIT),
-            Map.entry(ElectricResistance.class, ElectricResistanceFactory.SYSTEM_UNIT),
+            Map.entry(CatalyticActivity.class, CatalyticActivity.SYSTEM_UNIT),
+            Map.entry(Dimensionless.class, Dimensionless.SYSTEM_UNIT),
+            Map.entry(ElectricCapacitance.class, ElectricCapacitance.SYSTEM_UNIT),
+            Map.entry(ElectricCharge.class, ElectricCharge.SYSTEM_UNIT),
+            Map.entry(ElectricConductance.class, ElectricConductance.SYSTEM_UNIT),
+            Map.entry(ElectricCurrent.class, ElectricCurrent.SYSTEM_UNIT),
+            Map.entry(ElectricInductance.class, ElectricInductance.SYSTEM_UNIT),
+            Map.entry(ElectricPotential.class, ElectricPotential.SYSTEM_UNIT),
+            Map.entry(ElectricResistance.class, ElectricResistance.SYSTEM_UNIT),
             Map.entry(Energy.class, BRITISH_THERMAL_UNIT_IT),
             Map.entry(Force.class, POUND_FORCE),
-            Map.entry(Frequency.class, FrequencyFactory.SYSTEM_UNIT),
-            Map.entry(Illuminance.class, IlluminanceFactory.SYSTEM_UNIT),
+            Map.entry(Frequency.class, Frequency.SYSTEM_UNIT),
+            Map.entry(Illuminance.class, Illuminance.SYSTEM_UNIT),
             Map.entry(Length.class, FOOT),
-            Map.entry(LuminousFlux.class, LuminousFluxFactory.SYSTEM_UNIT),
-            Map.entry(LuminousIntensity.class, LuminousIntensityFactory.SYSTEM_UNIT),
-            Map.entry(MagneticFlux.class, MagneticFluxFactory.SYSTEM_UNIT),
-            Map.entry(MagneticFluxDensity.class, MagneticFluxDensityFactory.SYSTEM_UNIT),
+            Map.entry(LuminousFlux.class, LuminousFlux.SYSTEM_UNIT),
+            Map.entry(LuminousIntensity.class, LuminousIntensity.SYSTEM_UNIT),
+            Map.entry(MagneticFlux.class, MagneticFlux.SYSTEM_UNIT),
+            Map.entry(MagneticFluxDensity.class, MagneticFluxDensity.SYSTEM_UNIT),
             Map.entry(Mass.class, POUND),
             Map.entry(Power.class, HORSEPOWER),
             Map.entry(Pressure.class, POUND_FORCE_PER_SQUARE_INCH),
-            Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbedFactory.SYSTEM_UNIT),
-            Map.entry(RadiationDoseEffective.class, RadiationDoseEffectiveFactory.SYSTEM_UNIT),
-            Map.entry(Radioactivity.class, RadioactivityFactory.SYSTEM_UNIT),
-            Map.entry(SolidAngle.class, SolidAngleFactory.SYSTEM_UNIT),
+            Map.entry(RadiationDoseAbsorbed.class, RadiationDoseAbsorbed.SYSTEM_UNIT),
+            Map.entry(RadiationDoseEffective.class, RadiationDoseEffective.SYSTEM_UNIT),
+            Map.entry(Radioactivity.class, Radioactivity.SYSTEM_UNIT),
+            Map.entry(SolidAngle.class, SolidAngle.SYSTEM_UNIT),
             Map.entry(Speed.class, MILE_PER_HOUR),
             Map.entry(Temperature.class, DEGREE_FAHRENHEIT),
-            Map.entry(Time.class, TimeFactory.SYSTEM_UNIT),
+            Map.entry(Time.class, Time.SYSTEM_UNIT),
             Map.entry(Volume.class, GALLON_US));
 
     /** This system of units. */
-    public static final UomSystemOfUnits SYSTEM = new UomSystemOfUnits("USCustomary", UNITS, PREFERRED, PREFIXABLE);
+    public static final SystemOfUnits SYSTEM = new SystemOfUnits(
+            "USCustomary",
+            UNITS,
+            PREFERRED,
+            PREFIXABLE,
+            BINARY_PREFIXABLE);
 }

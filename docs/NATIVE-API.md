@@ -5,7 +5,9 @@ describes the JSR-385 constraint, sections 2 to 6 the proposal the prototype tes
 
 **Progress** (branch `native-prototype`): the prototype (steps 1 and 2) is done and the split decided (DR-21);
 completing it runs in five stages: (1) the 33 types generated with typed products, (2) the catalogs, (3) offset units,
-(4) formats and systems, (5) the renames to `uom` and `uom-jsr`, docs, examples and the TCK. Stages 1 to 4 are done.
+(4) formats and systems, (5) the renames to `uom` and `uom-jsr`, docs, examples and the TCK. Stages 1 to 4 and the
+renames of stage 5 are done; this document keeps the module and package names of the time it describes (see
+"Stage 5a" below for the mapping).
 - Done: `uom-engine` holds `Factor`, `Dimension`, `UnitAtom` (with the base atoms), `UnitException`, `Converter`
   (affine, exact, with its steps) and `Unit` (atoms, converter, labels, the algebra and the converter cache) and, in
   `internal`, the alternate-unit registry, the catalog service (`UnitCatalogs` through `ServiceLoader`, which `uom`
@@ -68,6 +70,14 @@ completing it runs in five stages: (1) the 33 types generated with typed product
   text to the same system. Native units and quantities serialize through a proxy (type name, engine unit, scale,
   exact value), checked when read.
 - Not native: a `ServiceProvider` and the JSR-385 format service, which are part of JSR-385.
+- Stage 5a, the renames: `uom-native` is now `uom` (module and packages `org.tinygears.uom`, `.quantity`, `.systems`,
+  published); `uom-core`, the former `uom` and `uom-native-jsr` are now one module, `uom-jsr` (module
+  `org.tinygears.uom.jsr`, packages `org.tinygears.uom.jsr`, `.jsr.quantity`, `.jsr.systems` and the internal
+  `.jsr.spi`), which requires `uom` and holds the bridge (`Jsr`) and the parity tests. The generator works on engine
+  units and uses `uom-jsr` in its tests only, which load the sources they compile before it. In the merged module the
+  real provider is always present, so the tests of the provider mechanism install `TestServiceProvider` for their
+  duration (`TestProviderExtension`); serialized streams name the new classes (the golden files are rewritten). 1318
+  tests (engine 64, uom 18, uom-jsr 933, codegen 188, tck 113, examples 2).
 
 ## 1. The constraint
 

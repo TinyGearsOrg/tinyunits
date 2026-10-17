@@ -26,12 +26,12 @@ import javax.measure.Quantity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.tinygears.uom.core.UomUnit;
 import org.tinygears.uom.engine.Factor;
 import org.tinygears.uom.engine.parse.Definition;
 import org.tinygears.uom.engine.parse.DefinitionParser;
 import org.tinygears.uom.engine.parse.Definitions;
 import org.tinygears.uom.engine.parse.Prefixed;
+import org.tinygears.uom.jsr.UomUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -150,7 +150,7 @@ class SiDataTest {
     }
 
     private static List<QuantityTypeSpec> matching(UomUnit<?> unit) {
-        return specs.stream().filter(s -> s.systemUnit().equals(unit.getSystemUnit())).toList();
+        return specs.stream().filter(s -> s.systemUnit().equals(unit.getSystemUnit().engine())).toList();
     }
 
     @Test
